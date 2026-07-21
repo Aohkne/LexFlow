@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPEC.html — Hoa Tiêu Pháp Lý</title>
+<style>
+  :root {
+    --bg: #fbfaf7;
+    --bg-panel: #f3f1ea;
+    --bg-inset: #ece9e0;
+    --border: #ddd8cb;
+    --text: #201f1a;
+    --text-dim: #6b675c;
+    --text-faint: #9c9686;
+    --accent: #b85c3a;
+    --accent-dim: #8f4a30;
+    --green: #4c7a4f;
+    --blue: #3d6a9e;
+    --yellow: #9c7a2c;
+    --red: #ab4f3a;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    min-height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", "Fira Code", Menlo, Consolas, monospace;
+    font-size: 14px;
+    line-height: 1.65;
+  }
+
+  .appbar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 32px;
+    background: var(--bg-panel);
+    border-bottom: 1px solid var(--border);
+  }
+  .dot { width: 11px; height: 11px; border-radius: 50%; background: #cfc9b8; }
+  .appbar .path { margin-left: 6px; color: var(--text-dim); font-size: 12.5px; }
+  .appbar .live {
+    margin-left: auto;
+    font-size: 10.5px;
+    letter-spacing: 0.05em;
+    color: var(--green);
+    border: 1px solid #bcd0bd;
+    background: #eef4ee;
+    padding: 2px 8px;
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+
+  .content {
+    width: 100%;
+    padding: 36px 56px 120px;
+  }
+
+  .intro { max-width: 980px; }
+
+  .prompt-line {
+    color: var(--text-dim);
+    margin-bottom: 4px;
+  }
+  .prompt-line .sym { color: var(--accent); }
+  .prompt-line .cmd { color: var(--text); }
+
+  h1.doc-title {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text);
+    margin: 18px 0 2px;
+  }
+  .doc-sub {
+    color: var(--text-dim);
+    font-size: 13px;
+    margin: 0 0 34px;
+  }
+  .doc-sub .tag { color: var(--accent); }
+
+  .section { margin: 44px 0 34px; }
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .section-head .marker { color: var(--accent); font-weight: 700; }
+  .section-head h2 {
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text);
+    margin: 0;
+    font-weight: 600;
+  }
+  .section-desc {
+    color: var(--text-dim);
+    font-size: 13px;
+    margin: 0 0 26px 20px;
+    max-width: 800px;
+  }
+
+  /* ---- painpoint -> solution pairs, spread edge to edge ---- */
+  .pair-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(440px, 1fr));
+    gap: 22px;
+  }
+
+  .pair {
+    margin: 0;
+    padding: 18px 20px 20px;
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  .pair-index {
+    font-size: 11px;
+    color: var(--text-faint);
+    letter-spacing: 0.06em;
+    margin-bottom: 10px;
+  }
+
+  .pp-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .pp-marker { color: var(--red); flex-shrink: 0; }
+  .pp-label {
+    font-size: 10.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--red);
+    font-weight: 700;
+    margin-right: 2px;
+  }
+  .pp-text { color: var(--text-dim); }
+
+  .pp-arrow {
+    margin: 10px 0 10px 4px;
+    color: var(--text-faint);
+    font-size: 13px;
+  }
+
+  .sol-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .orb { color: var(--accent); flex-shrink: 0; }
+  .sol-label {
+    font-size: 10.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--green);
+    font-weight: 700;
+    margin-right: 2px;
+  }
+  .sol-name { color: var(--text); font-weight: 600; }
+  .badge {
+    font-size: 10.5px;
+    letter-spacing: 0.04em;
+    padding: 1px 7px;
+    border-radius: 3px;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    white-space: nowrap;
+    background: var(--bg);
+  }
+  .badge.compliance { color: var(--blue); border-color: #c3d3e3; background: #eef3f8; }
+  .badge.dev { color: var(--green); border-color: #bcd0bd; background: #eef4ee; }
+  .badge.ops { color: var(--yellow); border-color: #ddcda0; background: #f8f2e2; }
+
+  .sol-body {
+    margin: 8px 0 0 20px;
+    padding-left: 12px;
+    border-left: 1px solid var(--border);
+  }
+  .sol-body p { margin: 4px 0; color: var(--text); }
+  .sol-body .field { color: var(--text-dim); }
+  .sol-body .field b { color: var(--text-dim); font-weight: 600; }
+
+  .elbow { margin: 12px 0 0; color: var(--text-faint); }
+  .elbow-sym { color: var(--text-faint); }
+  .mech-list { margin: 4px 0 0 14px; padding: 0; list-style: none; }
+  .mech-list li { margin: 4px 0; color: var(--text-dim); font-size: 13px; }
+  .mech-list li b { color: var(--accent-dim); font-weight: 600; }
+
+  .divider { border: none; border-top: 1px dashed var(--border); margin: 40px 0; }
+
+  .checklist { margin: 6px 0 0 20px; padding: 0; list-style: none; font-size: 13px; columns: 2; column-gap: 48px; }
+  .checklist li { margin: 5px 0; color: var(--text-dim); break-inside: avoid; }
+  .checklist .box { color: var(--text-faint); margin-right: 6px; }
+  .checklist .box.done { color: var(--green); }
+  .checklist .note { color: var(--text-faint); }
+
+  footer.term-footer {
+    margin-top: 48px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+    color: var(--text-faint);
+    font-size: 12px;
+  }
+  footer.term-footer .sym { color: var(--accent); }
+
+  a { color: var(--blue); }
+
+  @media (max-width: 900px) {
+    .checklist { columns: 1; }
+  }
+  @media (max-width: 640px) {
+    .appbar { padding: 10px 16px; }
+    .content { padding: 26px 16px 90px; }
+    .pair { padding: 14px 14px 16px; }
+    .pair-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+  <div class="appbar">
+    <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+    <span class="path">SPEC.html — VSF/Hoa Tiêu Pháp Lý</span>
+    <span class="live">● SCOPE: PAYMENT-INTEGRATION</span>
+  </div>
+
+  <div class="content">
+    <div class="intro">
+      <div class="prompt-line"><span class="sym">&gt;</span> <span class="cmd">spec --project="Hoa Tiêu Pháp Lý" --format=painpoint-solution</span></div>
+
+      <h1 class="doc-title">Hoa Tiêu Pháp Lý — Đặc tả tính năng</h1>
+      <p class="doc-sub">Lát cắt payment-integration của <span class="tag">PROBLEM STATEMENT – SHB1</span> · người dùng nội bộ: pháp chế/compliance &amp; kỹ sư tích hợp thanh toán · mỗi mục = painpoint thật trong quy trình PM/dev → giải pháp giải quyết nó</p>
+    </div>
+
+    <div class="section">
+      <div class="section-head"><span class="marker">■</span><h2>Painpoint → Giải pháp</h2></div>
+      <p class="section-desc">5 painpoint bám theo quy trình phát triển một luồng thanh toán thật (rà soát pháp lý, thiết kế kỹ thuật, kiểm soát nguồn dữ liệu, theo dõi thay đổi luật, chứng minh chất lượng giải pháp).</p>
+
+      <div class="pair-grid">
+        <div class="pair">
+          <div class="pair-index">01 / 05</div>
+          <div class="pp-head">
+            <span class="pp-marker">✗</span>
+            <span><span class="pp-label">Painpoint</span> <span class="pp-text">PM/dev cần biết một luồng thanh toán phải tuân thủ quy định gì thì phải gửi email hỏi phòng pháp chế, chờ vài ngày đến vài tuần, hoặc tự đọc PDF/thuvienphapluat.vn và tự đoán xem văn bản còn hiệu lực hay đã bị sửa.</span></span>
+          </div>
+          <div class="pp-arrow">⏵ giải quyết bằng</div>
+          <div class="sol-head">
+            <span class="orb">⏺</span>
+            <span class="sol-label">Giải pháp</span>
+            <span class="sol-name">Chatbot hỏi-đáp có trích dẫn nguồn</span>
+            <span class="badge compliance">pháp chế</span>
+            <span class="badge dev">dev / PM</span>
+          </div>
+          <div class="sol-body">
+            <p><span class="field"><b>Mô tả:</b></span> Trả lời câu hỏi tự nhiên về quy định thanh toán, trích dẫn đúng điều/khoản/văn bản đang hiệu lực. Có chế độ mở rộng: mô tả cả một luồng nghiệp vụ (vd. "nạp ví điện tử qua ngân hàng liên kết") để nhận về checklist toàn bộ quy định áp dụng, thay vì hỏi từng câu rời rạc.</p>
+            <div class="elbow"><span class="elbow-sym">⎿</span> Cơ chế hoạt động (chạy ngầm):</div>
+            <ul class="mech-list">
+              <li><b>Versioning Engine</b> — gắn valid_from/valid_to cho từng điều khoản, đảm bảo chỉ trích bản đang hiệu lực</li>
+              <li><b>Conflict Detector</b> — quét chéo văn bản đang hiệu lực, cảnh báo khi 2 nguồn mâu thuẫn thay vì chọn liều một đáp án</li>
+              <li><b>Regulation-to-Spec Mapping</b> — dịch điều luật thành yêu cầu kỹ thuật cụ thể khi người hỏi là dev</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="pair">
+          <div class="pair-index">02 / 05</div>
+          <div class="pp-head">
+            <span class="pp-marker">✗</span>
+            <span><span class="pp-label">Painpoint</span> <span class="pp-text">Khi cần audit hoặc giải trình với thanh tra NHNN, pháp chế không có cách nào nhanh để thấy một quy định nằm ở đâu trong toàn bộ hệ thống văn bản — hiện đang tự vẽ sơ đồ tay hoặc bảng Excel, dễ lỗi thời vì không ai cập nhật liên tục.</span></span>
+          </div>
+          <div class="pp-arrow">⏵ giải quyết bằng</div>
+          <div class="sol-head">
+            <span class="orb">⏺</span>
+            <span class="sol-label">Giải pháp</span>
+            <span class="sol-name">Đồ thị tri thức trực quan</span>
+            <span class="badge compliance">pháp chế</span>
+          </div>
+          <div class="sol-body">
+            <p><span class="field"><b>Mô tả:</b></span> Hiển thị vị trí một văn bản trong phân cấp Luật → Nghị định → Thông tư → Quyết định/sửa đổi, cùng các cạnh quan hệ (thay thế, sửa đổi, dẫn chiếu). Dùng khi cần nhìn toàn cảnh, không phải để hỏi nhanh như chatbot.</p>
+            <div class="elbow"><span class="elbow-sym">⎿</span> Cơ chế hoạt động (chạy ngầm):</div>
+            <ul class="mech-list">
+              <li><b>Knowledge Graph</b> — lưu quan hệ THAY_THẾ / SỬA_ĐỔI / HƯỚNG_DẪN_THI_HÀNH / DẪN_CHIẾU giữa các node văn bản, truy vấn theo thời điểm hiệu lực</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="pair">
+          <div class="pair-index">03 / 05</div>
+          <div class="pp-head">
+            <span class="pp-marker">✗</span>
+            <span><span class="pp-label">Painpoint</span> <span class="pp-text">Tài liệu nguồn hiện được upload lên thư mục dùng chung (SharePoint...) không ai kiểm duyệt hiệu lực trước khi dùng — nếu AI học nhầm một văn bản đã hết hiệu lực, mọi câu trả lời phía trên đều sai mà không ai phát hiện.</span></span>
+          </div>
+          <div class="pp-arrow">⏵ giải quyết bằng</div>
+          <div class="sol-head">
+            <span class="orb">⏺</span>
+            <span class="sol-label">Giải pháp</span>
+            <span class="sol-name">Admin dashboard</span>
+            <span class="badge ops">vận hành pháp chế</span>
+          </div>
+          <div class="sol-body">
+            <p><span class="field"><b>Mô tả:</b></span> Nơi nhân viên vận hành thêm và duyệt văn bản mới, gắn ngày hiệu lực/hết hiệu lực, trước khi hệ thống được phép dùng làm nguồn trả lời. Không phải nơi tra cứu — là cổng kiểm soát chất lượng dữ liệu đầu vào cho toàn bộ hệ thống.</p>
+            <div class="elbow"><span class="elbow-sym">⎿</span> Cơ chế hoạt động (chạy ngầm):</div>
+            <ul class="mech-list">
+              <li><b>Document Validation Pipeline</b> — kiểm tra văn bản mới nộp có xung đột hoặc thay thế văn bản đang có trước khi cho phép index</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="pair">
+          <div class="pair-index">04 / 05</div>
+          <div class="pp-head">
+            <span class="pp-marker">✗</span>
+            <span><span class="pp-label">Painpoint</span> <span class="pp-text">Sau khi luồng thanh toán đã lên production, hiện không có cách nào biết quy định đổi ngoài tình cờ đọc báo hoặc chờ công văn NHNN gửi tay — luồng có thể âm thầm vi phạm khi hạn mức/chuẩn kỹ thuật bắt buộc đã đổi.</span></span>
+          </div>
+          <div class="pp-arrow">⏵ giải quyết bằng</div>
+          <div class="sol-head">
+            <span class="orb">⏺</span>
+            <span class="sol-label">Giải pháp</span>
+            <span class="sol-name">Cảnh báo thay đổi quy định</span>
+            <span class="badge compliance">pháp chế</span>
+            <span class="badge dev">dev lead</span>
+          </div>
+          <div class="sol-body">
+            <p><span class="field"><b>Mô tả:</b></span> Không phải màn hình để mở ra xem — là thông báo chủ động (email/Slack) khi có văn bản mới hoặc sắp đến mốc hiệu lực liên quan trực tiếp đến một luồng thanh toán đang vận hành.</p>
+            <div class="elbow"><span class="elbow-sym">⎿</span> Cơ chế hoạt động (chạy ngầm):</div>
+            <ul class="mech-list">
+              <li><b>Regulatory Change Monitor</b> — theo dõi định kỳ nguồn văn bản mới ban hành (SBV, Chính phủ), so khớp với danh sách luồng thanh toán đang vận hành để biết luồng nào bị ảnh hưởng</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="pair">
+          <div class="pair-index">05 / 05</div>
+          <div class="pp-head">
+            <span class="pp-marker">✗</span>
+            <span><span class="pp-label">Painpoint</span> <span class="pp-text">Đội phát triển cần chứng minh kiến trúc RAG + Knowledge Graph + Versioning thực sự trả lời đúng hơn một RAG vector thông thường — không có con số, ban giám khảo/khách hàng ngân hàng không có lý do để tin.</span></span>
+          </div>
+          <div class="pp-arrow">⏵ giải quyết bằng</div>
+          <div class="sol-head">
+            <span class="orb">⏺</span>
+            <span class="sol-label">Giải pháp</span>
+            <span class="sol-name">Benchmark Suite</span>
+            <span class="badge dev">đội phát triển</span>
+          </div>
+          <div class="sol-body">
+            <p><span class="field"><b>Mô tả:</b></span> Bộ câu hỏi kiểm thử đo độ chính xác trích dẫn và tỷ lệ phát hiện đúng xung đột/sửa đổi, so sánh trực tiếp với RAG vector thuần túy. Không phải sản phẩm cho SHB vận hành — chỉ dùng nội bộ để chứng minh giá trị kiến trúc.</p>
+            <div class="elbow"><span class="elbow-sym">⎿</span> Cơ chế hoạt động (chạy ngầm):</div>
+            <ul class="mech-list">
+              <li><b>Eval Harness</b> — chạy song song 2 pipeline (baseline RAG vs. graph+versioning) trên cùng bộ câu hỏi có đáp án chuẩn, so sánh độ chính xác trích dẫn và tỷ lệ phát hiện xung đột/sửa đổi</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="section">
+      <div class="section-head"><span class="marker">■</span><h2>Phạm vi MVP</h2></div>
+      <ul class="checklist">
+        <li><span class="box done">☒</span>01 — Chatbot hỏi-đáp + chế độ checklist luồng nghiệp vụ <span class="note">— ưu tiên 1, là mặt tiền demo</span></li>
+        <li><span class="box done">☒</span>Versioning Engine + Conflict Detector <span class="note">— bắt buộc để chatbot không nói sai</span></li>
+        <li><span class="box">☐</span>02 — Đồ thị tri thức trực quan <span class="note">— demo thứ 2, cho thấy chiều sâu kiến trúc</span></li>
+        <li><span class="box">☐</span>Regulation-to-Spec Mapping <span class="note">— cho 9 văn bản lõi ở phạm vi thanh toán</span></li>
+        <li><span class="box">☐</span>03, 04 — Admin dashboard, Cảnh báo thay đổi quy định <span class="note">— sau MVP, nếu còn thời gian</span></li>
+        <li><span class="box">☐</span>05 — Benchmark Suite <span class="note">— làm trước buổi thuyết trình, không cần UI</span></li>
+      </ul>
+    </div>
+
+    <footer class="term-footer">
+      <span class="sym">&gt;</span> nguồn văn bản pháp lý tham chiếu: xem artifact "Hoa Tiêu Pháp Lý — Bản đồ pháp lý thanh toán" trong cùng phiên làm việc.
+    </footer>
+  </div>
+</body>
+</html>
