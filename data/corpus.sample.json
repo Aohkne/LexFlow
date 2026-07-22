@@ -1,0 +1,93 @@
+{
+  "_note": "Corpus mẫu minh hoạ (KHÔNG phải văn bản pháp lý chính thức) để chạy pipeline end-to-end: versioning, thay thế/sửa đổi, và mâu thuẫn nội bộ vs luật. Thay bằng 9 văn bản lõi thật khi có.",
+  "documents": [
+    {
+      "doc_id": "TT39-2014",
+      "title": "Thông tư 39/2014/TT-NHNN hướng dẫn về dịch vụ trung gian thanh toán",
+      "doc_type": "Thông tư",
+      "source": "external",
+      "valid_from": "2015-03-01",
+      "valid_to": "2024-06-30",
+      "articles": [
+        {
+          "article": "Điều 9 Khoản 1",
+          "text": "Tổng hạn mức giao dịch qua ví điện tử cá nhân tối đa là 100.000.000 đồng trong một tháng."
+        },
+        {
+          "article": "Điều 8 Khoản 2",
+          "text": "Khách hàng phải liên kết ví điện tử với tài khoản thanh toán hoặc thẻ ghi nợ mở tại ngân hàng liên kết trước khi sử dụng."
+        }
+      ]
+    },
+    {
+      "doc_id": "ND52-2024",
+      "title": "Nghị định 52/2024/NĐ-CP quy định về thanh toán không dùng tiền mặt",
+      "doc_type": "Nghị định",
+      "source": "external",
+      "valid_from": "2024-07-01",
+      "valid_to": null,
+      "articles": [
+        {
+          "article": "Điều 25 Khoản 1",
+          "text": "Dịch vụ ví điện tử phải bảo đảm khả năng đối soát, xác thực và lưu trữ giao dịch theo quy định của Ngân hàng Nhà nước."
+        }
+      ]
+    },
+    {
+      "doc_id": "TT40-2024",
+      "title": "Thông tư 40/2024/TT-NHNN hướng dẫn hoạt động ví điện tử và trung gian thanh toán",
+      "doc_type": "Thông tư",
+      "source": "external",
+      "valid_from": "2024-07-01",
+      "valid_to": null,
+      "articles": [
+        {
+          "article": "Điều 12 Khoản 1",
+          "text": "Tổng hạn mức giao dịch qua ví điện tử của một khách hàng cá nhân tối đa là 100.000.000 đồng trong một tháng tại một tổ chức cung ứng dịch vụ."
+        },
+        {
+          "article": "Điều 11 Khoản 3",
+          "text": "Việc nạp tiền vào ví điện tử chỉ được thực hiện từ tài khoản thanh toán hoặc thẻ ghi nợ của khách hàng liên kết với ví, không được nạp bằng tiền mặt trực tiếp vào ví."
+        }
+      ]
+    },
+    {
+      "doc_id": "QD-2023-SUADOI",
+      "title": "Quyết định 2023 sửa đổi một số điều của Thông tư 39/2014/TT-NHNN",
+      "doc_type": "Quyết định",
+      "source": "external",
+      "valid_from": "2023-01-01",
+      "valid_to": "2024-06-30",
+      "articles": [
+        {
+          "article": "Điều 1",
+          "text": "Sửa đổi Điều 8 Khoản 2 Thông tư 39/2014: bổ sung hình thức xác thực sinh trắc học khi liên kết ví điện tử."
+        }
+      ]
+    },
+    {
+      "doc_id": "INTERNAL-WALLET-2023",
+      "title": "Quy định nội bộ về hạn mức ví điện tử liên kết (Ngân hàng SHB)",
+      "doc_type": "Nội bộ",
+      "source": "internal",
+      "valid_from": "2023-06-01",
+      "valid_to": null,
+      "articles": [
+        {
+          "article": "Mục 3.1",
+          "text": "Hạn mức nạp và giao dịch qua ví điện tử liên kết của khách hàng cá nhân tối đa là 200.000.000 đồng trong một tháng."
+        },
+        {
+          "article": "Mục 4.2",
+          "text": "Cho phép khách hàng nạp tiền mặt trực tiếp vào ví điện tử tại quầy giao dịch."
+        }
+      ]
+    }
+  ],
+  "relationships": [
+    { "source_doc": "TT40-2024", "target_doc": "TT39-2014", "rel_type": "THAY_THE", "valid_from": "2024-07-01", "note": "Thông tư 40 thay thế Thông tư 39" },
+    { "source_doc": "TT40-2024", "target_doc": "ND52-2024", "rel_type": "HUONG_DAN", "valid_from": "2024-07-01", "note": "Hướng dẫn thi hành Nghị định 52" },
+    { "source_doc": "QD-2023-SUADOI", "target_doc": "TT39-2014", "rel_type": "SUA_DOI", "valid_from": "2023-01-01", "note": "Sửa đổi Điều 8 Khoản 2" },
+    { "source_doc": "INTERNAL-WALLET-2023", "target_doc": "TT40-2024", "rel_type": "DAN_CHIEU", "note": "Tham chiếu hạn mức theo Thông tư 40" }
+  ]
+}

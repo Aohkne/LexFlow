@@ -1,0 +1,4 @@
+{"query": "Hạn mức giao dịch qua ví điện tử cá nhân hiện nay là bao nhiêu một tháng?", "as_of": "2025-01-01", "expected_doc": "TT40-2024", "must_not_doc": "TT39-2014", "expect_conflict": true}
+{"query": "Khách hàng có được nạp tiền mặt trực tiếp vào ví điện tử không?", "as_of": "2025-01-01", "expected_doc": "TT40-2024", "must_not_doc": "TT39-2014", "expect_conflict": true}
+{"query": "Ví điện tử phải bảo đảm những yêu cầu gì về đối soát và lưu trữ giao dịch?", "as_of": "2025-01-01", "expected_doc": "ND52-2024", "must_not_doc": null, "expect_conflict": false}
+{"query": "Điều kiện liên kết ví điện tử với tài khoản ngân hàng là gì?", "as_of": "2025-01-01", "expected_doc": "TT40-2024", "must_not_doc": "TT39-2014", "expect_conflict": false}

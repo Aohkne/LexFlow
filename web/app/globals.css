@@ -1,0 +1,44 @@
+@import "tailwindcss";
+
+/* Bảng màu "Hoa Tiêu Pháp Lý" — kế thừa house style từ docs/SPEC.html */
+:root {
+  --background: #fbfaf7;
+  --panel: #f3f1ea;
+  --inset: #ece9e0;
+  --border: #ddd8cb;
+  --foreground: #201f1a;
+  --dim: #6b675c;
+  --faint: #9c9686;
+  --accent: #b85c3a;
+  --accent-dim: #8f4a30;
+  --green: #4c7a4f;
+  --blue: #3d6a9e;
+  --red: #ab4f3a;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-panel: var(--panel);
+  --color-inset: var(--inset);
+  --color-border: var(--border);
+  --color-foreground: var(--foreground);
+  --color-dim: var(--dim);
+  --color-faint: var(--faint);
+  --color-accent: var(--accent);
+  --color-accent-dim: var(--accent-dim);
+  --color-green: var(--green);
+  --color-blue: var(--blue);
+  --color-red: var(--red);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+.mono {
+  font-family: var(--font-mono), ui-monospace, monospace;
+}
