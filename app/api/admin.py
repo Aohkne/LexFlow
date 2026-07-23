@@ -15,6 +15,7 @@ def health() -> dict:
         "neo4j_configured": settings.neo4j_enabled,
         "supabase_auth": settings.supabase_auth_enabled,
         "queue": settings.queue_enabled,
+        "lancedb": "cloud" if settings.lancedb_cloud_enabled else "local",
     }
 
 

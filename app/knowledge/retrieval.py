@@ -5,9 +5,8 @@ tại thời điểm `as_of`, và có thể mở rộng qua knowledge graph (cro
 """
 from __future__ import annotations
 
-import lancedb
-
-from app.core.config import LANCEDB_TABLE, settings
+from app.core import vectordb
+from app.core.config import LANCEDB_TABLE
 from app.core.llm import embed_query
 from app.ingestion.versioning import is_effective
 
@@ -15,8 +14,7 @@ _RRF_K = 60  # hằng số Reciprocal Rank Fusion
 
 
 def _open_table():
-    db = lancedb.connect(settings.lancedb_path)
-    return db.open_table(LANCEDB_TABLE)
+    return vectordb.connect().open_table(LANCEDB_TABLE)
 
 
 def _rrf(vector_hits: list[dict], fts_hits: list[dict], k: int) -> list[dict]:

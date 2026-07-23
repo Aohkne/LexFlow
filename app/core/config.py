@@ -33,8 +33,13 @@ class Settings(BaseSettings):
     # Redis / hàng đợi tác vụ nền (ARQ) — để trống ở local dev
     redis_url: str = ""
 
-    # Paths
+    # LanceDB — local path (mặc định) hoặc Cloud khi có URI db:// + API key
     lancedb_path: str = "data/lancedb"
+    lancedb_uri: str = ""
+    lancedb_api_key: str = ""
+    lancedb_region: str = "us-east-1"
+
+    # Paths
     data_raw_path: str = "data/raw"
 
     # CORS
@@ -43,6 +48,10 @@ class Settings(BaseSettings):
     @property
     def neo4j_enabled(self) -> bool:
         return bool(self.neo4j_uri and self.neo4j_password)
+
+    @property
+    def lancedb_cloud_enabled(self) -> bool:
+        return self.lancedb_uri.startswith("db://") and bool(self.lancedb_api_key)
 
     @property
     def supabase_auth_enabled(self) -> bool:

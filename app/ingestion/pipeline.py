@@ -8,8 +8,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import lancedb
-
+from app.core import vectordb
 from app.core.config import LANCEDB_TABLE, settings
 from app.core.llm import EMBED_DIM, embed_documents
 from app.core.schemas import CorpusDocument, Relationship
@@ -62,10 +61,13 @@ def write_lancedb(rows: list[dict]) -> int:
     if not rows:
         return 0
     _embed_rows(rows)
-    db = lancedb.connect(settings.lancedb_path)
+    db = vectordb.connect()
     tbl = db.create_table(LANCEDB_TABLE, data=rows, mode="overwrite")
-    # Full-text (BM25) index cho hybrid search
-    tbl.create_fts_index("text", replace=True)
+    # Full-text (BM25) index cho hybrid search — cloud dùng FTS native, không nhận replace=
+    if settings.lancedb_cloud_enabled:
+        tbl.create_fts_index("text")
+    else:
+        tbl.create_fts_index("text", replace=True)
     return len(rows)
 
 
@@ -76,7 +78,8 @@ def main(corpus_path: str | None = None) -> None:
     rows = build_chunks(docs)
     print(f"[ingest] {len(docs)} văn bản → {len(rows)} chunk. Đang embedding (Gemini)...")
     n = write_lancedb(rows)
-    print(f"[ingest] Đã ghi {n} chunk vào LanceDB ({settings.lancedb_path}), dim={EMBED_DIM}.")
+    target = settings.lancedb_uri if settings.lancedb_cloud_enabled else settings.lancedb_path
+    print(f"[ingest] Đã ghi {n} chunk vào LanceDB ({target}), dim={EMBED_DIM}.")
 
     if settings.neo4j_enabled:
         from app.knowledge.graph import push_corpus

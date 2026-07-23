@@ -38,7 +38,7 @@ Railway ┌───────────────────────
 |---|---|---|
 | Backend | Python 3.12 · uv · FastAPI | Đã có, chuẩn ngành AI backend |
 | LLM + Embedding | Google Gemini (`google-genai`) | Tiếng Việt tốt, rẻ, không cần GPU local |
-| Retrieval | **LanceDB nhúng** (hybrid vector + BM25, RRF) | ~5–10 MB cho corpus 9 văn bản, sống cùng backend trên Railway → local không tốn gì. Code đã chạy + có benchmark |
+| Retrieval | **LanceDB** (hybrid vector + BM25, RRF) — nhúng hoặc **LanceDB Cloud** | ~5–10 MB cho corpus 9 văn bản. Có `LANCEDB_URI`+`LANCEDB_API_KEY` → tự chuyển sang Cloud (không cần volume Railway); để trống → nhúng local. Code đã chạy + có benchmark |
 | Knowledge Graph | Neo4j Aura free tier | Đúng công cụ cho quan hệ văn bản, managed |
 | App DB + Auth + Storage | **Supabase** (Postgres · GoTrue · Storage) | Một service thay ba mảnh: users/audit/chat history, JWT auth có sẵn, lưu PDF gốc |
 | Hàng đợi tác vụ | **ARQ + Redis** (trên Railway) | Ingestion & change alerts chạy nền, nhẹ hơn Celery, async-native |
@@ -80,7 +80,8 @@ hoặc `supabase db push`.
 ## Topology triển khai
 
 - **Railway project `lexflow`**: service `api` (Dockerfile, cổng 8000), service `worker`
-  (cùng image, command `arq app.worker.WorkerSettings`), service `redis`, volume gắn
+  (cùng image, command `arq app.worker.WorkerSettings`), service `redis`.
+  Dùng LanceDB Cloud thì không cần volume; nếu chạy LanceDB nhúng, gắn volume
   `/app/data/lancedb` chia sẻ giữa api (đọc) và worker (ghi — single writer).
 - **Frontend**: dev chạy local trỏ `NEXT_PUBLIC_API_BASE` về Railway; production deploy
   Railway/Vercel sau.
