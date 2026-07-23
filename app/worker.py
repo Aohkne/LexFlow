@@ -1,4 +1,4 @@
-"""ARQ worker — tác vụ nền chạy trên Railway (cùng image với api).
+"""ARQ worker — tác vụ nền (compose/self-host; Cloud Run dùng sync ingest hoặc Jobs).
 
 Chạy:  arq app.worker.WorkerSettings
 Tác vụ hiện có: ingest_corpus. Sẽ thêm: change alerts định kỳ (painpoint 4).

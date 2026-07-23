@@ -1,0 +1,19 @@
+# Upload cho Cloud Build (gcloud run deploy --source .) — giữ tối thiểu
+.git
+.venv
+.env
+.env.*
+web/
+docs/
+data/lancedb/
+data/raw/
+tests/
+supabase/
+.pytest_cache/
+.ruff_cache/
+__pycache__/
+*.pyc
+.github/
+.claude/
+README.md
+compose.yml

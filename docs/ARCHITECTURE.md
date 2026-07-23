@@ -5,7 +5,7 @@
 ## Nguyên tắc chọn stack
 
 1. **Máy local yếu → đẩy tối đa lên cloud.** Local chỉ chạy `next dev`; mọi compute nặng
-   (LLM, embedding, ingestion, retrieval) chạy trên cloud services hoặc Railway.
+   (LLM, embedding, ingestion, retrieval) chạy trên cloud services hoặc Cloud Run.
 2. **Không đập code đang chạy.** Lõi RAG (FastAPI + LanceDB + Neo4j + Gemini) đã hoạt động
    và có benchmark — chỉ bổ sung phần production còn thiếu, không viết lại retrieval.
 3. **Ít service phải tự vận hành nhất có thể.** Ưu tiên managed free tier: Supabase,
@@ -14,18 +14,18 @@
 ## Sơ đồ tổng thể
 
 ```text
-Máy local (dev UI):   next dev ──────────► API trên Railway
+Máy local (dev UI):   next dev ──────────► API trên Cloud Run
                                                 │
 Trình duyệt ──► Next.js 16 ──► Supabase Auth (login, session JWT)
                    │  SSE + REST (Bearer JWT)
                    ▼
-Railway ┌─────────────────────────────────────────────┐
-        │ FastAPI (api)          ARQ worker           │
-        │   │  ▲                    │                 │
-        │   │  └── Redis (queue) ◄──┘                 │
-        │   └── LanceDB (volume /app/data/lancedb)    │
-        └─────────────────────────────────────────────┘
+Cloud Run (asia-southeast1) ┌──────────────────────────┐
+                            │ FastAPI (stateless,      │
+                            │ scale-to-zero, Dockerfile│
+                            │ build qua Cloud Build)   │
+                            └──────────────────────────┘
                    │
+                   ├──► LanceDB Cloud      — chunks + vectors + BM25 (retrieval)
                    ├──► Supabase Postgres  — users, chat history, audit log, doc workflow
                    ├──► Supabase Storage   — file PDF văn bản gốc
                    ├──► Neo4j Aura         — đồ thị văn bản (THAY_THE/SUA_DOI/…)
@@ -38,12 +38,12 @@ Railway ┌───────────────────────
 |---|---|---|
 | Backend | Python 3.12 · uv · FastAPI | Đã có, chuẩn ngành AI backend |
 | LLM + Embedding | Google Gemini (`google-genai`) | Tiếng Việt tốt, rẻ, không cần GPU local |
-| Retrieval | **LanceDB** (hybrid vector + BM25, RRF) — nhúng hoặc **LanceDB Cloud** | ~5–10 MB cho corpus 9 văn bản. Có `LANCEDB_URI`+`LANCEDB_API_KEY` → tự chuyển sang Cloud (không cần volume Railway); để trống → nhúng local. Code đã chạy + có benchmark |
+| Retrieval | **LanceDB** (hybrid vector + BM25, RRF) — nhúng hoặc **LanceDB Cloud** | ~5–10 MB cho corpus 9 văn bản. Có `LANCEDB_URI`+`LANCEDB_API_KEY` → tự chuyển sang Cloud (backend stateless); để trống → nhúng local. Code đã chạy + có benchmark |
 | Knowledge Graph | Neo4j Aura free tier | Đúng công cụ cho quan hệ văn bản, managed |
 | App DB + Auth + Storage | **Supabase** (Postgres · GoTrue · Storage) | Một service thay ba mảnh: users/audit/chat history, JWT auth có sẵn, lưu PDF gốc |
-| Hàng đợi tác vụ | **ARQ + Redis** (trên Railway) | Ingestion & change alerts chạy nền, nhẹ hơn Celery, async-native |
+| Hàng đợi tác vụ | **ARQ + Redis** (tuỳ chọn — compose/local) | Cloud Run không có Redis rẻ → `/ingest` chạy đồng bộ (dev-mode có sẵn); nâng cấp Cloud Run Jobs khi corpus lớn |
 | Frontend | Next.js 16 · React 19 · Tailwind v4 · Cytoscape.js | Đã có |
-| Deploy | **Railway** (api + worker + redis + volume) | Backend + LanceDB volume + Redis một chỗ; local chỉ còn `next dev` |
+| Deploy | **Google Cloud Run** (asia-southeast1) | Free tier 2M req/tháng, scale-to-zero, build trên Cloud Build (máy local không build Docker); backend stateless nhờ LanceDB Cloud. (Railway bị loại: trial hết hạn) |
 | CI | GitHub Actions | ruff + pytest + eslint + next build; benchmark suite làm regression gate |
 | Observability | Langfuse (LLM tracing) + structured logging | Trace query → chunks → prompt → citation; bắt buộc với sản phẩm "trả lời sai = rủi ro pháp lý" |
 
@@ -79,14 +79,17 @@ hoặc `supabase db push`.
 
 ## Topology triển khai
 
-- **Railway project `lexflow`**: service `api` (Dockerfile, cổng 8000), service `worker`
-  (cùng image, command `arq app.worker.WorkerSettings`), service `redis`.
-  Dùng LanceDB Cloud thì không cần volume; nếu chạy LanceDB nhúng, gắn volume
-  `/app/data/lancedb` chia sẻ giữa api (đọc) và worker (ghi — single writer).
-- **Frontend**: dev chạy local trỏ `NEXT_PUBLIC_API_BASE` về Railway; production deploy
-  Railway/Vercel sau.
+- **Cloud Run service `lexflow-api`** (region `asia-southeast1`, gần VN): deploy bằng
+  `gcloud run deploy lexflow-api --source .` — Cloud Build build từ `Dockerfile`, máy local
+  không cần Docker. Backend **stateless** (LanceDB Cloud giữ vectors) → scale-to-zero an toàn.
+  Env vars set qua `--set-env-vars` / Secret Manager.
+- **Không có Redis trên Cloud Run** (Memorystore đắt): để trống `REDIS_URL` → `/ingest`
+  chạy đồng bộ. Khi corpus lớn, nâng cấp sang **Cloud Run Jobs** cho ingestion.
+  ARQ worker + compose vẫn dùng được khi self-host/chạy máy khác.
+- **Frontend**: dev chạy local trỏ `NEXT_PUBLIC_API_BASE` về URL Cloud Run; production
+  deploy Vercel sau.
 - **Dev local không cần Docker**: `uv run uvicorn` + `bun dev`/`npm run dev`; ingestion chạy
-  CLI `python -m app.ingestion` (không cần Redis). Docker chỉ dùng cho CI + Railway.
+  CLI `python -m app.ingestion` (không cần Redis). Docker chỉ dùng cho CI + Cloud Build.
 
 ## Biến môi trường
 
@@ -107,7 +110,7 @@ Không cấu hình Supabase → backend chạy **dev mode**: auth no-op (user gi
 1. ✅ Kiến trúc + docs (tài liệu này)
 2. ✅ Auth middleware (Supabase JWT) + bảo vệ endpoint admin
 3. ✅ ARQ worker + Redis cho ingest; Dockerfile + compose; CI GitHub Actions
-4. ✅ Deploy backend lên Railway (api + worker + redis + volume)
+4. 🔄 Deploy backend lên Google Cloud Run (`lexflow-api`, asia-southeast1)
 5. ⬜ Tạo project Supabase, apply migrations, nối frontend login (`@supabase/ssr`)
 6. ⬜ Lưu chat history + audit log từ `/chat`
 7. ⬜ SSE streaming cho `/chat` + Vercel AI SDK phía web

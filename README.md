@@ -16,7 +16,7 @@ hiện hành, và trực quan hóa **đồ thị quan hệ** văn bản. Dự á
 | App DB + Auth + Storage | **Supabase** (Postgres · GoTrue JWT · Storage) |
 | Hàng đợi tác vụ | **ARQ + Redis** (ingest, change alerts) |
 | Frontend | **Next.js 16** · TypeScript · Tailwind v4 · Cytoscape.js |
-| Deploy | **Railway** (api + worker + redis + volume LanceDB) · CI GitHub Actions |
+| Deploy | **Google Cloud Run** (stateless + LanceDB Cloud) · CI GitHub Actions |
 
 Chi tiết kiến trúc, lý do chọn & lộ trình hạ tầng: xem **`docs/ARCHITECTURE.md`** (và `docs/SPEC.html` cho spec tính năng).
 
@@ -91,10 +91,17 @@ cd web && npm run dev
 docker compose up --build       # api :8000 + worker + redis
 ```
 
-## Deploy (Railway)
+## Deploy (Google Cloud Run)
 
-Backend (api + ARQ worker + Redis + volume LanceDB) chạy trên **Railway** — máy local chỉ cần
-`next dev` trỏ `NEXT_PUBLIC_API_BASE` về URL Railway. Xem `docs/ARCHITECTURE.md` § Topology.
+Backend chạy **stateless** trên Cloud Run (LanceDB Cloud giữ vectors) — build trên Cloud Build,
+máy local không cần Docker:
+
+```bash
+gcloud run deploy lexflow-api --source . --region asia-southeast1 --allow-unauthenticated
+```
+
+Máy local chỉ cần `next dev` trỏ `NEXT_PUBLIC_API_BASE` về URL Cloud Run.
+Xem `docs/ARCHITECTURE.md` § Topology.
 
 ## Benchmark (chứng minh giá trị kiến trúc)
 
