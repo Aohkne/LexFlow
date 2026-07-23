@@ -1,0 +1,82 @@
+@import "tailwindcss";
+
+/*
+ * Hoa Tiêu Pháp Lý — "vintage editorial" design tokens.
+ * Light palette kế thừa house style từ docs/SPEC.html; dark palette là
+ * bản "toà soạn ban đêm" cùng tông rust/parchment.
+ */
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --background: #fbfaf7;
+  --panel: #f3f1ea;
+  --inset: #ece9e0;
+  --border: #ddd8cb;
+  --foreground: #201f1a;
+  --dim: #6b675c;
+  --faint: #9c9686;
+  --accent: #b85c3a;
+  --accent-dim: #8f4a30;
+  --accent-foreground: #fbfaf7;
+  --green: #4c7a4f;
+  --blue: #3d6a9e;
+  --yellow: #9c7a2c;
+  --red: #ab4f3a;
+}
+
+.dark {
+  --background: #18150f;
+  --panel: #201c15;
+  --inset: #29241b;
+  --border: #3a3324;
+  --foreground: #f3ede0;
+  --dim: #b6ac97;
+  --faint: #837a67;
+  --accent: #d9814f;
+  --accent-dim: #e89b6c;
+  --accent-foreground: #18150f;
+  --green: #86b789;
+  --blue: #7fa8d6;
+  --yellow: #d3ac5c;
+  --red: #d3846f;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-panel: var(--panel);
+  --color-inset: var(--inset);
+  --color-border: var(--border);
+  --color-foreground: var(--foreground);
+  --color-dim: var(--dim);
+  --color-faint: var(--faint);
+  --color-accent: var(--accent);
+  --color-accent-dim: var(--accent-dim);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-green: var(--green);
+  --color-blue: var(--blue);
+  --color-yellow: var(--yellow);
+  --color-red: var(--red);
+
+  --font-heading: var(--font-chakra-petch), ui-sans-serif, sans-serif;
+  --font-sans: var(--font-be-vietnam-pro), ui-sans-serif, sans-serif;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+.font-heading {
+  font-family: var(--font-heading);
+}
+
+.mono {
+  font-family: ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--accent-foreground);
+}
