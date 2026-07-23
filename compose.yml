@@ -1,0 +1,31 @@
+# Chạy full stack backend bằng Docker (dùng cho máy khác / CI — dev local không cần,
+# xem docs/ARCHITECTURE.md). Frontend chạy riêng: cd web && npm run dev.
+services:
+  api:
+    build: .
+    env_file: .env
+    environment:
+      REDIS_URL: redis://redis:6379
+    ports:
+      - "8000:8000"
+    volumes:
+      - lancedb:/app/data/lancedb
+    depends_on:
+      - redis
+
+  worker:
+    build: .
+    command: arq app.worker.WorkerSettings
+    env_file: .env
+    environment:
+      REDIS_URL: redis://redis:6379
+    volumes:
+      - lancedb:/app/data/lancedb
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:7-alpine
+
+volumes:
+  lancedb:

@@ -1,0 +1,114 @@
+# Kiến trúc production — LexFlow (Hoa Tiêu Pháp Lý)
+
+> Tài liệu chốt tech stack & topology triển khai. Cập nhật lần cuối: 2026-07-23.
+
+## Nguyên tắc chọn stack
+
+1. **Máy local yếu → đẩy tối đa lên cloud.** Local chỉ chạy `next dev`; mọi compute nặng
+   (LLM, embedding, ingestion, retrieval) chạy trên cloud services hoặc Railway.
+2. **Không đập code đang chạy.** Lõi RAG (FastAPI + LanceDB + Neo4j + Gemini) đã hoạt động
+   và có benchmark — chỉ bổ sung phần production còn thiếu, không viết lại retrieval.
+3. **Ít service phải tự vận hành nhất có thể.** Ưu tiên managed free tier: Supabase,
+   Neo4j Aura, Gemini API, Railway.
+
+## Sơ đồ tổng thể
+
+```text
+Máy local (dev UI):   next dev ──────────► API trên Railway
+                                                │
+Trình duyệt ──► Next.js 16 ──► Supabase Auth (login, session JWT)
+                   │  SSE + REST (Bearer JWT)
+                   ▼
+Railway ┌─────────────────────────────────────────────┐
+        │ FastAPI (api)          ARQ worker           │
+        │   │  ▲                    │                 │
+        │   │  └── Redis (queue) ◄──┘                 │
+        │   └── LanceDB (volume /app/data/lancedb)    │
+        └─────────────────────────────────────────────┘
+                   │
+                   ├──► Supabase Postgres  — users, chat history, audit log, doc workflow
+                   ├──► Supabase Storage   — file PDF văn bản gốc
+                   ├──► Neo4j Aura         — đồ thị văn bản (THAY_THE/SUA_DOI/…)
+                   └──► Gemini API         — chat + embedding (+ Langfuse tracing)
+```
+
+## Stack chốt & lý do
+
+| Lớp | Công nghệ | Lý do |
+|---|---|---|
+| Backend | Python 3.12 · uv · FastAPI | Đã có, chuẩn ngành AI backend |
+| LLM + Embedding | Google Gemini (`google-genai`) | Tiếng Việt tốt, rẻ, không cần GPU local |
+| Retrieval | **LanceDB nhúng** (hybrid vector + BM25, RRF) | ~5–10 MB cho corpus 9 văn bản, sống cùng backend trên Railway → local không tốn gì. Code đã chạy + có benchmark |
+| Knowledge Graph | Neo4j Aura free tier | Đúng công cụ cho quan hệ văn bản, managed |
+| App DB + Auth + Storage | **Supabase** (Postgres · GoTrue · Storage) | Một service thay ba mảnh: users/audit/chat history, JWT auth có sẵn, lưu PDF gốc |
+| Hàng đợi tác vụ | **ARQ + Redis** (trên Railway) | Ingestion & change alerts chạy nền, nhẹ hơn Celery, async-native |
+| Frontend | Next.js 16 · React 19 · Tailwind v4 · Cytoscape.js | Đã có |
+| Deploy | **Railway** (api + worker + redis + volume) | Backend + LanceDB volume + Redis một chỗ; local chỉ còn `next dev` |
+| CI | GitHub Actions | ruff + pytest + eslint + next build; benchmark suite làm regression gate |
+| Observability | Langfuse (LLM tracing) + structured logging | Trace query → chunks → prompt → citation; bắt buộc với sản phẩm "trả lời sai = rủi ro pháp lý" |
+
+### Các quyết định đã cân nhắc (ADR tóm tắt)
+
+- **Qdrant — chưa dùng.** Corpus quá nhỏ so với sức Qdrant; chuyển sang = viết lại retrieval
+  + re-benchmark mà không được gì. Trở thành lựa chọn đúng khi corpus vượt phạm vi thanh toán
+  (hàng chục nghìn văn bản) hoặc cần nhiều writer đồng thời. Retrieval gói trong
+  `app/knowledge/retrieval.py` nên chi phí chuyển sau này thấp. Đường lui: Qdrant Cloud free 1 GB.
+- **pgvector (Supabase) — không thay LanceDB.** Postgres FTS không có config tiếng Việt,
+  hybrid search phải tự viết. Ranh giới rõ: Supabase = trạng thái ứng dụng, LanceDB = retrieval.
+- **Supabase free tier tự pause sau ~1 tuần idle** → cron ping hàng ngày bằng GitHub Actions;
+  cân nhắc nâng Pro giai đoạn sát ngày thi.
+- **Auth:** Supabase GoTrue phát JWT; FastAPI chỉ verify (HS256 legacy secret hoặc JWKS
+  ES256/RS256) + đọc role từ `app_metadata`. Role: `admin` (duyệt văn bản, ingest) / `staff`.
+  Chỗ cắm OIDC/SSO ngân hàng để sau.
+
+## Phân vai dữ liệu
+
+| Dữ liệu | Nơi lưu |
+|---|---|
+| Chunks + vectors + BM25 index | LanceDB (volume Railway) |
+| Node/cạnh văn bản pháp lý | Neo4j Aura |
+| Users, roles | Supabase Auth + bảng `profiles` |
+| Lịch sử hội thoại, citations | Supabase Postgres (`chat_sessions`, `chat_messages`) |
+| Audit log (ai hỏi gì, trả lời dựa văn bản nào) | Supabase Postgres (`audit_log`) |
+| Workflow duyệt văn bản (painpoint 3) | Supabase Postgres (`legal_documents`) |
+| File PDF gốc | Supabase Storage |
+| Đăng ký nhận cảnh báo (painpoint 4) | Supabase Postgres (`alert_subscriptions`) |
+
+Migrations SQL nằm ở `supabase/migrations/`, apply bằng SQL Editor trên dashboard Supabase
+hoặc `supabase db push`.
+
+## Topology triển khai
+
+- **Railway project `lexflow`**: service `api` (Dockerfile, cổng 8000), service `worker`
+  (cùng image, command `arq app.worker.WorkerSettings`), service `redis`, volume gắn
+  `/app/data/lancedb` chia sẻ giữa api (đọc) và worker (ghi — single writer).
+- **Frontend**: dev chạy local trỏ `NEXT_PUBLIC_API_BASE` về Railway; production deploy
+  Railway/Vercel sau.
+- **Dev local không cần Docker**: `uv run uvicorn` + `bun dev`/`npm run dev`; ingestion chạy
+  CLI `python -m app.ingestion` (không cần Redis). Docker chỉ dùng cho CI + Railway.
+
+## Biến môi trường
+
+Xem `.env.example`. Nhóm mới so với skeleton ban đầu:
+
+```
+SUPABASE_URL=            # https://<ref>.supabase.co
+SUPABASE_JWT_SECRET=     # (legacy HS256) — để trống nếu project dùng JWT signing keys
+SUPABASE_ANON_KEY=       # cho frontend
+REDIS_URL=               # redis://... — để trống ở local dev (ingest chạy đồng bộ)
+```
+
+Không cấu hình Supabase → backend chạy **dev mode**: auth no-op (user giả role admin),
+`/ingest` chạy đồng bộ. Đủ để dev/test không cần mạng.
+
+## Lộ trình hạ tầng
+
+1. ✅ Kiến trúc + docs (tài liệu này)
+2. ✅ Auth middleware (Supabase JWT) + bảo vệ endpoint admin
+3. ✅ ARQ worker + Redis cho ingest; Dockerfile + compose; CI GitHub Actions
+4. ✅ Deploy backend lên Railway (api + worker + redis + volume)
+5. ⬜ Tạo project Supabase, apply migrations, nối frontend login (`@supabase/ssr`)
+6. ⬜ Lưu chat history + audit log từ `/chat`
+7. ⬜ SSE streaming cho `/chat` + Vercel AI SDK phía web
+8. ⬜ Langfuse tracing quanh `app/core/llm.py`
+9. ⬜ Change alerts (task ARQ định kỳ) — painpoint 4

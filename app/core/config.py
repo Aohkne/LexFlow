@@ -25,6 +25,14 @@ class Settings(BaseSettings):
     neo4j_username: str = "neo4j"
     neo4j_password: str = ""
 
+    # Supabase (Postgres + Auth + Storage)
+    supabase_url: str = ""
+    supabase_jwt_secret: str = ""  # legacy HS256 — để trống nếu project dùng JWT signing keys (JWKS)
+    supabase_anon_key: str = ""
+
+    # Redis / hàng đợi tác vụ nền (ARQ) — để trống ở local dev
+    redis_url: str = ""
+
     # Paths
     lancedb_path: str = "data/lancedb"
     data_raw_path: str = "data/raw"
@@ -35,6 +43,14 @@ class Settings(BaseSettings):
     @property
     def neo4j_enabled(self) -> bool:
         return bool(self.neo4j_uri and self.neo4j_password)
+
+    @property
+    def supabase_auth_enabled(self) -> bool:
+        return bool(self.supabase_url or self.supabase_jwt_secret)
+
+    @property
+    def queue_enabled(self) -> bool:
+        return bool(self.redis_url)
 
 
 @lru_cache

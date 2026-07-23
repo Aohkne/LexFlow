@@ -13,9 +13,12 @@ hiện hành, và trực quan hóa **đồ thị quan hệ** văn bản. Dự á
 | LLM + Embedding | **Google Gemini** (`google-genai`) — chat + `gemini-embedding-001` |
 | Vector DB | **LanceDB** (nhúng, hybrid vector + BM25) |
 | Knowledge Graph | **Neo4j Aura** (managed cloud) |
+| App DB + Auth + Storage | **Supabase** (Postgres · GoTrue JWT · Storage) |
+| Hàng đợi tác vụ | **ARQ + Redis** (ingest, change alerts) |
 | Frontend | **Next.js 16** · TypeScript · Tailwind v4 · Cytoscape.js |
+| Deploy | **Railway** (api + worker + redis + volume LanceDB) · CI GitHub Actions |
 
-Chi tiết kiến trúc & lý do chọn: xem `docs/SPEC.html` và plan trong `.claude/plans/`.
+Chi tiết kiến trúc, lý do chọn & lộ trình hạ tầng: xem **`docs/ARCHITECTURE.md`** (và `docs/SPEC.html` cho spec tính năng).
 
 ## Cấu trúc
 
@@ -40,8 +43,11 @@ app/
     conflict.py        # Conflict Detector
   api/               # lớp router
     chat.py graph.py admin.py   # /chat /graph /health /ingest
+  core/auth.py       # verify Supabase JWT + phân quyền admin/staff
+  worker.py          # ARQ worker (tác vụ nền: ingest, alerts)
 data/         # corpus.sample.json + LanceDB store
 eval/         # bộ câu hỏi vàng + benchmark
+supabase/     # migrations SQL (profiles, chat history, audit, doc workflow)
 web/          # Next.js frontend (Tra cứu + Đồ thị)
 ```
 
@@ -78,6 +84,17 @@ uv run uvicorn app.main:app --reload
 # Terminal 2 — frontend (http://localhost:3000)
 cd web && npm run dev
 ```
+
+### Docker (tuỳ chọn — CI/deploy, dev local không cần)
+
+```bash
+docker compose up --build       # api :8000 + worker + redis
+```
+
+## Deploy (Railway)
+
+Backend (api + ARQ worker + Redis + volume LanceDB) chạy trên **Railway** — máy local chỉ cần
+`next dev` trỏ `NEXT_PUBLIC_API_BASE` về URL Railway. Xem `docs/ARCHITECTURE.md` § Topology.
 
 ## Benchmark (chứng minh giá trị kiến trúc)
 
