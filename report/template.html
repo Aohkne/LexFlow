@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Báo cáo tiến độ — Hoa Tiêu Pháp Lý</title>
+<style>
+  /*
+    HƯỚNG DẪN SỬ DỤNG
+    ------------------
+    1. Copy file này vào report/SPRINTx/WEEKy/ (ví dụ report/SPRINT1/WEEK1/report.html)
+    2. Thay mọi giá trị trong dấu [ ... ] bằng nội dung thật của tuần đó.
+    3. Xoá hoặc thêm hàng trong các bảng/checklist tuỳ nội dung thực tế.
+    4. Cập nhật thanh tiến độ MVP (mvp-fill width %) và badge trạng thái cho khớp.
+  */
+  :root {
+    --bg: #ffffff;
+    --bg-alt: #f7f8fa;
+    --bg-card: #ffffff;
+    --border: #e3e6eb;
+    --text: #1a1d23;
+    --text-dim: #5b6270;
+    --text-faint: #8a90a0;
+    --brand: #9a3412;
+    --brand-soft: #fdf0ea;
+    --ok: #1a7f4f;
+    --ok-soft: #e8f6ee;
+    --warn: #a3690b;
+    --warn-soft: #fdf1de;
+    --risk: #b3261e;
+    --risk-soft: #fbeaea;
+    --info: #2255a4;
+    --info-soft: #eaf1fb;
+    --shadow: 0 1px 2px rgba(20, 22, 30, 0.05), 0 1px 12px rgba(20, 22, 30, 0.04);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14161b;
+      --bg-alt: #1b1e25;
+      --bg-card: #1b1e25;
+      --border: #2b2f39;
+      --text: #edeef1;
+      --text-dim: #a6acb9;
+      --text-faint: #767c8a;
+      --brand: #e3703f;
+      --brand-soft: #2a1c14;
+      --ok: #4fbf85;
+      --ok-soft: #16281f;
+      --warn: #dba64d;
+      --warn-soft: #2b230f;
+      --risk: #e2695f;
+      --risk-soft: #2c1614;
+      --info: #6ea1e8;
+      --info-soft: #131f2f;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 1px 16px rgba(0,0,0,0.25);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14161b; --bg-alt: #1b1e25; --bg-card: #1b1e25; --border: #2b2f39;
+    --text: #edeef1; --text-dim: #a6acb9; --text-faint: #767c8a;
+    --brand: #e3703f; --brand-soft: #2a1c14;
+    --ok: #4fbf85; --ok-soft: #16281f;
+    --warn: #dba64d; --warn-soft: #2b230f;
+    --risk: #e2695f; --risk-soft: #2c1614;
+    --info: #6ea1e8; --info-soft: #131f2f;
+  }
+  :root[data-theme="light"] {
+    --bg: #ffffff; --bg-alt: #f7f8fa; --bg-card: #ffffff; --border: #e3e6eb;
+    --text: #1a1d23; --text-dim: #5b6270; --text-faint: #8a90a0;
+    --brand: #9a3412; --brand-soft: #fdf0ea;
+    --ok: #1a7f4f; --ok-soft: #e8f6ee;
+    --warn: #a3690b; --warn-soft: #fdf1de;
+    --risk: #b3261e; --risk-soft: #fbeaea;
+    --info: #2255a4; --info-soft: #eaf1fb;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg-alt);
+    color: var(--text);
+    font-family: -apple-system, "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .page { max-width: 1080px; margin: 0 auto; padding: 32px 24px 80px; }
+
+  /* ---------- header ---------- */
+  header.report-header {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px 32px;
+    box-shadow: var(--shadow);
+    margin-bottom: 20px;
+  }
+  .brand-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .brand-name { font-size: 12.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-faint); font-weight: 600; }
+  .report-title { font-size: 26px; font-weight: 700; margin: 6px 0 4px; color: var(--text); }
+  .report-subtitle { font-size: 13.5px; color: var(--text-dim); margin: 0; }
+
+  .status-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 600; letter-spacing: 0.02em;
+    padding: 6px 14px; border-radius: 999px; white-space: nowrap;
+  }
+  .status-badge .dot { width: 7px; height: 7px; border-radius: 50%; }
+  .status-badge.ok { background: var(--ok-soft); color: var(--ok); }
+  .status-badge.ok .dot { background: var(--ok); }
+  .status-badge.warn { background: var(--warn-soft); color: var(--warn); }
+  .status-badge.warn .dot { background: var(--warn); }
+  .status-badge.risk { background: var(--risk-soft); color: var(--risk); }
+  .status-badge.risk .dot { background: var(--risk); }
+
+  .meta-grid {
+    margin-top: 22px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 16px;
+  }
+  .meta-item .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-faint); margin-bottom: 4px; }
+  .meta-item .value { font-size: 14px; font-weight: 600; color: var(--text); }
+
+  /* ---------- section shell ---------- */
+  section.card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px 32px 28px;
+    box-shadow: var(--shadow);
+    margin-bottom: 20px;
+  }
+  .card h2 {
+    font-size: 15px;
+    font-weight: 700;
+    margin: 0 0 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card h2 .num { color: var(--brand); font-variant-numeric: tabular-nums; }
+  .card .card-desc { font-size: 13px; color: var(--text-dim); margin: 0 0 18px; }
+
+  /* ---------- executive summary ---------- */
+  .summary-text { font-size: 14.5px; color: var(--text); margin: 0; }
+  .placeholder { color: var(--text-faint); font-style: italic; }
+
+  /* ---------- MVP progress ---------- */
+  .mvp-overall { display: flex; align-items: center; gap: 14px; margin-bottom: 22px; }
+  .mvp-track { flex: 1; height: 10px; border-radius: 999px; background: var(--bg-alt); border: 1px solid var(--border); overflow: hidden; }
+  .mvp-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--brand), #d97b52); width: 35%; }
+  .mvp-pct { font-size: 15px; font-weight: 700; color: var(--brand); white-space: nowrap; }
+
+  .mvp-list { display: grid; gap: 10px; }
+  .mvp-row {
+    display: grid;
+    grid-template-columns: 26px 1fr auto;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg-alt);
+  }
+  .mvp-row .idx { font-size: 12px; color: var(--text-faint); font-weight: 600; }
+  .mvp-row .name { font-size: 13.5px; color: var(--text); font-weight: 500; }
+  .mvp-row .name .sub { display: block; font-size: 12px; color: var(--text-faint); font-weight: 400; margin-top: 2px; }
+
+  .pill { font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 999px; white-space: nowrap; }
+  .pill.done { background: var(--ok-soft); color: var(--ok); }
+  .pill.progress { background: var(--warn-soft); color: var(--warn); }
+  .pill.todo { background: var(--bg-card); color: var(--text-faint); border: 1px solid var(--border); }
+  .pill.blocked { background: var(--risk-soft); color: var(--risk); }
+
+  /* ---------- generic tables ---------- */
+  table.report-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  table.report-table th {
+    text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em;
+    color: var(--text-faint); font-weight: 600; padding: 0 12px 10px; border-bottom: 1px solid var(--border);
+  }
+  table.report-table td { padding: 12px; border-bottom: 1px solid var(--border); vertical-align: top; color: var(--text); }
+  table.report-table tr:last-child td { border-bottom: none; }
+  table.report-table td.dim { color: var(--text-dim); }
+  .owner-chip {
+    display: inline-block; font-size: 12px; padding: 3px 9px; border-radius: 6px;
+    background: var(--info-soft); color: var(--info); font-weight: 600;
+  }
+
+  /* ---------- two-column blocks ---------- */
+  .col-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .sub-block h3 {
+    font-size: 12.5px; text-transform: uppercase; letter-spacing: 0.05em;
+    color: var(--text-faint); font-weight: 700; margin: 0 0 12px;
+  }
+  ul.check-list, ul.plain-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  ul.check-list li, ul.plain-list li {
+    font-size: 13.5px; color: var(--text); display: flex; gap: 8px; align-items: flex-start;
+  }
+  ul.check-list li .box { flex-shrink: 0; margin-top: 1px; font-weight: 700; }
+  ul.check-list li .box.done { color: var(--ok); }
+  ul.check-list li .box.pending { color: var(--text-faint); }
+  ul.plain-list li::before { content: "→"; color: var(--brand); flex-shrink: 0; }
+
+  /* ---------- risk table severity ---------- */
+  .sev { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 6px; white-space: nowrap; }
+  .sev.high { background: var(--risk-soft); color: var(--risk); }
+  .sev.medium { background: var(--warn-soft); color: var(--warn); }
+  .sev.low { background: var(--info-soft); color: var(--info); }
+
+  /* ---------- metrics stat tiles ---------- */
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 20px; }
+  .stat-tile { border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; background: var(--bg-alt); }
+  .stat-tile .stat-label { font-size: 11.5px; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 6px; }
+  .stat-tile .stat-value { font-size: 22px; font-weight: 700; color: var(--text); }
+  .stat-tile .stat-value .unit { font-size: 13px; color: var(--text-faint); font-weight: 500; margin-left: 2px; }
+  .stat-tile .stat-delta { font-size: 12px; margin-top: 4px; font-weight: 600; }
+  .stat-delta.up { color: var(--ok); }
+  .stat-delta.down { color: var(--risk); }
+
+  /* ---------- links ---------- */
+  .link-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+  .link-card {
+    display: block; text-decoration: none; border: 1px solid var(--border); border-radius: 8px;
+    padding: 12px 14px; background: var(--bg-alt);
+  }
+  .link-card .link-label { font-size: 12px; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 3px; }
+  .link-card .link-value { font-size: 13.5px; color: var(--info); font-weight: 600; word-break: break-all; }
+
+  footer.report-footer {
+    text-align: center; font-size: 12px; color: var(--text-faint); margin-top: 28px;
+  }
+
+  @media (max-width: 720px) {
+    .page { padding: 20px 14px 60px; }
+    header.report-header, section.card { padding: 20px; }
+    .col-2 { grid-template-columns: 1fr; }
+    table.report-table { display: block; overflow-x: auto; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ============ HEADER ============ -->
+  <header class="report-header">
+    <div class="brand-row">
+      <div>
+        <div class="brand-name">Hoa Tiêu Pháp Lý (LexFlow) · Vietnam AI Innovation Challenge 2026 — Đề SHB1</div>
+        <h1 class="report-title">Báo cáo tiến độ — Sprint [X] · Tuần [Y]</h1>
+        <p class="report-subtitle">Khoảng thời gian: [DD/MM/YYYY] – [DD/MM/YYYY] · Người báo cáo: [Tên]</p>
+      </div>
+      <!-- đổi class: ok / warn / risk theo tình trạng thật của tuần -->
+      <span class="status-badge ok"><span class="dot"></span>Đúng tiến độ</span>
+    </div>
+
+    <div class="meta-grid">
+      <div class="meta-item"><div class="label">Sprint</div><div class="value">Sprint [X] / 3</div></div>
+      <div class="meta-item"><div class="label">Tuần</div><div class="value">Tuần [Y] / 6</div></div>
+      <div class="meta-item"><div class="label">Thành viên tham gia</div><div class="value">[N] người</div></div>
+      <div class="meta-item"><div class="label">Commit trong tuần</div><div class="value">[N] commit</div></div>
+      <div class="meta-item"><div class="label">Trạng thái demo</div><div class="value">[Chưa chạy được / Chạy local / Đã deploy]</div></div>
+    </div>
+  </header>
+
+  <!-- ============ TÓM TẮT ĐIỀU HÀNH ============ -->
+  <section class="card">
+    <h2><span class="num">01</span> Tóm tắt tuần</h2>
+    <p class="card-desc">2–3 câu nêu điểm nổi bật nhất tuần này — việc gì xong, việc gì đổi hướng, việc gì cần chú ý.</p>
+    <p class="summary-text placeholder">
+      [Điền tóm tắt: ví dụ "Hoàn thành khung backend FastAPI + pipeline ingestion, dựng xong UI landing/chat/admin
+      trên Next.js. Chưa nối API thật, dữ liệu corpus vẫn là mock. Trọng tâm tuần sau: Versioning Engine +
+      Conflict Detector để chatbot trả lời có trích dẫn đúng hiệu lực."]
+    </p>
+  </section>
+
+  <!-- ============ TIẾN ĐỘ MVP ============ -->
+  <section class="card">
+    <h2><span class="num">02</span> Tiến độ MVP tổng thể</h2>
+    <p class="card-desc">Bám theo 5 hạng mục painpoint → giải pháp trong <code>docs/SPEC.html</code>.</p>
+
+    <div class="mvp-overall">
+      <div class="mvp-track"><div class="mvp-fill" style="width: 35%;"></div></div>
+      <div class="mvp-pct">35%</div>
+    </div>
+
+    <div class="mvp-list">
+      <div class="mvp-row">
+        <span class="idx">01</span>
+        <span class="name">Chatbot hỏi-đáp có trích dẫn <span class="sub">+ chế độ checklist luồng nghiệp vụ · ưu tiên 1, mặt tiền demo</span></span>
+        <span class="pill progress">Đang làm</span>
+      </div>
+      <div class="mvp-row">
+        <span class="idx">—</span>
+        <span class="name">Versioning Engine + Conflict Detector <span class="sub">bắt buộc để chatbot không nói sai</span></span>
+        <span class="pill todo">Chưa bắt đầu</span>
+      </div>
+      <div class="mvp-row">
+        <span class="idx">02</span>
+        <span class="name">Đồ thị tri thức trực quan <span class="sub">demo thứ 2, cho thấy chiều sâu kiến trúc</span></span>
+        <span class="pill todo">Chưa bắt đầu</span>
+      </div>
+      <div class="mvp-row">
+        <span class="idx">—</span>
+        <span class="name">Regulation-to-Spec Mapping <span class="sub">cho 9 văn bản lõi phạm vi thanh toán</span></span>
+        <span class="pill todo">Chưa bắt đầu</span>
+      </div>
+      <div class="mvp-row">
+        <span class="idx">03/04</span>
+        <span class="name">Admin dashboard + Cảnh báo thay đổi quy định <span class="sub">sau MVP, nếu còn thời gian</span></span>
+        <span class="pill todo">Chưa bắt đầu</span>
+      </div>
+      <div class="mvp-row">
+        <span class="idx">05</span>
+        <span class="name">Benchmark Suite <span class="sub">làm trước buổi thuyết trình, không cần UI</span></span>
+        <span class="pill todo">Chưa bắt đầu</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ĐÃ HOÀN THÀNH TRONG TUẦN ============ -->
+  <section class="card">
+    <h2><span class="num">03</span> Công việc đã hoàn thành</h2>
+    <p class="card-desc">Liệt kê hạng mục xong trong tuần, gắn người phụ trách.</p>
+    <table class="report-table">
+      <thead>
+        <tr><th>Hạng mục</th><th>Mô tả</th><th>Phụ trách</th><th>Trạng thái</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>[Tên hạng mục]</td>
+          <td class="dim">[Mô tả ngắn gọn việc đã làm]</td>
+          <td><span class="owner-chip">[Tên]</span></td>
+          <td><span class="pill done">Hoàn thành</span></td>
+        </tr>
+        <tr>
+          <td>[Tên hạng mục]</td>
+          <td class="dim">[Mô tả ngắn gọn việc đã làm]</td>
+          <td><span class="owner-chip">[Tên]</span></td>
+          <td><span class="pill done">Hoàn thành</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ============ ĐANG LÀM / KẾ HOẠCH TUẦN SAU ============ -->
+  <section class="card">
+    <h2><span class="num">04</span> Đang thực hiện &amp; kế hoạch tuần tới</h2>
+    <div class="col-2">
+      <div class="sub-block">
+        <h3>Đang thực hiện</h3>
+        <ul class="check-list">
+          <li><span class="box pending">☐</span> [Việc đang làm dở, % hoàn thành ước tính]</li>
+          <li><span class="box pending">☐</span> [Việc đang làm dở]</li>
+        </ul>
+      </div>
+      <div class="sub-block">
+        <h3>Kế hoạch tuần tới</h3>
+        <ul class="plain-list">
+          <li>[Mục tiêu cụ thể, đo lường được]</li>
+          <li>[Mục tiêu cụ thể, đo lường được]</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ RỦI RO / BLOCKER ============ -->
+  <section class="card">
+    <h2><span class="num">05</span> Vấn đề &amp; rủi ro</h2>
+    <p class="card-desc">Bỏ trống hoặc ghi "Không có" nếu tuần này không phát sinh vấn đề.</p>
+    <table class="report-table">
+      <thead>
+        <tr><th>Vấn đề</th><th>Mức độ</th><th>Ảnh hưởng</th><th>Hướng xử lý</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>[Mô tả vấn đề/rủi ro]</td>
+          <td><span class="sev medium">Trung bình</span></td>
+          <td class="dim">[Ảnh hưởng đến tiến độ/phạm vi nào]</td>
+          <td class="dim">[Cách xử lý hoặc ai cần hỗ trợ]</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ============ SỐ LIỆU / BENCHMARK ============ -->
+  <section class="card">
+    <h2><span class="num">06</span> Số liệu &amp; benchmark</h2>
+    <p class="card-desc">Điền khi đã chạy <code>eval/run_benchmark.py</code> — so sánh RAG vector thuần vs Hybrid + Versioning + Conflict. Xoá mục này ở các tuần chưa có số liệu.</p>
+    <div class="stat-grid">
+      <div class="stat-tile">
+        <div class="stat-label">Độ chính xác trích dẫn</div>
+        <div class="stat-value">[--]<span class="unit">%</span></div>
+        <div class="stat-delta up">[+X điểm % so với baseline]</div>
+      </div>
+      <div class="stat-tile">
+        <div class="stat-label">Tỷ lệ tránh văn bản hết hiệu lực</div>
+        <div class="stat-value">[--]<span class="unit">%</span></div>
+      </div>
+      <div class="stat-tile">
+        <div class="stat-label">Tỷ lệ phát hiện mâu thuẫn</div>
+        <div class="stat-value">[--]<span class="unit">%</span></div>
+      </div>
+      <div class="stat-tile">
+        <div class="stat-label">Số câu hỏi benchmark</div>
+        <div class="stat-value">[--]</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ LIÊN KẾT ============ -->
+  <section class="card">
+    <h2><span class="num">07</span> Liên kết tham khảo</h2>
+    <div class="link-grid">
+      <a class="link-card" href="#">
+        <div class="link-label">Repository</div>
+        <div class="link-value">[link git repo]</div>
+      </a>
+      <a class="link-card" href="#">
+        <div class="link-label">Demo</div>
+        <div class="link-value">[link demo nếu có]</div>
+      </a>
+      <a class="link-card" href="#">
+        <div class="link-label">Đặc tả</div>
+        <div class="link-value">docs/SPEC.html</div>
+      </a>
+    </div>
+  </section>
+
+  <footer class="report-footer">
+    Báo cáo được tạo ngày [DD/MM/YYYY] · Hoa Tiêu Pháp Lý — VSF
+  </footer>
+
+</div>
+</body>
+</html>
