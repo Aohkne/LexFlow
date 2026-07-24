@@ -6,6 +6,7 @@ from typing import Any
 
 from app.core.llm import chat, chat_stream
 from app.core.schemas import ChatRequest, ChatResponse, Citation
+from app.core.tracing import observe
 from app.ingestion.versioning import today_iso
 from app.knowledge.retrieval import hybrid_search
 from app.reasoning.conflict import detect_conflicts
@@ -56,6 +57,7 @@ def _citations(chunks: list[dict]) -> list[Citation]:
     ]
 
 
+@observe(name="answer.build")
 def build_answer(req: ChatRequest) -> ChatResponse:
     chunks, system, prompt = _prepare(req)
     if not chunks:
@@ -66,6 +68,10 @@ def build_answer(req: ChatRequest) -> ChatResponse:
     )
 
 
+@observe(
+    name="answer.stream",
+    transform_to_string=lambda events: "".join(d for k, d in events if k == "delta"),
+)
 def stream_answer(req: ChatRequest) -> Iterator[tuple[str, Any]]:
     """Bản streaming của build_answer — yield các sự kiện theo thứ tự UX:
 

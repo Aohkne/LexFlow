@@ -8,6 +8,7 @@ from __future__ import annotations
 from app.core import vectordb
 from app.core.config import LANCEDB_TABLE
 from app.core.llm import embed_query
+from app.core.tracing import observe
 from app.ingestion.versioning import is_effective
 
 _RRF_K = 60  # hằng số Reciprocal Rank Fusion
@@ -30,6 +31,7 @@ def _rrf(vector_hits: list[dict], fts_hits: list[dict], k: int) -> list[dict]:
     return [rows[r] for r in ordered[:k]]
 
 
+@observe(name="retrieval.hybrid", as_type="retriever")
 def hybrid_search(
     query: str, *, top_k: int = 6, as_of: str | None = None, effective_only: bool = True
 ) -> list[dict]:

@@ -13,6 +13,7 @@ from google.genai import types
 from tenacity import retry, stop_after_attempt, wait_exponential
 
 from app.core.config import settings
+from app.core.tracing import observe, update_generation
 
 # gemini-embedding-001 hỗ trợ Matryoshka (MRL): cắt còn 768 chiều cho nhẹ.
 EMBED_DIM = 768
@@ -26,18 +27,22 @@ def get_client() -> genai.Client:
 
 
 @retry(stop=stop_after_attempt(3), wait=wait_exponential(min=1, max=10))
+@observe(name="gemini.chat", as_type="generation")
 def chat(prompt: str, *, system: str | None = None, reasoning: bool = False) -> str:
     """Sinh câu trả lời văn bản. `reasoning=True` dùng model mạnh hơn."""
     client = get_client()
     model = settings.gemini_reasoning_model if reasoning else settings.gemini_chat_model
+    update_generation(model=model)
     cfg = types.GenerateContentConfig(system_instruction=system) if system else None
     resp = client.models.generate_content(model=model, contents=prompt, config=cfg)
     return (resp.text or "").strip()
 
 
+@observe(name="gemini.chat_stream", as_type="generation", transform_to_string="".join)
 def chat_stream(prompt: str, *, system: str | None = None) -> Iterator[str]:
     """Sinh câu trả lời dạng stream (SSE). Không retry — retry giữa chừng sẽ lặp chữ."""
     client = get_client()
+    update_generation(model=settings.gemini_chat_model)
     cfg = types.GenerateContentConfig(system_instruction=system) if system else None
     for chunk in client.models.generate_content_stream(
         model=settings.gemini_chat_model, contents=prompt, config=cfg
@@ -47,10 +52,12 @@ def chat_stream(prompt: str, *, system: str | None = None) -> Iterator[str]:
 
 
 @retry(stop=stop_after_attempt(3), wait=wait_exponential(min=1, max=10))
+@observe(name="gemini.chat_json", as_type="generation")
 def chat_json(prompt: str, *, system: str | None = None, reasoning: bool = True) -> dict:
     """Sinh JSON có cấu trúc (cho conflict detector, mapping...)."""
     client = get_client()
     model = settings.gemini_reasoning_model if reasoning else settings.gemini_chat_model
+    update_generation(model=model)
     cfg = types.GenerateContentConfig(
         system_instruction=system,
         response_mime_type="application/json",
@@ -64,6 +71,7 @@ def chat_json(prompt: str, *, system: str | None = None, reasoning: bool = True)
 
 
 @retry(stop=stop_after_attempt(3), wait=wait_exponential(min=1, max=10))
+@observe(name="gemini.embed", as_type="embedding", capture_output=False)
 def _embed(texts: list[str], task_type: str) -> list[list[float]]:
     client = get_client()
     resp = client.models.embed_content(

@@ -39,6 +39,11 @@ class Settings(BaseSettings):
     lancedb_api_key: str = ""
     lancedb_region: str = "us-east-1"
 
+    # Langfuse (LLM tracing) — để trống = tắt tracing
+    langfuse_public_key: str = ""
+    langfuse_secret_key: str = ""
+    langfuse_host: str = "https://cloud.langfuse.com"
+
     # Paths
     data_raw_path: str = "data/raw"
 
@@ -60,6 +65,10 @@ class Settings(BaseSettings):
     @property
     def queue_enabled(self) -> bool:
         return bool(self.redis_url)
+
+    @property
+    def langfuse_enabled(self) -> bool:
+        return bool(self.langfuse_public_key and self.langfuse_secret_key)
 
 
 @lru_cache

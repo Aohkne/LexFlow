@@ -104,6 +104,8 @@ SUPABASE_URL=            # https://<ref>.supabase.co
 SUPABASE_JWT_SECRET=     # (legacy HS256) — để trống nếu project dùng JWT signing keys
 SUPABASE_ANON_KEY=       # cho frontend
 REDIS_URL=               # redis://... — để trống ở local dev (ingest chạy đồng bộ)
+LANGFUSE_PUBLIC_KEY=     # tracing LLM (tuỳ chọn) — cloud.langfuse.com
+LANGFUSE_SECRET_KEY=     # để trống = tắt tracing
 ```
 
 Không cấu hình Supabase → backend chạy **dev mode**: auth no-op (user giả role admin),
@@ -122,5 +124,6 @@ Không cấu hình Supabase → backend chạy **dev mode**: auth no-op (user gi
    JWT của user, RLS thực thi, không cần service-role key; migration 0002)
 7. ✅ SSE streaming: `POST /chat/stream` (meta/citations → delta → conflicts → done);
    web parse SSE thuần qua fetch reader (không cần Vercel AI SDK), câu trả lời hiện dần
-8. ⬜ Langfuse tracing quanh `app/core/llm.py`
+8. ✅ Langfuse tracing (`app/core/tracing.py` — no-op khi chưa có key): trace lồng nhau
+   answer.build → retrieval.hybrid → gemini.chat → conflict.detect; flush khi app tắt
 9. ⬜ Change alerts (task ARQ định kỳ) — painpoint 4

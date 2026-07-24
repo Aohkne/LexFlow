@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from app.core.llm import chat_json
 from app.core.schemas import ConflictAlert
+from app.core.tracing import observe
 
 _SYSTEM = (
     "Bạn là chuyên gia pháp chế ngân hàng. Nhiệm vụ: xác định các cặp điều khoản "
@@ -22,6 +23,7 @@ _SCHEMA_HINT = (
 )
 
 
+@observe(name="conflict.detect")
 def detect_conflicts(chunks: list[dict]) -> list[ConflictAlert]:
     # Cần ít nhất 2 văn bản khác nhau mới có thể mâu thuẫn
     if len({c["doc_id"] for c in chunks}) < 2:
