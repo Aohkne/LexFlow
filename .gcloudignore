@@ -17,3 +17,5 @@ __pycache__/
 .claude/
 README.md
 compose.yml
+
+data/raw/

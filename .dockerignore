@@ -16,3 +16,5 @@ __pycache__
 .claude
 supabase
 README.md
+
+data/raw/
