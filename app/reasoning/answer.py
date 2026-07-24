@@ -1,7 +1,10 @@
 """Sinh câu trả lời có trích dẫn từ các điều khoản đang hiệu lực."""
 from __future__ import annotations
 
-from app.core.llm import chat
+from collections.abc import Iterator
+from typing import Any
+
+from app.core.llm import chat, chat_stream
 from app.core.schemas import ChatRequest, ChatResponse, Citation
 from app.ingestion.versioning import today_iso
 from app.knowledge.retrieval import hybrid_search
@@ -20,6 +23,8 @@ _CHECKLIST_SYSTEM = (
     "áp dụng, mỗi mục kèm trích dẫn [văn bản — điều/khoản]. Trả lời bằng tiếng Việt."
 )
 
+_NOT_FOUND = "Chưa tìm thấy quy định đang hiệu lực phù hợp với câu hỏi."
+
 
 def _format_context(chunks: list[dict]) -> str:
     return "\n\n".join(
@@ -28,24 +33,20 @@ def _format_context(chunks: list[dict]) -> str:
     )
 
 
-def build_answer(req: ChatRequest) -> ChatResponse:
+def _prepare(req: ChatRequest) -> tuple[list[dict], str, str]:
+    """Retrieval + dựng prompt. Trả về (chunks, system, prompt)."""
     as_of = req.as_of or today_iso()
     chunks = hybrid_search(req.query, top_k=req.top_k, as_of=as_of, effective_only=True)
-
-    if not chunks:
-        return ChatResponse(
-            answer="Chưa tìm thấy quy định đang hiệu lực phù hợp với câu hỏi.",
-            citations=[], conflicts=[],
-        )
-
     system = _CHECKLIST_SYSTEM if req.mode == "checklist" else _QA_SYSTEM
     prompt = (
         f"Câu hỏi/luồng nghiệp vụ: {req.query}\n\n"
         f"Các điều khoản đang hiệu lực (tại {as_of}):\n{_format_context(chunks)}"
     )
-    answer = chat(prompt, system=system)
+    return chunks, system, prompt
 
-    citations = [
+
+def _citations(chunks: list[dict]) -> list[Citation]:
+    return [
         Citation(
             doc_id=c["doc_id"], doc_title=c["doc_title"], doc_type=c["doc_type"],
             article=c["article"], valid_from=c["valid_from"] or None,
@@ -53,5 +54,34 @@ def build_answer(req: ChatRequest) -> ChatResponse:
         )
         for c in chunks
     ]
-    conflicts = detect_conflicts(chunks)
-    return ChatResponse(answer=answer, citations=citations, conflicts=conflicts)
+
+
+def build_answer(req: ChatRequest) -> ChatResponse:
+    chunks, system, prompt = _prepare(req)
+    if not chunks:
+        return ChatResponse(answer=_NOT_FOUND, citations=[], conflicts=[])
+    answer = chat(prompt, system=system)
+    return ChatResponse(
+        answer=answer, citations=_citations(chunks), conflicts=detect_conflicts(chunks)
+    )
+
+
+def stream_answer(req: ChatRequest) -> Iterator[tuple[str, Any]]:
+    """Bản streaming của build_answer — yield các sự kiện theo thứ tự UX:
+
+    ("meta", {"citations": [...]}) → ("delta", str)* → ("conflicts", [...])
+
+    Citations gửi trước để UI hiện nguồn ngay; conflicts cần gọi LLM riêng
+    nên gửi sau khi câu trả lời đã stream xong.
+    """
+    chunks, system, prompt = _prepare(req)
+    if not chunks:
+        yield "meta", {"citations": []}
+        yield "delta", _NOT_FOUND
+        yield "conflicts", []
+        return
+
+    yield "meta", {"citations": [c.model_dump() for c in _citations(chunks)]}
+    for piece in chat_stream(prompt, system=system):
+        yield "delta", piece
+    yield "conflicts", [c.model_dump() for c in detect_conflicts(chunks)]

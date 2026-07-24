@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { postChat, type ChatResponse } from "@/lib/api";
+import { streamChat, type ChatResponse } from "@/lib/api";
 
 const SEVERITY: Record<string, { bg: string; label: string }> = {
   info: { bg: "border-blue text-blue", label: "Thông tin" },
@@ -29,17 +29,19 @@ export default function ChatPage() {
     if (!question) return;
     setLoading(true);
     setError(null);
-    setResp(null);
+    setResp({ answer: "", citations: [], conflicts: [], session_id: null });
     try {
-      const data = await postChat({
-        query: question,
-        mode,
-        as_of: asOf || null,
-        top_k: 6,
-        session_id: sessionId,
-      });
-      setResp(data);
-      if (data.session_id) setSessionId(data.session_id);
+      await streamChat(
+        { query: question, mode, as_of: asOf || null, top_k: 6, session_id: sessionId },
+        {
+          onMeta: (citations) => setResp((r) => ({ ...r!, citations })),
+          onDelta: (text) => setResp((r) => ({ ...r!, answer: r!.answer + text })),
+          onConflicts: (conflicts) => setResp((r) => ({ ...r!, conflicts })),
+          onDone: (sid) => {
+            if (sid) setSessionId(sid);
+          },
+        },
+      );
     } catch (e) {
       setError(e instanceof Error ? e.message : "Lỗi không xác định");
     } finally {

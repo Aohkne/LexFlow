@@ -65,6 +65,61 @@ export async function postChat(body: {
   return res.json();
 }
 
+export type StreamHandlers = {
+  onMeta?: (citations: Citation[]) => void;
+  onDelta?: (text: string) => void;
+  onConflicts?: (conflicts: ConflictAlert[]) => void;
+  onDone?: (sessionId: string | null) => void;
+};
+
+// Gọi /chat/stream (SSE): meta → delta* → conflicts → done.
+export async function streamChat(
+  body: {
+    query: string;
+    mode: "qa" | "checklist";
+    as_of?: string | null;
+    top_k?: number;
+    session_id?: string | null;
+  },
+  handlers: StreamHandlers,
+): Promise<void> {
+  const res = await fetch(`${API_BASE}/chat/stream`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...(await authHeaders()) },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok || !res.body) {
+    throw new Error((await res.json().catch(() => null))?.detail ?? res.statusText);
+  }
+
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buf = "";
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buf += decoder.decode(value, { stream: true });
+    let sep;
+    while ((sep = buf.indexOf("\n\n")) !== -1) {
+      const block = buf.slice(0, sep);
+      buf = buf.slice(sep + 2);
+      let event = "message";
+      let data = "";
+      for (const line of block.split("\n")) {
+        if (line.startsWith("event: ")) event = line.slice(7).trim();
+        else if (line.startsWith("data: ")) data += line.slice(6);
+      }
+      if (!data) continue;
+      const parsed = JSON.parse(data);
+      if (event === "meta") handlers.onMeta?.(parsed.citations ?? []);
+      else if (event === "delta") handlers.onDelta?.(parsed.text ?? "");
+      else if (event === "conflicts") handlers.onConflicts?.(parsed.conflicts ?? []);
+      else if (event === "done") handlers.onDone?.(parsed.session_id ?? null);
+      else if (event === "error") throw new Error(parsed.detail ?? "Lỗi streaming");
+    }
+  }
+}
+
 export async function getGraph(): Promise<GraphData> {
   const res = await fetch(`${API_BASE}/graph`, { headers: await authHeaders() });
   if (!res.ok) throw new Error((await res.json()).detail ?? res.statusText);

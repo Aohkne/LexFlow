@@ -5,6 +5,7 @@ Toàn bộ tính toán chạy trên API → không cần model cục bộ (hợp
 from __future__ import annotations
 
 import json
+from collections.abc import Iterator
 from functools import lru_cache
 
 from google import genai
@@ -32,6 +33,17 @@ def chat(prompt: str, *, system: str | None = None, reasoning: bool = False) -> 
     cfg = types.GenerateContentConfig(system_instruction=system) if system else None
     resp = client.models.generate_content(model=model, contents=prompt, config=cfg)
     return (resp.text or "").strip()
+
+
+def chat_stream(prompt: str, *, system: str | None = None) -> Iterator[str]:
+    """Sinh câu trả lời dạng stream (SSE). Không retry — retry giữa chừng sẽ lặp chữ."""
+    client = get_client()
+    cfg = types.GenerateContentConfig(system_instruction=system) if system else None
+    for chunk in client.models.generate_content_stream(
+        model=settings.gemini_chat_model, contents=prompt, config=cfg
+    ):
+        if chunk.text:
+            yield chunk.text
 
 
 @retry(stop=stop_after_attempt(3), wait=wait_exponential(min=1, max=10))

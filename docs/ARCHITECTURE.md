@@ -120,6 +120,7 @@ Không cấu hình Supabase → backend chạy **dev mode**: auth no-op (user gi
    (`@supabase/ssr`, `web/proxy.ts` chặn trang chưa đăng nhập, JWT gắn vào request API)
 6. ✅ Lưu chat history + audit log từ `/chat` (`app/core/appdb.py` — PostgREST bằng
    JWT của user, RLS thực thi, không cần service-role key; migration 0002)
-7. ⬜ SSE streaming cho `/chat` + Vercel AI SDK phía web
+7. ✅ SSE streaming: `POST /chat/stream` (meta/citations → delta → conflicts → done);
+   web parse SSE thuần qua fetch reader (không cần Vercel AI SDK), câu trả lời hiện dần
 8. ⬜ Langfuse tracing quanh `app/core/llm.py`
 9. ⬜ Change alerts (task ARQ định kỳ) — painpoint 4
