@@ -22,19 +22,19 @@ def enabled() -> bool:
     return bool(settings.supabase_url and settings.supabase_anon_key)
 
 
-def _post(path: str, token: str, body: Any) -> list[dict]:
+def _post(path: str, token: str, body: Any, *, prefer: str = "return=representation") -> list[dict]:
     resp = httpx.post(
         settings.supabase_url.rstrip("/") + "/rest/v1" + path,
         json=body,
         headers={
             "apikey": settings.supabase_anon_key,
             "Authorization": f"Bearer {token}",
-            "Prefer": "return=representation",
+            "Prefer": prefer,
         },
         timeout=_TIMEOUT,
     )
     resp.raise_for_status()
-    return resp.json()
+    return resp.json() if resp.content else []
 
 
 def create_session(token: str, user_id: str, title: str, mode: str) -> str:
@@ -96,6 +96,23 @@ def save_chat_turn(
     except httpx.HTTPError as exc:
         logger.warning("Không lưu được chat history vào Supabase: %s", exc)
         return session_id
+
+
+def record_change_events(token: str, events: list[dict]) -> int:
+    """Ghi các sự kiện thay đổi văn bản (ingest lại không tạo trùng nhờ on_conflict)."""
+    if not events:
+        return 0
+    try:
+        _post(
+            "/change_events?on_conflict=doc_id,source_doc_id,rel_type",
+            token,
+            events,
+            prefer="return=minimal,resolution=ignore-duplicates",
+        )
+        return len(events)
+    except httpx.HTTPError as exc:
+        logger.warning("Không ghi được change events: %s", exc)
+        return 0
 
 
 def log_audit(token: str, user_id: str, action: str, detail: dict) -> None:

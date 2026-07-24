@@ -71,7 +71,36 @@ def write_lancedb(rows: list[dict]) -> int:
     return len(rows)
 
 
-def main(corpus_path: str | None = None) -> None:
+_REL_VERB = {
+    "THAY_THE": "thay thế",
+    "SUA_DOI": "sửa đổi, bổ sung",
+    "HUONG_DAN": "hướng dẫn thi hành",
+    "DAN_CHIEU": "dẫn chiếu",
+}
+
+
+def build_change_events(docs: list[CorpusDocument], rels: list[Relationship]) -> list[dict]:
+    """Chuyển relationships của corpus thành sự kiện cảnh báo thay đổi (painpoint 4)."""
+    titles = {d.doc_id: d.title for d in docs}
+    events = []
+    for r in rels:
+        verb = _REL_VERB.get(r.rel_type, r.rel_type)
+        desc = f"{titles.get(r.source_doc, r.source_doc)} {verb} {titles.get(r.target_doc, r.target_doc)}"
+        if r.note:
+            desc += f" — {r.note}"
+        events.append(
+            {
+                "doc_id": r.target_doc,
+                "source_doc_id": r.source_doc,
+                "rel_type": r.rel_type,
+                "description": desc,
+                "effective_date": r.valid_from,
+            }
+        )
+    return events
+
+
+def main(corpus_path: str | None = None) -> tuple[list[CorpusDocument], list[Relationship]]:
     path = corpus_path or "data/corpus.sample.json"
     print(f"[ingest] Đọc corpus: {path}")
     docs, rels = load_corpus(path)
@@ -88,3 +117,4 @@ def main(corpus_path: str | None = None) -> None:
         print(f"[ingest] Đã nạp {len(docs)} node + {len(rels)} cạnh vào Neo4j Aura.")
     else:
         print("[ingest] Bỏ qua Neo4j (chưa cấu hình NEO4J_URI/PASSWORD).")
+    return docs, rels

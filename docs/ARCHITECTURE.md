@@ -126,4 +126,7 @@ Không cấu hình Supabase → backend chạy **dev mode**: auth no-op (user gi
    web parse SSE thuần qua fetch reader (không cần Vercel AI SDK), câu trả lời hiện dần
 8. ✅ Langfuse tracing (`app/core/tracing.py` — no-op khi chưa có key): trace lồng nhau
    answer.build → retrieval.hybrid → gemini.chat → conflict.detect; flush khi app tắt
-9. ⬜ Change alerts (task ARQ định kỳ) — painpoint 4
+9. ✅ Change alerts (painpoint 4): ingest phát hiện quan hệ THAY_THE/SUA_DOI →
+   ghi `change_events` (migration 0003, idempotent); trang `/alerts` hiện danh sách
+   + đăng ký nhận cảnh báo (`alert_subscriptions`). Gửi email thật = nâng cấp sau
+   (Resend/SMTP + Cloud Run Jobs định kỳ khi có nguồn crawl văn bản).

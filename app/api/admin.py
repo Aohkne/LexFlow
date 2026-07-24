@@ -38,15 +38,22 @@ async def ingest_endpoint(
 
     # Dev mode (không có Redis): chạy đồng bộ
     try:
-        from app.ingestion.pipeline import main as run_ingest
+        from app.ingestion.pipeline import build_change_events, main as run_ingest
 
-        run_ingest(corpus_path)
+        docs, rels = run_ingest(corpus_path)
     except Exception as exc:  # noqa: BLE001
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 
+    n_events = 0
     if appdb.enabled() and user.token:
+        # Painpoint 4: quan hệ THAY_THE/SUA_DOI trong corpus → sự kiện cảnh báo
+        n_events = appdb.record_change_events(user.token, build_change_events(docs, rels))
         appdb.log_audit(
             user.token, user.id, action="ingest",
-            detail={"corpus": corpus_path or "data/corpus.sample.json"},
+            detail={"corpus": corpus_path or "data/corpus.sample.json", "n_events": n_events},
         )
-    return {"status": "ok", "corpus": corpus_path or "data/corpus.sample.json"}
+    return {
+        "status": "ok",
+        "corpus": corpus_path or "data/corpus.sample.json",
+        "change_events": n_events,
+    }
