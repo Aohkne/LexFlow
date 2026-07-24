@@ -49,7 +49,9 @@ export default function AdminPage() {
       const role = (data.user?.app_metadata as { role?: string } | undefined)?.role;
       setIsAdmin(role === "admin");
     });
-    reload();
+    (async () => {
+      await reload();
+    })();
   }, [reload]);
 
   async function doUpload() {
@@ -192,7 +194,7 @@ export default function AdminPage() {
                   className="mono mt-1 w-full rounded-lg border border-border bg-background p-2 text-xs outline-none focus:border-accent"
                 />
                 <label className="mt-3 block text-xs font-semibold uppercase tracking-wide text-dim">
-                  Quan hệ mới (JSON, vd: [{'{'}"source_doc":"TT99-2026","target_doc":"TT40-2024","rel_type":"THAY_THE","valid_from":"2026-01-01"{'}'}])
+                  {`Quan hệ mới (JSON, vd: [{"source_doc":"TT99-2026","target_doc":"TT40-2024","rel_type":"THAY_THE","valid_from":"2026-01-01"}])`}
                 </label>
                 <textarea
                   value={rels}
