@@ -1,6 +1,16 @@
 // Client gọi FastAPI backend.
+import { createClient } from "@/lib/supabase/client";
+
 export const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:8000";
+
+// Header Authorization từ session Supabase (nếu đã đăng nhập).
+async function authHeaders(): Promise<Record<string, string>> {
+  const {
+    data: { session },
+  } = await createClient().auth.getSession();
+  return session ? { Authorization: `Bearer ${session.access_token}` } : {};
+}
 
 export type Citation = {
   doc_id: string;
@@ -46,7 +56,7 @@ export async function postChat(body: {
 }): Promise<ChatResponse> {
   const res = await fetch(`${API_BASE}/chat`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...(await authHeaders()) },
     body: JSON.stringify(body),
   });
   if (!res.ok) throw new Error((await res.json()).detail ?? res.statusText);
@@ -54,7 +64,7 @@ export async function postChat(body: {
 }
 
 export async function getGraph(): Promise<GraphData> {
-  const res = await fetch(`${API_BASE}/graph`);
+  const res = await fetch(`${API_BASE}/graph`, { headers: await authHeaders() });
   if (!res.ok) throw new Error((await res.json()).detail ?? res.statusText);
   return res.json();
 }

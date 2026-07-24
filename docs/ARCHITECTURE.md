@@ -112,7 +112,8 @@ Không cấu hình Supabase → backend chạy **dev mode**: auth no-op (user gi
 3. ✅ ARQ worker + Redis cho ingest; Dockerfile + compose; CI GitHub Actions
 4. ✅ Deploy backend lên Google Cloud Run — project GCP `lexflow-shb-2026`, service
    `lexflow-api` (asia-southeast1): https://lexflow-api-209912003726.asia-southeast1.run.app
-5. ⬜ Tạo project Supabase, apply migrations, nối frontend login (`@supabase/ssr`)
+5. ✅ Supabase project `ytjzskwlpusenodafkvy` + migrations applied; frontend login
+   (`@supabase/ssr`, `web/proxy.ts` chặn trang chưa đăng nhập, JWT gắn vào request API)
 6. ⬜ Lưu chat history + audit log từ `/chat`
 7. ⬜ SSE streaming cho `/chat` + Vercel AI SDK phía web
 8. ⬜ Langfuse tracing quanh `app/core/llm.py`
