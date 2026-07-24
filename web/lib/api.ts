@@ -35,6 +35,7 @@ export type ChatResponse = {
   answer: string;
   citations: Citation[];
   conflicts: ConflictAlert[];
+  session_id: string | null;
 };
 
 export type GraphNode = {
@@ -53,6 +54,7 @@ export async function postChat(body: {
   mode: "qa" | "checklist";
   as_of?: string | null;
   top_k?: number;
+  session_id?: string | null;
 }): Promise<ChatResponse> {
   const res = await fetch(`${API_BASE}/chat`, {
     method: "POST",

@@ -9,6 +9,7 @@ dependencies = [
     "beautifulsoup4>=4.15.0",
     "fastapi>=0.139.2",
     "google-genai>=2.12.1",
+    "httpx>=0.28.1",
     "lancedb>=0.34.0",
     "neo4j>=6.2.0",
     "pyarrow>=25.0.0",

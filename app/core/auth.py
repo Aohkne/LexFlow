@@ -28,6 +28,7 @@ class AuthUser:
     id: str
     email: str
     role: str  # "admin" | "staff"
+    token: str = ""  # JWT gốc — dùng gọi PostgREST với RLS của chính user
 
 
 _DEV_USER = AuthUser(id="dev", email="dev@local", role="admin")
@@ -65,6 +66,7 @@ def get_current_user(
         id=claims.get("sub", ""),
         email=claims.get("email", ""),
         role=app_meta.get("role", "staff"),
+        token=credentials.credentials,
     )
 
 

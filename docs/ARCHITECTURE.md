@@ -60,6 +60,10 @@ Cloud Run (asia-southeast1) ┌────────────────�
 - **Auth:** Supabase GoTrue phát JWT; FastAPI chỉ verify (HS256 legacy secret hoặc JWKS
   ES256/RS256) + đọc role từ `app_metadata`. Role: `admin` (duyệt văn bản, ingest) / `staff`.
   Chỗ cắm OIDC/SSO ngân hàng để sau.
+- **Ghi Postgres không dùng service-role key:** backend gọi PostgREST bằng chính JWT
+  của user → RLS vẫn thực thi, bớt một secret phải quản lý. Đổi lại audit_log cần policy
+  INSERT cho user (migration 0002); khi cần audit chống giả mạo tuyệt đối thì nâng cấp
+  sang service-role key + thu hồi policy đó.
 
 ## Phân vai dữ liệu
 
@@ -114,7 +118,8 @@ Không cấu hình Supabase → backend chạy **dev mode**: auth no-op (user gi
    `lexflow-api` (asia-southeast1): https://lexflow-api-209912003726.asia-southeast1.run.app
 5. ✅ Supabase project `ytjzskwlpusenodafkvy` + migrations applied; frontend login
    (`@supabase/ssr`, `web/proxy.ts` chặn trang chưa đăng nhập, JWT gắn vào request API)
-6. ⬜ Lưu chat history + audit log từ `/chat`
+6. ✅ Lưu chat history + audit log từ `/chat` (`app/core/appdb.py` — PostgREST bằng
+   JWT của user, RLS thực thi, không cần service-role key; migration 0002)
 7. ⬜ SSE streaming cho `/chat` + Vercel AI SDK phía web
 8. ⬜ Langfuse tracing quanh `app/core/llm.py`
 9. ⬜ Change alerts (task ARQ định kỳ) — painpoint 4

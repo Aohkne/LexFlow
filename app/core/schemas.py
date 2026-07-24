@@ -70,12 +70,14 @@ class ChatRequest(BaseModel):
     mode: str = "qa"  # qa | checklist
     as_of: str | None = None  # ISO date để tra cứu "tại thời điểm"; None = hôm nay
     top_k: int = 6
+    session_id: str | None = None  # tiếp tục phiên hội thoại đã lưu; None = phiên mới
 
 
 class ChatResponse(BaseModel):
     answer: str
     citations: list[Citation] = Field(default_factory=list)
     conflicts: list[ConflictAlert] = Field(default_factory=list)
+    session_id: str | None = None  # id phiên trên Supabase (None khi chưa cấu hình)
 
 
 class GraphNode(BaseModel):

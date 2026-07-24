@@ -1,6 +1,7 @@
 """Endpoint vận hành: kích hoạt ingest, kiểm tra sức khoẻ."""
 from fastapi import APIRouter, Depends, HTTPException
 
+from app.core import appdb
 from app.core.auth import AuthUser, require_admin
 from app.core.config import settings
 
@@ -40,6 +41,12 @@ async def ingest_endpoint(
         from app.ingestion.pipeline import main as run_ingest
 
         run_ingest(corpus_path)
-        return {"status": "ok", "corpus": corpus_path or "data/corpus.sample.json"}
     except Exception as exc:  # noqa: BLE001
         raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+    if appdb.enabled() and user.token:
+        appdb.log_audit(
+            user.token, user.id, action="ingest",
+            detail={"corpus": corpus_path or "data/corpus.sample.json"},
+        )
+    return {"status": "ok", "corpus": corpus_path or "data/corpus.sample.json"}

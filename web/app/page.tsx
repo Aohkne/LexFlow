@@ -22,6 +22,7 @@ export default function ChatPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [resp, setResp] = useState<ChatResponse | null>(null);
+  const [sessionId, setSessionId] = useState<string | null>(null);
 
   async function ask(q?: string) {
     const question = (q ?? query).trim();
@@ -35,8 +36,10 @@ export default function ChatPage() {
         mode,
         as_of: asOf || null,
         top_k: 6,
+        session_id: sessionId,
       });
       setResp(data);
+      if (data.session_id) setSessionId(data.session_id);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Lỗi không xác định");
     } finally {
