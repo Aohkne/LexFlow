@@ -5,6 +5,8 @@ tại thời điểm `as_of`, và có thể mở rộng qua knowledge graph (cro
 """
 from __future__ import annotations
 
+from functools import lru_cache
+
 from app.core import vectordb
 from app.core.config import LANCEDB_TABLE
 from app.core.llm import embed_query
@@ -16,6 +18,12 @@ _RRF_K = 60  # hằng số Reciprocal Rank Fusion
 
 def _open_table():
     return vectordb.connect().open_table(LANCEDB_TABLE)
+
+
+@lru_cache(maxsize=256)
+def _qv(query: str) -> tuple[float, ...]:
+    """Cache embedding câu hỏi — hybrid + graph-augment dùng chung 1 lần gọi Gemini."""
+    return tuple(embed_query(query))
 
 
 def _rrf(vector_hits: list[dict], fts_hits: list[dict], k: int) -> list[dict]:
@@ -38,7 +46,7 @@ def hybrid_search(
     tbl = _open_table()
     pool = max(top_k * 3, 15)
 
-    qv = embed_query(query)
+    qv = list(_qv(query))
     vector_hits = tbl.search(qv).limit(pool).to_list()
     try:
         fts_hits = tbl.search(query, query_type="fts").limit(pool).to_list()
@@ -56,8 +64,56 @@ def hybrid_search(
     return merged[:top_k]
 
 
+def search_in_docs(
+    query: str, doc_ids: list[str], *, top_k: int = 3,
+    as_of: str | None = None, effective_only: bool = True,
+) -> list[dict]:
+    """Vector search giới hạn trong một nhóm văn bản (bước mở rộng qua graph)."""
+    if not doc_ids:
+        return []
+    tbl = _open_table()
+    ids = ", ".join(f"'{d}'" for d in doc_ids)
+    hits = (
+        tbl.search(list(_qv(query)))
+        .where(f"doc_id IN ({ids})", prefilter=True)
+        .limit(top_k * 2)
+        .to_list()
+    )
+    if effective_only:
+        hits = [
+            r for r in hits
+            if is_effective(r.get("valid_from"), r.get("valid_to"), r.get("superseded", False), as_of)
+        ]
+    return hits[:top_k]
+
+
+@observe(name="retrieval.graph_augmented", as_type="retriever")
+def graph_augmented_search(
+    query: str, *, top_k: int = 6, as_of: str | None = None,
+    effective_only: bool = True, extra_k: int = 3,
+) -> tuple[list[dict], list[dict]]:
+    """Hybrid search + mở rộng 1-hop qua knowledge graph.
+
+    Trả (chunks, edges): chunks gồc + tối đa `extra_k` chunk từ văn bản liên quan
+    (vẫn lọc hiệu lực); edges là các quan hệ THAY_THE/SUA_DOI/... để đưa vào prompt.
+    Graph lỗi/chưa cấu hình → trả kết quả hybrid như thường (không làm hỏng chat).
+    """
+    base = hybrid_search(query, top_k=top_k, as_of=as_of, effective_only=effective_only)
+    try:
+        from app.knowledge.graph import related_edges
+
+        seed = sorted({r["doc_id"] for r in base})
+        edges = related_edges(seed)
+    except Exception:  # noqa: BLE001 — Neo4j down không được chặn câu trả lời
+        return base, []
+    related = sorted(({e["src"] for e in edges} | {e["tgt"] for e in edges}) - set(seed))
+    extra = search_in_docs(query, related, top_k=extra_k, as_of=as_of, effective_only=effective_only)
+    seen = {r["id"] for r in base}
+    merged = base + [r for r in extra if r["id"] not in seen]
+    return merged, edges
+
+
 def baseline_vector_search(query: str, *, top_k: int = 6) -> list[dict]:
     """RAG vector thuần (KHÔNG lọc hiệu lực, KHÔNG hybrid) — dùng cho benchmark."""
     tbl = _open_table()
-    qv = embed_query(query)
-    return tbl.search(qv).limit(top_k).to_list()
+    return tbl.search(list(_qv(query))).limit(top_k).to_list()

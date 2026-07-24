@@ -17,9 +17,10 @@ _CHUNK = {
 
 @pytest.fixture
 def client(monkeypatch):
-    # Dev mode: không Supabase → auth no-op, không persistence
+    # Dev mode: không Supabase → auth no-op, không persistence; tắt graph để mock hybrid_search
     monkeypatch.setattr(settings, "supabase_url", "")
     monkeypatch.setattr(settings, "supabase_jwt_secret", "")
+    monkeypatch.setattr(settings, "graph_augment", False)
     monkeypatch.setattr(answer_mod, "hybrid_search", lambda *a, **kw: [_CHUNK])
     monkeypatch.setattr(answer_mod, "chat_stream", lambda *a, **kw: iter(["Hạn mức ", "100 triệu."]))
     monkeypatch.setattr(answer_mod, "detect_conflicts", lambda chunks: [])

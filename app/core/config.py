@@ -44,6 +44,9 @@ class Settings(BaseSettings):
     langfuse_secret_key: str = ""
     langfuse_host: str = "https://cloud.langfuse.com"
 
+    # Graph-augmented retrieval: mở rộng context 1-hop qua knowledge graph
+    graph_augment: bool = True
+
     # Paths
     data_raw_path: str = "data/raw"
 

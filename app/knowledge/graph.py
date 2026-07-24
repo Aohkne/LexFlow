@@ -87,6 +87,22 @@ def get_graph() -> GraphData:
     return GraphData(nodes=nodes, edges=edges)
 
 
+def related_edges(doc_ids: list[str]) -> list[dict]:
+    """Các cạnh (kèm nhãn quan hệ) chạm tới doc_ids — cho graph-augmented retrieval."""
+    if not doc_ids:
+        return []
+    with session() as s:
+        return [
+            {"src": r["src"], "tgt": r["tgt"], "rel_type": r["rt"], "note": r["note"]}
+            for r in s.run(
+                "MATCH (a:Document)-[e:REL]->(b:Document) "
+                "WHERE a.doc_id IN $ids OR b.doc_id IN $ids "
+                "RETURN a.doc_id AS src, b.doc_id AS tgt, e.rel_type AS rt, e.note AS note",
+                ids=doc_ids,
+            )
+        ]
+
+
 def related_docs(doc_ids: list[str]) -> list[str]:
     """Mở rộng cross-reference: các văn bản liên quan trực tiếp tới doc_ids."""
     if not doc_ids:

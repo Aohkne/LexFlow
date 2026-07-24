@@ -4,11 +4,12 @@ from __future__ import annotations
 from collections.abc import Iterator
 from typing import Any
 
+from app.core.config import settings
 from app.core.llm import chat, chat_stream
 from app.core.schemas import ChatRequest, ChatResponse, Citation
 from app.core.tracing import observe
 from app.ingestion.versioning import today_iso
-from app.knowledge.retrieval import hybrid_search
+from app.knowledge.retrieval import graph_augmented_search, hybrid_search
 from app.reasoning.conflict import detect_conflicts
 
 _QA_SYSTEM = (
@@ -34,15 +35,35 @@ def _format_context(chunks: list[dict]) -> str:
     )
 
 
+_REL_LABEL = {
+    "THAY_THE": "thay thế",
+    "SUA_DOI": "sửa đổi, bổ sung",
+    "HUONG_DAN": "hướng dẫn thi hành",
+    "DAN_CHIEU": "dẫn chiếu",
+}
+
+
 def _prepare(req: ChatRequest) -> tuple[list[dict], str, str]:
-    """Retrieval + dựng prompt. Trả về (chunks, system, prompt)."""
+    """Retrieval (+ mở rộng knowledge graph) + dựng prompt. Trả (chunks, system, prompt)."""
     as_of = req.as_of or today_iso()
-    chunks = hybrid_search(req.query, top_k=req.top_k, as_of=as_of, effective_only=True)
+    edges: list[dict] = []
+    if settings.graph_augment and settings.neo4j_enabled:
+        chunks, edges = graph_augmented_search(req.query, top_k=req.top_k, as_of=as_of, effective_only=True)
+    else:
+        chunks = hybrid_search(req.query, top_k=req.top_k, as_of=as_of, effective_only=True)
+
     system = _CHECKLIST_SYSTEM if req.mode == "checklist" else _QA_SYSTEM
     prompt = (
         f"Câu hỏi/luồng nghiệp vụ: {req.query}\n\n"
         f"Các điều khoản đang hiệu lực (tại {as_of}):\n{_format_context(chunks)}"
     )
+    if edges:
+        rel_lines = "\n".join(
+            f"- {e['src']} {_REL_LABEL.get(e['rel_type'], e['rel_type'])} {e['tgt']}"
+            + (f" ({e['note']})" if e.get("note") else "")
+            for e in edges
+        )
+        prompt += f"\n\nQuan hệ giữa các văn bản (theo knowledge graph):\n{rel_lines}"
     return chunks, system, prompt
 
 
