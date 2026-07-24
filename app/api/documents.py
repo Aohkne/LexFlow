@@ -1,0 +1,163 @@
+"""Luồng duyệt văn bản (maker-checker):
+
+upload (PDF/HTML → Storage + extract → pending) → admin xem/sửa JSON →
+approve (merge corpus canonical trên Storage → re-ingest full) / reject.
+
+Corpus canonical: `legal-docs/corpus.json` trên Supabase Storage; nếu chưa có,
+khởi điểm từ `data/corpus.real.json` đóng gói trong image.
+"""
+from __future__ import annotations
+
+import json
+import tempfile
+from pathlib import Path
+
+from fastapi import APIRouter, Depends, HTTPException, UploadFile
+from pydantic import BaseModel
+
+from app.core import appdb
+from app.core.auth import AuthUser, require_admin
+from app.core.schemas import CorpusDocument, Relationship
+
+router = APIRouter(prefix="/documents", tags=["documents"])
+
+_CANONICAL = "corpus.json"
+_LOCAL_FALLBACK = Path("data/corpus.real.json")
+
+
+def _require_supabase() -> None:
+    if not appdb.enabled():
+        raise HTTPException(status_code=503, detail="Luồng duyệt văn bản cần cấu hình Supabase")
+
+
+def _load_canonical(token: str) -> dict:
+    raw = appdb.download_storage(token, _CANONICAL)
+    if raw is not None:
+        return json.loads(raw.decode("utf-8"))
+    if _LOCAL_FALLBACK.exists():
+        return json.loads(_LOCAL_FALLBACK.read_text(encoding="utf-8"))
+    return {"documents": [], "relationships": []}
+
+
+@router.post("/upload")
+async def upload_document(
+    file: UploadFile,
+    source: str = "external",
+    user: AuthUser = Depends(require_admin),
+) -> dict:
+    """Upload file văn bản → lưu Storage + extract → bản ghi pending chờ duyệt."""
+    _require_supabase()
+    if source not in {"external", "internal"}:
+        raise HTTPException(status_code=400, detail="source phải là external|internal")
+    content = await file.read()
+    filename = file.filename or "upload.bin"
+    storage_path = f"uploads/{filename}"
+    appdb.upload_storage(
+        user.token, storage_path, content, file.content_type or "application/octet-stream"
+    )
+
+    # Extract (tái dùng extractor CLI) — ghi file tạm đúng đuôi để chọn parser
+    from app.ingestion.extract import extract_document
+
+    suffix = Path(filename).suffix or ".txt"
+    with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
+        tmp.write(content)
+        tmp_path = Path(tmp.name)
+    try:
+        doc = extract_document(tmp_path, source=source)
+    except Exception as exc:  # noqa: BLE001
+        raise HTTPException(status_code=422, detail=f"Extract thất bại: {exc}") from exc
+    finally:
+        tmp_path.unlink(missing_ok=True)
+
+    appdb.insert_document(
+        user.token,
+        {
+            "doc_id": doc.doc_id,
+            "title": doc.title,
+            "doc_type": doc.doc_type,
+            "source": source,
+            "status": "pending",
+            "valid_from": doc.valid_from,
+            "storage_path": storage_path,
+            "uploaded_by": user.id,
+            "extracted": doc.model_dump(),
+        },
+    )
+    appdb.log_audit(
+        user.token, user.id, action="doc_upload",
+        detail={"doc_id": doc.doc_id, "file": filename, "n_articles": len(doc.articles)},
+    )
+    return {
+        "doc_id": doc.doc_id,
+        "title": doc.title,
+        "n_articles": len(doc.articles),
+        "status": "pending",
+    }
+
+
+class ApproveRequest(BaseModel):
+    document: dict | None = None  # JSON đã được admin sửa; None = dùng bản extracted
+    relationships: list[dict] = []  # quan hệ mới (THAY_THE/SUA_DOI/...) gán khi duyệt
+
+
+@router.post("/{doc_id}/approve")
+def approve_document(
+    doc_id: str,
+    body: ApproveRequest | None = None,
+    user: AuthUser = Depends(require_admin),
+) -> dict:
+    """Duyệt văn bản: merge vào corpus canonical → re-ingest → approved + audit."""
+    _require_supabase()
+    row = appdb.get_document(user.token, doc_id)
+    if row is None:
+        raise HTTPException(status_code=404, detail=f"Không có bản ghi {doc_id}")
+    doc_json = (body.document if body else None) or row.get("extracted")
+    if not doc_json:
+        raise HTTPException(status_code=400, detail="Chưa có JSON extracted để duyệt")
+
+    try:
+        doc = CorpusDocument.model_validate(doc_json)
+        new_rels = [Relationship.model_validate(r) for r in (body.relationships if body else [])]
+    except Exception as exc:  # noqa: BLE001
+        raise HTTPException(status_code=422, detail=f"JSON không hợp lệ: {exc}") from exc
+
+    corpus = _load_canonical(user.token)
+    corpus["documents"] = [d for d in corpus.get("documents", []) if d.get("doc_id") != doc.doc_id]
+    corpus["documents"].append(doc.model_dump())
+    existing = {(r["source_doc"], r["target_doc"], r["rel_type"]) for r in corpus.get("relationships", [])}
+    for r in new_rels:
+        if (r.source_doc, r.target_doc, r.rel_type) not in existing:
+            corpus.setdefault("relationships", []).append(r.model_dump())
+
+    appdb.upload_storage(
+        user.token, _CANONICAL,
+        json.dumps(corpus, ensure_ascii=False, indent=1).encode("utf-8"), "application/json",
+    )
+
+    from app.ingestion.pipeline import build_change_events, ingest_docs
+
+    docs = [CorpusDocument.model_validate(d) for d in corpus["documents"]]
+    rels = [Relationship.model_validate(r) for r in corpus.get("relationships", [])]
+    n_chunks = ingest_docs(docs, rels)
+
+    appdb.update_document(
+        user.token, doc.doc_id,
+        {"status": "approved", "reviewed_by": user.id, "extracted": doc.model_dump()},
+    )
+    n_events = appdb.record_change_events(user.token, build_change_events(docs, rels))
+    appdb.log_audit(
+        user.token, user.id, action="doc_approve",
+        detail={"doc_id": doc.doc_id, "n_chunks": n_chunks, "n_events": n_events},
+    )
+    return {"status": "approved", "doc_id": doc.doc_id, "chunks": n_chunks, "change_events": n_events}
+
+
+@router.post("/{doc_id}/reject")
+def reject_document(doc_id: str, user: AuthUser = Depends(require_admin)) -> dict:
+    _require_supabase()
+    if appdb.get_document(user.token, doc_id) is None:
+        raise HTTPException(status_code=404, detail=f"Không có bản ghi {doc_id}")
+    appdb.update_document(user.token, doc_id, {"status": "rejected", "reviewed_by": user.id})
+    appdb.log_audit(user.token, user.id, action="doc_reject", detail={"doc_id": doc_id})
+    return {"status": "rejected", "doc_id": doc_id}

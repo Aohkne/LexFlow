@@ -120,6 +120,49 @@ export async function streamChat(
   }
 }
 
+// ---- Luồng duyệt văn bản (admin) ----
+
+export type UploadResult = {
+  doc_id: string;
+  title: string;
+  n_articles: number;
+  status: string;
+};
+
+export async function uploadDocument(file: File, source: "external" | "internal"): Promise<UploadResult> {
+  const form = new FormData();
+  form.append("file", file);
+  const res = await fetch(`${API_BASE}/documents/upload?source=${source}`, {
+    method: "POST",
+    headers: await authHeaders(),
+    body: form,
+  });
+  if (!res.ok) throw new Error((await res.json().catch(() => null))?.detail ?? res.statusText);
+  return res.json();
+}
+
+export async function approveDocument(
+  docId: string,
+  document: unknown | null,
+  relationships: unknown[],
+): Promise<{ status: string; chunks: number; change_events: number }> {
+  const res = await fetch(`${API_BASE}/documents/${encodeURIComponent(docId)}/approve`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...(await authHeaders()) },
+    body: JSON.stringify({ document, relationships }),
+  });
+  if (!res.ok) throw new Error((await res.json().catch(() => null))?.detail ?? res.statusText);
+  return res.json();
+}
+
+export async function rejectDocument(docId: string): Promise<void> {
+  const res = await fetch(`${API_BASE}/documents/${encodeURIComponent(docId)}/reject`, {
+    method: "POST",
+    headers: await authHeaders(),
+  });
+  if (!res.ok) throw new Error((await res.json().catch(() => null))?.detail ?? res.statusText);
+}
+
 export async function getGraph(): Promise<GraphData> {
   const res = await fetch(`${API_BASE}/graph`, { headers: await authHeaders() });
   if (!res.ok) throw new Error((await res.json()).detail ?? res.statusText);

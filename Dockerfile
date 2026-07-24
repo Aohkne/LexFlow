@@ -11,6 +11,8 @@ RUN uv sync --frozen --no-dev
 COPY app ./app
 COPY eval ./eval
 COPY data/corpus.sample.json ./data/corpus.sample.json
+# Corpus canonical khởi điểm — sau đó bản chuẩn sống trên Supabase Storage (corpus.json)
+COPY data/corpus.real.json ./data/corpus.real.json
 
 ENV PATH="/app/.venv/bin:$PATH"
 EXPOSE 8000

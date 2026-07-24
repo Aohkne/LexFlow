@@ -152,10 +152,8 @@ def build_change_events(docs: list[CorpusDocument], rels: list[Relationship]) ->
     return events
 
 
-def main(corpus_path: str | None = None) -> tuple[list[CorpusDocument], list[Relationship]]:
-    path = corpus_path or "data/corpus.sample.json"
-    print(f"[ingest] Đọc corpus: {path}")
-    docs, rels = load_corpus(path)
+def ingest_docs(docs: list[CorpusDocument], rels: list[Relationship]) -> int:
+    """Lõi ingest: chunks → LanceDB (+ Neo4j nếu có). Trả về số chunk."""
     rows = build_chunks(docs)
     print(f"[ingest] {len(docs)} văn bản → {len(rows)} chunk. Đang embedding (Gemini)...")
     n = write_lancedb(rows)
@@ -169,4 +167,12 @@ def main(corpus_path: str | None = None) -> tuple[list[CorpusDocument], list[Rel
         print(f"[ingest] Đã nạp {len(docs)} node + {len(rels)} cạnh vào Neo4j Aura.")
     else:
         print("[ingest] Bỏ qua Neo4j (chưa cấu hình NEO4J_URI/PASSWORD).")
+    return n
+
+
+def main(corpus_path: str | None = None) -> tuple[list[CorpusDocument], list[Relationship]]:
+    path = corpus_path or "data/corpus.sample.json"
+    print(f"[ingest] Đọc corpus: {path}")
+    docs, rels = load_corpus(path)
+    ingest_docs(docs, rels)
     return docs, rels

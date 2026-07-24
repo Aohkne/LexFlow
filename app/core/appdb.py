@@ -120,3 +120,76 @@ def log_audit(token: str, user_id: str, action: str, detail: dict) -> None:
         _post("/audit_log", token, {"user_id": user_id, "action": action, "detail": detail})
     except httpx.HTTPError as exc:
         logger.warning("Không ghi được audit log: %s", exc)
+
+
+# ---------- Workflow duyệt văn bản (legal_documents + Storage) ----------
+
+_BUCKET = "legal-docs"
+
+
+def _storage_url(path: str) -> str:
+    return settings.supabase_url.rstrip("/") + f"/storage/v1/object/{_BUCKET}/{path}"
+
+
+def upload_storage(token: str, path: str, content: bytes, content_type: str) -> None:
+    """Upload/ghi đè file trong bucket legal-docs (RLS: admin)."""
+    resp = httpx.post(
+        _storage_url(path),
+        content=content,
+        headers={
+            "apikey": settings.supabase_anon_key,
+            "Authorization": f"Bearer {token}",
+            "Content-Type": content_type,
+            "x-upsert": "true",
+        },
+        timeout=60.0,
+    )
+    resp.raise_for_status()
+
+
+def download_storage(token: str, path: str) -> bytes | None:
+    """Tải file từ bucket legal-docs; None nếu chưa tồn tại."""
+    resp = httpx.get(
+        _storage_url(path),
+        headers={"apikey": settings.supabase_anon_key, "Authorization": f"Bearer {token}"},
+        timeout=60.0,
+    )
+    if resp.status_code == 404 or resp.status_code == 400:
+        return None
+    resp.raise_for_status()
+    return resp.content
+
+
+def insert_document(token: str, row: dict) -> None:
+    """Thêm/cập nhật bản ghi legal_documents (upsert theo doc_id)."""
+    _post(
+        "/legal_documents?on_conflict=doc_id",
+        token,
+        row,
+        prefer="return=minimal,resolution=merge-duplicates",
+    )
+
+
+def update_document(token: str, doc_id: str, patch: dict) -> None:
+    resp = httpx.patch(
+        settings.supabase_url.rstrip("/") + f"/rest/v1/legal_documents?doc_id=eq.{doc_id}",
+        json=patch,
+        headers={
+            "apikey": settings.supabase_anon_key,
+            "Authorization": f"Bearer {token}",
+            "Prefer": "return=minimal",
+        },
+        timeout=_TIMEOUT,
+    )
+    resp.raise_for_status()
+
+
+def get_document(token: str, doc_id: str) -> dict | None:
+    resp = httpx.get(
+        settings.supabase_url.rstrip("/") + f"/rest/v1/legal_documents?doc_id=eq.{doc_id}&select=*",
+        headers={"apikey": settings.supabase_anon_key, "Authorization": f"Bearer {token}"},
+        timeout=_TIMEOUT,
+    )
+    resp.raise_for_status()
+    rows = resp.json()
+    return rows[0] if rows else None
