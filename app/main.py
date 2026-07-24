@@ -27,7 +27,8 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[settings.frontend_origin],
+    # FRONTEND_ORIGIN nhận nhiều origin cách nhau dấu phẩy (localhost + Vercel)
+    allow_origins=[o.strip() for o in settings.frontend_origin.split(",") if o.strip()],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
