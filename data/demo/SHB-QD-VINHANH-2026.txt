@@ -1,0 +1,28 @@
+NGÂN HÀNG TMCP SÀI GÒN - HÀ NỘI (SHB)
+CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM
+Độc lập - Tự do - Hạnh phúc
+
+Số: 102/2026/QĐ-SHB
+Hà Nội, ngày 10 tháng 6 năm 2026
+
+QUYẾT ĐỊNH
+Ban hành Quy định nội bộ về mở và sử dụng ví điện tử nhanh (SHB QuickWallet)
+
+Quyết định này có hiệu lực thi hành kể từ ngày 01 tháng 7 năm 2026.
+
+Điều 1. Phạm vi điều chỉnh
+Quy định này điều chỉnh việc mở, kích hoạt và sử dụng dịch vụ ví điện tử nhanh SHB QuickWallet dành cho khách hàng cá nhân trên kênh số của SHB.
+
+Điều 2. Mở và kích hoạt ví nhanh
+1. Khách hàng cá nhân được mở ví điện tử nhanh hoàn toàn trực tuyến bằng định danh điện tử (eKYC) với căn cước công dân gắn chip.
+2. Ví điện tử nhanh được kích hoạt và sử dụng ngay sau khi hoàn tất eKYC mà không bắt buộc phải hoàn thành liên kết với tài khoản thanh toán hoặc thẻ ghi nợ của khách hàng; việc liên kết có thể bổ sung trong vòng 30 ngày kể từ ngày mở ví.
+3. Trong thời gian chưa liên kết, khách hàng được nạp tiền vào ví qua chuyển khoản từ tài khoản của người khác.
+
+Điều 3. Hạn mức giao dịch
+1. Tổng hạn mức giao dịch qua ví điện tử nhanh của một khách hàng cá nhân tối đa là 150 (một trăm năm mươi) triệu đồng Việt Nam trong một tháng.
+2. Hạn mức từng lần giao dịch tối đa 30 triệu đồng.
+
+Điều 4. Trách nhiệm thi hành
+Các đơn vị thuộc Khối Ngân hàng số, Khối Vận hành chịu trách nhiệm triển khai Quy định này.
+
+TM. TỔNG GIÁM ĐỐC
