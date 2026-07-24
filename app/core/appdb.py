@@ -60,11 +60,18 @@ def save_chat_turn(
     try:
         if not session_id:
             session_id = create_session(token, user_id, title=query, mode=mode)
+        # PostgREST bắt buộc mọi row trong bulk insert có cùng bộ key (PGRST102)
         _post(
             "/chat_messages",
             token,
             [
-                {"session_id": session_id, "role": "user", "content": query},
+                {
+                    "session_id": session_id,
+                    "role": "user",
+                    "content": query,
+                    "citations": None,
+                    "conflicts": None,
+                },
                 {
                     "session_id": session_id,
                     "role": "assistant",
