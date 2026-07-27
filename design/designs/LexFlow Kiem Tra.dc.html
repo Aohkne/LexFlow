@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:#F0EEE6;color:#191919;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+  ::selection{background:#E7C9B6}
+  .serif{font-family:'Newsreader',Georgia,serif}
+  .mono{font-family:ui-monospace,"SF Mono",Menlo,monospace}
+  a{color:#B4633E;text-decoration:none}
+  a:hover{color:#8F4A30}
+  .navitem:hover{background:#EFEADF !important}
+  .conv:hover{background:#EFEADF !important}
+  .newchat:hover{background:#B4633E !important}
+  .btn-primary:hover{background:#B4633E !important}
+  .ghost:hover{background:#F0EBE0 !important;color:#191919 !important}
+  .docrow:hover{background:#F3F0E7 !important}
+  .find:hover{border-color:#D8C4A8 !important}
+  .scroll::-webkit-scrollbar{width:10px}
+  .scroll::-webkit-scrollbar-thumb{background:#DED8C9;border-radius:99px;border:3px solid #F0EEE6}
+  #lf-shell{min-width:1180px}
+  #lf-results{min-width:568px}
+  @media (max-width:1180px){#lf-score{grid-template-columns:1fr 1fr !important}}
+  input:focus{outline:none;border-color:#CC785C !important}
+  input::placeholder{color:#B0A895}
+</style>
+</helmet>
+
+<div class="scroll" style="height:100vh;overflow-x:auto">
+<div id="lf-shell" style="height:100vh;display:flex">
+
+  <!-- SIDEBAR -->
+  <aside style="flex:none;width:260px;display:flex;flex-direction:column;background:#F5F2EA;border-right:1px solid #E4DFD2">
+    <div style="display:flex;align-items:center;gap:10px;padding:15px 16px 12px">
+      <span style="display:grid;place-items:center;width:28px;height:28px;border-radius:8px;background:#CC785C;color:#fff;font-size:15px">⎈</span>
+      <span style="font-weight:600;font-size:14px;letter-spacing:-.01em">Hoa Tiêu Pháp Lý</span>
+      <span class="mono" style="font-size:10px;color:#B0A895">LexFlow</span>
+    </div>
+    <div style="padding:4px 12px 10px">
+      <button class="newchat" style="width:100%;display:flex;align-items:center;gap:9px;background:#CC785C;color:#fff;border:none;border-radius:10px;padding:10px 13px;font-size:13.5px;font-weight:500;cursor:pointer;transition:background .15s;font-family:inherit"><span style="font-size:15px;line-height:1">✚</span>Phiên kiểm tra mới</button>
+    </div>
+    <nav style="padding:2px 12px 10px;display:flex;flex-direction:column;gap:1px">
+      <a href="./LexFlow Anthropic.dc.html" class="navitem" style="display:flex;align-items:center;gap:10px;padding:8px 11px;border-radius:9px;font-size:13px;color:#6E6A5E"><span style="width:16px;text-align:center">⌘</span>Tra cứu</a>
+      <span class="navitem" style="display:flex;align-items:center;gap:10px;padding:8px 11px;border-radius:9px;font-size:13px;background:#EAE4D6;color:#191919;font-weight:500;cursor:pointer"><span style="width:16px;text-align:center">⎗</span>Kiểm tra tài liệu</span>
+      <span class="navitem" style="display:flex;align-items:center;gap:10px;padding:8px 11px;border-radius:9px;font-size:13px;color:#6E6A5E;cursor:pointer"><span style="width:16px;text-align:center">◰</span>Đồ thị tri thức</span>
+      <span class="navitem" style="display:flex;align-items:center;gap:10px;padding:8px 11px;border-radius:9px;font-size:13px;color:#6E6A5E;cursor:pointer"><span style="width:16px;text-align:center">⚠</span>Cảnh báo<span style="margin-left:auto;font-size:10px;font-weight:600;color:#fff;background:#CC785C;border-radius:999px;padding:1px 7px">3</span></span>
+    </nav>
+    <div class="scroll" style="flex:1;overflow-y:auto;padding:8px 12px 6px;border-top:1px solid #E9E3D5">
+      <div style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#B0A895;font-weight:600;padding:4px 11px 8px">Phiên kiểm tra gần đây</div>
+      <div style="display:flex;flex-direction:column;gap:1px">
+        <sc-for list="{{ history }}" as="h" hint-placeholder-count="3">
+          <span class="conv" style="{{ h.style }}">{{ h.title }}</span>
+        </sc-for>
+      </div>
+    </div>
+    <div style="flex:none;display:flex;align-items:center;gap:9px;padding:11px 14px;border-top:1px solid #E4DFD2">
+      <span style="display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#E7DDCB;color:#8F4A30;font-size:12px;font-weight:600">AT</span>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12.5px;font-weight:500;color:#33302A">An Trần</div>
+        <div class="mono" style="font-size:10px;color:#B0A895;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">an.tran@shb.com.vn</div>
+      </div>
+      <span style="color:#B0A895;font-size:14px;cursor:pointer">⚙</span>
+    </div>
+  </aside>
+
+  <!-- CONFIG PANEL -->
+  <section style="flex:none;width:352px;display:flex;flex-direction:column;background:#FAF9F5;border-right:1px solid #E4DFD2">
+    <div style="flex:none;padding:18px 20px 14px;border-bottom:1px solid #EDE8DC">
+      <h1 class="serif" style="margin:0;font-weight:500;font-size:22px;letter-spacing:-.015em">Kiểm tra tuân thủ</h1>
+      <p style="margin:6px 0 0;font-size:12.5px;line-height:1.5;color:#6E6A5E">Đối chiếu tài liệu nội bộ với văn bản pháp luật tại một mốc thời gian.</p>
+    </div>
+
+    <div class="scroll" style="flex:1;overflow-y:auto;padding:18px 20px 20px;display:flex;flex-direction:column;gap:20px">
+
+      <!-- STEP 1: internal doc -->
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+          <span class="mono" style="display:grid;place-items:center;width:20px;height:20px;border-radius:6px;background:#CC785C;color:#fff;font-size:10.5px;font-weight:600">1</span>
+          <span style="font-size:12.5px;font-weight:600;color:#191919">Tài liệu nội bộ</span>
+        </div>
+        <div style="background:#F0EEE6;border:1px solid #E4DFD2;border-radius:12px;padding:12px 13px">
+          <div style="display:flex;align-items:flex-start;gap:10px">
+            <span style="flex:none;display:grid;place-items:center;width:30px;height:36px;border-radius:5px;background:#fff;border:1px solid #E4DFD2;font-size:9px;font-weight:700;color:#B4633E">PDF</span>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:13px;font-weight:600;color:#191919;line-height:1.35">Quy trình mở ví điện tử v2.4</div>
+              <div class="mono" style="margin-top:3px;font-size:10.5px;color:#B0A895">18 trang · 1,4 MB · tải lên 26/07</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:7px;margin-top:11px">
+            <button class="ghost" style="flex:1;font-size:11.5px;color:#8A8577;background:#EAE4D6;border:none;border-radius:8px;padding:7px 10px;cursor:pointer;font-family:inherit">Đổi tài liệu</button>
+            <button class="ghost" style="flex:1;font-size:11.5px;color:#8A8577;background:#EAE4D6;border:none;border-radius:8px;padding:7px 10px;cursor:pointer;font-family:inherit">Xem trước</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2: legal docs -->
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+          <span class="mono" style="display:grid;place-items:center;width:20px;height:20px;border-radius:6px;background:#CC785C;color:#fff;font-size:10.5px;font-weight:600">2</span>
+          <span style="font-size:12.5px;font-weight:600;color:#191919">Văn bản đối chiếu</span>
+          <span style="margin-left:auto;font-size:11px;color:#8F4A30;background:#F7EDE6;border:1px solid #E7C9B6;border-radius:999px;padding:2px 9px">{{ pickedCount }} đã chọn</span>
+        </div>
+
+        <input type="text" value="{{ search }}" onChange="{{ setSearch }}" placeholder="Tìm theo số hiệu hoặc chủ đề…" style="width:100%;background:#fff;border:1px solid #E4DFD2;border-radius:9px;padding:9px 12px;font-size:12.5px;color:#26241F;font-family:inherit;margin-bottom:8px"/>
+
+        <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap">
+          <sc-for list="{{ filters }}" as="f" hint-placeholder-count="4">
+            <button onClick="{{ f.pick }}" style="{{ f.style }}">{{ f.label }}</button>
+          </sc-for>
+        </div>
+
+        <div style="border:1px solid #E4DFD2;border-radius:12px;overflow:hidden;background:#F0EEE6">
+          <sc-for list="{{ legalDocs }}" as="d" hint-placeholder-count="5">
+            <label class="docrow" style="{{ d.rowStyle }}">
+              <input type="checkbox" checked="{{ d.checked }}" onChange="{{ d.toggle }}" style="margin-top:2px;width:15px;height:15px;accent-color:#CC785C;flex:none"/>
+              <span style="flex:1;min-width:0">
+                <span style="display:flex;flex-wrap:wrap;align-items:center;gap:7px">
+                  <span style="font-size:9.5px;text-transform:uppercase;letter-spacing:.04em;color:#8A8577;background:#EAE4D6;border-radius:5px;padding:1px 6px">{{ d.type }}</span>
+                  <span style="font-size:12.5px;font-weight:600;color:#191919">{{ d.code }}</span>
+                  <span style="{{ d.pillStyle }}">{{ d.status }}</span>
+                </span>
+                <span style="display:block;margin-top:4px;font-size:11.5px;line-height:1.45;color:#6E6A5E">{{ d.title }}</span>
+                <span class="mono" style="display:block;margin-top:3px;font-size:10px;color:#B0A895">{{ d.scope }}</span>
+              </span>
+            </label>
+          </sc-for>
+        </div>
+        <p style="margin:8px 0 0;font-size:11px;line-height:1.45;color:#B0A895">Mặc định LexFlow đề xuất văn bản theo chủ đề của tài liệu nội bộ.</p>
+      </div>
+
+      <!-- STEP 3: time -->
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+          <span class="mono" style="display:grid;place-items:center;width:20px;height:20px;border-radius:6px;background:#CC785C;color:#fff;font-size:10.5px;font-weight:600">3</span>
+          <span style="font-size:12.5px;font-weight:600;color:#191919">Thời điểm kiểm tra</span>
+        </div>
+        <div style="background:#F0EEE6;border:1px solid #E4DFD2;border-radius:12px;padding:13px">
+          <div style="display:flex;gap:6px;margin-bottom:11px">
+            <sc-for list="{{ timeModes }}" as="t" hint-placeholder-count="3">
+              <button onClick="{{ t.pick }}" style="{{ t.style }}">{{ t.label }}</button>
+            </sc-for>
+          </div>
+          <label style="display:block">
+            <span style="display:block;font-size:11.5px;color:#6E6A5E;margin-bottom:6px">{{ dateLabel }}</span>
+            <input type="date" value="{{ dateValue }}" onChange="{{ setDate }}" class="mono" style="width:100%;background:#fff;border:1px solid #E4DFD2;border-radius:9px;padding:9px 11px;font-size:12px;color:#33302A"/>
+          </label>
+          <p style="margin:9px 0 0;font-size:11px;line-height:1.5;color:#8A8577">{{ timeHint }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div style="flex:none;padding:14px 20px 18px;border-top:1px solid #EDE8DC;background:#FAF9F5">
+      <button onClick="{{ runCheck }}" class="btn-primary" style="width:100%;background:#CC785C;color:#fff;border:none;border-radius:11px;padding:12px 18px;font-size:14px;font-weight:500;cursor:pointer;transition:background .15s;font-family:inherit">{{ runLabel }}</button>
+      <p class="mono" style="margin:9px 0 0;font-size:10.5px;color:#B0A895;text-align:center">{{ runMeta }}</p>
+    </div>
+  </section>
+
+  <!-- RESULTS -->
+  <main id="lf-results" class="scroll" style="flex:1;min-width:568px;overflow-y:auto">
+    <div style="max-width:820px;margin:0 auto;padding:24px 30px 60px">
+
+      <!-- result header -->
+      <div style="display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px">
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;flex-wrap:wrap;align-items:center;gap:9px">
+            <h2 class="serif" style="margin:0;font-weight:500;font-size:25px;letter-spacing:-.015em">Quy trình mở ví điện tử v2.4</h2>
+            <span style="font-size:11px;color:#B4633E;background:#F7EDE6;border:1px solid #E7C9B6;border-radius:999px;padding:3px 10px">Cần xử lý</span>
+          </div>
+          <p class="mono" style="margin:7px 0 0;font-size:11px;color:#B0A895">Đối chiếu {{ pickedCount }} văn bản · hiệu lực tại {{ dateDisplay }} · chạy lúc 09:42 26/07</p>
+        </div>
+        <div style="display:flex;gap:7px">
+          <button class="ghost" style="font-size:12px;color:#8A8577;background:#F0EBE0;border:none;border-radius:9px;padding:8px 13px;cursor:pointer;font-family:inherit">⧉ Xuất báo cáo</button>
+          <button class="ghost" style="font-size:12px;color:#8A8577;background:#F0EBE0;border:none;border-radius:9px;padding:8px 13px;cursor:pointer;font-family:inherit">Chia sẻ</button>
+        </div>
+      </div>
+
+      <!-- score strip -->
+      <div id="lf-score" style="margin-top:18px;display:grid;grid-template-columns:1.25fr 1fr 1fr 1fr;gap:1px;background:#E4DFD2;border:1px solid #E4DFD2;border-radius:14px;overflow:hidden">
+        <div style="background:#FAF9F5;padding:16px 18px">
+          <div style="font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:#8A8577;font-weight:600">Mức tuân thủ</div>
+          <div style="display:flex;align-items:baseline;gap:7px;margin-top:6px">
+            <span class="serif" style="font-size:32px;font-weight:500;letter-spacing:-.02em;color:#191919">72</span>
+            <span style="font-size:12px;color:#B0A895">/ 100</span>
+          </div>
+          <div style="margin-top:9px;height:5px;border-radius:99px;background:#EAE4D6;overflow:hidden">
+            <div style="width:72%;height:100%;background:#CC785C"></div>
+          </div>
+        </div>
+        <sc-for list="{{ scores }}" as="s" hint-placeholder-count="3">
+          <div style="background:#FAF9F5;padding:16px 18px">
+            <div style="font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:#8A8577;font-weight:600">{{ s.label }}</div>
+            <div class="serif" style="margin-top:6px;font-size:32px;font-weight:500;letter-spacing:-.02em;color:{{ s.color }}">{{ s.value }}</div>
+            <div style="margin-top:4px;font-size:11.5px;color:#6E6A5E">{{ s.note }}</div>
+          </div>
+        </sc-for>
+      </div>
+
+      <!-- findings filter -->
+      <div style="margin-top:26px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding-bottom:12px;border-bottom:1px solid #E4DFD2">
+        <span class="serif" style="font-size:18px;font-weight:500">Phát hiện</span>
+        <div style="margin-left:auto;display:flex;background:#EAE4D6;border-radius:9px;padding:3px">
+          <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="4">
+            <button onClick="{{ t.pick }}" style="{{ t.style }}">{{ t.label }}</button>
+          </sc-for>
+        </div>
+      </div>
+
+      <!-- findings -->
+      <div style="margin-top:16px;display:flex;flex-direction:column;gap:12px">
+        <sc-for list="{{ findings }}" as="f" hint-placeholder-count="3">
+          <div class="find" style="background:#FAF9F5;border:1px solid #E4DFD2;border-radius:14px;transition:border-color .18s">
+            <button onClick="{{ f.toggle }}" style="width:100%;display:flex;align-items:flex-start;gap:11px;padding:15px 16px;background:transparent;border:none;cursor:pointer;text-align:left;font-family:inherit">
+              <span style="{{ f.iconStyle }}">{{ f.icon }}</span>
+              <span style="flex:1;min-width:0">
+                <span style="display:flex;flex-wrap:wrap;align-items:center;gap:8px">
+                  <span style="{{ f.pillStyle }}">{{ f.verdict }}</span>
+                  <span class="mono" style="font-size:10.5px;color:#B0A895">{{ f.location }}</span>
+                </span>
+                <span style="display:block;margin-top:7px;font-size:14.5px;font-weight:600;color:#191919;line-height:1.4">{{ f.title }}</span>
+                <span style="display:block;margin-top:5px;font-size:12.5px;line-height:1.55;color:#6E6A5E">{{ f.summary }}</span>
+              </span>
+              <span class="mono" style="flex:none;font-size:11px;color:#B4633E;padding-top:2px">{{ f.arrow }}</span>
+            </button>
+
+            <sc-if value="{{ f.isOpen }}" hint-placeholder-val="{{ true }}">
+              <div style="padding:0 16px 16px 54px">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                  <div style="background:#F0EEE6;border:1px solid #E4DFD2;border-radius:11px;padding:12px 13px">
+                    <div style="font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:#8A8577;font-weight:600">Tài liệu nội bộ</div>
+                    <div class="mono" style="margin-top:5px;font-size:10.5px;color:#B0A895">{{ f.location }}</div>
+                    <p class="serif" style="margin:8px 0 0;font-size:13.5px;line-height:1.55;color:#33302A;font-style:italic">{{ f.internalQuote }}</p>
+                  </div>
+                  <div style="{{ f.legalCardStyle }}">
+                    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:7px">
+                      <span style="font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:#8A8577;font-weight:600">Văn bản pháp luật</span>
+                      <span style="{{ f.legalPillStyle }}">{{ f.legalStatus }}</span>
+                    </div>
+                    <div class="mono" style="margin-top:5px;font-size:10.5px;color:#B4633E">{{ f.legalRef }}</div>
+                    <p class="serif" style="margin:8px 0 0;font-size:13.5px;line-height:1.55;color:#33302A;font-style:italic">{{ f.legalQuote }}</p>
+                  </div>
+                </div>
+                <div style="margin-top:11px;background:#F7EDE6;border:1px solid #E7C9B6;border-radius:11px;padding:12px 14px">
+                  <div style="font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:#B4633E;font-weight:600">Đề xuất chỉnh sửa</div>
+                  <p style="margin:6px 0 0;font-size:13px;line-height:1.6;color:#5C4A40">{{ f.suggestion }}</p>
+                </div>
+                <div style="margin-top:11px;display:flex;flex-wrap:wrap;gap:7px">
+                  <button class="ghost" style="font-size:11.5px;color:#8A8577;background:#F0EBE0;border:none;border-radius:8px;padding:7px 12px;cursor:pointer;font-family:inherit">Mở văn bản gốc ↗</button>
+                  <button class="ghost" style="font-size:11.5px;color:#8A8577;background:#F0EBE0;border:none;border-radius:8px;padding:7px 12px;cursor:pointer;font-family:inherit">Gán người xử lý</button>
+                  <button class="ghost" style="font-size:11.5px;color:#8A8577;background:#F0EBE0;border:none;border-radius:8px;padding:7px 12px;cursor:pointer;font-family:inherit">Bỏ qua có lý do</button>
+                </div>
+              </div>
+            </sc-if>
+          </div>
+        </sc-for>
+      </div>
+
+      <p style="margin:24px 0 0;font-size:11px;line-height:1.55;color:#B0A895;text-align:center">Kết quả mang tính hỗ trợ rà soát — vui lòng đối chiếu bản gốc trước khi ban hành tài liệu.</p>
+    </div>
+  </main>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900}}">
+const LEGAL = [
+  { type: "Thông tư", code: "TT 40/2024/TT-NHNN", title: "Hoạt động cung ứng dịch vụ trung gian thanh toán", scope: "Điều 5–14 · hạn mức, liên kết ví", status: "Đang hiệu lực", live: true, on: true, group: "thanhtoan" },
+  { type: "Nghị định", code: "NĐ 52/2024/NĐ-CP", title: "Thanh toán không dùng tiền mặt", scope: "Điều 22–31 · mở & sử dụng ví", status: "Đang hiệu lực", live: true, on: true, group: "thanhtoan" },
+  { type: "Thông tư", code: "TT 17/2024/TT-NHNN", title: "Mở và sử dụng tài khoản thanh toán", scope: "Điều 9–17 · định danh khách hàng", status: "Đang hiệu lực", live: true, on: true, group: "kyc" },
+  { type: "Luật", code: "Luật PCRT 2022", title: "Phòng, chống rửa tiền", scope: "Điều 9–15 · nhận biết khách hàng", status: "Đang hiệu lực", live: true, on: false, group: "kyc" },
+  { type: "Thông tư", code: "TT 23/2019/TT-NHNN", title: "Dịch vụ trung gian thanh toán (bản cũ)", scope: "Đã bị TT 40/2024 thay thế", status: "Hết hiệu lực", live: false, on: false, group: "thanhtoan" },
+];
+
+const FINDINGS = [
+  {
+    verdict: "Vi phạm", kind: "violation", location: "Mục 3.2, trang 6",
+    title: "Hạn mức giao dịch còn ghi theo thông tư đã hết hiệu lực",
+    summary: "Tài liệu nêu 50 triệu đồng/tháng theo TT 23/2019, trong khi văn bản áp dụng tại 24/07/2026 quy định 100 triệu đồng/tháng.",
+    internalQuote: "“Tổng hạn mức giao dịch của khách hàng cá nhân không vượt quá 50 triệu đồng mỗi tháng.”",
+    legalRef: "TT 40/2024/TT-NHNN · Điều 9 khoản 2",
+    legalQuote: "“Tổng hạn mức giao dịch của một ví điện tử cá nhân tối đa 100 triệu đồng Việt Nam trong một tháng.”",
+    legalStatus: "Đang hiệu lực", legalLive: true,
+    suggestion: "Cập nhật hạn mức thành 100 triệu đồng/tháng và ghi rõ cách tính gộp theo giấy tờ tùy thân. Thay dẫn chiếu TT 23/2019 bằng TT 40/2024.",
+  },
+  {
+    verdict: "Cảnh báo", kind: "warning", location: "Mục 2.1, trang 3",
+    title: "Chưa nêu yêu cầu ví phải liên kết tài khoản chính chủ",
+    summary: "Quy trình cho phép liên kết tài khoản của người thân trong trường hợp đặc biệt — nghị định không có ngoại lệ này.",
+    internalQuote: "“Trường hợp đặc biệt, khách hàng có thể liên kết ví với tài khoản của người thân trực hệ.”",
+    legalRef: "NĐ 52/2024/NĐ-CP · Điều 27",
+    legalQuote: "“Ví điện tử phải liên kết với tài khoản thanh toán hoặc thẻ ghi nợ của chính khách hàng.”",
+    legalStatus: "Đang hiệu lực", legalLive: true,
+    suggestion: "Bỏ ngoại lệ liên kết tài khoản người thân, hoặc bổ sung căn cứ pháp lý cụ thể nếu có văn bản cho phép.",
+  },
+  {
+    verdict: "Tuân thủ", kind: "pass", location: "Mục 1.4, trang 2",
+    title: "Hồ sơ định danh khách hàng đầy đủ theo quy định",
+    summary: "Danh mục giấy tờ và bước xác thực khớp với yêu cầu nhận biết khách hàng hiện hành.",
+    internalQuote: "“Khách hàng cung cấp CCCD gắn chip và thực hiện xác thực sinh trắc học tại bước 2.”",
+    legalRef: "TT 17/2024/TT-NHNN · Điều 12",
+    legalQuote: "“Tổ chức phải thu thập giấy tờ tùy thân và đối chiếu sinh trắc học khi mở tài khoản.”",
+    legalStatus: "Đang hiệu lực", legalLive: true,
+    suggestion: "Không cần chỉnh sửa. Nên ghi thêm ngày rà soát để phục vụ kiểm toán nội bộ.",
+  },
+];
+
+class Component extends DCLogic {
+  state = {
+    picked: LEGAL.map((d) => d.on),
+    search: "",
+    filter: "all",
+    timeMode: "today",
+    date: "2026-07-24",
+    tab: "all",
+    open: { 0: true },
+  };
+
+  renderVals() {
+    const st = this.state;
+
+    const seg = (on) =>
+      "border:none;border-radius:7px;padding:6px 11px;font-size:11.5px;font-weight:500;cursor:pointer;transition:all .15s;font-family:inherit;" +
+      (on ? "background:#FAF9F5;color:#191919;box-shadow:0 1px 2px rgba(40,34,24,.12)" : "background:transparent;color:#8A8577");
+
+    const chip = (on) =>
+      "border-radius:999px;padding:5px 12px;font-size:11.5px;cursor:pointer;transition:all .15s;font-family:inherit;" +
+      (on ? "background:#CC785C;color:#fff;border:1px solid #CC785C" : "background:#F0EEE6;color:#6E6A5E;border:1px solid #E4DFD2");
+
+    const q = st.search.trim().toLowerCase();
+    const legalDocs = LEGAL.map((d, i) => ({ ...d, i }))
+      .filter((d) => (st.filter === "all" ? true : st.filter === "live" ? d.live : d.group === st.filter))
+      .filter((d) => !q || (d.code + " " + d.title).toLowerCase().includes(q))
+      .map((d) => ({
+        ...d,
+        checked: !!st.picked[d.i],
+        toggle: () => this.setState((p) => { const n = [...p.picked]; n[d.i] = !n[d.i]; return { picked: n }; }),
+        rowStyle: "display:flex;gap:10px;align-items:flex-start;padding:11px 12px;cursor:pointer;transition:background .15s;border-top:1px solid #E4DFD2;" +
+          (!d.live ? "opacity:.6;" : "") + (st.picked[d.i] ? "background:#F3F0E7;" : ""),
+        pillStyle: "font-size:10px;padding:1px 8px;border-radius:999px;white-space:nowrap;" +
+          (d.live ? "color:#5B7A5B;background:#EAF0E7;border:1px solid #CFE0C6" : "color:#9C9686;background:#F0EDE5;border:1px solid #E4DFD2"),
+      }));
+
+    const filterDefs = [
+      { key: "all", label: "Tất cả" },
+      { key: "live", label: "Đang hiệu lực" },
+      { key: "thanhtoan", label: "Thanh toán" },
+      { key: "kyc", label: "Định danh KH" },
+    ];
+    const filters = filterDefs.map((f) => ({
+      label: f.label, style: chip(st.filter === f.key), pick: () => this.setState({ filter: f.key }),
+    }));
+
+    const timeDefs = [
+      { key: "today", label: "Hôm nay" },
+      { key: "date", label: "Ngày cụ thể" },
+      { key: "future", label: "Mốc sắp tới" },
+    ];
+    const timeModes = timeDefs.map((t) => ({
+      label: t.label,
+      style: "flex:1;" + seg(st.timeMode === t.key),
+      pick: () => this.setState({ timeMode: t.key }),
+    }));
+
+    const timeHint = st.timeMode === "today"
+      ? "Dùng các văn bản còn hiệu lực tại ngày hôm nay."
+      : st.timeMode === "date"
+      ? "Hữu ích khi rà soát lại hồ sơ đã ban hành trong quá khứ."
+      : "Kiểm tra trước tác động của văn bản sắp có hiệu lực.";
+
+    const tabDefs = [
+      { key: "all", label: "Tất cả 3" },
+      { key: "violation", label: "Vi phạm 1" },
+      { key: "warning", label: "Cảnh báo 1" },
+      { key: "pass", label: "Tuân thủ 1" },
+    ];
+    const tabs = tabDefs.map((t) => ({
+      label: t.label, style: seg(st.tab === t.key), pick: () => this.setState({ tab: t.key }),
+    }));
+
+    const tone = {
+      violation: { icon: "✕", fg: "#A8412F", bg: "#F7E6E1", bd: "#E6BFB2" },
+      warning: { icon: "⚠", fg: "#B4633E", bg: "#F7EDE6", bd: "#E7C9B6" },
+      pass: { icon: "✓", fg: "#5B7A5B", bg: "#EAF0E7", bd: "#CFE0C6" },
+    };
+
+    const findings = FINDINGS.map((f, i) => ({ ...f, i }))
+      .filter((f) => st.tab === "all" || f.kind === st.tab)
+      .map((f) => {
+        const t = tone[f.kind];
+        const isOpen = !!st.open[f.i];
+        return {
+          ...f, isOpen,
+          icon: t.icon,
+          iconStyle: "flex:none;display:grid;place-items:center;width:30px;height:30px;border-radius:9px;font-size:14px;background:" + t.bg + ";border:1px solid " + t.bd + ";color:" + t.fg,
+          pillStyle: "font-size:10.5px;font-weight:600;padding:2px 9px;border-radius:999px;background:" + t.bg + ";border:1px solid " + t.bd + ";color:" + t.fg,
+          arrow: isOpen ? "Thu gọn ▲" : "Chi tiết ▼",
+          toggle: () => this.setState((p) => ({ open: { ...p.open, [f.i]: !p.open[f.i] } })),
+          legalCardStyle: "background:#F0EEE6;border:1px solid " + (f.legalLive ? "#CFE0C6" : "#E4DFD2") + ";border-radius:11px;padding:12px 13px",
+          legalPillStyle: "font-size:9.5px;padding:1px 8px;border-radius:999px;white-space:nowrap;" +
+            (f.legalLive ? "color:#5B7A5B;background:#EAF0E7;border:1px solid #CFE0C6" : "color:#9C9686;background:#F0EDE5;border:1px solid #E4DFD2"),
+        };
+      });
+
+    const pickedCount = st.picked.filter(Boolean).length;
+    const [y, m, d] = st.date.split("-");
+    const dateDisplay = d + "/" + m + "/" + y;
+
+    const history = [
+      "Quy trình mở ví điện tử v2.4",
+      "Chính sách KYC khách hàng cá nhân",
+      "Quy định phong tỏa tài khoản",
+    ].map((title, i) => ({
+      title,
+      style: "display:block;padding:8px 11px;border-radius:9px;font-size:12.5px;line-height:1.35;color:" +
+        (i === 0 ? "#191919" : "#6E6A5E") + ";white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;" +
+        (i === 0 ? "background:#EAE4D6;font-weight:500" : ""),
+    }));
+
+    return {
+      history, legalDocs, filters, timeModes, timeHint, tabs, findings, pickedCount, dateDisplay,
+      search: st.search,
+      setSearch: (e) => this.setState({ search: e.target.value }),
+      dateValue: st.date,
+      setDate: (e) => this.setState({ date: e.target.value }),
+      dateLabel: st.timeMode === "future" ? "Kiểm tra tại mốc tương lai" : "Áp dụng quy định tại ngày",
+      runCheck: () => {},
+      runLabel: "Chạy kiểm tra " + pickedCount + " văn bản",
+      runMeta: "Ước tính ~40 giây · 18 trang",
+      scores: [
+        { label: "Vi phạm", value: "1", color: "#A8412F", note: "cần sửa trước khi ban hành" },
+        { label: "Cảnh báo", value: "1", color: "#B4633E", note: "nên rà soát lại" },
+        { label: "Tuân thủ", value: "1", color: "#5B7A5B", note: "khớp quy định" },
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>

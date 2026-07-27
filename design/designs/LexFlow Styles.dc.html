@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<style>
+  body{margin:0;background:#e9e6de;font-family:system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+  a{color:inherit}
+  .dv-turn{padding:44px 48px 36px;scroll-margin-top:16px}
+  .dv-thd{display:flex;align-items:baseline;gap:10px;margin:0 0 8px}
+  .dv-tid{font:600 10px ui-monospace,Menlo,monospace;padding:3px 7px;background:#1a1a1a;color:#fff;border-radius:4px;text-decoration:none}
+  .dv-tname{font:600 13px/1.3 system-ui,sans-serif;color:#1a1a1a}
+  .dv-sub{margin:0 0 26px;font:400 12.5px/1.5 system-ui,sans-serif;color:rgba(0,0,0,.5);max-width:640px}
+  .dv-opts{display:flex;flex-wrap:wrap;gap:34px;align-items:flex-start}
+  .dv-opt{flex:none;display:flex;flex-direction:column;gap:11px;scroll-margin-top:16px}
+  .dv-oid{font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1a1a1a;border-radius:5px;text-decoration:none}
+  .dv-olabel{display:flex;align-items:baseline;gap:9px;font:400 11.5px/1.35 system-ui,sans-serif;color:rgba(0,0,0,.55)}
+  .dv-olabel b{color:rgba(0,0,0,.82);font-weight:600}
+  .dv-card{width:472px;max-width:100%;border-radius:12px;box-shadow:0 8px 30px rgba(40,34,24,.13),0 2px 6px rgba(40,34,24,.06);overflow:hidden}
+  .dv-opt:target .dv-oid{background:#cc785c;color:#fff}
+  .dv-next{margin:30px 0 0;font:12.5px/1.6 system-ui,sans-serif;color:rgba(0,0,0,.5)}
+  .dv-next a{text-decoration:none}
+</style>
+</helmet>
+
+<section class="dv-turn" id="t1">
+  <div class="dv-thd"><a class="dv-tid" href="#t1">1</a><span class="dv-tname">5 hướng style cho màn Tra cứu · Hoa Tiêu Pháp Lý</span></div>
+  <p class="dv-sub">Cùng một nội dung (câu hỏi → cảnh báo mâu thuẫn → trả lời → trích dẫn nguồn). Khác nhau ở bảng màu, tông cảm xúc và kiểu chữ. Zoom/kéo tự do để so cạnh nhau.</p>
+  <div class="dv-opts">
+
+    <!-- 1a ANTHROPIC -->
+    <div class="dv-opt" id="1a">
+      <div class="dv-olabel"><a class="dv-oid" href="#1a">1a</a><span><b>Anthropic</b> — giấy ấm, clay, serif editorial</span></div>
+      <div class="dv-card" style="background:#F0EEE6;font-family:'Source Serif 4',Georgia,serif">
+        <div style="display:flex;align-items:center;gap:10px;padding:14px 22px;background:#FAF9F5;border-bottom:1px solid #E4DFD2;font-family:system-ui,sans-serif">
+          <span style="display:grid;place-items:center;width:26px;height:26px;border-radius:7px;background:#CC785C;color:#fff;font-size:14px">⎈</span>
+          <span style="font-weight:600;font-size:14px;color:#191919">Hoa Tiêu Pháp Lý</span>
+          <span style="font:500 10px ui-monospace,monospace;color:#B0A895">/ LexFlow</span>
+          <nav style="margin-left:auto;display:flex;gap:2px;font-size:12px">
+            <span style="padding:5px 11px;border-radius:7px;background:#F0EBE0;color:#191919;font-weight:500">Tra cứu</span>
+            <span style="padding:5px 11px;color:#8A8577">Đồ thị</span>
+            <span style="padding:5px 11px;color:#8A8577">Cảnh báo</span>
+          </nav>
+        </div>
+        <div style="padding:26px 26px 30px">
+          <h1 style="margin:0;font:500 27px/1.15 'Newsreader',serif;letter-spacing:-.01em;color:#191919">Tra cứu quy định thanh toán</h1>
+          <p style="margin:9px 0 0;font:400 13.5px/1.55 system-ui,sans-serif;color:#6E6A5E">Hỏi tự nhiên, nhận câu trả lời trích dẫn đúng điều/khoản <em style="font-family:'Newsreader',serif;color:#B4633E;font-style:italic">đang hiệu lực</em>.</p>
+
+          <div style="margin-top:20px;background:#FAF9F5;border:1px solid #E4DFD2;border-radius:13px;padding:15px 16px">
+            <p style="margin:0;font:400 14px/1.45 'Newsreader',serif;color:#33302A">Hạn mức giao dịch qua ví điện tử cá nhân là bao nhiêu một tháng?</p>
+            <div style="display:flex;justify-content:flex-end;margin-top:11px;font-family:system-ui,sans-serif">
+              <span style="background:#CC785C;color:#fff;font-size:12.5px;font-weight:500;padding:7px 16px;border-radius:9px">Tra cứu</span>
+            </div>
+          </div>
+
+          <div style="margin-top:16px;background:#F7EDE6;border:1px solid #E7C9B6;border-radius:11px;padding:12px 14px;font-family:system-ui,sans-serif">
+            <div style="font:600 10px/1 system-ui;letter-spacing:.09em;text-transform:uppercase;color:#B4633E">⚠ Mâu thuẫn · Cảnh báo</div>
+            <p style="margin:6px 0 0;font-size:12.5px;line-height:1.5;color:#5C4A40;font-family:'Source Serif 4',serif">TT 23/2019 và TT 40/2024 quy định hạn mức khác nhau cho cùng loại giao dịch.</p>
+          </div>
+
+          <div style="margin-top:18px">
+            <div style="font:600 10px/1 system-ui;letter-spacing:.1em;text-transform:uppercase;color:#B4633E;margin-bottom:8px">Trả lời</div>
+            <p style="margin:0;font:400 15px/1.62 'Newsreader',serif;color:#26241F">Theo quy định đang hiệu lực, tổng hạn mức giao dịch qua ví điện tử của khách hàng cá nhân tối đa <strong style="font-weight:600">100 triệu đồng/tháng</strong>, áp dụng cho mọi ví liên kết trên cùng một CCCD.</p>
+          </div>
+
+          <div style="margin-top:20px;font-family:system-ui,sans-serif">
+            <div style="font:600 10px/1 system-ui;letter-spacing:.1em;text-transform:uppercase;color:#8A8577;margin-bottom:9px">Nguồn trích dẫn (2)</div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div style="background:#FAF9F5;border:1px solid #E4DFD2;border-radius:10px;padding:11px 13px">
+                <div style="display:flex;flex-wrap:wrap;align-items:center;gap:7px">
+                  <span style="background:#EFE7DA;color:#7A7565;font-size:10px;padding:2px 7px;border-radius:5px">Thông tư</span>
+                  <span style="font-size:12.5px;font-weight:600;color:#191919">TT 40/2024/TT-NHNN</span>
+                  <span style="font:500 11px ui-monospace,monospace;color:#B4633E">Điều 9</span>
+                  <span style="margin-left:auto;font:400 10px ui-monospace,monospace;color:#B0A895">hiệu lực 01/2024</span>
+                </div>
+                <p style="margin:6px 0 0;font-size:12px;line-height:1.5;color:#6E6A5E">"Tổng hạn mức giao dịch tối đa 100 triệu đồng/tháng."</p>
+              </div>
+              <div style="background:#FAF9F5;border:1px solid #E4DFD2;border-radius:10px;padding:11px 13px">
+                <div style="display:flex;flex-wrap:wrap;align-items:center;gap:7px">
+                  <span style="background:#EFE7DA;color:#7A7565;font-size:10px;padding:2px 7px;border-radius:5px">Nghị định</span>
+                  <span style="font-size:12.5px;font-weight:600;color:#191919">NĐ 52/2024/NĐ-CP</span>
+                  <span style="font:500 11px ui-monospace,monospace;color:#B4633E">Điều 27</span>
+                  <span style="margin-left:auto;font:400 10px ui-monospace,monospace;color:#B0A895">hiệu lực 07/2024</span>
+                </div>
+                <p style="margin:6px 0 0;font-size:12px;line-height:1.5;color:#6E6A5E">"Ví điện tử phải liên kết với tài khoản thanh toán."</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 1b FINTECH NAVY -->
+    <div class="dv-opt" id="1b">
+      <div class="dv-olabel"><a class="dv-oid" href="#1b">1b</a><span><b>Fintech ngân hàng</b> — navy, dày, nghiêm túc</span></div>
+      <div class="dv-card" style="background:#F3F5F8;font-family:'IBM Plex Sans',system-ui,sans-serif;border:1px solid #DEE4EC">
+        <div style="display:flex;align-items:center;gap:10px;padding:13px 22px;background:#0F2A4A;border-bottom:3px solid #C9A15A">
+          <span style="display:grid;place-items:center;width:26px;height:26px;border-radius:5px;background:#C9A15A;color:#0F2A4A;font-size:14px;font-weight:700">⎈</span>
+          <span style="font-weight:700;font-size:14px;color:#fff;letter-spacing:.01em">HOA TIÊU PHÁP LÝ</span>
+          <span style="font:600 10px ui-monospace,monospace;color:#7E9AC0">/ LEXFLOW</span>
+          <nav style="margin-left:auto;display:flex;gap:0;font-size:11.5px;font-weight:600">
+            <span style="padding:6px 12px;color:#fff;border-bottom:2px solid #C9A15A">Tra cứu</span>
+            <span style="padding:6px 12px;color:#9DB2CE">Đồ thị</span>
+            <span style="padding:6px 12px;color:#9DB2CE">Cảnh báo</span>
+          </nav>
+        </div>
+        <div style="padding:24px 24px 28px">
+          <h1 style="margin:0;font-size:21px;font-weight:700;color:#0F2A4A;letter-spacing:-.01em">Tra cứu quy định thanh toán</h1>
+          <div style="width:38px;height:3px;background:#C9A15A;margin:9px 0 0"></div>
+          <p style="margin:11px 0 0;font-size:12.5px;line-height:1.5;color:#4A5568">Trả lời trích dẫn đúng điều/khoản <b style="color:#0F2A4A">đang hiệu lực</b> — kèm cảnh báo mâu thuẫn.</p>
+
+          <div style="margin-top:18px;background:#fff;border:1px solid #D3DCE7;border-radius:6px;padding:14px 15px">
+            <div style="font:700 9.5px/1 system-ui;letter-spacing:.1em;text-transform:uppercase;color:#8A99AD;margin-bottom:7px">Câu hỏi</div>
+            <p style="margin:0;font-size:13.5px;line-height:1.45;color:#1A2B42;font-weight:500">Hạn mức giao dịch qua ví điện tử cá nhân là bao nhiêu một tháng?</p>
+            <div style="display:flex;justify-content:flex-end;margin-top:12px">
+              <span style="background:#0F2A4A;color:#fff;font-size:12px;font-weight:600;padding:8px 20px;border-radius:5px;letter-spacing:.02em">TRA CỨU</span>
+            </div>
+          </div>
+
+          <div style="margin-top:15px;display:flex;gap:0;border:1px solid #E2B7B0;border-left:4px solid #B23B32;border-radius:5px;overflow:hidden;background:#FCF3F2">
+            <div style="padding:11px 14px">
+              <div style="font:700 9.5px/1 system-ui;letter-spacing:.09em;text-transform:uppercase;color:#B23B32">⚠ Mâu thuẫn phát hiện · Nghiêm trọng</div>
+              <p style="margin:6px 0 0;font-size:12px;line-height:1.5;color:#6B4842">TT 23/2019 và TT 40/2024 quy định hạn mức khác nhau cho cùng loại giao dịch.</p>
+            </div>
+          </div>
+
+          <div style="margin-top:16px;background:#fff;border:1px solid #D3DCE7;border-radius:6px;padding:15px 16px">
+            <div style="font:700 9.5px/1 system-ui;letter-spacing:.1em;text-transform:uppercase;color:#0F2A4A;margin-bottom:8px">Trả lời</div>
+            <p style="margin:0;font-size:13px;line-height:1.6;color:#25313F">Tổng hạn mức giao dịch qua ví điện tử của khách hàng cá nhân tối đa <b style="color:#0F2A4A">100 triệu đồng/tháng</b>, áp dụng cho mọi ví liên kết trên cùng một CCCD.</p>
+          </div>
+
+          <div style="margin-top:16px">
+            <div style="font:700 9.5px/1 system-ui;letter-spacing:.1em;text-transform:uppercase;color:#8A99AD;margin-bottom:8px">Nguồn trích dẫn · 2</div>
+            <div style="display:flex;flex-direction:column;gap:7px">
+              <div style="background:#fff;border:1px solid #D3DCE7;border-radius:6px;padding:10px 13px">
+                <div style="display:flex;flex-wrap:wrap;align-items:center;gap:7px">
+                  <span style="background:#0F2A4A;color:#fff;font-size:9.5px;font-weight:600;padding:2px 7px;border-radius:3px">THÔNG TƯ</span>
+                  <span style="font-size:12.5px;font-weight:700;color:#1A2B42">TT 40/2024/TT-NHNN</span>
+                  <span style="font:600 11px ui-monospace,monospace;color:#0F2A4A">Điều 9</span>
+                  <span style="margin-left:auto;font:500 10px ui-monospace,monospace;color:#8A99AD">hiệu lực 01/2024</span>
+                </div>
+                <p style="margin:6px 0 0;font-size:11.5px;line-height:1.5;color:#4A5568">"Tổng hạn mức giao dịch tối đa 100 triệu đồng/tháng."</p>
+              </div>
+              <div style="background:#fff;border:1px solid #D3DCE7;border-radius:6px;padding:10px 13px">
+                <div style="display:flex;flex-wrap:wrap;align-items:center;gap:7px">
+                  <span style="background:#1B4F8A;color:#fff;font-size:9.5px;font-weight:600;padding:2px 7px;border-radius:3px">NGHỊ ĐỊNH</span>
+                  <span style="font-size:12.5px;font-weight:700;color:#1A2B42">NĐ 52/2024/NĐ-CP</span>
+                  <span style="font:600 11px ui-monospace,monospace;color:#0F2A4A">Điều 27</span>
+                  <span style="margin-left:auto;font:500 10px ui-monospace,monospace;color:#8A99AD">hiệu lực 07/2024</span>
+                </div>
+                <p style="margin:6px 0 0;font-size:11.5px;line-height:1.5;color:#4A5568">"Ví điện tử phải liên kết với tài khoản thanh toán."</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 1c MINIMAL GROTESQUE -->
+    <div class="dv-opt" id="1c">
+      <div class="dv-olabel"><a class="dv-oid" href="#1c">1c</a><span><b>Tối giản trung tính</b> — đen trắng, grotesque</span></div>
+      <div class="dv-card" style="background:#fff;font-family:'Space Grotesk',system-ui,sans-serif;border:1px solid #E6E6E6;box-shadow:0 8px 30px rgba(0,0,0,.07)">
+        <div style="display:flex;align-items:center;gap:10px;padding:14px 22px;border-bottom:1px solid #ECECEC">
+          <span style="display:grid;place-items:center;width:24px;height:24px;border-radius:6px;background:#0A0A0A;color:#fff;font-size:13px">⎈</span>
+          <span style="font-weight:700;font-size:13.5px;color:#0A0A0A;letter-spacing:-.02em">Hoa Tiêu Pháp Lý</span>
+          <span style="font:500 10px ui-monospace,monospace;color:#BDBDBD">/ LexFlow</span>
+          <nav style="margin-left:auto;display:flex;gap:16px;font-size:12px;font-weight:500">
+            <span style="color:#0A0A0A;border-bottom:1.5px solid #0A0A0A;padding-bottom:2px">Tra cứu</span>
+            <span style="color:#9A9A9A">Đồ thị</span>
+            <span style="color:#9A9A9A">Cảnh báo</span>
+          </nav>
+        </div>
+        <div style="padding:30px 26px 32px">
+          <h1 style="margin:0;font-size:26px;font-weight:700;letter-spacing:-.03em;color:#0A0A0A;line-height:1.1">Tra cứu quy định thanh toán</h1>
+          <p style="margin:10px 0 0;font-size:13px;line-height:1.5;color:#8A8A8A;font-weight:400">Câu trả lời trích dẫn đúng điều/khoản đang hiệu lực.</p>
+
+          <div style="margin-top:22px;border:1.5px solid #0A0A0A;border-radius:2px;padding:15px 16px">
+            <p style="margin:0;font-size:14px;line-height:1.4;color:#0A0A0A;font-weight:500">Hạn mức giao dịch qua ví điện tử cá nhân là bao nhiêu một tháng?</p>
+            <div style="display:flex;justify-content:flex-end;margin-top:13px">
+              <span style="background:#0A0A0A;color:#fff;font-size:12px;font-weight:600;padding:8px 20px;border-radius:2px">Tra cứu →</span>
+            </div>
+          </div>
+
+          <div style="margin-top:16px;border:1px solid #E0E0E0;border-radius:2px;padding:12px 14px">
+            <div style="font:600 10px/1 'Space Grotesk';letter-spacing:.08em;text-transform:uppercase;color:#0A0A0A">△ Mâu thuẫn</div>
+            <p style="margin:6px 0 0;font-size:12px;line-height:1.5;color:#6A6A6A">TT 23/2019 và TT 40/2024 quy định hạn mức khác nhau cho cùng loại giao dịch.</p>
+          </div>
+
+          <div style="margin-top:22px;padding-top:18px;border-top:1px solid #ECECEC">
+            <div style="font:600 10px/1 'Space Grotesk';letter-spacing:.12em;text-transform:uppercase;color:#B0B0B0;margin-bottom:9px">Trả lời</div>
+            <p style="margin:0;font-size:14.5px;line-height:1.6;color:#1A1A1A;font-weight:400">Tổng hạn mức giao dịch qua ví điện tử của khách hàng cá nhân tối đa <b style="font-weight:700">100 triệu đồng/tháng</b>, áp dụng cho mọi ví liên kết trên cùng một CCCD.</p>
+          </div>
+
+          <div style="margin-top:22px">
+            <div style="font:600 10px/1 'Space Grotesk';letter-spacing:.12em;text-transform:uppercase;color:#B0B0B0;margin-bottom:10px">Nguồn — 02</div>
+            <div style="display:flex;flex-direction:column">
+              <div style="padding:12px 0;border-top:1px solid #ECECEC">
+                <div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:8px">
+                  <span style="font-size:9.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#9A9A9A">Thông tư</span>
+                  <span style="font-size:13px;font-weight:600;color:#0A0A0A">TT 40/2024/TT-NHNN</span>
+                  <span style="font:500 11px ui-monospace,monospace;color:#0A0A0A">Điều 9</span>
+                  <span style="margin-left:auto;font:400 10px ui-monospace,monospace;color:#B0B0B0">01/2024</span>
+                </div>
+                <p style="margin:5px 0 0;font-size:12px;line-height:1.5;color:#7A7A7A">"Tổng hạn mức giao dịch tối đa 100 triệu đồng/tháng."</p>
+              </div>
+              <div style="padding:12px 0;border-top:1px solid #ECECEC">
+                <div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:8px">
+                  <span style="font-size:9.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#9A9A9A">Nghị định</span>
+                  <span style="font-size:13px;font-weight:600;color:#0A0A0A">NĐ 52/2024/NĐ-CP</span>
+                  <span style="font:500 11px ui-monospace,monospace;color:#0A0A0A">Điều 27</span>
+                  <span style="margin-left:auto;font:400 10px ui-monospace,monospace;color:#B0B0B0">07/2024</span>
+                </div>
+                <p style="margin:5px 0 0;font-size:12px;line-height:1.5;color:#7A7A7A">"Ví điện tử phải liên kết với tài khoản thanh toán."</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 1d CURRENT REFINED -->
+    <div class="dv-opt" id="1d">
+      <div class="dv-olabel"><a class="dv-oid" href="#1d">1d</a><span><b>Style hiện tại</b> — tinh chỉnh (cream/terracotta)</span></div>
+      <div class="dv-card" style="background:#fbfaf7;font-family:system-ui,sans-serif;border:1px solid #ddd8cb">
+        <div style="display:flex;align-items:center;gap:10px;padding:13px 22px;background:#f3f1ea;border-bottom:1px solid #ddd8cb">
+          <span style="display:grid;place-items:center;width:27px;height:27px;border-radius:7px;background:#b85c3a;color:#fff;font-size:14px;font-weight:700">⎈</span>
+          <span style="font-weight:600;font-size:14px;color:#201f1a">Hoa Tiêu Pháp Lý</span>
+          <span style="font:400 10px ui-monospace,monospace;color:#9c9686">/ LexFlow</span>
+          <nav style="margin-left:auto;display:flex;gap:2px;font-size:12px">
+            <span style="padding:5px 11px;border-radius:7px;background:#ece9e0;color:#201f1a;font-weight:500">Tra cứu</span>
+            <span style="padding:5px 11px;color:#6b675c">Đồ thị</span>
+            <span style="padding:5px 11px;color:#6b675c">Cảnh báo</span>
+          </nav>
+        </div>
+        <div style="padding:24px 24px 28px">
+          <h1 style="margin:0;font-size:22px;font-weight:600;color:#201f1a;letter-spacing:-.01em">Tra cứu quy định thanh toán</h1>
+          <p style="margin:8px 0 0;font-size:13px;line-height:1.5;color:#6b675c">Trả lời trích dẫn đúng điều/khoản <b style="color:#8f4a30;font-weight:600">đang hiệu lực</b> — kèm cảnh báo mâu thuẫn.</p>
+
+          <div style="margin-top:20px;background:#f3f1ea;border:1px solid #ddd8cb;border-radius:12px;padding:15px">
+            <p style="margin:0;font-size:13.5px;line-height:1.45;color:#201f1a">Hạn mức giao dịch qua ví điện tử cá nhân là bao nhiêu một tháng?</p>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px">
+              <span style="font:400 10px ui-monospace,monospace;color:#9c9686">⌘/Ctrl + Enter</span>
+              <span style="background:#b85c3a;color:#fff;font-size:12.5px;font-weight:500;padding:8px 17px;border-radius:9px">Tra cứu</span>
+            </div>
+          </div>
+
+          <div style="margin-top:16px;background:#f3f1ea;border-left:4px solid #ab4f3a;border-radius:9px;padding:12px 14px">
+            <div style="font:600 10px/1 system-ui;letter-spacing:.08em;text-transform:uppercase;color:#ab4f3a">⚠ Mâu thuẫn · Nghiêm trọng</div>
+            <p style="margin:6px 0 0;font-size:12.5px;line-height:1.5;color:#201f1a">TT 23/2019 và TT 40/2024 quy định hạn mức khác nhau cho cùng loại giao dịch.</p>
+          </div>
+
+          <div style="margin-top:16px;background:#f3f1ea;border:1px solid #ddd8cb;border-radius:12px;padding:16px">
+            <div style="font:600 10px/1 system-ui;letter-spacing:.1em;text-transform:uppercase;color:#8f4a30;margin-bottom:8px">Trả lời</div>
+            <p style="margin:0;font-size:13px;line-height:1.62;color:#201f1a">Tổng hạn mức giao dịch qua ví điện tử của khách hàng cá nhân tối đa <b style="color:#8f4a30">100 triệu đồng/tháng</b>, áp dụng cho mọi ví liên kết trên cùng một CCCD.</p>
+          </div>
+
+          <div style="margin-top:16px">
+            <div style="font:600 10px/1 system-ui;letter-spacing:.1em;text-transform:uppercase;color:#6b675c;margin-bottom:8px">Nguồn trích dẫn (2)</div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div style="background:#fbfaf7;border:1px solid #ddd8cb;border-radius:9px;padding:11px 13px">
+                <div style="display:flex;flex-wrap:wrap;align-items:center;gap:7px">
+                  <span style="background:#ece9e0;color:#6b675c;font-size:10px;padding:2px 7px;border-radius:5px">Thông tư</span>
+                  <span style="font-size:12.5px;font-weight:600;color:#201f1a">TT 40/2024/TT-NHNN</span>
+                  <span style="font:500 11px ui-monospace,monospace;color:#8f4a30">Điều 9</span>
+                  <span style="margin-left:auto;font:400 10px ui-monospace,monospace;color:#9c9686">hiệu lực 01/2024</span>
+                </div>
+                <p style="margin:6px 0 0;font-size:12px;line-height:1.5;color:#6b675c">"Tổng hạn mức giao dịch tối đa 100 triệu đồng/tháng."</p>
+              </div>
+              <div style="background:#fbfaf7;border:1px solid #ddd8cb;border-radius:9px;padding:11px 13px">
+                <div style="display:flex;flex-wrap:wrap;align-items:center;gap:7px">
+                  <span style="background:#ece9e0;color:#6b675c;font-size:10px;padding:2px 7px;border-radius:5px">Nghị định</span>
+                  <span style="font-size:12.5px;font-weight:600;color:#201f1a">NĐ 52/2024/NĐ-CP</span>
+                  <span style="font:500 11px ui-monospace,monospace;color:#8f4a30">Điều 27</span>
+                  <span style="margin-left:auto;font:400 10px ui-monospace,monospace;color:#9c9686">hiệu lực 07/2024</span>
+                </div>
+                <p style="margin:6px 0 0;font-size:12px;line-height:1.5;color:#6b675c">"Ví điện tử phải liên kết với tài khoản thanh toán."</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 1e DARK MODERN -->
+    <div class="dv-opt" id="1e">
+      <div class="dv-olabel"><a class="dv-oid" href="#1e">1e</a><span><b>Tối (dark mode)</b> — hiện đại, clay glow</span></div>
+      <div class="dv-card" style="background:#191714;font-family:system-ui,sans-serif;border:1px solid #2E2A24">
+        <div style="display:flex;align-items:center;gap:10px;padding:13px 22px;background:#211E19;border-bottom:1px solid #2E2A24">
+          <span style="display:grid;place-items:center;width:27px;height:27px;border-radius:7px;background:#D97757;color:#191714;font-size:14px;font-weight:700">⎈</span>
+          <span style="font-weight:600;font-size:14px;color:#EDEAE0">Hoa Tiêu Pháp Lý</span>
+          <span style="font:400 10px ui-monospace,monospace;color:#7A7264">/ LexFlow</span>
+          <nav style="margin-left:auto;display:flex;gap:2px;font-size:12px">
+            <span style="padding:5px 11px;border-radius:7px;background:#2E2A24;color:#EDEAE0;font-weight:500">Tra cứu</span>
+            <span style="padding:5px 11px;color:#9A9284">Đồ thị</span>
+            <span style="padding:5px 11px;color:#9A9284">Cảnh báo</span>
+          </nav>
+        </div>
+        <div style="padding:24px 24px 28px">
+          <h1 style="margin:0;font-size:22px;font-weight:600;color:#F3F0E7;letter-spacing:-.01em">Tra cứu quy định thanh toán</h1>
+          <p style="margin:8px 0 0;font-size:13px;line-height:1.5;color:#A49A88">Trả lời trích dẫn đúng điều/khoản <b style="color:#E89073;font-weight:600">đang hiệu lực</b> — kèm cảnh báo mâu thuẫn.</p>
+
+          <div style="margin-top:20px;background:#211E19;border:1px solid #322D26;border-radius:12px;padding:15px">
+            <p style="margin:0;font-size:13.5px;line-height:1.45;color:#EDEAE0">Hạn mức giao dịch qua ví điện tử cá nhân là bao nhiêu một tháng?</p>
+            <div style="display:flex;justify-content:flex-end;margin-top:12px">
+              <span style="background:#D97757;color:#191714;font-size:12.5px;font-weight:600;padding:8px 17px;border-radius:9px;box-shadow:0 0 22px rgba(217,119,87,.35)">Tra cứu</span>
+            </div>
+          </div>
+
+          <div style="margin-top:16px;background:#2A211C;border:1px solid #4A3328;border-radius:11px;padding:12px 14px">
+            <div style="font:600 10px/1 system-ui;letter-spacing:.08em;text-transform:uppercase;color:#E89073">⚠ Mâu thuẫn · Nghiêm trọng</div>
+            <p style="margin:6px 0 0;font-size:12.5px;line-height:1.5;color:#D8C9BC">TT 23/2019 và TT 40/2024 quy định hạn mức khác nhau cho cùng loại giao dịch.</p>
+          </div>
+
+          <div style="margin-top:16px;background:#211E19;border:1px solid #322D26;border-radius:12px;padding:16px">
+            <div style="font:600 10px/1 system-ui;letter-spacing:.1em;text-transform:uppercase;color:#E89073;margin-bottom:8px">Trả lời</div>
+            <p style="margin:0;font-size:13px;line-height:1.62;color:#E4E0D6">Tổng hạn mức giao dịch qua ví điện tử của khách hàng cá nhân tối đa <b style="color:#F0A98A">100 triệu đồng/tháng</b>, áp dụng cho mọi ví liên kết trên cùng một CCCD.</p>
+          </div>
+
+          <div style="margin-top:16px">
+            <div style="font:600 10px/1 system-ui;letter-spacing:.1em;text-transform:uppercase;color:#9A9284;margin-bottom:8px">Nguồn trích dẫn (2)</div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div style="background:#1E1B17;border:1px solid #322D26;border-radius:9px;padding:11px 13px">
+                <div style="display:flex;flex-wrap:wrap;align-items:center;gap:7px">
+                  <span style="background:#2E2A24;color:#A49A88;font-size:10px;padding:2px 7px;border-radius:5px">Thông tư</span>
+                  <span style="font-size:12.5px;font-weight:600;color:#EDEAE0">TT 40/2024/TT-NHNN</span>
+                  <span style="font:500 11px ui-monospace,monospace;color:#E89073">Điều 9</span>
+                  <span style="margin-left:auto;font:400 10px ui-monospace,monospace;color:#7A7264">01/2024</span>
+                </div>
+                <p style="margin:6px 0 0;font-size:12px;line-height:1.5;color:#A49A88">"Tổng hạn mức giao dịch tối đa 100 triệu đồng/tháng."</p>
+              </div>
+              <div style="background:#1E1B17;border:1px solid #322D26;border-radius:9px;padding:11px 13px">
+                <div style="display:flex;flex-wrap:wrap;align-items:center;gap:7px">
+                  <span style="background:#2E2A24;color:#A49A88;font-size:10px;padding:2px 7px;border-radius:5px">Nghị định</span>
+                  <span style="font-size:12.5px;font-weight:600;color:#EDEAE0">NĐ 52/2024/NĐ-CP</span>
+                  <span style="font:500 11px ui-monospace,monospace;color:#E89073">Điều 27</span>
+                  <span style="margin-left:auto;font:400 10px ui-monospace,monospace;color:#7A7264">07/2024</span>
+                </div>
+                <p style="margin:6px 0 0;font-size:12px;line-height:1.5;color:#A49A88">"Ví điện tử phải liên kết với tài khoản thanh toán."</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <p class="dv-next">Thử tiếp: "phát triển sâu <a class="dv-oid" href="#1a">1a</a> thành bản đầy đủ" · "lấy màu <a class="dv-oid" href="#1a">1a</a> nhưng bố cục dày như <a class="dv-oid" href="#1b">1b</a>" · "thêm hướng mới" · "áp <a class="dv-oid" href="#1a">1a</a> cho màn Đồ thị & Cảnh báo"</p>
+</section>
+</x-dc>
+</body>
+</html>

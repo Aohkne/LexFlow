@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import PageShell from "@/components/page-shell";
 import { getDocument, type DocumentDetail } from "@/lib/api";
 import {
   articleAnchor,
@@ -33,13 +34,19 @@ export default function DocViewerPage() {
 
   if (error) {
     return (
-      <div className="mx-auto max-w-4xl px-6 py-10">
-        <div className="rounded-lg border border-red bg-red/5 px-4 py-3 text-sm text-red">{error}</div>
-      </div>
+      <PageShell active="docs">
+        <div className="mx-auto max-w-4xl px-6 py-10">
+          <div className="rounded-lg border border-red-bd bg-red-bg px-4 py-3 text-sm text-red">{error}</div>
+        </div>
+      </PageShell>
     );
   }
   if (!doc) {
-    return <div className="mx-auto max-w-4xl px-6 py-10 text-sm text-faint">Đang tải…</div>;
+    return (
+      <PageShell active="docs">
+        <div className="mx-auto max-w-4xl px-6 py-10 text-sm text-faint">Đang tải…</div>
+      </PageShell>
+    );
   }
 
   const amendments = buildAmendmentMap(doc);
@@ -48,6 +55,7 @@ export default function DocViewerPage() {
     replacedBy.length > 0 || (doc.valid_to !== null && doc.valid_to <= new Date().toISOString().slice(0, 10));
 
   return (
+    <PageShell active="docs">
     <div className="mx-auto max-w-4xl px-6 py-10">
       <Link href="/docs" className="text-xs text-dim hover:text-accent-dim">
         ← Thư viện văn bản
@@ -107,6 +115,7 @@ export default function DocViewerPage() {
         <SchemaTab doc={doc} />
       )}
     </div>
+    </PageShell>
   );
 }
 

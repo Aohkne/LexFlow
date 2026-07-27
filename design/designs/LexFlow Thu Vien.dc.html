@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:#F0EEE6;color:#191919;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+  ::selection{background:#E7C9B6}
+  .serif{font-family:'Newsreader',Georgia,serif}
+  .mono{font-family:ui-monospace,"SF Mono",Menlo,monospace}
+  a{color:#B4633E;text-decoration:none}
+  a:hover{color:#8F4A30}
+  .navitem:hover{background:#EFEADF !important}
+  .newchat:hover{background:#B4633E !important}
+  .btn-primary:hover{background:#B4633E !important}
+  .ghost:hover{background:#F0EBE0 !important;color:#191919 !important}
+  .doc:hover{border-color:#D8C4A8 !important}
+  .facet:hover{background:#EFEADF !important}
+  .scroll::-webkit-scrollbar{width:10px}
+  .scroll::-webkit-scrollbar-thumb{background:#DED8C9;border-radius:99px;border:3px solid #F0EEE6}
+  input:focus{outline:none;border-color:#CC785C !important}
+  input::placeholder{color:#B0A895}
+  #lf-shell{min-width:1140px}
+  #lf-list{min-width:520px}
+</style>
+</helmet>
+
+<div class="scroll" style="height:100vh;overflow-x:auto">
+<div id="lf-shell" style="height:100vh;display:flex">
+
+  <!-- SIDEBAR -->
+  <aside style="flex:none;width:260px;display:flex;flex-direction:column;background:#F5F2EA;border-right:1px solid #E4DFD2">
+    <div style="display:flex;align-items:center;gap:10px;padding:15px 16px 12px">
+      <span style="display:grid;place-items:center;width:28px;height:28px;border-radius:8px;background:#CC785C;color:#fff;font-size:15px">⎈</span>
+      <span style="font-weight:600;font-size:14px;letter-spacing:-.01em">Hoa Tiêu Pháp Lý</span>
+      <span class="mono" style="font-size:10px;color:#B0A895">LexFlow</span>
+    </div>
+    <div style="padding:4px 12px 10px">
+      <a href="./LexFlow Anthropic.dc.html" class="newchat" style="width:100%;display:flex;align-items:center;gap:9px;background:#CC785C;color:#fff;border-radius:10px;padding:10px 13px;font-size:13.5px;font-weight:500;transition:background .15s"><span style="font-size:15px;line-height:1">✚</span>Tra cứu mới</a>
+    </div>
+    <nav style="padding:2px 12px 10px;display:flex;flex-direction:column;gap:1px">
+      <a href="./LexFlow Anthropic.dc.html" class="navitem" style="display:flex;align-items:center;gap:10px;padding:8px 11px;border-radius:9px;font-size:13px;color:#6E6A5E"><span style="width:16px;text-align:center">⌘</span>Tra cứu</a>
+      <a href="./LexFlow Kiem Tra.dc.html" class="navitem" style="display:flex;align-items:center;gap:10px;padding:8px 11px;border-radius:9px;font-size:13px;color:#6E6A5E"><span style="width:16px;text-align:center">⎗</span>Kiểm tra tài liệu</a>
+      <span class="navitem" style="display:flex;align-items:center;gap:10px;padding:8px 11px;border-radius:9px;font-size:13px;background:#EAE4D6;color:#191919;font-weight:500;cursor:pointer"><span style="width:16px;text-align:center">▤</span>Thư viện văn bản</span>
+      <span class="navitem" style="display:flex;align-items:center;gap:10px;padding:8px 11px;border-radius:9px;font-size:13px;color:#6E6A5E;cursor:pointer"><span style="width:16px;text-align:center">◰</span>Đồ thị tri thức</span>
+      <span class="navitem" style="display:flex;align-items:center;gap:10px;padding:8px 11px;border-radius:9px;font-size:13px;color:#6E6A5E;cursor:pointer"><span style="width:16px;text-align:center">⚠</span>Cảnh báo<span style="margin-left:auto;font-size:10px;font-weight:600;color:#fff;background:#CC785C;border-radius:999px;padding:1px 7px">3</span></span>
+    </nav>
+
+    <!-- FACETS -->
+    <div class="scroll" style="flex:1;overflow-y:auto;padding:12px 12px 8px;border-top:1px solid #E9E3D5;display:flex;flex-direction:column;gap:18px">
+      <sc-for list="{{ facetGroups }}" as="g" hint-placeholder-count="3">
+        <div>
+          <div style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#B0A895;font-weight:600;padding:0 11px 8px">{{ g.label }}</div>
+          <div style="display:flex;flex-direction:column;gap:1px">
+            <sc-for list="{{ g.items }}" as="it" hint-placeholder-count="4">
+              <button onClick="{{ it.pick }}" class="facet" style="{{ it.style }}"><span style="flex:1;text-align:left">{{ it.label }}</span><span class="mono" style="font-size:10px;color:#B0A895">{{ it.count }}</span></button>
+            </sc-for>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="flex:none;display:flex;align-items:center;gap:9px;padding:11px 14px;border-top:1px solid #E4DFD2">
+      <span style="display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#E7DDCB;color:#8F4A30;font-size:12px;font-weight:600">AT</span>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12.5px;font-weight:500;color:#33302A">An Trần</div>
+        <div class="mono" style="font-size:10px;color:#B0A895;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">an.tran@shb.com.vn</div>
+      </div>
+      <span style="color:#B0A895;font-size:14px;cursor:pointer">⚙</span>
+    </div>
+  </aside>
+
+  <!-- LIST -->
+  <main id="lf-list" class="scroll" style="flex:1;min-width:520px;overflow-y:auto;background:#F0EEE6">
+    <div style="padding:24px 30px 60px;max-width:900px">
+
+      <h1 class="serif" style="margin:0;font-weight:500;font-size:30px;letter-spacing:-.018em">Thư viện văn bản pháp luật</h1>
+      <p style="margin:8px 0 0;font-size:14px;line-height:1.55;color:#6E6A5E;max-width:560px">Toàn bộ văn bản đã lập chỉ mục trong cơ sở dữ liệu, kèm tình trạng hiệu lực và quan hệ sửa đổi — thay thế.</p>
+
+      <!-- search + sort -->
+      <div style="margin-top:20px;display:flex;flex-wrap:wrap;gap:9px;align-items:center">
+        <div style="flex:1;min-width:260px;position:relative">
+          <span style="position:absolute;left:13px;top:50%;transform:translateY(-50%);color:#B0A895;font-size:13px">⌕</span>
+          <input type="text" value="{{ search }}" onChange="{{ setSearch }}" placeholder="Tìm số hiệu, tên văn bản hoặc nội dung điều khoản…" style="width:100%;background:#FAF9F5;border:1px solid #E4DFD2;border-radius:11px;padding:11px 14px 11px 34px;font-size:13.5px;color:#26241F;font-family:inherit"/>
+        </div>
+        <div style="display:flex;background:#EAE4D6;border-radius:10px;padding:3px">
+          <sc-for list="{{ sorts }}" as="s" hint-placeholder-count="2">
+            <button onClick="{{ s.pick }}" style="{{ s.style }}">{{ s.label }}</button>
+          </sc-for>
+        </div>
+      </div>
+
+      <!-- effective-date filter -->
+      <div style="margin-top:12px;display:flex;flex-wrap:wrap;align-items:center;gap:9px;background:#FAF9F5;border:1px solid #E4DFD2;border-radius:12px;padding:11px 14px">
+        <span style="font-size:12.5px;color:#6E6A5E">Xem tình trạng hiệu lực tại</span>
+        <input type="date" value="{{ dateValue }}" onChange="{{ setDate }}" class="mono" style="background:#fff;border:1px solid #E4DFD2;border-radius:8px;padding:6px 10px;font-size:11.5px;color:#33302A"/>
+        <span class="mono" style="font-size:10.5px;color:#B0A895">{{ resultMeta }}</span>
+        <button onClick="{{ clearAll }}" class="ghost" style="margin-left:auto;font-size:11.5px;color:#8A8577;background:#F0EBE0;border:none;border-radius:8px;padding:6px 11px;cursor:pointer;font-family:inherit">Xóa bộ lọc</button>
+      </div>
+
+      <!-- active facet -->
+      <div style="margin-top:14px;display:flex;flex-wrap:wrap;align-items:center;gap:8px">
+        <span class="serif" style="font-size:17px;font-weight:500">{{ headingLabel }}</span>
+        <span style="font-size:12px;color:#B0A895">{{ countLabel }}</span>
+      </div>
+
+      <!-- doc list -->
+      <div style="margin-top:12px;display:flex;flex-direction:column;gap:10px">
+        <sc-for list="{{ docs }}" as="d" hint-placeholder-count="5">
+          <div class="doc" style="{{ d.cardStyle }}">
+            <button onClick="{{ d.select }}" style="width:100%;text-align:left;background:transparent;border:none;padding:15px 16px;cursor:pointer;font-family:inherit">
+              <span style="display:flex;flex-wrap:wrap;align-items:center;gap:8px">
+                <span style="font-size:9.5px;text-transform:uppercase;letter-spacing:.04em;color:#8A8577;background:#EAE4D6;border-radius:5px;padding:2px 7px;white-space:nowrap">{{ d.type }}</span>
+                <span style="font-size:14px;font-weight:600;color:#191919">{{ d.code }}</span>
+                <span style="{{ d.pillStyle }}">{{ d.status }}</span>
+                <span class="mono" style="margin-left:auto;font-size:10.5px;color:#B0A895;white-space:nowrap">{{ d.effective }}</span>
+              </span>
+              <span class="serif" style="display:block;margin-top:8px;font-size:15.5px;line-height:1.45;color:#33302A">{{ d.title }}</span>
+              <span style="display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:9px">
+                <span class="mono" style="font-size:10.5px;color:#8A8577">{{ d.issuer }}</span>
+                <span class="mono" style="font-size:10.5px;color:#8A8577">{{ d.articles }} điều</span>
+                <span style="{{ d.relStyle }}">{{ d.relation }}</span>
+              </span>
+            </button>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </main>
+
+  <!-- DETAIL -->
+  <aside class="scroll" style="flex:none;width:392px;overflow-y:auto;background:#FAF9F5;border-left:1px solid #E4DFD2">
+    <div style="padding:20px 22px 40px">
+      <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px">
+        <span style="font-size:9.5px;text-transform:uppercase;letter-spacing:.04em;color:#8A8577;background:#EAE4D6;border-radius:5px;padding:2px 7px">{{ sel.type }}</span>
+        <span style="{{ sel.pillStyle }}">{{ sel.status }}</span>
+      </div>
+      <h2 style="margin:11px 0 0;font-size:17px;font-weight:600;letter-spacing:-.01em;line-height:1.3">{{ sel.code }}</h2>
+      <p class="serif" style="margin:7px 0 0;font-size:15px;line-height:1.5;color:#33302A">{{ sel.title }}</p>
+
+      <div style="margin-top:16px;display:flex;flex-direction:column;gap:1px;background:#EDE8DC;border:1px solid #EDE8DC;border-radius:11px;overflow:hidden">
+        <sc-for list="{{ sel.meta }}" as="m" hint-placeholder-count="4">
+          <div style="display:flex;gap:12px;background:#F0EEE6;padding:9px 12px">
+            <span style="flex:none;width:112px;font-size:11.5px;color:#8A8577">{{ m.k }}</span>
+            <span class="mono" style="flex:1;font-size:11px;color:#33302A;line-height:1.5">{{ m.v }}</span>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="margin-top:16px;display:flex;gap:7px">
+        <a href="./LexFlow Anthropic.dc.html" class="btn-primary" style="flex:1;text-align:center;background:#CC785C;color:#fff;font-size:12.5px;font-weight:500;padding:9px 12px;border-radius:9px;transition:background .15s">Hỏi về văn bản này</a>
+        <button class="ghost" style="font-size:12.5px;color:#8A8577;background:#F0EBE0;border:none;border-radius:9px;padding:9px 12px;cursor:pointer;font-family:inherit">Mở gốc ↗</button>
+      </div>
+
+      <!-- relations -->
+      <div style="margin-top:22px">
+        <div style="font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:#B4633E;font-weight:600;margin-bottom:9px">Quan hệ văn bản</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <sc-for list="{{ sel.relations }}" as="r" hint-placeholder-count="2">
+            <div style="{{ r.style }}">
+              <div style="display:flex;flex-wrap:wrap;align-items:center;gap:7px">
+                <span style="font-size:9.5px;text-transform:uppercase;letter-spacing:.04em;color:#8A8577;white-space:nowrap">{{ r.kind }}</span>
+                <span class="mono" style="font-size:11px;color:#B4633E">{{ r.code }}</span>
+                <span style="{{ r.pillStyle }}">{{ r.status }}</span>
+              </div>
+              <p style="margin:5px 0 0;font-size:11.5px;line-height:1.5;color:#6E6A5E">{{ r.note }}</p>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <!-- article outline -->
+      <div style="margin-top:22px">
+        <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:9px">
+          <span style="font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:#B4633E;font-weight:600">Mục lục điều khoản</span>
+          <span class="mono" style="font-size:10px;color:#B0A895">{{ sel.articles }} điều</span>
+        </div>
+        <div style="border:1px solid #E4DFD2;border-radius:11px;overflow:hidden;background:#F0EEE6">
+          <sc-for list="{{ sel.outline }}" as="a" hint-placeholder-count="4">
+            <div style="{{ a.style }}">
+              <div style="display:flex;gap:10px;align-items:baseline">
+                <span class="mono" style="flex:none;width:52px;font-size:10.5px;color:#B4633E">{{ a.no }}</span>
+                <span style="flex:1;font-size:12.5px;line-height:1.45;color:#33302A">{{ a.name }}</span>
+              </div>
+              <sc-if value="{{ a.hasQuote }}" hint-placeholder-val="{{ false }}">
+                <p class="serif" style="margin:7px 0 0 62px;font-size:12.5px;line-height:1.55;color:#6E6A5E;font-style:italic">{{ a.quote }}</p>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900}}">
+const DOCS = [
+  {
+    type: "Thông tư", code: "TT 40/2024/TT-NHNN", live: true, effective: "hiệu lực 01/01/2024",
+    title: "Quy định về hoạt động cung ứng dịch vụ trung gian thanh toán",
+    issuer: "Ngân hàng Nhà nước", articles: 32, group: "thanhtoan", year: 2024,
+    relation: "Thay thế TT 23/2019", relKind: "replace",
+    meta: [
+      { k: "Số hiệu", v: "40/2024/TT-NHNN" },
+      { k: "Cơ quan ban hành", v: "Ngân hàng Nhà nước Việt Nam" },
+      { k: "Ngày ban hành", v: "15/11/2023" },
+      { k: "Ngày hiệu lực", v: "01/01/2024" },
+      { k: "Tình trạng", v: "Đang hiệu lực" },
+      { k: "Lĩnh vực", v: "Trung gian thanh toán, ví điện tử" },
+    ],
+    relations: [
+      { kind: "Thay thế", code: "TT 23/2019/TT-NHNN", status: "Hết hiệu lực", live: false, note: "Toàn bộ nội dung về hạn mức và liên kết ví được thay thế." },
+      { kind: "Dẫn chiếu", code: "NĐ 52/2024/NĐ-CP", status: "Đang hiệu lực", live: true, note: "Áp dụng cùng quy định về mở và sử dụng ví điện tử." },
+    ],
+    outline: [
+      { no: "Điều 5", name: "Điều kiện cung ứng dịch vụ" },
+      { no: "Điều 9", name: "Hạn mức giao dịch ví điện tử", quote: "“Tổng hạn mức giao dịch của một ví điện tử cá nhân tối đa 100 triệu đồng Việt Nam trong một tháng.”" },
+      { no: "Điều 12", name: "Liên kết ví với tài khoản thanh toán" },
+      { no: "Điều 14", name: "Trách nhiệm báo cáo giao dịch" },
+    ],
+  },
+  {
+    type: "Nghị định", code: "NĐ 52/2024/NĐ-CP", live: true, effective: "hiệu lực 01/07/2024",
+    title: "Nghị định về thanh toán không dùng tiền mặt",
+    issuer: "Chính phủ", articles: 48, group: "thanhtoan", year: 2024,
+    relation: "Thay thế NĐ 101/2012", relKind: "replace",
+    meta: [
+      { k: "Số hiệu", v: "52/2024/NĐ-CP" },
+      { k: "Cơ quan ban hành", v: "Chính phủ" },
+      { k: "Ngày ban hành", v: "15/05/2024" },
+      { k: "Ngày hiệu lực", v: "01/07/2024" },
+      { k: "Tình trạng", v: "Đang hiệu lực" },
+      { k: "Lĩnh vực", v: "Thanh toán không dùng tiền mặt" },
+    ],
+    relations: [
+      { kind: "Thay thế", code: "NĐ 101/2012/NĐ-CP", status: "Hết hiệu lực", live: false, note: "Thay thế toàn bộ nghị định về thanh toán không dùng tiền mặt." },
+      { kind: "Được hướng dẫn bởi", code: "TT 40/2024/TT-NHNN", status: "Đang hiệu lực", live: true, note: "Hướng dẫn chi tiết về dịch vụ trung gian thanh toán." },
+    ],
+    outline: [
+      { no: "Điều 22", name: "Mở tài khoản thanh toán" },
+      { no: "Điều 27", name: "Điều kiện sử dụng ví điện tử", quote: "“Ví điện tử phải liên kết với tài khoản thanh toán hoặc thẻ ghi nợ của chính khách hàng.”" },
+      { no: "Điều 31", name: "Phong tỏa và đóng ví điện tử" },
+    ],
+  },
+  {
+    type: "Thông tư", code: "TT 17/2024/TT-NHNN", live: true, effective: "hiệu lực 01/07/2024",
+    title: "Quy định việc mở và sử dụng tài khoản thanh toán",
+    issuer: "Ngân hàng Nhà nước", articles: 27, group: "kyc", year: 2024,
+    relation: "Sửa đổi TT 23/2014", relKind: "amend",
+    meta: [
+      { k: "Số hiệu", v: "17/2024/TT-NHNN" },
+      { k: "Cơ quan ban hành", v: "Ngân hàng Nhà nước Việt Nam" },
+      { k: "Ngày ban hành", v: "28/06/2024" },
+      { k: "Ngày hiệu lực", v: "01/07/2024" },
+      { k: "Tình trạng", v: "Đang hiệu lực" },
+      { k: "Lĩnh vực", v: "Tài khoản thanh toán, định danh khách hàng" },
+    ],
+    relations: [
+      { kind: "Sửa đổi", code: "TT 23/2014/TT-NHNN", status: "Hết hiệu lực", live: false, note: "Cập nhật thủ tục mở tài khoản và xác thực sinh trắc học." },
+    ],
+    outline: [
+      { no: "Điều 9", name: "Hồ sơ mở tài khoản thanh toán" },
+      { no: "Điều 12", name: "Xác thực khách hàng cá nhân", quote: "“Tổ chức phải thu thập giấy tờ tùy thân và đối chiếu sinh trắc học khi mở tài khoản.”" },
+      { no: "Điều 17", name: "Phong tỏa tài khoản thanh toán" },
+    ],
+  },
+  {
+    type: "Luật", code: "Luật PCRT 2022", live: true, effective: "hiệu lực 01/03/2023",
+    title: "Luật Phòng, chống rửa tiền số 14/2022/QH15",
+    issuer: "Quốc hội", articles: 66, group: "kyc", year: 2022,
+    relation: "Thay thế Luật PCRT 2012", relKind: "replace",
+    meta: [
+      { k: "Số hiệu", v: "14/2022/QH15" },
+      { k: "Cơ quan ban hành", v: "Quốc hội" },
+      { k: "Ngày ban hành", v: "15/11/2022" },
+      { k: "Ngày hiệu lực", v: "01/03/2023" },
+      { k: "Tình trạng", v: "Đang hiệu lực" },
+      { k: "Lĩnh vực", v: "Phòng chống rửa tiền" },
+    ],
+    relations: [
+      { kind: "Thay thế", code: "Luật PCRT 2012", status: "Hết hiệu lực", live: false, note: "Thay thế toàn bộ luật phòng chống rửa tiền năm 2012." },
+      { kind: "Được hướng dẫn bởi", code: "NĐ 19/2023/NĐ-CP", status: "Đang hiệu lực", live: true, note: "Quy định chi tiết một số điều của luật." },
+    ],
+    outline: [
+      { no: "Điều 9", name: "Nhận biết khách hàng" },
+      { no: "Điều 15", name: "Báo cáo giao dịch đáng ngờ" },
+      { no: "Điều 24", name: "Lưu giữ hồ sơ, tài liệu" },
+    ],
+  },
+  {
+    type: "Thông tư", code: "TT 23/2019/TT-NHNN", live: false, effective: "hết hiệu lực 01/01/2024",
+    title: "Quy định về dịch vụ trung gian thanh toán (bản cũ)",
+    issuer: "Ngân hàng Nhà nước", articles: 28, group: "thanhtoan", year: 2019,
+    relation: "Bị TT 40/2024 thay thế", relKind: "replaced",
+    meta: [
+      { k: "Số hiệu", v: "23/2019/TT-NHNN" },
+      { k: "Cơ quan ban hành", v: "Ngân hàng Nhà nước Việt Nam" },
+      { k: "Ngày ban hành", v: "22/11/2019" },
+      { k: "Ngày hết hiệu lực", v: "01/01/2024" },
+      { k: "Tình trạng", v: "Hết hiệu lực" },
+      { k: "Lĩnh vực", v: "Trung gian thanh toán" },
+    ],
+    relations: [
+      { kind: "Bị thay thế bởi", code: "TT 40/2024/TT-NHNN", status: "Đang hiệu lực", live: true, note: "Hạn mức 50 triệu đồng/tháng đã được nâng lên 100 triệu đồng." },
+    ],
+    outline: [
+      { no: "Điều 9", name: "Hạn mức giao dịch ví điện tử", quote: "“Tổng hạn mức giao dịch của một ví điện tử cá nhân tối đa 50 triệu đồng trong một tháng.” (đã hết hiệu lực)" },
+      { no: "Điều 15", name: "Trách nhiệm của tổ chức cung ứng" },
+    ],
+  },
+  {
+    type: "Quyết định", code: "QĐ 2345/QĐ-NHNN", live: true, effective: "hiệu lực 01/07/2024",
+    title: "Về triển khai các giải pháp an toàn trong thanh toán trực tuyến",
+    issuer: "Ngân hàng Nhà nước", articles: 9, group: "antoan", year: 2024,
+    relation: "Không có văn bản liên quan", relKind: "none",
+    meta: [
+      { k: "Số hiệu", v: "2345/QĐ-NHNN" },
+      { k: "Cơ quan ban hành", v: "Ngân hàng Nhà nước Việt Nam" },
+      { k: "Ngày ban hành", v: "18/12/2023" },
+      { k: "Ngày hiệu lực", v: "01/07/2024" },
+      { k: "Tình trạng", v: "Đang hiệu lực" },
+      { k: "Lĩnh vực", v: "An toàn thanh toán trực tuyến" },
+    ],
+    relations: [
+      { kind: "Liên quan", code: "TT 17/2024/TT-NHNN", status: "Đang hiệu lực", live: true, note: "Cùng yêu cầu xác thực sinh trắc học với giao dịch giá trị lớn." },
+    ],
+    outline: [
+      { no: "Mục 1", name: "Phân loại giao dịch theo hạn mức" },
+      { no: "Mục 2", name: "Xác thực sinh trắc học", quote: "“Giao dịch trên 10 triệu đồng phải xác thực bằng dấu hiệu nhận dạng sinh trắc học.”" },
+      { no: "Mục 4", name: "Lộ trình triển khai" },
+    ],
+  },
+];
+
+class Component extends DCLogic {
+  state = { search: "", facet: "all", sort: "recent", date: "2026-07-24", selected: 0 };
+
+  renderVals() {
+    const st = this.state;
+
+    const pill = (live) =>
+      "font-size:10px;padding:2px 8px;border-radius:999px;white-space:nowrap;" +
+      (live ? "color:#5B7A5B;background:#EAF0E7;border:1px solid #CFE0C6" : "color:#9C9686;background:#F0EDE5;border:1px solid #E4DFD2");
+
+    const facetBtn = (on) =>
+      "display:flex;align-items:center;gap:8px;padding:7px 11px;border-radius:9px;font-size:12.5px;border:none;cursor:pointer;transition:background .15s;font-family:inherit;width:100%;" +
+      (on ? "background:#EAE4D6;color:#191919;font-weight:500" : "background:transparent;color:#6E6A5E");
+
+    const count = (fn) => DOCS.filter(fn).length;
+    const groups = [
+      {
+        label: "Tình trạng",
+        items: [
+          { key: "all", label: "Tất cả văn bản", count: DOCS.length },
+          { key: "live", label: "Đang hiệu lực", count: count((d) => d.live) },
+          { key: "expired", label: "Hết hiệu lực", count: count((d) => !d.live) },
+        ],
+      },
+      {
+        label: "Loại văn bản",
+        items: [
+          { key: "Luật", label: "Luật", count: count((d) => d.type === "Luật") },
+          { key: "Nghị định", label: "Nghị định", count: count((d) => d.type === "Nghị định") },
+          { key: "Thông tư", label: "Thông tư", count: count((d) => d.type === "Thông tư") },
+          { key: "Quyết định", label: "Quyết định", count: count((d) => d.type === "Quyết định") },
+        ],
+      },
+      {
+        label: "Lĩnh vực",
+        items: [
+          { key: "thanhtoan", label: "Thanh toán", count: count((d) => d.group === "thanhtoan") },
+          { key: "kyc", label: "Định danh khách hàng", count: count((d) => d.group === "kyc") },
+          { key: "antoan", label: "An toàn giao dịch", count: count((d) => d.group === "antoan") },
+        ],
+      },
+    ];
+    const facetGroups = groups.map((g) => ({
+      label: g.label,
+      items: g.items.map((it) => ({
+        label: it.label, count: it.count,
+        style: facetBtn(st.facet === it.key),
+        pick: () => this.setState({ facet: it.key }),
+      })),
+    }));
+
+    const labels = {};
+    groups.forEach((g) => g.items.forEach((it) => { labels[it.key] = it.label; }));
+
+    const q = st.search.trim().toLowerCase();
+    const matchFacet = (d) =>
+      st.facet === "all" ? true
+      : st.facet === "live" ? d.live
+      : st.facet === "expired" ? !d.live
+      : st.facet === d.type || st.facet === d.group;
+
+    const relTone = { replace: "#5B7A5B", amend: "#B4633E", replaced: "#9C9686", none: "#B0A895" };
+
+    let list = DOCS.map((d, i) => ({ ...d, i }))
+      .filter(matchFacet)
+      .filter((d) => !q || (d.code + " " + d.title + " " + d.issuer).toLowerCase().includes(q));
+
+    list = st.sort === "recent"
+      ? [...list].sort((a, b) => b.year - a.year)
+      : [...list].sort((a, b) => a.code.localeCompare(b.code, "vi"));
+
+    const docs = list.map((d) => ({
+      ...d,
+      status: d.live ? "Đang hiệu lực" : "Hết hiệu lực",
+      pillStyle: pill(d.live),
+      cardStyle: "background:#FAF9F5;border:1px solid " + (st.selected === d.i ? "#CC785C" : "#E4DFD2") +
+        ";border-radius:14px;transition:border-color .18s;" + (!d.live ? "opacity:.72;" : ""),
+      relStyle: "font-size:10.5px;color:" + relTone[d.relKind],
+      select: () => this.setState({ selected: d.i }),
+    }));
+
+    const s = DOCS[st.selected];
+    const sel = {
+      ...s,
+      status: s.live ? "Đang hiệu lực" : "Hết hiệu lực",
+      pillStyle: pill(s.live),
+      relations: s.relations.map((r) => ({ ...r, pillStyle: pill(r.live), style: "background:#F0EEE6;border:1px solid " + (r.live ? "#CFE0C6" : "#E4DFD2") + ";border-radius:10px;padding:10px 12px" })),
+      outline: s.outline.map((a, i) => ({
+        ...a, hasQuote: !!a.quote,
+        style: "padding:11px 12px;" + (i > 0 ? "border-top:1px solid #E4DFD2;" : ""),
+      })),
+    };
+
+    const sortDefs = [{ key: "recent", label: "Mới nhất" }, { key: "code", label: "Số hiệu" }];
+    const sorts = sortDefs.map((x) => ({
+      label: x.label,
+      style: "border:none;border-radius:7px;padding:7px 13px;font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;font-family:inherit;" +
+        (st.sort === x.key ? "background:#FAF9F5;color:#191919;box-shadow:0 1px 2px rgba(40,34,24,.12)" : "background:transparent;color:#8A8577"),
+      pick: () => this.setState({ sort: x.key }),
+    }));
+
+    const [y, m, dd] = st.date.split("-");
+
+    return {
+      facetGroups, docs, sel, sorts,
+      search: st.search,
+      setSearch: (e) => this.setState({ search: e.target.value }),
+      dateValue: st.date,
+      setDate: (e) => this.setState({ date: e.target.value }),
+      clearAll: () => this.setState({ search: "", facet: "all" }),
+      resultMeta: "cập nhật tới " + dd + "/" + m + "/" + y,
+      headingLabel: labels[st.facet] || "Tất cả văn bản",
+      countLabel: docs.length + " văn bản",
+    };
+  }
+}
+</script>
+</body>
+</html>

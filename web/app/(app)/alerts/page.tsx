@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import PageShell from "@/components/page-shell";
 import { createClient } from "@/lib/supabase/client";
 
 type ChangeEvent = {
@@ -86,6 +87,7 @@ export default function AlertsPage() {
   }
 
   return (
+    <PageShell active="alerts">
     <div className="mx-auto max-w-3xl px-6 py-10">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
@@ -141,5 +143,6 @@ export default function AlertsPage() {
         })}
       </div>
     </div>
+    </PageShell>
   );
 }

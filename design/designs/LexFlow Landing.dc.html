@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;background:#F0EEE6;color:#191919;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+  ::selection{background:#E7C9B6}
+  .serif{font-family:'Newsreader',Georgia,serif}
+  .mono{font-family:ui-monospace,"SF Mono",Menlo,monospace}
+  a{color:#B4633E;text-decoration:none}
+  a:hover{color:#8F4A30}
+  .btn-primary:hover{background:#B4633E !important}
+  .btn-ghost:hover{background:#F0EBE0 !important;color:#191919 !important}
+  .navlink:hover{color:#191919 !important}
+  .card:hover{border-color:#D8C4A8 !important;transform:translateY(-2px)}
+  .card{transition:border-color .18s,transform .18s}
+  .step:hover{background:#FAF9F5 !important}
+</style>
+</helmet>
+
+<!-- NAV -->
+<header style="position:sticky;top:0;z-index:30;background:rgba(240,238,230,.86);backdrop-filter:blur(12px);border-bottom:1px solid #E4DFD2">
+  <div style="max-width:1120px;margin:0 auto;display:flex;align-items:center;gap:16px;padding:13px 32px">
+    <a href="#" style="display:flex;align-items:center;gap:10px;color:inherit">
+      <span style="display:grid;place-items:center;width:29px;height:29px;border-radius:8px;background:#CC785C;color:#fff;font-size:15px">⎈</span>
+      <span style="font-weight:600;font-size:15px;letter-spacing:-.01em">Hoa Tiêu Pháp Lý</span>
+      <span class="mono" style="font-size:10.5px;color:#B0A895">/ LexFlow</span>
+    </a>
+    <nav style="margin-left:auto;display:flex;align-items:center;gap:26px;font-size:13.5px">
+      <a href="#tinhnang" class="navlink" style="color:#6E6A5E">Tính năng</a>
+      <a href="#cachhoatdong" class="navlink" style="color:#6E6A5E">Cách hoạt động</a>
+      <a href="#nguon" class="navlink" style="color:#6E6A5E">Nguồn dữ liệu</a>
+    </nav>
+    <div style="display:flex;align-items:center;gap:8px;margin-left:10px">
+      <a href="./LexFlow Auth.dc.html" class="btn-ghost" style="font-size:13.5px;font-weight:500;color:#6E6A5E;padding:8px 14px;border-radius:9px">Đăng nhập</a>
+      <a href="./LexFlow Auth.dc.html" class="btn-primary" style="font-size:13.5px;font-weight:500;color:#fff;background:#CC785C;padding:9px 18px;border-radius:10px;transition:background .15s">Dùng thử miễn phí</a>
+    </div>
+  </div>
+</header>
+
+<!-- HERO -->
+<section style="max-width:1120px;margin:0 auto;padding:76px 32px 0;text-align:center">
+  <span style="display:inline-flex;align-items:center;gap:7px;font-size:12px;color:#8F4A30;background:#F7EDE6;border:1px solid #E7C9B6;padding:5px 13px;border-radius:999px"><span style="width:6px;height:6px;border-radius:50%;background:#CC785C"></span>Dành cho khối Pháp chế &amp; Tuân thủ ngân hàng</span>
+  <h1 class="serif" style="margin:22px auto 0;max-width:760px;font-weight:500;font-size:60px;line-height:1.06;letter-spacing:-.025em">Tra cứu pháp luật mà <span style="font-style:italic;color:#B4633E">không phải tin</span> vào trí nhớ của AI</h1>
+  <p style="margin:22px auto 0;max-width:600px;font-size:17px;line-height:1.6;color:#6E6A5E">Hỏi bằng ngôn ngữ tự nhiên. Mỗi khẳng định gắn với đúng điều &amp; khoản <b style="color:#33302A;font-weight:600">đang hiệu lực</b> — và LexFlow chủ động cảnh báo khi các văn bản mâu thuẫn nhau.</p>
+  <div style="margin-top:30px;display:flex;justify-content:center;gap:11px;flex-wrap:wrap">
+    <a href="./LexFlow Auth.dc.html" class="btn-primary" style="font-size:14.5px;font-weight:500;color:#fff;background:#CC785C;padding:13px 26px;border-radius:11px;transition:background .15s">Bắt đầu tra cứu →</a>
+    <a href="./LexFlow Anthropic.dc.html" style="font-size:14.5px;font-weight:500;color:#33302A;background:#FAF9F5;border:1px solid #E4DFD2;padding:13px 24px;border-radius:11px">Xem bản demo</a>
+  </div>
+  <p class="mono" style="margin:15px 0 0;font-size:11px;color:#B0A895">Không cần thẻ tín dụng · Dữ liệu lưu tại Việt Nam</p>
+
+  <!-- product preview -->
+  <div style="margin-top:52px;background:#FAF9F5;border:1px solid #E4DFD2;border-radius:18px 18px 0 0;box-shadow:0 -1px 0 #fff inset,0 24px 60px rgba(40,34,24,.13);overflow:hidden;text-align:left">
+    <div style="display:flex;align-items:center;gap:7px;padding:12px 16px;border-bottom:1px solid #EDE8DC">
+      <span style="width:9px;height:9px;border-radius:50%;background:#E4DFD2"></span>
+      <span style="width:9px;height:9px;border-radius:50%;background:#E4DFD2"></span>
+      <span style="width:9px;height:9px;border-radius:50%;background:#E4DFD2"></span>
+      <span class="mono" style="margin-left:10px;font-size:10.5px;color:#B0A895">lexflow.vn/tra-cuu</span>
+    </div>
+    <div style="padding:26px 30px 34px;max-width:660px;margin:0 auto">
+      <div style="display:flex;justify-content:flex-end">
+        <div class="serif" style="background:#EEE7DA;border:1px solid #E4DAC7;border-radius:14px 14px 4px 14px;padding:10px 15px;font-size:15px;color:#33302A">Hạn mức giao dịch qua ví điện tử cá nhân là bao nhiêu một tháng?</div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:16px">
+        <span style="flex:none;display:grid;place-items:center;width:26px;height:26px;border-radius:8px;background:#CC785C;color:#fff;font-size:13px">⎈</span>
+        <div style="flex:1">
+          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">
+            <span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;color:#5B7A5B;background:#EAF0E7;border:1px solid #CFE0C6;padding:3px 9px;border-radius:999px"><span style="width:5px;height:5px;border-radius:50%;background:#5B7A5B"></span>2 nguồn đang hiệu lực</span>
+            <span style="font-size:11px;color:#B4633E;background:#F7EDE6;border:1px solid #E7C9B6;padding:3px 9px;border-radius:999px">⚠ 1 mâu thuẫn</span>
+          </div>
+          <p class="serif" style="margin:0;font-size:16px;line-height:1.65;color:#26241F">Tổng hạn mức giao dịch qua ví điện tử của khách hàng cá nhân tối đa <b style="font-weight:600">100 triệu đồng/tháng</b><span class="mono" style="vertical-align:super;font-size:9.5px;padding:2px 5px;border-radius:5px;background:#EFE7DA;color:#8F4A30;font-weight:600;margin:0 1px">1</span>, tính gộp mọi ví cùng một giấy tờ tùy thân.</p>
+          <div style="margin-top:13px;background:#F0EEE6;border:1px solid #E4DFD2;border-radius:11px;padding:11px 13px">
+            <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px">
+              <span class="mono" style="display:grid;place-items:center;width:21px;height:21px;border-radius:6px;background:#EFE7DA;color:#8F4A30;font-size:11px;font-weight:600">1</span>
+              <span style="font-size:9.5px;text-transform:uppercase;letter-spacing:.04em;color:#8A8577;background:#EAE4D6;border-radius:5px;padding:2px 7px">Thông tư</span>
+              <span style="font-size:13px;font-weight:600">TT 40/2024/TT-NHNN</span>
+              <span class="mono" style="font-size:10.5px;color:#B4633E">Điều 9</span>
+              <span class="mono" style="margin-left:auto;font-size:10px;color:#B0A895">từ 01/2024</span>
+            </div>
+            <p class="serif" style="margin:8px 0 0;font-size:13.5px;line-height:1.55;color:#33302A;font-style:italic">“Tổng hạn mức giao dịch của một ví điện tử cá nhân tối đa 100 triệu đồng Việt Nam trong một tháng.”</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEM -->
+<section style="background:#FAF9F5;border-top:1px solid #E4DFD2;border-bottom:1px solid #E4DFD2">
+  <div style="max-width:1120px;margin:0 auto;padding:64px 32px;display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center">
+    <div>
+      <span style="font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:#B4633E;font-weight:600">Vấn đề</span>
+      <h2 class="serif" style="margin:12px 0 0;font-weight:500;font-size:34px;line-height:1.18;letter-spacing:-.02em">Một câu trả lời sai điều khoản có thể thành rủi ro tuân thủ</h2>
+      <p style="margin:16px 0 0;font-size:15px;line-height:1.65;color:#6E6A5E">Chatbot thông thường trả lời trôi chảy nhưng không cho biết dựa vào văn bản nào, bản đó còn hiệu lực không, hay có thông tư mới thay thế chưa. Cán bộ pháp chế vẫn phải tự mở lại toàn bộ văn bản để kiểm chứng.</p>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:11px">
+      <sc-for list="{{ problems }}" as="p" hint-placeholder-count="3">
+        <div style="display:flex;gap:13px;background:#F0EEE6;border:1px solid #E4DFD2;border-radius:13px;padding:15px 17px">
+          <span style="flex:none;font-size:16px;color:#CC785C">{{ p.icon }}</span>
+          <div>
+            <div style="font-size:14px;font-weight:600;color:#191919">{{ p.title }}</div>
+            <p style="margin:4px 0 0;font-size:13px;line-height:1.55;color:#6E6A5E">{{ p.body }}</p>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="tinhnang" style="max-width:1120px;margin:0 auto;padding:72px 32px 0">
+  <div style="text-align:center;max-width:620px;margin:0 auto">
+    <span style="font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:#B4633E;font-weight:600">Tính năng</span>
+    <h2 class="serif" style="margin:12px 0 0;font-weight:500;font-size:40px;line-height:1.12;letter-spacing:-.022em">Thiết kế quanh một việc: giúp bạn kiểm chứng nhanh</h2>
+  </div>
+  <div style="margin-top:40px;display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+    <sc-for list="{{ features }}" as="f" hint-placeholder-count="6">
+      <div class="card" style="background:#FAF9F5;border:1px solid #E4DFD2;border-radius:15px;padding:22px 20px 24px">
+        <span style="display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:#F7EDE6;border:1px solid #E7C9B6;color:#B4633E;font-size:16px">{{ f.icon }}</span>
+        <h3 style="margin:14px 0 0;font-size:15.5px;font-weight:600;letter-spacing:-.01em">{{ f.title }}</h3>
+        <p style="margin:7px 0 0;font-size:13.5px;line-height:1.6;color:#6E6A5E">{{ f.body }}</p>
+      </div>
+    </sc-for>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="cachhoatdong" style="max-width:1120px;margin:0 auto;padding:76px 32px 0">
+  <div style="background:#FAF9F5;border:1px solid #E4DFD2;border-radius:20px;padding:44px 44px 48px">
+    <div style="text-align:center;max-width:560px;margin:0 auto">
+      <span style="font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:#B4633E;font-weight:600">Cách hoạt động</span>
+      <h2 class="serif" style="margin:12px 0 0;font-weight:500;font-size:34px;line-height:1.15;letter-spacing:-.02em">Từ câu hỏi đến điều khoản gốc trong bốn bước</h2>
+    </div>
+    <div style="margin-top:36px;display:grid;grid-template-columns:repeat(4,1fr);gap:14px">
+      <sc-for list="{{ steps }}" as="s" hint-placeholder-count="4">
+        <div class="step" style="border:1px solid #EDE8DC;border-radius:13px;padding:18px 17px 20px;transition:background .18s">
+          <span class="mono" style="display:grid;place-items:center;width:26px;height:26px;border-radius:8px;background:#CC785C;color:#fff;font-size:12px;font-weight:600">{{ s.n }}</span>
+          <h3 style="margin:13px 0 0;font-size:14.5px;font-weight:600">{{ s.title }}</h3>
+          <p style="margin:6px 0 0;font-size:13px;line-height:1.55;color:#6E6A5E">{{ s.body }}</p>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</section>
+
+<!-- SOURCES -->
+<section id="nguon" style="max-width:1120px;margin:0 auto;padding:76px 32px 0">
+  <div style="display:grid;grid-template-columns:1fr 1.1fr;gap:56px;align-items:center">
+    <div>
+      <span style="font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:#B4633E;font-weight:600">Nguồn dữ liệu</span>
+      <h2 class="serif" style="margin:12px 0 0;font-weight:500;font-size:34px;line-height:1.18;letter-spacing:-.02em">Chỉ dùng văn bản gốc, cập nhật theo ngày hiệu lực</h2>
+      <p style="margin:16px 0 0;font-size:15px;line-height:1.65;color:#6E6A5E">LexFlow theo dõi vòng đời từng văn bản: ngày ban hành, ngày hiệu lực, văn bản sửa đổi và thay thế. Bạn có thể tra cứu lại tình trạng pháp lý ở bất kỳ mốc thời gian nào.</p>
+      <div style="margin-top:22px;display:flex;flex-wrap:wrap;gap:8px">
+        <sc-for list="{{ docTypes }}" as="d" hint-placeholder-count="5">
+          <span style="font-size:12.5px;color:#6E6A5E;background:#FAF9F5;border:1px solid #E4DFD2;padding:6px 13px;border-radius:999px">{{ d }}</span>
+        </sc-for>
+      </div>
+    </div>
+    <div style="background:#FAF9F5;border:1px solid #E4DFD2;border-radius:16px;padding:8px">
+      <sc-for list="{{ timeline }}" as="t" hint-placeholder-count="3">
+        <div style="{{ t.style }}">
+          <div style="display:flex;flex-wrap:wrap;align-items:center;gap:9px">
+            <span class="mono" style="font-size:11px;color:#B0A895;width:58px">{{ t.date }}</span>
+            <span style="font-size:13.5px;font-weight:600;color:#191919">{{ t.doc }}</span>
+            <span style="{{ t.pillStyle }}">{{ t.status }}</span>
+          </div>
+          <p style="margin:6px 0 0 67px;font-size:12.5px;line-height:1.5;color:#6E6A5E">{{ t.note }}</p>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section style="max-width:1120px;margin:0 auto;padding:72px 32px 0">
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:#E4DFD2;border:1px solid #E4DFD2;border-radius:16px;overflow:hidden">
+    <sc-for list="{{ stats }}" as="s" hint-placeholder-count="4">
+      <div style="background:#FAF9F5;padding:26px 22px;text-align:center">
+        <div class="serif" style="font-size:36px;font-weight:500;letter-spacing:-.02em;color:#191919">{{ s.value }}</div>
+        <div style="margin-top:5px;font-size:12.5px;color:#6E6A5E;line-height:1.4">{{ s.label }}</div>
+      </div>
+    </sc-for>
+  </div>
+</section>
+
+<!-- CTA -->
+<section style="max-width:1120px;margin:0 auto;padding:76px 32px 0">
+  <div style="background:#26241F;border-radius:20px;padding:56px 44px;text-align:center">
+    <h2 class="serif" style="margin:0;font-weight:500;font-size:40px;line-height:1.12;letter-spacing:-.022em;color:#F3F0E7">Tra cứu lần đầu chỉ mất một phút</h2>
+    <p style="margin:15px auto 0;max-width:480px;font-size:15.5px;line-height:1.6;color:#A49A88">Tạo tài khoản bằng email công việc và thử ngay với một câu hỏi thật từ hồ sơ của bạn.</p>
+    <div style="margin-top:28px;display:flex;justify-content:center;gap:11px;flex-wrap:wrap">
+      <a href="./LexFlow Auth.dc.html" class="btn-primary" style="font-size:14.5px;font-weight:500;color:#fff;background:#CC785C;padding:13px 28px;border-radius:11px;transition:background .15s">Tạo tài khoản</a>
+      <a href="#" style="font-size:14.5px;font-weight:500;color:#F3F0E7;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);padding:13px 24px;border-radius:11px">Đặt lịch demo</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer style="max-width:1120px;margin:0 auto;padding:44px 32px 40px;margin-top:44px;border-top:1px solid #E4DFD2;display:flex;flex-wrap:wrap;align-items:center;gap:16px">
+  <div style="display:flex;align-items:center;gap:9px">
+    <span style="display:grid;place-items:center;width:24px;height:24px;border-radius:7px;background:#CC785C;color:#fff;font-size:12px">⎈</span>
+    <span style="font-size:13px;font-weight:600">Hoa Tiêu Pháp Lý</span>
+  </div>
+  <div style="margin-left:auto;display:flex;flex-wrap:wrap;gap:22px;font-size:12.5px;color:#8A8577">
+    <a href="#" style="color:#8A8577">Điều khoản</a>
+    <a href="#" style="color:#8A8577">Bảo mật</a>
+    <a href="#" style="color:#8A8577">Liên hệ</a>
+    <span class="mono" style="font-size:11px;color:#B0A895">© 2026 LexFlow</span>
+  </div>
+</footer>
+<p style="max-width:1120px;margin:0 auto;padding:0 32px 44px;font-size:11px;line-height:1.5;color:#B0A895">LexFlow hỗ trợ tra cứu và không thay thế ý kiến tư vấn pháp lý chính thức. Luôn đối chiếu văn bản gốc trước khi ra quyết định.</p>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1200,&quot;height&quot;:900}}">
+class Component extends DCLogic {
+  renderVals() {
+    const timeline = [
+      { date: "03/2019", doc: "TT 23/2019/TT-NHNN", status: "Hết hiệu lực", note: "Hạn mức 50 triệu đồng/tháng — bị thay thế bởi TT 40/2024.", muted: true },
+      { date: "01/2024", doc: "TT 40/2024/TT-NHNN", status: "✓ Đang hiệu lực", note: "Nâng hạn mức lên 100 triệu đồng/tháng, gộp theo giấy tờ tùy thân." },
+      { date: "07/2024", doc: "NĐ 52/2024/NĐ-CP", status: "✓ Đang hiệu lực", note: "Yêu cầu ví điện tử liên kết tài khoản/thẻ chính chủ." },
+    ];
+    return {
+      problems: [
+        { icon: "◇", title: "Không biết dựa vào đâu", body: "Câu trả lời không kèm điều, khoản hay tên văn bản để đối chiếu." },
+        { icon: "◷", title: "Nhầm bản đã hết hiệu lực", body: "Thông tư cũ vẫn được trích như đang áp dụng." },
+        { icon: "⚠", title: "Bỏ lỡ mâu thuẫn", body: "Hai văn bản quy định khác nhau mà không ai được cảnh báo." },
+      ],
+      features: [
+        { icon: "¹", title: "Trích dẫn nhấp được", body: "Mỗi khẳng định gắn số trích dẫn — nhấp vào là nhảy tới đúng điều khoản nguồn." },
+        { icon: "◉", title: "Nhãn hiệu lực trực tiếp", body: "Từng nguồn hiển thị đang hiệu lực hay đã bị thay thế, kèm mốc thời gian." },
+        { icon: "⚠", title: "Cảnh báo mâu thuẫn", body: "Đối chiếu song song hai văn bản và nêu rõ LexFlow chọn con số nào, vì sao." },
+        { icon: "◷", title: "Tra cứu theo mốc thời gian", body: "Xem quy định áp dụng tại bất kỳ ngày nào — hữu ích cho hồ sơ cũ." },
+        { icon: "◰", title: "Đồ thị tri thức", body: "Nhìn được văn bản nào sửa đổi, dẫn chiếu hay thay thế văn bản nào." },
+        { icon: "⧉", title: "Sao chép kèm nguồn", body: "Xuất câu trả lời với chú thích văn bản, dán thẳng vào tờ trình." },
+      ],
+      steps: [
+        { n: "1", title: "Đặt câu hỏi", body: "Hỏi tự nhiên bằng tiếng Việt, không cần từ khóa pháp lý." },
+        { n: "2", title: "Truy hồi điều khoản", body: "LexFlow tìm các điều, khoản liên quan trong kho văn bản gốc." },
+        { n: "3", title: "Lọc theo hiệu lực", body: "Bỏ bản đã thay thế, phát hiện mâu thuẫn giữa các văn bản." },
+        { n: "4", title: "Trả lời có nguồn", body: "Mỗi câu gắn trích dẫn để bạn kiểm chứng trong vài giây." },
+      ],
+      docTypes: ["Luật", "Nghị định", "Thông tư", "Quyết định", "Công văn NHNN"],
+      timeline: timeline.map((t, i) => ({
+        ...t,
+        style: "padding:14px 16px;border-radius:11px;" + (i > 0 ? "border-top:1px solid #EDE8DC;" : "") + (t.muted ? "opacity:.62" : ""),
+        pillStyle: "margin-left:auto;font-size:10.5px;padding:2px 9px;border-radius:999px;white-space:nowrap;" +
+          (t.muted ? "color:#9C9686;background:#F0EDE5;border:1px solid #E4DFD2" : "color:#5B7A5B;background:#EAF0E7;border:1px solid #CFE0C6"),
+      })),
+      stats: [
+        { value: "42.000+", label: "điều khoản đã lập chỉ mục" },
+        { value: "100%", label: "câu trả lời kèm trích dẫn" },
+        { value: "< 3s", label: "thời gian phản hồi trung bình" },
+        { value: "1.200+", label: "mâu thuẫn đã phát hiện" },
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>

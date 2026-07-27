@@ -58,6 +58,24 @@ def test_stream_khong_tim_thay(client, monkeypatch):
     assert kinds == ["meta", "delta", "conflicts", "done"]
 
 
+def test_doc_ids_gioi_han_pham_vi(client, monkeypatch):
+    """Có doc_ids → dùng search_in_docs (giới hạn văn bản), không dùng hybrid_search."""
+    called = {}
+
+    def fake_scoped(query, doc_ids, **kw):
+        called["doc_ids"] = doc_ids
+        return [_CHUNK]
+
+    monkeypatch.setattr(answer_mod, "search_in_docs", fake_scoped)
+    monkeypatch.setattr(
+        answer_mod, "hybrid_search",
+        lambda *a, **kw: (_ for _ in ()).throw(AssertionError("không được gọi hybrid")),
+    )
+    resp = client.post("/chat/stream", json={"query": "Hạn mức?", "doc_ids": ["TT40-2024"]})
+    assert resp.status_code == 200
+    assert called["doc_ids"] == ["TT40-2024"]
+
+
 def test_stream_loi_llm_tra_event_error(client, monkeypatch):
     def boom(*a, **kw):
         raise RuntimeError("Gemini sập")

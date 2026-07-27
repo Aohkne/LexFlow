@@ -9,7 +9,7 @@ from app.core.llm import chat, chat_stream
 from app.core.schemas import ChatRequest, ChatResponse, Citation
 from app.core.tracing import observe
 from app.ingestion.versioning import today_iso
-from app.knowledge.retrieval import graph_augmented_search, hybrid_search
+from app.knowledge.retrieval import graph_augmented_search, hybrid_search, search_in_docs
 from app.reasoning.conflict import detect_conflicts
 
 _QA_SYSTEM = (
@@ -47,7 +47,12 @@ def _prepare(req: ChatRequest) -> tuple[list[dict], str, str]:
     """Retrieval (+ mở rộng knowledge graph) + dựng prompt. Trả (chunks, system, prompt)."""
     as_of = req.as_of or today_iso()
     edges: list[dict] = []
-    if settings.graph_augment and settings.neo4j_enabled:
+    if req.doc_ids:
+        # Người dùng giới hạn phạm vi → chỉ tìm trong các văn bản đã chọn
+        chunks = search_in_docs(
+            req.query, req.doc_ids, top_k=req.top_k, as_of=as_of, effective_only=True
+        )
+    elif settings.graph_augment and settings.neo4j_enabled:
         chunks, edges = graph_augmented_search(req.query, top_k=req.top_k, as_of=as_of, effective_only=True)
     else:
         chunks = hybrid_search(req.query, top_k=req.top_k, as_of=as_of, effective_only=True)

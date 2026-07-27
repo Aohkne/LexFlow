@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useEffect, useMemo, useState } from "react";
+import PageShell from "@/components/page-shell";
 import { getGraph, type GraphData } from "@/lib/api";
 
 // Cytoscape đụng tới `window` → chỉ render phía client.
@@ -83,8 +84,9 @@ export default function GraphPage() {
   ];
 
   return (
+    <PageShell active="graph">
     <div className="mx-auto max-w-6xl px-6 py-10">
-      <h1 className="text-2xl font-semibold">Đồ thị tri thức pháp lý</h1>
+      <h1 className="serif text-2xl font-medium tracking-[-.015em]">Đồ thị tri thức pháp lý</h1>
       <p className="mt-1 text-sm text-dim">
         Vị trí văn bản trong phân cấp Luật → Nghị định → Thông tư → Quyết định, cùng quan hệ thay
         thế / sửa đổi / hướng dẫn / dẫn chiếu.
@@ -120,5 +122,6 @@ export default function GraphPage() {
         )}
       </div>
     </div>
+    </PageShell>
   );
 }

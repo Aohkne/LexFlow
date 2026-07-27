@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import PageShell from "@/components/page-shell";
 import { createClient } from "@/lib/supabase/client";
 import { approveDocument, rejectDocument, uploadDocument } from "@/lib/api";
 
@@ -115,15 +116,18 @@ export default function AdminPage() {
 
   if (isAdmin === false) {
     return (
-      <div className="mx-auto max-w-3xl px-6 py-16 text-center text-sm text-dim">
-        Trang này dành cho quản trị viên (role <span className="mono">admin</span>).
-      </div>
+      <PageShell active="admin">
+        <div className="mx-auto max-w-3xl px-6 py-16 text-center text-sm text-dim">
+          Trang này dành cho quản trị viên (role <span className="mono">admin</span>).
+        </div>
+      </PageShell>
     );
   }
 
   return (
+    <PageShell active="admin">
     <div className="mx-auto max-w-4xl px-6 py-10">
-      <h1 className="text-2xl font-semibold">Quản trị văn bản</h1>
+      <h1 className="serif text-2xl font-medium tracking-[-.015em]">Quản trị văn bản</h1>
       <p className="mt-1 text-sm text-dim">
         Upload → hệ thống extract điều/khoản → bạn duyệt JSON → nạp vào hệ thống tra cứu
         (maker-checker: máy đề xuất, người phê duyệt).
@@ -224,5 +228,6 @@ export default function AdminPage() {
         ))}
       </div>
     </div>
+    </PageShell>
   );
 }

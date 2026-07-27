@@ -1,44 +1,155 @@
 @import "tailwindcss";
 
-/* Bảng màu "Hoa Tiêu Pháp Lý" — kế thừa house style từ docs/SPEC.html */
+/* Bảng màu "Hoa Tiêu Pháp Lý" — design handoff 2026-07 (style 1a: giấy ấm + clay + serif editorial) */
 :root {
-  --background: #fbfaf7;
-  --panel: #f3f1ea;
-  --inset: #ece9e0;
-  --border: #ddd8cb;
-  --foreground: #201f1a;
-  --dim: #6b675c;
-  --faint: #9c9686;
-  --accent: #b85c3a;
+  --background: #f0eee6;
+  --panel: #faf9f5;
+  --sidebar: #f5f2ea;
+  --inset: #f0ebe0;
+  --inset-strong: #eae4d6;
+  --border: #e4dfd2;
+  --border-soft: #ede8dc;
+  --border-hover: #d8c4a8;
+  --foreground: #191919;
+  --fg-body: #26241f;
+  --fg-strong: #33302a;
+  --dim: #6e6a5e;
+  --faint: #8a8577;
+  --muted: #b0a895;
+  --accent: #cc785c;
+  --accent-hover: #b4633e;
   --accent-dim: #8f4a30;
-  --green: #4c7a4f;
+  --accent-wash: #f7ede6;
+  --accent-wash-border: #e7c9b6;
+  --user-bubble: #eee7da;
+  --user-bubble-border: #e4dac7;
+  --cite-bg: #efe7da;
+  --avatar-bg: #e7ddcb;
+  /* pill trạng thái */
+  --green: #5b7a5b;
+  --green-bg: #eaf0e7;
+  --green-bd: #cfe0c6;
+  --grey: #9c9686;
+  --grey-bg: #f0ede5;
+  --red: #a8412f;
+  --red-bg: #f7e6e1;
+  --red-bd: #e6bfb2;
+  --amber: #b4633e;
+  --amber-bg: #f7ede6;
+  --amber-bd: #e7c9b6;
+  /* khối tối (Auth panel phải, CTA landing) */
+  --dark-bg: #2b211c;
+  --dark-card: #352922;
+  --dark-bd: #46362c;
+  --cta-bg: #26241f;
+  --cta-heading: #f3f0e7;
+  --cta-body: #a49a88;
+  /* legacy alias (trang cũ còn dùng) */
   --blue: #3d6a9e;
-  --red: #ab4f3a;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-panel: var(--panel);
+  --color-sidebar: var(--sidebar);
   --color-inset: var(--inset);
+  --color-inset-strong: var(--inset-strong);
   --color-border: var(--border);
+  --color-border-soft: var(--border-soft);
+  --color-border-hover: var(--border-hover);
   --color-foreground: var(--foreground);
+  --color-fg-body: var(--fg-body);
+  --color-fg-strong: var(--fg-strong);
   --color-dim: var(--dim);
   --color-faint: var(--faint);
+  --color-muted: var(--muted);
   --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
   --color-accent-dim: var(--accent-dim);
+  --color-accent-wash: var(--accent-wash);
+  --color-accent-wash-border: var(--accent-wash-border);
+  --color-user-bubble: var(--user-bubble);
+  --color-user-bubble-border: var(--user-bubble-border);
+  --color-cite: var(--cite-bg);
+  --color-avatar: var(--avatar-bg);
   --color-green: var(--green);
-  --color-blue: var(--blue);
+  --color-green-bg: var(--green-bg);
+  --color-green-bd: var(--green-bd);
+  --color-grey: var(--grey);
+  --color-grey-bg: var(--grey-bg);
   --color-red: var(--red);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-red-bg: var(--red-bg);
+  --color-red-bd: var(--red-bd);
+  --color-amber: var(--amber);
+  --color-amber-bg: var(--amber-bg);
+  --color-amber-bd: var(--amber-bd);
+  --color-dark-bg: var(--dark-bg);
+  --color-dark-card: var(--dark-card);
+  --color-dark-bd: var(--dark-bd);
+  --color-cta-bg: var(--cta-bg);
+  --color-cta-heading: var(--cta-heading);
+  --color-cta-body: var(--cta-body);
+  --color-blue: var(--blue);
+  --font-sans: system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-serif: var(--font-newsreader), Georgia, serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans), system-ui, sans-serif;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.serif {
+  font-family: var(--font-newsreader), Georgia, serif;
 }
 
 .mono {
-  font-family: var(--font-mono), ui-monospace, monospace;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+::selection {
+  background: #e7c9b6;
+}
+
+/* Scrollbar tuỳ biến theo design */
+*::-webkit-scrollbar {
+  width: 10px;
+}
+*::-webkit-scrollbar-thumb {
+  background: #ded8c9;
+  border-radius: 99px;
+  border: 3px solid #f0eee6;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+@keyframes fadeup {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes srcflash {
+  0% {
+    box-shadow: 0 0 0 3px rgba(204, 120, 92, 0);
+  }
+  18% {
+    box-shadow: 0 0 0 3px rgba(204, 120, 92, 0.55);
+  }
+  100% {
+    box-shadow: 0 0 0 3px rgba(204, 120, 92, 0);
+  }
+}
+
+.fadeup {
+  animation: fadeup 0.35s ease-out;
 }

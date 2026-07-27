@@ -80,6 +80,7 @@ export async function streamChat(
     as_of?: string | null;
     top_k?: number;
     session_id?: string | null;
+    doc_ids?: string[];
   },
   handlers: StreamHandlers,
 ): Promise<void> {

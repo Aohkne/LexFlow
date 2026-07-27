@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%;background:#F0EEE6;color:#191919;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+  ::selection{background:#E7C9B6}
+  .serif{font-family:'Newsreader',Georgia,serif}
+  .mono{font-family:ui-monospace,"SF Mono",Menlo,monospace}
+  a{color:#B4633E;text-decoration:none}
+  a:hover{color:#8F4A30}
+  .btn-primary:hover{background:#B4633E !important}
+  .sso:hover{border-color:#D8C4A8 !important;background:#F7F5EE !important}
+  input:focus{outline:none;border-color:#CC785C !important;box-shadow:0 0 0 3px rgba(204,120,92,.13)}
+  input::placeholder{color:#B0A895}
+  .lnk:hover{color:#8F4A30 !important}
+</style>
+</helmet>
+
+<div style="min-height:100vh;display:grid;grid-template-columns:1.05fr .95fr">
+
+  <!-- LEFT: form -->
+  <div style="display:flex;flex-direction:column;padding:26px 32px 34px;background:#F0EEE6">
+    <a href="./LexFlow Landing.dc.html" style="display:inline-flex;align-items:center;gap:10px;color:inherit;align-self:flex-start">
+      <span style="display:grid;place-items:center;width:28px;height:28px;border-radius:8px;background:#CC785C;color:#fff;font-size:14px">⎈</span>
+      <span style="font-weight:600;font-size:14.5px;letter-spacing:-.01em">Hoa Tiêu Pháp Lý</span>
+      <span class="mono" style="font-size:10.5px;color:#B0A895">/ LexFlow</span>
+    </a>
+
+    <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:32px 0">
+      <div style="width:100%;max-width:404px">
+
+        <h1 class="serif" style="margin:0;font-weight:500;font-size:34px;line-height:1.14;letter-spacing:-.02em">{{ heading }}</h1>
+        <p style="margin:10px 0 0;font-size:14.5px;line-height:1.55;color:#6E6A5E">{{ subheading }}</p>
+
+        <!-- tabs -->
+        <div style="margin-top:24px;display:flex;background:#E7E3D8;border-radius:11px;padding:3px">
+          <button onClick="{{ setLogin }}" style="{{ tabLoginStyle }}">Đăng nhập</button>
+          <button onClick="{{ setRegister }}" style="{{ tabRegStyle }}">Đăng ký</button>
+        </div>
+
+        <!-- fields -->
+        <div style="margin-top:24px;display:flex;flex-direction:column;gap:14px">
+
+          <sc-if value="{{ isRegister }}" hint-placeholder-val="{{ false }}">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:11px">
+              <label style="display:block">
+                <span style="display:block;font-size:12.5px;font-weight:500;color:#33302A;margin-bottom:6px">Họ và tên</span>
+                <input type="text" placeholder="Trần Thị An" style="width:100%;background:#FAF9F5;border:1px solid #E4DFD2;border-radius:10px;padding:11px 13px;font-size:14px;color:#26241F;font-family:inherit;transition:all .15s"/>
+              </label>
+              <label style="display:block">
+                <span style="display:block;font-size:12.5px;font-weight:500;color:#33302A;margin-bottom:6px">Đơn vị / Phòng ban</span>
+                <input type="text" placeholder="Pháp chế &amp; Tuân thủ" style="width:100%;background:#FAF9F5;border:1px solid #E4DFD2;border-radius:10px;padding:11px 13px;font-size:14px;color:#26241F;font-family:inherit;transition:all .15s"/>
+              </label>
+            </div>
+          </sc-if>
+
+          <label style="display:block">
+            <span style="display:block;font-size:12.5px;font-weight:500;color:#33302A;margin-bottom:6px">Email công việc</span>
+            <input type="email" placeholder="an.tran@shb.com.vn" style="width:100%;background:#FAF9F5;border:1px solid #E4DFD2;border-radius:10px;padding:11px 13px;font-size:14px;color:#26241F;font-family:inherit;transition:all .15s"/>
+          </label>
+
+          <label style="display:block">
+            <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px">
+              <span style="font-size:12.5px;font-weight:500;color:#33302A">Mật khẩu</span>
+              <sc-if value="{{ isLogin }}" hint-placeholder-val="{{ true }}">
+                <a href="#" style="font-size:12px">Quên mật khẩu?</a>
+              </sc-if>
+            </div>
+            <div style="position:relative">
+              <input type="{{ pwType }}" placeholder="{{ pwPlaceholder }}" style="width:100%;background:#FAF9F5;border:1px solid #E4DFD2;border-radius:10px;padding:11px 46px 11px 13px;font-size:14px;color:#26241F;font-family:inherit;transition:all .15s"/>
+              <button onClick="{{ togglePw }}" aria-label="{{ pwLabel }}" style="position:absolute;right:6px;top:50%;transform:translateY(-50%);display:grid;place-items:center;width:32px;height:32px;background:transparent;border:none;color:#8A8577;border-radius:8px;cursor:pointer;padding:0">{{ pwIcon }}</button>
+            </div>
+            <sc-if value="{{ isRegister }}" hint-placeholder-val="{{ false }}">
+              <p style="margin:7px 0 0;font-size:11.5px;line-height:1.45;color:#B0A895">Tối thiểu 10 ký tự, gồm chữ và số.</p>
+            </sc-if>
+          </label>
+
+          <sc-if value="{{ isRegister }}" hint-placeholder-val="{{ false }}">
+            <label style="display:flex;gap:9px;align-items:flex-start;cursor:pointer">
+              <input type="checkbox" style="margin-top:2px;width:15px;height:15px;accent-color:#CC785C"/>
+              <span style="font-size:12.5px;line-height:1.5;color:#6E6A5E">Tôi đồng ý với <a href="#">Điều khoản sử dụng</a> và <a href="#">Chính sách bảo mật</a> của LexFlow.</span>
+            </label>
+          </sc-if>
+
+          <sc-if value="{{ isLogin }}" hint-placeholder-val="{{ true }}">
+            <label style="display:flex;gap:9px;align-items:center;cursor:pointer">
+              <input type="checkbox" checked="{{ true }}" style="width:15px;height:15px;accent-color:#CC785C"/>
+              <span style="font-size:12.5px;color:#6E6A5E">Ghi nhớ đăng nhập</span>
+            </label>
+          </sc-if>
+
+          <a href="./LexFlow Anthropic.dc.html" class="btn-primary" style="display:block;text-align:center;background:#CC785C;color:#fff;font-size:14.5px;font-weight:500;padding:13px 20px;border-radius:11px;transition:background .15s">{{ submitLabel }}</a>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:12px;margin:20px 0">
+          <span style="flex:1;height:1px;background:#E4DFD2"></span>
+          <span style="font-size:11.5px;color:#B0A895">hoặc</span>
+          <span style="flex:1;height:1px;background:#E4DFD2"></span>
+        </div>
+
+        <button class="sso" style="display:flex;align-items:center;justify-content:center;gap:10px;width:100%;background:#FAF9F5;border:1px solid #E4DFD2;border-radius:11px;padding:11px 16px;font-size:13.5px;font-weight:500;color:#33302A;cursor:pointer;transition:all .15s;font-family:inherit"><span style="font-size:14px">◉</span>Tiếp tục với Google</button>
+
+        <p style="margin:18px 0 0;font-size:13px;color:#6E6A5E;text-align:center">{{ switchPrompt }} <button onClick="{{ toggleMode }}" class="lnk" style="background:none;border:none;padding:0;font-size:13px;font-weight:500;color:#B4633E;cursor:pointer;font-family:inherit">{{ switchAction }}</button></p>
+
+        <p class="mono" style="margin:22px 0 0;font-size:10.5px;line-height:1.5;color:#B0A895;text-align:center">Dữ liệu lưu trữ tại Việt Nam · Đăng nhập được ghi log phục vụ kiểm toán</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: proof panel -->
+  <div style="background:#2B211C;display:flex;flex-direction:column;justify-content:center;padding:48px 52px;position:relative;overflow:hidden">
+    <div style="max-width:440px">
+      <span style="display:inline-flex;align-items:center;gap:7px;font-size:11.5px;color:#E89073;background:rgba(204,120,92,.14);border:1px solid rgba(204,120,92,.3);padding:5px 12px;border-radius:999px"><span style="width:6px;height:6px;border-radius:50%;background:#CC785C"></span>Mọi câu trả lời đều truy được nguồn</span>
+      <h2 class="serif" style="margin:20px 0 0;font-weight:500;font-size:32px;line-height:1.18;letter-spacing:-.02em;color:#F3F0E7">Kiểm chứng ngay trong câu trả lời, không phải mở lại cả bộ văn bản</h2>
+
+      <!-- mini answer card -->
+      <div style="margin-top:26px;background:#352922;border:1px solid #46362C;border-radius:14px;padding:17px 18px">
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:11px">
+          <span style="display:inline-flex;align-items:center;gap:5px;font-size:10.5px;color:#9DBE94;background:rgba(91,122,91,.2);border:1px solid rgba(157,190,148,.28);padding:3px 9px;border-radius:999px"><span style="width:5px;height:5px;border-radius:50%;background:#9DBE94"></span>2 nguồn đang hiệu lực</span>
+          <span style="font-size:10.5px;color:#E89073;background:rgba(204,120,92,.15);border:1px solid rgba(204,120,92,.3);padding:3px 9px;border-radius:999px">⚠ 1 mâu thuẫn</span>
+        </div>
+        <p class="serif" style="margin:0;font-size:15.5px;line-height:1.62;color:#E8E4D9">Tổng hạn mức giao dịch qua ví điện tử của khách hàng cá nhân tối đa <b style="font-weight:600;color:#F3F0E7">100 triệu đồng/tháng</b><span class="mono" style="vertical-align:super;font-size:9.5px;padding:2px 5px;border-radius:5px;background:rgba(204,120,92,.22);color:#F0A98A;font-weight:600;margin:0 1px">1</span>.</p>
+        <div style="margin-top:13px;padding-top:12px;border-top:1px solid #46362C">
+          <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px">
+            <span class="mono" style="display:grid;place-items:center;width:20px;height:20px;border-radius:6px;background:rgba(204,120,92,.22);color:#F0A98A;font-size:10.5px;font-weight:600">1</span>
+            <span style="font-size:12.5px;font-weight:600;color:#EDEAE0">TT 40/2024/TT-NHNN</span>
+            <span class="mono" style="font-size:10.5px;color:#E89073">Điều 9</span>
+            <span class="mono" style="margin-left:auto;font-size:10px;color:#7A7264">từ 01/2024</span>
+          </div>
+          <p class="serif" style="margin:7px 0 0;font-size:13px;line-height:1.55;color:#A49A88;font-style:italic">“Tổng hạn mức giao dịch của một ví điện tử cá nhân tối đa 100 triệu đồng Việt Nam trong một tháng.”</p>
+        </div>
+      </div>
+
+      <div style="margin-top:26px;display:flex;flex-direction:column;gap:12px">
+        <sc-for list="{{ perks }}" as="p" hint-placeholder-count="3">
+          <div style="display:flex;gap:11px;align-items:flex-start">
+            <span style="flex:none;display:grid;place-items:center;width:20px;height:20px;border-radius:6px;background:rgba(204,120,92,.18);color:#E89073;font-size:11px;margin-top:1px">✓</span>
+            <p style="margin:0;font-size:13.5px;line-height:1.55;color:#A49A88"><b style="color:#E8E4D9;font-weight:600">{{ p.title }}</b> — {{ p.body }}</p>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="margin-top:32px;padding-top:22px;border-top:1px solid #46362C">
+        <p class="serif" style="margin:0;font-size:15px;line-height:1.6;color:#C9C2B4;font-style:italic">“Trước đây mỗi câu hỏi mất nửa buổi để tự đối chiếu thông tư. Giờ tôi đọc câu trả lời và nhấp vào trích dẫn là xong.”</p>
+        <div style="margin-top:12px;display:flex;align-items:center;gap:10px">
+          <span style="display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:#54402F;color:#E8E4D9;font-size:11px;font-weight:600">NM</span>
+          <div>
+            <div style="font-size:12.5px;font-weight:600;color:#E8E4D9">Nguyễn Minh</div>
+            <div style="font-size:11px;color:#7A7264">Chuyên viên Pháp chế, khối Tuân thủ</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1200,&quot;height&quot;:820}}">
+const h = React.createElement;
+function eyeIcon(off) {
+  const p = (d) => h("path", { d, stroke: "currentColor", strokeWidth: 1.6, strokeLinecap: "round", strokeLinejoin: "round", fill: "none" });
+  return h("svg", { width: 17, height: 17, viewBox: "0 0 20 20", "aria-hidden": true }, [
+    p("M1.8 10S4.9 4.6 10 4.6 18.2 10 18.2 10 15.1 15.4 10 15.4 1.8 10 1.8 10Z"),
+    h("circle", { key: "c", cx: 10, cy: 10, r: 2.6, stroke: "currentColor", strokeWidth: 1.6, fill: "none" }),
+    off ? p("M3.2 3.2 16.8 16.8") : null,
+  ]);
+}
+
+class Component extends DCLogic {
+  state = { mode: "login", showPw: false };
+
+  renderVals() {
+    const st = this.state;
+    const isLogin = st.mode === "login";
+    const tab = (on) =>
+      "flex:1;border:none;border-radius:9px;padding:8px 14px;font-size:13.5px;font-weight:500;cursor:pointer;transition:all .15s;font-family:inherit;" +
+      (on ? "background:#FAF9F5;color:#191919;box-shadow:0 1px 2px rgba(40,34,24,.12)" : "background:transparent;color:#8A8577");
+
+    return {
+      isLogin,
+      isRegister: !isLogin,
+      heading: isLogin ? "Chào mừng trở lại" : "Tạo tài khoản LexFlow",
+      subheading: isLogin
+        ? "Đăng nhập để tiếp tục tra cứu quy định với trích dẫn kiểm chứng được."
+        : "Dùng email công việc để đội của bạn cùng tra cứu trên một kho văn bản.",
+      tabLoginStyle: tab(isLogin),
+      tabRegStyle: tab(!isLogin),
+      setLogin: () => this.setState({ mode: "login" }),
+      setRegister: () => this.setState({ mode: "register" }),
+      toggleMode: () => this.setState((p) => ({ mode: p.mode === "login" ? "register" : "login" })),
+      submitLabel: isLogin ? "Đăng nhập" : "Tạo tài khoản",
+      switchPrompt: isLogin ? "Chưa có tài khoản?" : "Đã có tài khoản?",
+      switchAction: isLogin ? "Đăng ký ngay" : "Đăng nhập",
+      pwType: st.showPw ? "text" : "password",
+      pwLabel: st.showPw ? "Ẩn mật khẩu" : "Hiện mật khẩu",
+      pwIcon: eyeIcon(st.showPw),
+      pwPlaceholder: isLogin ? "Nhập mật khẩu" : "Tạo mật khẩu mạnh",
+      togglePw: () => this.setState((p) => ({ showPw: !p.showPw })),
+      perks: [
+        { title: "Trích dẫn nhấp được", body: "nhảy thẳng tới điều, khoản gốc." },
+        { title: "Nhãn hiệu lực", body: "biết ngay văn bản còn áp dụng hay đã bị thay thế." },
+        { title: "Cảnh báo mâu thuẫn", body: "đối chiếu song song khi các văn bản khác nhau." },
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -106,6 +106,8 @@ class ChatRequest(BaseModel):
     as_of: str | None = None  # ISO date để tra cứu "tại thời điểm"; None = hôm nay
     top_k: int = 6
     session_id: str | None = None  # tiếp tục phiên hội thoại đã lưu; None = phiên mới
+    # Phạm vi: giới hạn retrieval trong các văn bản này; [] = toàn bộ corpus
+    doc_ids: list[str] = Field(default_factory=list)
 
 
 class ChatResponse(BaseModel):

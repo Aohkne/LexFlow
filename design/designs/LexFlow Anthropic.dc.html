@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:#F0EEE6;color:#191919;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+  ::selection{background:#E7C9B6}
+  .serif{font-family:'Newsreader',Georgia,serif}
+  .mono{font-family:ui-monospace,"SF Mono",Menlo,monospace}
+  a{color:#B4633E;text-decoration:none}
+  a:hover{color:#8F4A30}
+  @keyframes srcflash{0%{box-shadow:0 0 0 3px rgba(204,120,92,0)}18%{box-shadow:0 0 0 3px rgba(204,120,92,.55)}100%{box-shadow:0 0 0 3px rgba(204,120,92,0)}}
+  @keyframes fadeup{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .btn-primary:hover{background:#B4633E !important}
+  .chip:hover{border-color:#CC785C !important;color:#8F4A30 !important;background:#F7EDE6 !important}
+  .cite:hover{background:#CC785C !important;color:#fff !important}
+  .src:hover{border-color:#D8C4A8 !important}
+  .ghost:hover{background:#F0EBE0 !important;color:#191919 !important}
+  .thread::-webkit-scrollbar{width:10px}
+  .thread::-webkit-scrollbar-thumb{background:#DED8C9;border-radius:99px;border:3px solid #F0EEE6}
+  .navitem:hover{background:#EFEADF !important}
+  .conv:hover{background:#EFEADF !important}
+  .newchat:hover{background:#B4633E !important}
+  textarea:focus{outline:none}
+  textarea::placeholder{color:#B0A895}
+</style>
+</helmet>
+
+<div style="height:100vh;display:flex">
+
+  <!-- SIDEBAR (Claude-style, left) -->
+  <aside style="flex:none;width:260px;display:flex;flex-direction:column;background:#F5F2EA;border-right:1px solid #E4DFD2">
+    <!-- brand -->
+    <div style="display:flex;align-items:center;gap:10px;padding:15px 16px 12px">
+      <span style="display:grid;place-items:center;width:28px;height:28px;border-radius:8px;background:#CC785C;color:#fff;font-size:15px">⎈</span>
+      <span style="font-weight:600;font-size:14px;letter-spacing:-.01em">Hoa Tiêu Pháp Lý</span>
+      <span class="mono" style="font-size:10px;color:#B0A895">LexFlow</span>
+    </div>
+
+    <!-- new chat -->
+    <div style="padding:4px 12px 10px">
+      <button onClick="{{ newChat }}" class="newchat" style="width:100%;display:flex;align-items:center;gap:9px;background:#CC785C;color:#fff;border:none;border-radius:10px;padding:10px 13px;font-size:13.5px;font-weight:500;cursor:pointer;transition:background .15s"><span style="font-size:15px;line-height:1">✚</span>Tra cứu mới</button>
+    </div>
+
+    <!-- nav -->
+    <nav style="padding:2px 12px 10px;display:flex;flex-direction:column;gap:1px">
+      <span class="navitem" style="display:flex;align-items:center;gap:10px;padding:8px 11px;border-radius:9px;font-size:13px;background:#EAE4D6;color:#191919;font-weight:500;cursor:pointer"><span style="width:16px;text-align:center">⌘</span>Tra cứu</span>
+      <span class="navitem" style="display:flex;align-items:center;gap:10px;padding:8px 11px;border-radius:9px;font-size:13px;color:#6E6A5E;cursor:pointer"><span style="width:16px;text-align:center">◰</span>Đồ thị tri thức</span>
+      <span class="navitem" style="display:flex;align-items:center;gap:10px;padding:8px 11px;border-radius:9px;font-size:13px;color:#6E6A5E;cursor:pointer"><span style="width:16px;text-align:center">⚠</span>Cảnh báo<span style="margin-left:auto;font-size:10px;font-weight:600;color:#fff;background:#CC785C;border-radius:999px;padding:1px 7px">3</span></span>
+    </nav>
+
+    <!-- recent -->
+    <div style="flex:1;overflow-y:auto;padding:8px 12px 6px;border-top:1px solid #E9E3D5">
+      <div style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#B0A895;font-weight:600;padding:4px 11px 8px">Gần đây</div>
+      <div style="display:flex;flex-direction:column;gap:1px">
+        <sc-for list="{{ history }}" as="h" hint-placeholder-count="4">
+          <span class="conv" style="{{ h.style }}">{{ h.title }}</span>
+        </sc-for>
+      </div>
+    </div>
+
+    <!-- account -->
+    <div style="flex:none;display:flex;align-items:center;gap:9px;padding:11px 14px;border-top:1px solid #E4DFD2">
+      <span style="display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#E7DDCB;color:#8F4A30;font-size:12px;font-weight:600">AT</span>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12.5px;font-weight:500;color:#33302A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">An Trần</div>
+        <div class="mono" style="font-size:10px;color:#B0A895;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">an.tran@shb.com.vn</div>
+      </div>
+      <span style="color:#B0A895;font-size:14px;cursor:pointer">⚙</span>
+    </div>
+  </aside>
+
+  <!-- MAIN COLUMN -->
+  <div style="flex:1;min-width:0;display:flex;flex-direction:column">
+
+  <!-- THREAD (scrolls) -->
+  <div class="thread" id="lf-thread" style="flex:1;overflow-y:auto;scroll-behavior:smooth">
+    <div style="width:100%;max-width:760px;margin:0 auto;padding:34px 26px 28px">
+
+      <!-- Intro -->
+      <div style="text-align:center;padding:6px 0 26px">
+        <span style="display:inline-grid;place-items:center;width:44px;height:44px;border-radius:12px;background:#CC785C;color:#fff;font-size:22px">⎈</span>
+        <h1 class="serif" style="margin:14px 0 0;font-weight:500;font-size:27px;letter-spacing:-.015em">Hỏi về quy định — nhận câu trả lời truy được nguồn</h1>
+        <p style="margin:9px auto 0;font-size:14px;line-height:1.55;color:#6E6A5E;max-width:480px">Mỗi khẳng định gắn với <span class="serif" style="font-style:italic;color:#B4633E">điều &amp; khoản đang hiệu lực</span>. Nhấp số trích dẫn để kiểm chứng ngay tại văn bản gốc.</p>
+      </div>
+
+      <sc-for list="{{ turns }}" as="t" hint-placeholder-count="1">
+        <div style="{{ t.wrapStyle }}">
+
+          <!-- scope pinned to this question -->
+          <div style="display:flex;justify-content:flex-end;align-items:center;gap:6px;margin:0 38px 7px 0">
+            <span class="mono" style="font-size:10px;color:#B0A895">Phạm vi</span>
+            <span style="{{ t.scopeStyle }}">{{ t.scopeLabel }}</span>
+          </div>
+
+          <!-- USER bubble -->
+          <div style="display:flex;justify-content:flex-end;gap:10px;margin:0 0 4px">
+            <div class="serif" style="max-width:78%;background:#EEE7DA;border:1px solid #E4DAC7;border-radius:16px 16px 5px 16px;padding:11px 16px;font-size:16px;line-height:1.5;color:#33302A">{{ t.question }}</div>
+            <span style="flex:none;display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:#E7DDCB;color:#8F4A30;font-size:11px;font-weight:600;margin-top:2px">AT</span>
+          </div>
+
+          <!-- ASSISTANT -->
+          <div style="display:flex;gap:10px;margin-top:16px">
+            <span style="flex:none;display:grid;place-items:center;width:28px;height:28px;border-radius:8px;background:#CC785C;color:#fff;font-size:14px;margin-top:2px">⎈</span>
+            <div style="flex:1;min-width:0">
+
+              <!-- trust bar -->
+              <div style="display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin-bottom:11px">
+                <span style="display:inline-flex;align-items:center;gap:5px;font-size:11.5px;color:#5B7A5B;background:#EAF0E7;border:1px solid #CFE0C6;padding:3px 9px;border-radius:999px"><span style="width:6px;height:6px;border-radius:50%;background:#5B7A5B"></span>2 nguồn đang hiệu lực</span>
+                <span style="display:inline-flex;align-items:center;gap:5px;font-size:11.5px;color:#B4633E;background:#F7EDE6;border:1px solid #E7C9B6;padding:3px 9px;border-radius:999px">⚠ 1 mâu thuẫn</span>
+                <span class="mono" style="font-size:10.5px;color:#B0A895;margin-left:2px">tra tại 24/07/2026</span>
+              </div>
+
+              <!-- conflict -->
+              <div style="background:#F7EDE6;border:1px solid #E7C9B6;border-radius:13px;overflow:hidden;margin-bottom:14px">
+                <button onClick="{{ toggleConflict }}" style="width:100%;display:flex;align-items:center;gap:11px;padding:12px 14px;background:transparent;border:none;cursor:pointer;text-align:left">
+                  <span style="flex:none;display:grid;place-items:center;width:28px;height:28px;border-radius:8px;background:#CC785C;color:#fff;font-size:14px">⚠</span>
+                  <span style="flex:1">
+                    <span style="display:block;font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;color:#B4633E;font-weight:600">Mâu thuẫn · Nghiêm trọng</span>
+                    <span style="display:block;margin-top:2px;font-size:13px;color:#5C4A40;line-height:1.4">Hai văn bản quy định hạn mức khác nhau cho cùng loại giao dịch.</span>
+                  </span>
+                  <span class="mono" style="flex:none;font-size:11px;color:#B4633E">{{ conflictArrow }}</span>
+                </button>
+                <sc-if value="{{ conflictOpen }}" hint-placeholder-val="{{ true }}">
+                  <div style="padding:0 14px 14px 53px">
+                    <div style="display:flex;gap:9px;align-items:center">
+                      <div style="flex:1;background:#fff;border:1px solid #E7C9B6;border-radius:10px;padding:10px 12px">
+                        <div class="mono" style="font-size:10px;color:#B4633E">TT 23/2019 · Điều 9</div>
+                        <p style="margin:4px 0 0;font-size:12px;line-height:1.4;color:#6E6A5E">50 triệu đồng/tháng.</p>
+                        <span style="display:inline-block;margin-top:6px;font-size:9.5px;color:#9C9686;background:#F0EDE5;border-radius:5px;padding:1px 7px">Đã hết hiệu lực</span>
+                      </div>
+                      <div style="color:#B4633E;font-size:15px">↔</div>
+                      <div style="flex:1;background:#fff;border:1px solid #CFE0C6;border-radius:10px;padding:10px 12px">
+                        <div class="mono" style="font-size:10px;color:#5B7A5B">TT 40/2024 · Điều 9</div>
+                        <p style="margin:4px 0 0;font-size:12px;line-height:1.4;color:#33302A">100 triệu đồng/tháng.</p>
+                        <span style="display:inline-block;margin-top:6px;font-size:9.5px;color:#5B7A5B;background:#EAF0E7;border-radius:5px;padding:1px 7px">✓ Đang áp dụng</span>
+                      </div>
+                    </div>
+                    <p style="margin:10px 0 0;font-size:12px;line-height:1.5;color:#6E6A5E">LexFlow ưu tiên văn bản mới nhất còn hiệu lực (TT 40/2024). Câu trả lời dùng mức <b style="color:#33302A">100 triệu đồng</b>.</p>
+                  </div>
+                </sc-if>
+              </div>
+
+              <!-- answer text -->
+              <p class="serif" style="margin:0;font-size:17.5px;line-height:1.68;color:#26241F">Theo quy định <span style="color:#5B7A5B;font-style:italic">đang hiệu lực</span>, tổng hạn mức giao dịch qua ví điện tử của một khách hàng cá nhân tối đa là <b style="font-weight:600">100 triệu đồng/tháng</b><button onClick="{{ cite0 }}" class="cite mono" style="vertical-align:super;font-size:10px;line-height:1;margin:0 1px;padding:2px 6px;border:none;border-radius:6px;background:#EFE7DA;color:#8F4A30;cursor:pointer;font-weight:600;transition:all .12s">1</button>, tính gộp trên mọi ví liên kết cùng một giấy tờ tùy thân. Ví điện tử bắt buộc phải liên kết với một tài khoản thanh toán hoặc thẻ ghi nợ mở tại ngân hàng<button onClick="{{ cite1 }}" class="cite mono" style="vertical-align:super;font-size:10px;line-height:1;margin:0 1px;padding:2px 6px;border:none;border-radius:6px;background:#EFE7DA;color:#8F4A30;cursor:pointer;font-weight:600;transition:all .12s">2</button>.</p>
+
+              <!-- action row -->
+              <div style="margin-top:12px;display:flex;flex-wrap:wrap;align-items:center;gap:7px">
+                <button onClick="{{ copyAnswer }}" class="ghost" style="display:flex;align-items:center;gap:5px;font-size:11.5px;color:#8A8577;background:#F0EBE0;border:none;border-radius:7px;padding:6px 11px;cursor:pointer">{{ copyLabel }}</button>
+                <button onClick="{{ toggleSources }}" class="ghost" style="display:flex;align-items:center;gap:5px;font-size:11.5px;color:#8A8577;background:#F0EBE0;border:none;border-radius:7px;padding:6px 11px;cursor:pointer">{{ srcToggleLabel }}</button>
+                <span style="font-size:11px;color:#B0A895;margin-left:2px">Nhấp số ¹ ² để kiểm chứng</span>
+              </div>
+
+              <!-- sources -->
+              <sc-if value="{{ sourcesOpen }}" hint-placeholder-val="{{ true }}">
+                <div style="margin-top:14px;display:flex;flex-direction:column;gap:10px">
+                  <sc-for list="{{ sources }}" as="src" hint-placeholder-count="2">
+                    <div class="src" data-src="{{ src.idx }}" style="{{ src.cardStyle }}">
+                      <div style="display:flex;align-items:flex-start;gap:11px;padding:13px 15px">
+                        <span class="mono" style="flex:none;display:grid;place-items:center;width:23px;height:23px;border-radius:7px;background:#EFE7DA;color:#8F4A30;font-size:11.5px;font-weight:600">{{ src.num }}</span>
+                        <div style="flex:1;min-width:0">
+                          <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px">
+                            <span style="font-size:9.5px;letter-spacing:.04em;text-transform:uppercase;color:#8A8577;background:#F0EBE0;border-radius:5px;padding:2px 7px">{{ src.type }}</span>
+                            <span style="font-size:13.5px;font-weight:600;color:#191919">{{ src.title }}</span>
+                            <span class="mono" style="font-size:11px;color:#B4633E">{{ src.article }}</span>
+                            <span style="display:inline-flex;align-items:center;gap:4px;font-size:10.5px;color:#5B7A5B;background:#EAF0E7;border:1px solid #CFE0C6;padding:2px 8px;border-radius:999px"><span style="width:5px;height:5px;border-radius:50%;background:#5B7A5B"></span>Đang hiệu lực</span>
+                            <span class="mono" style="font-size:10px;color:#B0A895;margin-left:auto">từ {{ src.from }}</span>
+                          </div>
+                          <p class="serif" style="margin:10px 0 0;font-size:14px;line-height:1.6;color:#33302A;font-style:italic">{{ src.quote }}</p>
+                          <sc-if value="{{ src.isOpen }}" hint-placeholder-val="{{ false }}">
+                            <div style="margin-top:9px;padding:11px 13px;background:#F0EEE6;border-radius:9px">
+                              <p style="margin:0;font-size:12px;line-height:1.6;color:#6E6A5E">{{ src.full }}</p>
+                            </div>
+                          </sc-if>
+                          <div style="margin-top:10px;display:flex;align-items:center;gap:14px">
+                            <button onClick="{{ src.toggle }}" style="font-size:11.5px;color:#8F4A30;background:none;border:none;cursor:pointer;padding:0;font-weight:500">{{ src.toggleLabel }}</button>
+                            <a href="#" style="font-size:11.5px;font-weight:500">Mở văn bản gốc ↗</a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+
+              <!-- follow-ups -->
+              <div style="margin-top:16px;display:flex;flex-wrap:wrap;gap:7px">
+                <sc-for list="{{ followups }}" as="f" hint-placeholder-count="2">
+                  <button onClick="{{ f.ask }}" class="chip" style="border:1px solid #E4DFD2;background:#FAF9F5;color:#6E6A5E;font-size:12px;padding:6px 12px;border-radius:999px;cursor:pointer;transition:all .15s;text-align:left">{{ f.text }} →</button>
+                </sc-for>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </sc-for>
+
+      <div style="height:8px"></div>
+    </div>
+  </div>
+
+  <!-- COMPOSER (anchored bottom, like chat apps) -->
+  <div style="flex:none;background:linear-gradient(to top,#F0EEE6 62%,rgba(240,238,230,0));padding:6px 26px 18px">
+    <div style="width:100%;max-width:760px;margin:0 auto;position:relative">
+
+      <sc-if value="{{ pickerOpen }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute;left:0;right:0;bottom:calc(100% + 10px);z-index:30;background:#FAF9F5;border:1px solid #E4DFD2;border-radius:16px;box-shadow:0 18px 46px rgba(40,34,24,.16);overflow:hidden;animation:fadeup .16s ease-out">
+          <div style="display:flex;align-items:center;gap:10px;padding:13px 15px 11px;border-bottom:1px solid #EDE8DC">
+            <span style="font-size:13.5px;font-weight:600;letter-spacing:-.01em">Chọn văn bản để hỏi</span>
+            <span style="font-size:11.5px;color:#B0A895">Giới hạn câu trả lời trong các văn bản bạn chọn</span>
+            <button onClick="{{ closePicker }}" class="ghost" style="margin-left:auto;background:#F0EBE0;border:none;border-radius:7px;width:24px;height:24px;color:#8A8577;cursor:pointer;font-size:12px">✕</button>
+          </div>
+
+          <div style="padding:11px 15px 0">
+            <input value="{{ query }}" onChange="{{ setQuery }}" placeholder="Tìm theo số hiệu hoặc tên văn bản…" style="width:100%;border:1px solid #E4DFD2;background:#fff;border-radius:10px;padding:9px 12px;font-size:13px;color:#26241F;font-family:inherit;outline:none"/>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 0 2px">
+              <sc-for list="{{ presets }}" as="p" hint-placeholder-count="4">
+                <button onClick="{{ p.pick }}" class="chip" style="{{ p.style }}">{{ p.label }}</button>
+              </sc-for>
+            </div>
+          </div>
+
+          <div class="thread" style="max-height:262px;overflow-y:auto;padding:8px 11px 10px;display:flex;flex-direction:column;gap:2px">
+            <sc-for list="{{ pickDocs }}" as="d" hint-placeholder-count="5">
+              <button onClick="{{ d.toggle }}" style="{{ d.rowStyle }}">
+                <span style="{{ d.boxStyle }}">{{ d.check }}</span>
+                <span style="flex:1;min-width:0;text-align:left">
+                  <span style="display:flex;flex-wrap:wrap;align-items:center;gap:7px">
+                    <span style="font-size:9.5px;text-transform:uppercase;letter-spacing:.04em;color:#8A8577;background:#EFE9DC;border-radius:5px;padding:2px 7px">{{ d.type }}</span>
+                    <span style="font-size:13px;font-weight:600;color:#191919">{{ d.code }}</span>
+                    <span style="{{ d.pillStyle }}">{{ d.status }}</span>
+                  </span>
+                  <span style="display:block;margin-top:4px;font-size:11.5px;line-height:1.45;color:#6E6A5E;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ d.title }}</span>
+                </span>
+                <span class="mono" style="flex:none;font-size:10px;color:#B0A895">{{ d.articles }} điều</span>
+              </button>
+            </sc-for>
+            <sc-if value="{{ noResult }}" hint-placeholder-val="{{ false }}">
+              <div style="padding:22px 12px;text-align:center;font-size:12.5px;color:#B0A895">Không tìm thấy văn bản phù hợp.</div>
+            </sc-if>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 15px;border-top:1px solid #EDE8DC;background:#F5F2EA">
+            <span style="font-size:11.5px;color:#6E6A5E">{{ pickSummary }}</span>
+            <button onClick="{{ clearScope }}" style="font-size:11.5px;color:#8F4A30;background:none;border:none;cursor:pointer;padding:0;font-weight:500">Bỏ chọn tất cả</button>
+            <button onClick="{{ closePicker }}" class="btn-primary" style="margin-left:auto;background:#CC785C;color:#fff;border:none;border-radius:9px;padding:7px 15px;font-size:12.5px;font-weight:500;cursor:pointer;transition:background .15s">Áp dụng</button>
+          </div>
+        </div>
+      </sc-if>
+
+      <div style="background:#FAF9F5;border:1px solid #E4DFD2;border-radius:16px;padding:6px 6px 6px 8px;box-shadow:0 4px 20px rgba(40,34,24,.07)">
+        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:5px 2px 8px 0;border-bottom:1px solid #EDE8DC;margin-bottom:2px">
+          <button onClick="{{ openPicker }}" class="chip" style="display:flex;align-items:center;gap:6px;border:1px dashed #D8CFBB;background:#F5F2EA;color:#6E6A5E;font-size:11.5px;font-weight:500;padding:5px 11px;border-radius:999px;cursor:pointer;transition:all .15s">◈ Phạm vi<span class="mono" style="font-size:10px;color:#B0A895">{{ scopeCount }}</span></button>
+          <sc-for list="{{ scopeChips }}" as="c" hint-placeholder-count="0">
+            <span style="display:flex;align-items:center;gap:6px;font-size:11.5px;color:#8F4A30;background:#F7EDE6;border:1px solid #E7C9B6;padding:4px 6px 4px 10px;border-radius:999px">{{ c.code }}<button onClick="{{ c.remove }}" style="border:none;background:#EDDCCF;color:#8F4A30;width:15px;height:15px;border-radius:50%;font-size:9px;line-height:1;cursor:pointer">✕</button></span>
+          </sc-for>
+          <sc-if value="{{ scopeEmpty }}" hint-placeholder-val="{{ true }}">
+            <span style="font-size:11.5px;color:#B0A895">Đang hỏi trên toàn bộ văn bản còn hiệu lực</span>
+          </sc-if>
+        </div>
+        <textarea value="{{ draft }}" onChange="{{ setDraft }}" onKeyDown="{{ onKey }}" rows="1" placeholder="Hỏi tiếp về quy định thanh toán…" style="width:100%;resize:none;border:none;background:transparent;padding:9px 8px 4px;font-size:15.5px;line-height:1.5;color:#26241F;font-family:inherit;max-height:120px"></textarea>
+        <div style="display:flex;align-items:center;gap:9px;padding:2px 4px 2px 6px">
+          <label style="display:flex;align-items:center;gap:7px;font-size:11.5px;color:#8A8577">Hiệu lực tại
+            <input type="date" value="2026-07-24" class="mono" style="border:1px solid #E4DFD2;background:#fff;border-radius:7px;padding:4px 8px;font-size:11px;color:#33302A"/>
+          </label>
+          <span class="mono" style="font-size:10.5px;color:#B0A895;margin-left:auto">Enter để gửi · Shift+Enter xuống dòng</span>
+          <button onClick="{{ send }}" class="btn-primary" style="flex:none;display:grid;place-items:center;width:34px;height:34px;background:#CC785C;color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:15px;transition:background .15s">↑</button>
+        </div>
+      </div>
+      <p style="margin:8px 0 0;font-size:10.5px;line-height:1.4;color:#B0A895;text-align:center">Thông tin mang tính tham khảo — đối chiếu bản gốc trước khi ra quyết định.</p>
+    </div>
+  </div>
+
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:900,&quot;height&quot;:760}}">
+const SOURCES = [
+  {
+    type: "Thông tư", title: "TT 40/2024/TT-NHNN", article: "Điều 9", from: "01/2024",
+    quote: "“Tổng hạn mức giao dịch của một ví điện tử cá nhân tối đa 100 triệu đồng Việt Nam trong một tháng.”",
+    full: "Khoản 2 Điều 9: Tổng hạn mức giao dịch (bao gồm rút tiền, chuyển tiền, thanh toán) qua các ví điện tử của một khách hàng cá nhân tại một tổ chức cung ứng dịch vụ tối đa là 100 triệu đồng Việt Nam trong một tháng, trừ trường hợp có thỏa thuận khác theo quy định của Ngân hàng Nhà nước.",
+  },
+  {
+    type: "Nghị định", title: "NĐ 52/2024/NĐ-CP", article: "Điều 27", from: "07/2024",
+    quote: "“Ví điện tử phải liên kết với tài khoản thanh toán hoặc thẻ ghi nợ của chính khách hàng.”",
+    full: "Điều 27: Việc mở và sử dụng ví điện tử phải được liên kết với tài khoản thanh toán hoặc thẻ ghi nợ của khách hàng mở tại ngân hàng, chi nhánh ngân hàng nước ngoài. Khách hàng chỉ được liên kết ví điện tử với tài khoản/thẻ đứng tên chính mình.",
+  },
+];
+
+const FOLLOWUPS = [
+  "Khách có được nạp tiền mặt trực tiếp vào ví không?",
+  "Hồ sơ mở ví điện tử gồm những gì?",
+];
+
+const LIB = [
+  { type: "Thông tư", code: "TT 40/2024/TT-NHNN", title: "Hoạt động cung ứng dịch vụ trung gian thanh toán", live: true, articles: 32, group: "thanhtoan" },
+  { type: "Nghị định", code: "NĐ 52/2024/NĐ-CP", title: "Thanh toán không dùng tiền mặt", live: true, articles: 48, group: "thanhtoan" },
+  { type: "Thông tư", code: "TT 17/2024/TT-NHNN", title: "Mở và sử dụng tài khoản thanh toán", live: true, articles: 27, group: "kyc" },
+  { type: "Luật", code: "Luật PCRT 2022", title: "Luật Phòng, chống rửa tiền số 14/2022/QH15", live: true, articles: 66, group: "kyc" },
+  { type: "Quyết định", code: "QĐ 2345/QĐ-NHNN", title: "Giải pháp an toàn trong thanh toán trực tuyến", live: true, articles: 9, group: "antoan" },
+  { type: "Thông tư", code: "TT 23/2019/TT-NHNN", title: "Dịch vụ trung gian thanh toán (bản cũ)", live: false, articles: 28, group: "thanhtoan" },
+];
+
+const PRESETS = [
+  { id: "live", label: "Toàn bộ đang hiệu lực" },
+  { id: "thanhtoan", label: "Nhóm Thanh toán" },
+  { id: "kyc", label: "Nhóm KYC / PCRT" },
+  { id: "antoan", label: "Nhóm An toàn" },
+  { id: "all", label: "Gồm cả văn bản hết hiệu lực" },
+];
+
+class Component extends DCLogic {
+  state = {
+    scope: [],
+    pickerOpen: false,
+    query: "",
+    preset: "live",
+    draft: "",
+    conflictOpen: true,
+    sourcesOpen: true,
+    copied: false,
+    active: null,
+    open: {},
+    turns: [{ question: "Hạn mức giao dịch qua ví điện tử cá nhân là bao nhiêu một tháng?" }],
+  };
+
+  newChat() {
+    this.setState({ draft: "", turns: [{ question: "Hạn mức giao dịch qua ví điện tử cá nhân là bao nhiêu một tháng?" }] });
+    this.scrollBottom();
+  }
+
+  scrollBottom() {
+    requestAnimationFrame(() => {
+      const el = document.getElementById("lf-thread");
+      if (el) el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+    });
+  }
+
+  scopeText() {
+    const st = this.state;
+    if (st.scope.length === 1) return st.scope[0];
+    if (st.scope.length > 1) return st.scope.length + " văn bản đã chọn";
+    const p = PRESETS.find((x) => x.id === st.preset);
+    return p ? p.label : "Toàn bộ đang hiệu lực";
+  }
+
+  send() {
+    const q = this.state.draft.trim();
+    if (!q) return;
+    const scope = this.scopeText(), narrow = this.state.scope.length > 0;
+    this.setState((p) => ({ draft: "", turns: [...p.turns, { question: q, scope, narrow }] }));
+    this.scrollBottom();
+  }
+
+  ask(text) {
+    const scope = this.scopeText(), narrow = this.state.scope.length > 0;
+    this.setState((p) => ({ turns: [...p.turns, { question: text, scope, narrow }] }));
+    this.scrollBottom();
+  }
+
+  cite(i) {
+    return () => {
+      this.setState({ sourcesOpen: true, active: i });
+      requestAnimationFrame(() => {
+        const nodes = document.querySelectorAll('[data-src="' + i + '"]');
+        const el = nodes[nodes.length - 1];
+        if (el) el.scrollIntoView ? el.closest(".thread") && document.getElementById("lf-thread").scrollTo({ top: el.offsetTop - 120, behavior: "smooth" }) : null;
+      });
+      clearTimeout(this._t);
+      this._t = setTimeout(() => this.setState({ active: null }), 1500);
+    };
+  }
+
+  copyAnswer() {
+    const txt = "Theo quy định đang hiệu lực, tổng hạn mức giao dịch qua ví điện tử của một khách hàng cá nhân tối đa là 100 triệu đồng/tháng [TT 40/2024/TT-NHNN, Điều 9], tính gộp trên mọi ví liên kết cùng một giấy tờ tùy thân. Ví điện tử bắt buộc phải liên kết với một tài khoản thanh toán hoặc thẻ ghi nợ mở tại ngân hàng [NĐ 52/2024/NĐ-CP, Điều 27].";
+    try { navigator.clipboard.writeText(txt); } catch (e) {}
+    this.setState({ copied: true });
+    clearTimeout(this._c);
+    this._c = setTimeout(() => this.setState({ copied: false }), 1600);
+  }
+
+  onKey(e) {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); this.send(); }
+  }
+
+  renderVals() {
+    const st = this.state;
+
+    const HISTORY = [
+      "Hạn mức giao dịch ví điện tử",
+      "Điều kiện mở tài khoản thanh toán",
+      "Phong tỏa tài khoản theo yêu cầu",
+      "Quy định KYC khách hàng cá nhân",
+    ];
+    const history = HISTORY.map((title, i) => ({
+      title,
+      style: "display:block;padding:8px 11px;border-radius:9px;font-size:12.5px;line-height:1.35;color:" +
+        (i === 0 ? "#191919" : "#6E6A5E") + ";white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;" +
+        (i === 0 ? "background:#EAE4D6;font-weight:500" : ""),
+    }));
+
+    const sources = SOURCES.map((s, i) => {
+      const isOpen = !!st.open[i];
+      const activeRing = st.active === i;
+      return {
+        ...s, num: i + 1, idx: i, isOpen,
+        toggle: () => this.setState((p) => ({ open: { ...p.open, [i]: !p.open[i] } })),
+        toggleLabel: isOpen ? "Thu gọn" : "Xem toàn văn điều khoản",
+        cardStyle: "background:#FAF9F5;border:1px solid " + (activeRing ? "#CC785C" : "#E4DFD2") +
+          ";border-radius:13px;transition:border-color .2s;" + (activeRing ? "animation:srcflash 1.4s ease-out" : ""),
+      };
+    });
+
+    const followups = FOLLOWUPS.map((text) => ({ text, ask: () => this.ask(text) }));
+
+    const turns = st.turns.map((t, i) => {
+      const narrow = !!t.narrow;
+      return {
+        ...t,
+        scopeLabel: t.scope || "Toàn bộ đang hiệu lực",
+        scopeStyle: "font-size:10.5px;padding:2px 9px;border-radius:999px;border:1px solid " +
+          (narrow ? "#E7C9B6;background:#F7EDE6;color:#8F4A30" : "#E4DFD2;background:#F5F2EA;color:#8A8577"),
+        wrapStyle: "padding:22px 0;animation:fadeup .35s ease-out" + (i > 0 ? ";border-top:1px solid #E4DFD2;margin-top:4px" : ""),
+      };
+    });
+
+    const q = st.query.trim().toLowerCase();
+    let pool = st.preset === "all" ? LIB : st.preset === "live" ? LIB.filter((d) => d.live) : LIB.filter((d) => d.group === st.preset && d.live);
+    if (q) pool = pool.filter((d) => (d.code + " " + d.title).toLowerCase().includes(q));
+
+    const pickDocs = pool.map((d) => {
+      const on = st.scope.includes(d.code);
+      return {
+        ...d,
+        status: d.live ? "Đang hiệu lực" : "Hết hiệu lực",
+        check: on ? "✓" : "",
+        pillStyle: "font-size:10px;padding:1px 8px;border-radius:999px;border:1px solid " +
+          (d.live ? "#CFE0C6;background:#EAF0E7;color:#5B7A5B" : "#E4DFD2;background:#F0EDE5;color:#9C9686"),
+        boxStyle: "flex:none;display:grid;place-items:center;width:18px;height:18px;border-radius:6px;font-size:11px;color:#fff;margin-top:2px;border:1px solid " +
+          (on ? "#CC785C;background:#CC785C" : "#D8CFBB;background:#fff"),
+        rowStyle: "display:flex;align-items:flex-start;gap:11px;width:100%;text-align:left;padding:9px 10px;border-radius:11px;cursor:pointer;transition:background .12s;border:1px solid " +
+          (on ? "#E7C9B6;background:#F7EDE6" : "transparent;background:transparent"),
+        toggle: () => this.setState((p) => ({ scope: p.scope.includes(d.code) ? p.scope.filter((c) => c !== d.code) : [...p.scope, d.code] })),
+      };
+    });
+
+    const presets = PRESETS.map((p) => ({
+      label: p.label,
+      pick: () => this.setState({ preset: p.id }),
+      style: "border:1px solid " + (st.preset === p.id ? "#CC785C;background:#F7EDE6;color:#8F4A30" : "#E4DFD2;background:#FAF9F5;color:#6E6A5E") +
+        ";font-size:11.5px;padding:5px 11px;border-radius:999px;cursor:pointer;transition:all .15s",
+    }));
+
+    return {
+      turns,
+      pickerOpen: st.pickerOpen,
+      openPicker: () => this.setState((p) => ({ pickerOpen: !p.pickerOpen })),
+      closePicker: () => this.setState({ pickerOpen: false }),
+      query: st.query,
+      setQuery: (e) => this.setState({ query: e.target.value }),
+      presets, pickDocs,
+      noResult: pickDocs.length === 0,
+      pickSummary: st.scope.length ? st.scope.length + " văn bản đã chọn" : "Chưa chọn — hỏi trên toàn bộ phạm vi",
+      clearScope: () => this.setState({ scope: [] }),
+      scopeCount: st.scope.length ? st.scope.length : "tất cả",
+      scopeEmpty: st.scope.length === 0,
+      scopeChips: st.scope.map((code) => ({
+        code,
+        remove: () => this.setState((p) => ({ scope: p.scope.filter((c) => c !== code) })),
+      })),
+      newChat: () => this.newChat(),
+      history,
+      draft: st.draft,
+      setDraft: (e) => this.setState({ draft: e.target.value }),
+      onKey: (e) => this.onKey(e),
+      send: () => this.send(),
+      conflictOpen: st.conflictOpen,
+      conflictArrow: st.conflictOpen ? "Thu gọn ▲" : "Chi tiết ▼",
+      toggleConflict: () => this.setState((p) => ({ conflictOpen: !p.conflictOpen })),
+      sourcesOpen: st.sourcesOpen,
+      srcToggleLabel: st.sourcesOpen ? "⌄ Ẩn nguồn" : "⌃ Hiện 2 nguồn",
+      toggleSources: () => this.setState((p) => ({ sourcesOpen: !p.sourcesOpen })),
+      copyAnswer: () => this.copyAnswer(),
+      copyLabel: st.copied ? "✓ Đã sao chép" : "⧉ Sao chép kèm nguồn",
+      cite0: this.cite(0), cite1: this.cite(1),
+      sources, followups,
+    };
+  }
+}
+</script>
+</body>
+</html>
