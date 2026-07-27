@@ -15,14 +15,14 @@ from pathlib import Path
 from fastapi import APIRouter, Depends, HTTPException, UploadFile
 from pydantic import BaseModel
 
-from app.core import appdb
-from app.core.auth import AuthUser, require_admin
-from app.core.schemas import CorpusDocument, Relationship
+from app.core import appdb, corpus as corpus_store
+from app.core.auth import AuthUser, get_current_user, require_admin
+from app.core.schemas import CorpusDocument, DocumentDetail, DocumentSummary, Relationship
+from app.ingestion.versioning import is_effective
 
 router = APIRouter(prefix="/documents", tags=["documents"])
 
-_CANONICAL = "corpus.json"
-_LOCAL_FALLBACK = Path("data/corpus.real.json")
+_CANONICAL = corpus_store.CANONICAL
 
 
 def _require_supabase() -> None:
@@ -30,13 +30,51 @@ def _require_supabase() -> None:
         raise HTTPException(status_code=503, detail="Luồng duyệt văn bản cần cấu hình Supabase")
 
 
-def _load_canonical(token: str) -> dict:
-    raw = appdb.download_storage(token, _CANONICAL)
-    if raw is not None:
-        return json.loads(raw.decode("utf-8"))
-    if _LOCAL_FALLBACK.exists():
-        return json.loads(_LOCAL_FALLBACK.read_text(encoding="utf-8"))
-    return {"documents": [], "relationships": []}
+@router.get("", response_model=list[DocumentSummary])
+def list_documents(user: AuthUser = Depends(get_current_user)) -> list[DocumentSummary]:
+    """Thư viện văn bản: metadata + trạng thái hiệu lực (mọi user đăng nhập)."""
+    corpus = corpus_store.get_corpus_cached(user.token)
+    out = []
+    for d in corpus.get("documents", []):
+        effective = is_effective(d.get("valid_from"), d.get("valid_to"), False)
+        out.append(
+            DocumentSummary(
+                doc_id=d["doc_id"],
+                title=d.get("title", d["doc_id"]),
+                doc_type=d.get("doc_type", ""),
+                source=d.get("source", "external"),
+                valid_from=d.get("valid_from"),
+                valid_to=d.get("valid_to"),
+                n_articles=len(d.get("articles", [])),
+                status="con_hieu_luc" if effective else "het_hieu_luc",
+            )
+        )
+    return out
+
+
+@router.get("/{doc_id}", response_model=DocumentDetail)
+def get_document_detail(doc_id: str, user: AuthUser = Depends(get_current_user)) -> DocumentDetail:
+    """Toàn văn một văn bản + quan hệ hai chiều (cho trình xem/lược đồ)."""
+    corpus = corpus_store.get_corpus_cached(user.token)
+    docs = {d["doc_id"]: d for d in corpus.get("documents", [])}
+    raw = docs.get(doc_id)
+    if raw is None:
+        raise HTTPException(status_code=404, detail=f"Không có văn bản {doc_id}")
+
+    rels = [Relationship.model_validate(r) for r in corpus.get("relationships", [])]
+    rels_out = [r for r in rels if r.source_doc == doc_id]
+    rels_in = [r for r in rels if r.target_doc == doc_id]
+    related_ids = {r.source_doc for r in rels_in} | {r.target_doc for r in rels_out}
+    titles = {i: docs[i].get("title", i) for i in related_ids if i in docs}
+
+    doc = CorpusDocument.model_validate(raw)
+    return DocumentDetail(
+        **doc.model_dump(exclude={"articles"}),
+        articles=doc.articles,
+        relationships_out=rels_out,
+        relationships_in=rels_in,
+        doc_titles=titles,
+    )
 
 
 @router.post("/upload")
@@ -122,7 +160,7 @@ def approve_document(
     except Exception as exc:  # noqa: BLE001
         raise HTTPException(status_code=422, detail=f"JSON không hợp lệ: {exc}") from exc
 
-    corpus = _load_canonical(user.token)
+    corpus = corpus_store.load_canonical(user.token)
     corpus["documents"] = [d for d in corpus.get("documents", []) if d.get("doc_id") != doc.doc_id]
     corpus["documents"].append(doc.model_dump())
     existing = {(r["source_doc"], r["target_doc"], r["rel_type"]) for r in corpus.get("relationships", [])}
@@ -134,6 +172,7 @@ def approve_document(
         user.token, _CANONICAL,
         json.dumps(corpus, ensure_ascii=False, indent=1).encode("utf-8"), "application/json",
     )
+    corpus_store.invalidate_cache()
 
     from app.ingestion.pipeline import build_change_events, ingest_docs
 

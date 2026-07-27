@@ -2098,14 +2098,48 @@
    "target_doc": "TT39-2014",
    "rel_type": "SUA_DOI",
    "valid_from": "2020-01-07",
-   "note": "Sửa đổi, bổ sung một số điều về trung gian thanh toán (ví điện tử)"
+   "note": "Sửa đổi, bổ sung một số điều về trung gian thanh toán (ví điện tử)",
+   "anchors": [
+    {
+     "source_article": "Điều 1",
+     "target_article": "Điều 3",
+     "detail": "Sửa đổi, bổ sung khoản 2, khoản 7; bổ sung khoản 9–19"
+    },
+    {
+     "source_article": "Điều 1",
+     "target_article": "Điều 9",
+     "detail": "Sửa đổi, bổ sung quy định về Ví điện tử; bổ sung Điều 9a"
+    },
+    {
+     "source_article": "Điều 1",
+     "target_article": "Điều 11",
+     "detail": "Sửa đổi, bổ sung khoản 4"
+    }
+   ]
   },
   {
    "source_doc": "TT20-2016",
    "target_doc": "TT39-2014",
    "rel_type": "SUA_DOI",
    "valid_from": "2016-07-01",
-   "note": "Sửa đổi, bổ sung một số điều của TT 39/2014"
+   "note": "Sửa đổi, bổ sung một số điều của TT 39/2014",
+   "anchors": [
+    {
+     "source_article": "Điều 2",
+     "target_article": "Điều 4",
+     "detail": "Sửa đổi khoản 2"
+    },
+    {
+     "source_article": "Điều 2",
+     "target_article": "Điều 5",
+     "detail": "Sửa đổi khoản 2"
+    },
+    {
+     "source_article": "Điều 2",
+     "target_article": "Điều 3",
+     "detail": "Bãi bỏ khoản 6"
+    }
+   ]
   },
   {
    "source_doc": "TT40-2024",

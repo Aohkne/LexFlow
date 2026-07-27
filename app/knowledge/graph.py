@@ -5,6 +5,7 @@ Cạnh:  [:THAY_THE|:SUA_DOI|:HUONG_DAN|:DAN_CHIEU {valid_from, note}]
 """
 from __future__ import annotations
 
+import json
 from contextlib import contextmanager
 from functools import lru_cache
 
@@ -53,14 +54,19 @@ def push_corpus(docs: list[CorpusDocument], rels: list[Relationship]) -> None:
                 source=d.source, valid_from=d.valid_from, valid_to=d.valid_to,
             )
         for r in rels:
+            # Neo4j chỉ nhận property nguyên thủy → anchors mức điều lưu dạng JSON string
+            anchors_json = (
+                json.dumps([a.model_dump() for a in r.anchors], ensure_ascii=False)
+                if r.anchors else None
+            )
             s.run(
                 """
                 MATCH (a:Document {doc_id: $src}), (b:Document {doc_id: $tgt})
                 MERGE (a)-[e:REL {rel_type: $rt}]->(b)
-                SET e.valid_from=$vf, e.note=$note
+                SET e.valid_from=$vf, e.note=$note, e.anchors=$anchors
                 """,
                 src=r.source_doc, tgt=r.target_doc, rt=r.rel_type,
-                vf=r.valid_from, note=r.note,
+                vf=r.valid_from, note=r.note, anchors=anchors_json,
             )
 
 

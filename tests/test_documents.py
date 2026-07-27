@@ -30,6 +30,16 @@ def client(monkeypatch):
     return TestClient(app)
 
 
+@pytest.fixture(autouse=True)
+def _fresh_corpus_cache():
+    """Cache corpus là module-global — xoá giữa các test để không rò rỉ."""
+    from app.core import corpus as corpus_store
+
+    corpus_store.invalidate_cache()
+    yield
+    corpus_store.invalidate_cache()
+
+
 @pytest.fixture
 def fake_store(monkeypatch):
     """Giả lập Storage + legal_documents + audit trong bộ nhớ."""
@@ -105,3 +115,80 @@ def test_reject(client, fake_store):
     r = client.post("/documents/TT99-2026/reject", headers={"Authorization": f"Bearer {_token('admin')}"})
     assert r.status_code == 200
     assert fake_store["rows"]["TT99-2026"]["status"] == "rejected"
+
+
+# --- API đọc văn bản (GET /documents, GET /documents/{doc_id}) ---
+
+def _seed_canonical(fake_store) -> None:
+    import json
+
+    old = {**_DOC, "doc_id": "TT39-2014", "title": "Thông tư cũ", "valid_to": "2024-06-30"}
+    corpus = {
+        "documents": [_DOC, old],
+        "relationships": [{
+            "source_doc": "TT99-2026", "target_doc": "TT39-2014", "rel_type": "SUA_DOI",
+            "anchors": [{"source_article": "Điều 1", "target_article": "Điều 1", "detail": "Sửa khoản 1"}],
+        }],
+    }
+    fake_store["storage"]["corpus.json"] = json.dumps(corpus, ensure_ascii=False).encode("utf-8")
+
+
+def test_list_documents_staff_thay_status(client, fake_store):
+    _seed_canonical(fake_store)
+    r = client.get("/documents", headers={"Authorization": f"Bearer {_token('staff')}"})
+    assert r.status_code == 200, r.text
+    by_id = {d["doc_id"]: d for d in r.json()}
+    assert by_id["TT99-2026"]["status"] == "con_hieu_luc"
+    assert by_id["TT39-2014"]["status"] == "het_hieu_luc"  # valid_to quá khứ
+    assert by_id["TT99-2026"]["n_articles"] == 1
+
+
+def test_list_documents_thieu_token_401(client, fake_store):
+    assert client.get("/documents").status_code == 401
+
+
+def test_get_document_detail_hai_chieu_quan_he(client, fake_store):
+    _seed_canonical(fake_store)
+    r = client.get("/documents/TT39-2014", headers={"Authorization": f"Bearer {_token('staff')}"})
+    assert r.status_code == 200, r.text
+    body = r.json()
+    assert body["doc_id"] == "TT39-2014"
+    assert len(body["articles"]) == 1
+    assert body["relationships_out"] == []
+    assert len(body["relationships_in"]) == 1
+    anchor = body["relationships_in"][0]["anchors"][0]
+    assert anchor["target_article"] == "Điều 1"
+    assert body["doc_titles"]["TT99-2026"] == _DOC["title"]
+
+
+def test_get_document_khong_ton_tai_404(client, fake_store):
+    _seed_canonical(fake_store)
+    r = client.get("/documents/KHONG-CO", headers={"Authorization": f"Bearer {_token('staff')}"})
+    assert r.status_code == 404
+
+
+def test_storage_loi_fallback_file_local(client, fake_store, monkeypatch):
+    def boom(tok, path):
+        raise RuntimeError("Storage sập")
+
+    monkeypatch.setattr(appdb, "download_storage", boom)
+    r = client.get("/documents", headers={"Authorization": f"Bearer {_token('staff')}"})
+    assert r.status_code == 200
+    # fallback về data/corpus.real.json đóng gói trong repo (15 văn bản)
+    assert len(r.json()) >= 10
+
+
+def test_approve_lam_moi_cache_doc(client, fake_store):
+    _seed_canonical(fake_store)
+    # đọc trước để cache
+    client.get("/documents", headers={"Authorization": f"Bearer {_token('staff')}"})
+    fake_store["rows"]["TT99-2026"] = {"doc_id": "TT99-2026", "extracted": _DOC, "status": "pending"}
+    r = client.post(
+        "/documents/TT99-2026/approve",
+        json={"document": {**_DOC, "title": "Đã sửa tên"}},
+        headers={"Authorization": f"Bearer {_token('admin')}"},
+    )
+    assert r.status_code == 200, r.text
+    r2 = client.get("/documents", headers={"Authorization": f"Bearer {_token('staff')}"})
+    titles = {d["doc_id"]: d["title"] for d in r2.json()}
+    assert titles["TT99-2026"] == "Đã sửa tên"  # cache đã invalidate sau approve

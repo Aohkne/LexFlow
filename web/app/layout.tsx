@@ -26,6 +26,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           </Link>
           <nav className="ml-auto flex items-center gap-1 text-sm">
             <NavLink href="/" label="Tra cứu" />
+            <NavLink href="/docs" label="Văn bản" />
             <NavLink href="/graph" label="Đồ thị tri thức" />
             <NavLink href="/alerts" label="Cảnh báo" />
           </nav>

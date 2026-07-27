@@ -7,6 +7,14 @@ from pydantic import BaseModel, Field
 REL_TYPES = ["THAY_THE", "SUA_DOI", "HUONG_DAN", "DAN_CHIEU"]
 
 
+class RelAnchor(BaseModel):
+    """Neo mức điều: điều nào của văn bản nguồn tác động điều nào của văn bản đích."""
+
+    source_article: str | None = None  # ví dụ "Điều 1" (trong văn bản sửa đổi)
+    target_article: str | None = None  # ví dụ "Điều 9" (điều bị sửa đổi/thay thế)
+    detail: str | None = None  # ví dụ "Sửa đổi khoản 2, khoản 7; bổ sung khoản 9-19"
+
+
 class Relationship(BaseModel):
     """Cạnh trong knowledge graph giữa hai văn bản."""
 
@@ -15,6 +23,8 @@ class Relationship(BaseModel):
     rel_type: str  # một trong REL_TYPES
     valid_from: str | None = None  # ISO date; None = không rõ
     note: str | None = None
+    # [] = quan hệ mức văn bản (như cũ); có phần tử = biết chi tiết mức điều
+    anchors: list[RelAnchor] = Field(default_factory=list)
 
 
 class DocumentMeta(BaseModel):
@@ -37,6 +47,9 @@ class Article(BaseModel):
     valid_from: str | None = None
     valid_to: str | None = None
     superseded: bool = False
+    # Nhãn phân cấp phẳng (không dựng cây) — hiển thị heading trong trình xem
+    chapter: str | None = None  # ví dụ "Chương II. Mở và sử dụng tài khoản thanh toán"
+    section: str | None = None  # ví dụ "Mục 1. Mở tài khoản"
 
 
 class CorpusDocument(DocumentMeta):
@@ -46,6 +59,28 @@ class CorpusDocument(DocumentMeta):
 
 
 # --- API models ---
+class DocumentSummary(BaseModel):
+    """Một dòng trong thư viện văn bản (GET /documents)."""
+
+    doc_id: str
+    title: str
+    doc_type: str
+    source: str
+    valid_from: str | None = None
+    valid_to: str | None = None
+    n_articles: int = 0
+    status: str = "con_hieu_luc"  # con_hieu_luc | het_hieu_luc
+
+
+class DocumentDetail(DocumentMeta):
+    """Toàn văn + quan hệ hai chiều của một văn bản (GET /documents/{doc_id})."""
+
+    articles: list[Article] = Field(default_factory=list)
+    relationships_out: list[Relationship] = Field(default_factory=list)  # doc là source
+    relationships_in: list[Relationship] = Field(default_factory=list)  # doc là target
+    doc_titles: dict[str, str] = Field(default_factory=dict)  # doc_id -> title các doc liên quan
+
+
 class Citation(BaseModel):
     doc_id: str
     doc_title: str

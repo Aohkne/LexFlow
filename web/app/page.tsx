@@ -1,8 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { streamChat, type ChatResponse, type Citation, type ConflictAlert } from "@/lib/api";
+import { articleAnchor } from "@/lib/anchors";
 
 const SEVERITY: Record<string, { bg: string; label: string }> = {
   info: { bg: "border-blue text-blue", label: "Thông tin" },
@@ -297,20 +299,28 @@ function TurnView({ turn, streaming }: { turn: Turn; streaming: boolean }) {
             Nguồn trích dẫn ({resp.citations.length})
           </div>
           <div className="space-y-2">
-            {resp.citations.map((c, i) => (
-              <div key={i} className="rounded-lg border border-border bg-background p-3">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="rounded bg-inset px-2 py-0.5 text-xs text-dim">{c.doc_type}</span>
-                  <span className="text-sm font-medium">{c.doc_title}</span>
-                  <span className="mono text-xs text-accent-dim">{c.article}</span>
-                  <span className="mono ml-auto text-xs text-faint">
-                    hiệu lực từ {c.valid_from ?? "—"}
-                    {c.valid_to ? ` đến ${c.valid_to}` : ""}
-                  </span>
-                </div>
-                <p className="mt-1 text-sm text-dim">{c.snippet}</p>
-              </div>
-            ))}
+            {resp.citations.map((c, i) => {
+              const anchor = articleAnchor(c.article);
+              return (
+                <Link
+                  key={i}
+                  href={`/docs/${encodeURIComponent(c.doc_id)}${anchor ? `#${anchor}` : ""}`}
+                  className="block rounded-lg border border-border bg-background p-3 transition-colors hover:border-accent"
+                  title="Mở toàn văn tại đúng điều khoản"
+                >
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="rounded bg-inset px-2 py-0.5 text-xs text-dim">{c.doc_type}</span>
+                    <span className="text-sm font-medium">{c.doc_title}</span>
+                    <span className="mono text-xs text-accent-dim">{c.article}</span>
+                    <span className="mono ml-auto text-xs text-faint">
+                      hiệu lực từ {c.valid_from ?? "—"}
+                      {c.valid_to ? ` đến ${c.valid_to}` : ""}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-sm text-dim">{c.snippet}</p>
+                </Link>
+              );
+            })}
           </div>
         </section>
       )}

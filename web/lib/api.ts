@@ -163,6 +163,71 @@ export async function rejectDocument(docId: string): Promise<void> {
   if (!res.ok) throw new Error((await res.json().catch(() => null))?.detail ?? res.statusText);
 }
 
+// ---- Thư viện văn bản (đọc) ----
+
+export type RelAnchor = {
+  source_article: string | null;
+  target_article: string | null;
+  detail: string | null;
+};
+
+export type Relationship = {
+  source_doc: string;
+  target_doc: string;
+  rel_type: string;
+  valid_from: string | null;
+  note: string | null;
+  anchors: RelAnchor[];
+};
+
+export type Article = {
+  article: string;
+  text: string;
+  valid_from: string | null;
+  valid_to: string | null;
+  superseded: boolean;
+  chapter: string | null;
+  section: string | null;
+};
+
+export type DocumentSummary = {
+  doc_id: string;
+  title: string;
+  doc_type: string;
+  source: string;
+  valid_from: string | null;
+  valid_to: string | null;
+  n_articles: number;
+  status: "con_hieu_luc" | "het_hieu_luc";
+};
+
+export type DocumentDetail = {
+  doc_id: string;
+  title: string;
+  doc_type: string;
+  source: string;
+  valid_from: string | null;
+  valid_to: string | null;
+  articles: Article[];
+  relationships_out: Relationship[];
+  relationships_in: Relationship[];
+  doc_titles: Record<string, string>;
+};
+
+export async function listDocuments(): Promise<DocumentSummary[]> {
+  const res = await fetch(`${API_BASE}/documents`, { headers: await authHeaders() });
+  if (!res.ok) throw new Error((await res.json().catch(() => null))?.detail ?? res.statusText);
+  return res.json();
+}
+
+export async function getDocument(docId: string): Promise<DocumentDetail> {
+  const res = await fetch(`${API_BASE}/documents/${encodeURIComponent(docId)}`, {
+    headers: await authHeaders(),
+  });
+  if (!res.ok) throw new Error((await res.json().catch(() => null))?.detail ?? res.statusText);
+  return res.json();
+}
+
 export async function getGraph(): Promise<GraphData> {
   const res = await fetch(`${API_BASE}/graph`, { headers: await authHeaders() });
   if (!res.ok) throw new Error((await res.json()).detail ?? res.statusText);
