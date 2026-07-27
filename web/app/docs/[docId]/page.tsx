@@ -110,6 +110,19 @@ export default function DocViewerPage() {
   );
 }
 
+// Tính heading Chương/Mục cho từng điều (chỉ hiện khi nhãn đổi so với điều trước) — hàm thuần.
+function withHeadings(articles: DocumentDetail["articles"]) {
+  let lastChapter: string | null = null;
+  let lastSection: string | null = null;
+  return articles.map((a) => {
+    const chapterHeading = a.chapter && a.chapter !== lastChapter ? a.chapter : null;
+    const sectionHeading = a.section && a.section !== lastSection ? a.section : null;
+    lastChapter = a.chapter ?? lastChapter;
+    lastSection = a.section ?? lastSection;
+    return { a, chapterHeading, sectionHeading };
+  });
+}
+
 function ContentTab({
   doc,
   amendments,
@@ -117,18 +130,12 @@ function ContentTab({
   doc: DocumentDetail;
   amendments: Map<string, AmendmentInfo[]>;
 }) {
-  let lastChapter: string | null = null;
-  let lastSection: string | null = null;
   return (
     <div className="mt-4 space-y-3">
-      {doc.articles.map((a) => {
+      {withHeadings(doc.articles).map(({ a, chapterHeading, sectionHeading }) => {
         const anchor = articleAnchor(a.article);
         const hits = anchor ? amendments.get(anchor) ?? [] : [];
         const inactive = a.superseded || (a.valid_to !== null && a.valid_to <= new Date().toISOString().slice(0, 10));
-        const chapterHeading = a.chapter && a.chapter !== lastChapter ? a.chapter : null;
-        const sectionHeading = a.section && a.section !== lastSection ? a.section : null;
-        lastChapter = a.chapter ?? lastChapter;
-        lastSection = a.section ?? lastSection;
         return (
           <div key={a.article}>
             {chapterHeading && (
