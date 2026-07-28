@@ -20,3 +20,6 @@ web/.env.local
 # OS
 .DS_Store
 Thumbs.db
+
+# Ghi chu nghien cuu ca nhan (chua cong bo)
+docs/SCHEMA_KG.md
