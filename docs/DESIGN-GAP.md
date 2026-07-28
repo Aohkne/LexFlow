@@ -61,7 +61,7 @@ Handoff v2 tại `design/Lexi/` đã tích hợp: component `web/components/lexi
 
 Vị trí đã gắn (quy tắc: một Lexi động/màn): Tra cứu (empty state `searching` 66px trong khung 96px; avatar 30px cạnh câu trả lời — lượt mới nhất động `found`/`conflict`, lượt cũ tĩnh; ô lỗi `error` + nút Thử lại), `/review` (idle → searching giả lập ~1.4s → conflict/found cạnh tiêu đề kết quả), Landing hero (`idle` 72px) + avatar preview tĩnh, mini-card Auth (tĩnh 22px), Thư viện không có kết quả (`idle` 44px), trang 404 `not-found.tsx` (`error` 66px). **Không** dùng Lexi làm logo sidebar (chỉ định của designer — linh vật ≠ logo).
 
-Backlog nếu muốn nhờ Claude design vẽ tiếp: `wave` (vẫy chào một lần cho hero/empty lần đầu), `reading` (cầm tài liệu — phân biệt kiểm tra tài liệu với tra cứu luật).
+Cập nhật 28/07 chiều: designer bổ sung `greeting` (nhún + vẫy cánh — dùng ở hero Landing 80px; theo chỉ định "chỉ chào một lần" nên KHÔNG đặt trong màn Tra cứu hằng ngày) và `reading` (đọc sách, mắt rà dòng `steps(1)` — thay searching ở pha chạy /review, cho tác vụ hàng chục giây; không dùng dưới 40px). Backlog Lexi: hết.
 
 ## 5. Đề xuất thứ tự làm tiếp
 

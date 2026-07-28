@@ -4,12 +4,14 @@
 
 Lexi là linh vật đại diện cho trợ thủ AI trong sản phẩm **Hoa Tiêu Pháp Lý (LexFlow)** — trợ lý tra cứu pháp luật cho khối Pháp chế & Tuân thủ ngân hàng. Hình tượng là **một con cú**: biểu tượng quen thuộc của trí tuệ và sự phán đoán, và khối tròn của nó vẫn đọc được khi thu nhỏ thành avatar 16px.
 
-Lexi có **5 trạng thái** khớp với các pha của luồng hỏi đáp, mỗi trạng thái một màu và một chuyển động riêng, cộng thêm **1 bản tĩnh** cho favicon/avatar nhỏ:
+Lexi có **7 trạng thái** khớp với các pha của luồng hỏi đáp, mỗi trạng thái một màu và một chuyển động riêng, cộng thêm **1 bản tĩnh** cho favicon/avatar nhỏ:
 
 | Trạng thái | Khi nào | Màu thân | Chuyển động |
 |---|---|---|---|
 | `idle` | chưa hỏi gì, màn rỗng | clay `#CC785C` | nghiêng đầu qua lại, chớp mắt kép mỗi 4.4s |
-| `searching` | đang gọi API trả lời | clay `#CC785C` | mắt đảo tìm quanh trang (ngang + dọc), 4.2s |
+| `greeting` | onboarding, sau khi đăng nhập, lần đầu vào app | clay `#CC785C` | nhún nhẹ 1.9s + vẫy cánh 0.62s, mắt nheo cười |
+| `searching` | đang gọi API trả lời (tra cứu nhanh) | clay `#CC785C` | mắt đảo tìm quanh trang (ngang + dọc), 4.2s |
+| `reading` | đang đọc/đối chiếu văn bản dài — màn Kiểm tra tài liệu | clay `#CC785C` | sách nâng ngang mỏ; mắt rà 3 dòng (`steps`), 5.4s |
 | `found` | trả lời xong, nguồn còn hiệu lực | sage `#5B7A5B` | gật nhẹ liên tục + dấu tích bật ra một lần |
 | `conflict` | phát hiện mâu thuẫn giữa các văn bản | clay đậm `#B4633E` | lắc đầu + chấm than bật ra một lần |
 | `error` | lỗi hệ thống: API thất bại, hết phiên, không tra được | xám `#9C9686` | đầu rũ xuống + dấu ✕ đỏ bật ra một lần |
@@ -26,6 +28,7 @@ Các file trong bundle này là **thiết kế tham chiếu**, không phải pro
 - `reference/Lexi 3D.html` + `three-d-stage.js` — bản 3D của Lexi (three.js), dùng làm nguồn tham chiếu hình khối và để xuất OBJ/GLB nếu cần dựng ảnh render. Không cần đưa vào web app.
 - `reference/Lexi mascot explorations.dc.html` + `support.js` — canvas thiết kế gốc: 4 hướng hình linh vật đã cân nhắc (con dấu / kim hoa tiêu / thẻ đánh dấu / dấu trích dẫn), lý do chọn con cú, và 5 trạng thái đặt cạnh nhau. Mở bằng browser, dùng để hiểu ý định thiết kế — không phải code để copy.
 - `preview.html` — **mở file này trước tiên** để nghiệm thu: hàng trên phải chuyển động, hàng dưới tĩnh.
+- `README-greeting-reading.md` — ghi chú chi tiết cho hai trạng thái mới nhất (`greeting`, `reading`): toạ độ hình, nhịp, và ba lỗi dễ mắc khi dựng lại.
 
 Nhiệm vụ: đưa `lexi.css` + component Lexi vào `web/` (Next.js 16 App Router, React 19, TypeScript, Tailwind CSS v4) và gắn vào luồng hỏi đáp ở màn Tra cứu. Backend Python đã có sẵn (`app/api`, `app/reasoning`) — Lexi chỉ đọc trạng thái của request, không gọi API nào.
 
@@ -48,7 +51,7 @@ Vì vậy bundle này chia làm hai phần rõ ràng:
 
 | Thành phần | Có chuyển động? | Dùng cho |
 |---|---|---|
-| `assets/*.svg` (6 file) | **Không** — tĩnh, có chủ ý | favicon, OG image, email, slide, chip ≤20px |
+| `assets/*.svg` (8 file) | **Không** — tĩnh, có chủ ý | favicon, OG image, email, slide, chip ≤20px |
 | `reference/Lexi.tsx` + `assets/lexi.css` | **Có** | mọi chỗ trong web app |
 
 **Ba quy tắc bắt buộc:**
@@ -92,10 +95,10 @@ Dùng cho favicon, chip nhỏ, ảnh chia sẻ — chỗ không cần chuyển �
 ```tsx
 import { Lexi, lexiState } from '@/components/Lexi';
 
-<Lexi state={lexiState({ isLoading, hasError, hasConflict, hasAnswer })} size={30} />
+<Lexi state={lexiState({ isLoading, reading, hasError, hasConflict, hasAnswer })} size={30} />
 ```
 
-Thứ tự ưu tiên trong `lexiState()`: `searching` (đang tải) → `error` (request thất bại) → `conflict` (có mâu thuẫn) → `found` (đã có câu trả lời) → `idle`.
+Thứ tự ưu tiên trong `lexiState()`: đang tải → `reading` nếu là tác vụ dài, ngược lại `searching` → `error` (request thất bại) → `conflict` (có mâu thuẫn) → `found` (đã có câu trả lời) → `idle`. `greeting` truyền tay, không qua hàm này.
 
 ## Screens / Views — Lexi đặt ở đâu
 
@@ -129,10 +132,25 @@ Next.js App Router tự nhận `app/icon.svg`. Cần `.ico` cho trình duyệt c
 
 ### 5. Không dùng Lexi ở đâu
 
+
 - **Logo sidebar**: giữ nguyên mark `⎈` hiện tại. Linh vật và logo nên tách vai — linh vật đại diện AI, logo đại diện sản phẩm.
 - Không đặt Lexi cạnh cảnh báo mâu thuẫn để **thay** cho cảnh báo. Biểu cảm là phụ trợ, thông tin pháp lý vẫn phải là chữ.
 
-### 6. Trạng thái lỗi
+### 6. Trạng thái chào hỏi
+
+- **Dùng khi**: màn chào sau đăng nhập, bước đầu onboarding, hoặc lần đầu người dùng mở màn Tra cứu. **Chỉ một lần** — không chào lại mỗi lần vào app, khối Pháp chế dùng công cụ này hằng ngày.
+- **Cỡ**: 72–96px (đây là lúc duy nhất Lexi được to).
+- **Đi kèm**: một câu giới thiệu ngắn + nút bắt đầu. Ví dụ "Tôi là Lexi. Hỏi tôi bất kỳ điều gì về quy định — mọi câu trả lời đều kèm điều khoản gốc."
+- **Lưu ý kỹ thuật**: cánh nâng **lên** cạnh đầu (`cy=72`, nghiêng 14°) và quay quanh gốc vai (`transform-origin: 50% 100%`) nên đọc ra là vẫy tay, không phải cánh xệ. Phép nghiêng tĩnh đặt trên `<ellipse>`, animation trên `<g>` bọc ngoài — không ghi đè nhau. Cánh vẽ trước `<Head>` để không che mặt. Nhịp vẫy 0.62s lệch với nhịp nhún 1.9s nên động tác không máy móc. **Biên độ vẫy giữ nhỏ (−8°…+16°)**: viewBox chỉ rộng 120, vung mạnh hơn là đầu cánh bị cắt ở mép phải.
+
+### 7. Trạng thái đọc sách
+
+- **Dùng khi**: tác vụ dài có thật — màn **Kiểm tra tài liệu** đang đối chiếu tài liệu nội bộ với các văn bản, hoặc đang lập chỉ mục văn bản mới. Phân biệt với `searching`: `searching` cho tra cứu vài giây, `reading` cho tác vụ hàng chục giây.
+- **Cỡ**: 48–72px, đặt trong khối tiến trình cùng thanh progress và dòng "Đang đối chiếu n văn bản…".
+- **Chi tiết hình**: sách mở nâng lên **ngang mỏ** (y 88–113), che phần dưới mặt — đọc ra ngay là đang cầm sách đọc. Mắt hạ xuống `cy=63`. Sách vẫn nhỏ ở cỡ bé, đừng dùng `reading` dưới 40px.
+- **Nhịp**: chỉ mắt động — rà 3 dòng bằng `steps(1, end)` (nhảy dòng dứt khoát, không trôi) rồi quay về dòng đầu. Sách đứng yên: thử hiệu ứng lật trang rồi bỏ, ở cỡ nhỏ nó chỉ nhoè thành một vệt nhấp nháy.
+
+### 8. Trạng thái lỗi
 
 - **Dùng khi**: gọi `POST /ask` thất bại, mất mạng, hết phiên đăng nhập, backend trả 5xx — **không** dùng cho mâu thuẫn pháp lý (đó là `conflict`).
 - **Phân biệt bằng màu**: `error` xám kiệt `#9C9686` + badge đỏ `#A8412F`; `conflict` clay đậm + badge cam. Người dùng nhìn màu là biết đây là lỗi hệ thống, không phải phát hiện pháp lý.
@@ -145,7 +163,7 @@ Next.js App Router tự nhận `app/icon.svg`. Cần `.ico` cho trình duyệt c
 |---|---|
 | Chuyển trạng thái | Đổi prop `state`. Không cần transition — mỗi trạng thái là một hoạt ảnh độc lập. |
 | `found` / `conflict` phát lại | Badge dùng `animation-fill-mode: both`, chạy **một lần**. Muốn chạy lại cho câu trả lời mới thì remount bằng `key`: `<Lexi key={answerId} state="found" />`. |
-| `idle` / `searching` | Lặp vô hạn. |
+| `idle` / `greeting` / `searching` / `reading` | Lặp vô hạn. |
 | Số lượng | Chỉ **một** Lexi động trên màn hình một lúc. Nhiều con cùng nhúc nhích là nhiễu thị giác. |
 | Ngưỡng cỡ | Dưới 24px: dùng bản tĩnh `avatar`. |
 | `prefers-reduced-motion` | Đã xử lý sẵn trong `lexi.css`: khi user tắt hiệu ứng thì mọi animation bị vô hiệu và badge vẫn hiện đầy đủ. Không cần code thêm. |
@@ -156,13 +174,19 @@ Next.js App Router tự nhận `app/icon.svg`. Cần `.ico` cho trình duyệt c
 Không có state riêng. Lexi là **thuần hàm của state sẵn có** ở màn Tra cứu:
 
 ```ts
-type LexiState = 'idle' | 'searching' | 'found' | 'conflict' | 'error' | 'static';
+type LexiState =
+  | 'idle' | 'greeting' | 'searching' | 'reading'
+  | 'found' | 'conflict' | 'error' | 'static';
 
-// suy ra từ:
+// lexiState() suy ra từ:
 isLoading    // đang gọi POST /ask
+reading      // tác vụ dài (POST /reviews) thay vì tra cứu nhanh → 'reading'
 hasError     // request thất bại / hết phiên / backend trả lỗi
 hasConflict  // response.conflicts.length > 0
 hasAnswer    // đã có response.answer
+
+// 'greeting' KHÔNG suy ra từ request — sản phẩm chủ động chọn:
+//   lần đầu onboarding, ngay sau khi đăng nhập, màn chào mừng.
 ```
 
 Không thêm state mới, không lưu localStorage.
@@ -192,15 +216,17 @@ Toàn bộ màu Lexi đều đã có trong bảng màu LexFlow — không màu n
 
 **Kích thước**: 16 / 20 / 30 / 40 / 66 px (viewBox luôn `0 0 120 120`).
 **Radius khung chứa**: 26px cho ô 96px ở trạng thái rỗng.
-**Nhịp hoạt ảnh** (định nghĩa trong `assets/lexi.css`): sway 3.4s · blink 4.4s · search 4.2s · nod 1.6s · shake 2.6s · droop 2.8s · pop 0.5s (`cubic-bezier(.3,1.4,.5,1)`, delay 0.3s).
-**Easing**: `ease-in-out` cho mọi vòng lặp.
+**Nhịp hoạt ảnh** (định nghĩa trong `assets/lexi.css`): sway 3.4s · blink 4.4s · search 4.2s · read 5.4s · hop 1.9s · wave 0.62s · nod 1.6s · shake 2.6s · droop 2.8s · pop 0.5s (`cubic-bezier(.3,1.4,.5,1)`, delay 0.3s).
+**Easing**: `ease-in-out` cho mọi vòng lặp, trừ `lexiRead` dùng `steps(1, end)` để mắt nhảy dòng dứt khoát thay vì trôi mượt.
 
 ## Assets
 
 | File | Nội dung | Ghi chú |
 |---|---|---|
 | `assets/lexi-idle.svg` | Lexi sẵn sàng | tĩnh, viewBox 120×120 |
+| `assets/lexi-greeting.svg` | Lexi chào hỏi, cánh nâng | tĩnh |
 | `assets/lexi-searching.svg` | Lexi đang tra (mắt lệch trái trên) | tĩnh |
+| `assets/lexi-reading.svg` | Lexi đọc sách mở | tĩnh |
 | `assets/lexi-found.svg` | Lexi có nguồn + dấu tích | tĩnh, badge hiện sẵn |
 | `assets/lexi-conflict.svg` | Lexi có mâu thuẫn + cảnh báo | tĩnh, badge hiện sẵn |
 | `assets/lexi-error.svg` | Lexi gặp lỗi + dấu ✕ | tĩnh, badge hiện sẵn |
@@ -216,11 +242,14 @@ Cần PNG (ảnh chia sẻ mạng xã hội, slide)? SVG là đủ cho web — n
 ```
 design_handoff_lexi_mascot/
 ├── README.md                              ← tài liệu này
+├── README-greeting-reading.md              ← ghi chú riêng 2 trạng thái mới nhất
 ├── preview.html                           ← MỞ TRƯỚC: nghiệm thu hoạt ảnh
 ├── assets/                                ← ASSET SẢN XUẤT
 │   ├── lexi.css                           ← hoạt ảnh (→ web/components/lexi.css)
-│   ├── lexi-idle.svg                      ← 6 SVG TĨNH (→ web/public/lexi/)
+│   ├── lexi-idle.svg                      ← 8 SVG TĨNH (→ web/public/lexi/)
+│   ├── lexi-greeting.svg
 │   ├── lexi-searching.svg
+│   ├── lexi-reading.svg
 │   ├── lexi-found.svg
 │   ├── lexi-conflict.svg
 │   ├── lexi-error.svg

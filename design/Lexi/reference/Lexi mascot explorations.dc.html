@@ -34,6 +34,9 @@
   @keyframes lexiNod{0%,100%{transform:translateY(0)}50%{transform:translateY(-3.4px)}}
   @keyframes lexiShake{0%,100%{transform:translateX(0)}18%{transform:translateX(-2.4px)}38%{transform:translateX(2.4px)}58%{transform:translateX(-1.5px)}78%{transform:translateX(1.5px)}}
   @keyframes lexiDroop{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(2.6px) rotate(-3deg)}}
+  @keyframes lexiRead{0%,30%{transform:translate(-3px,1px)}15%{transform:translate(3px,1px)}32%,62%{transform:translate(-3px,2.2px)}47%{transform:translate(3px,2.2px)}64%,94%{transform:translate(-3px,3.4px)}79%{transform:translate(3px,3.4px)}96%,100%{transform:translate(-3px,1px)}}
+  @keyframes lexiHop{0%,100%{transform:translateY(0)}38%{transform:translateY(-3.2px)}70%{transform:translateY(-1px)}}
+  @keyframes lexiWave{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(16deg)}}
   @keyframes lexiPop{0%{transform:scale(0);opacity:0}62%{transform:scale(1.18);opacity:1}100%{transform:scale(1);opacity:1}}
   @keyframes lexiWing{0%,100%{transform:rotate(0)}50%{transform:rotate(3.5deg)}}
   @media (prefers-reduced-motion:reduce){*{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important}}
@@ -54,7 +57,7 @@
     <div id="4b" style="width:760px;flex:none;display:flex;flex-direction:column;gap:10px">
       <div style="display:flex;align-items:center;gap:9px">
         <span class="mono" style="font-size:11px;font-weight:600;color:#fff;background:#CC785C;border-radius:6px;padding:3px 9px">4b</span>
-        <span style="font-size:13px;font-weight:600">Năm trạng thái, mỗi trạng thái một chuyển động</span>
+        <span style="font-size:13px;font-weight:600">Bảy trạng thái, mỗi trạng thái một chuyển động</span>
       </div>
       <div style="background:#FAF9F5;border:1px solid #E4DFD2;border-radius:18px;padding:20px;box-shadow:0 4px 20px rgba(40,34,24,.07);display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
 
@@ -139,7 +142,7 @@
               <circle cx="76" cy="62" r="10" fill="#26241F"></circle>
               <rect x="26" y="32" width="28" height="5" rx="2.5" fill="#8F4A30" transform="rotate(19 40 34)"></rect>
               <rect x="66" y="32" width="28" height="5" rx="2.5" fill="#8F4A30" transform="rotate(-19 80 34)"></rect>
-              <path d="M60 73 L68 84 L60 91 L52 84 Z" fill="#E0C39F"></path>
+              <path d="M60 72 L68 83 L60 90 L52 83 Z" fill="#E0C39F"></path>
             </g>
             <g style="transform-box:fill-box;transform-origin:50% 50%;will-change:transform;animation:lexiPop .5s cubic-bezier(.3,1.4,.5,1) .3s both">
               <circle cx="97" cy="28" r="17" fill="#F7EDE6" stroke="#CC785C" stroke-width="2.5"></circle>
@@ -173,6 +176,56 @@
           </svg>
           <span style="font-size:11.5px;font-weight:600">Gặp lỗi</span>
           <span style="font-size:10.5px;color:#8A8577;text-align:center;line-height:1.4">đầu rũ xuống, dấu ✕ bật ra</span>
+        </div>
+
+        <div style="background:#F0EEE6;border-radius:14px;padding:14px 10px 13px;display:flex;flex-direction:column;align-items:center;gap:8px">
+          <svg width="118" height="118" viewBox="0 0 120 120">
+            <g style="transform-box:fill-box;transform-origin:50% 100%;will-change:transform;animation:lexiWave .62s ease-in-out infinite">
+              <ellipse cx="97" cy="74" rx="8.5" ry="17" fill="#B4633E" transform="rotate(8 97 91)"></ellipse>
+            </g>
+            <g style="transform-box:fill-box;transform-origin:50% 100%;will-change:transform;animation:lexiHop 1.9s ease-in-out infinite">
+              <path d="M40 44 L44 22 L54 40 Z" fill="#CC785C"></path>
+              <path d="M80 44 L76 22 L66 40 Z" fill="#CC785C"></path>
+              <circle cx="60" cy="66" r="42" fill="#CC785C"></circle>
+              <ellipse cx="44" cy="60" rx="20" ry="22" fill="#FAF9F5"></ellipse>
+              <ellipse cx="76" cy="60" rx="20" ry="22" fill="#FAF9F5"></ellipse>
+              <path d="M34 63 q10 -13 20 0" fill="none" stroke="#26241F" stroke-width="5" stroke-linecap="round"></path>
+              <path d="M66 63 q10 -13 20 0" fill="none" stroke="#26241F" stroke-width="5" stroke-linecap="round"></path>
+              <path d="M28 37 q13 -6 26 3" fill="none" stroke="#B4633E" stroke-width="4.6" stroke-linecap="round"></path>
+              <path d="M92 37 q-13 -6 -26 3" fill="none" stroke="#B4633E" stroke-width="4.6" stroke-linecap="round"></path>
+              <path d="M60 71 L68 82 L60 89 L52 82 Z" fill="#E0C39F"></path>
+            </g>
+          </svg>
+          <span style="font-size:11.5px;font-weight:600">Chào hỏi</span>
+          <span style="font-size:10.5px;color:#8A8577;text-align:center;line-height:1.4">nhún nhẹ, vẫy cánh</span>
+        </div>
+
+        <div style="background:#F0EEE6;border-radius:14px;padding:14px 10px 13px;display:flex;flex-direction:column;align-items:center;gap:8px">
+          <svg width="118" height="118" viewBox="0 0 120 120">
+            <path d="M40 44 L44 22 L54 40 Z" fill="#CC785C"></path>
+            <path d="M80 44 L76 22 L66 40 Z" fill="#CC785C"></path>
+            <circle cx="60" cy="66" r="42" fill="#CC785C"></circle>
+            <ellipse cx="44" cy="60" rx="20" ry="22" fill="#FAF9F5"></ellipse>
+            <ellipse cx="76" cy="60" rx="20" ry="22" fill="#FAF9F5"></ellipse>
+            <g style="transform-box:fill-box;transform-origin:50% 50%;will-change:transform;animation:lexiRead 5.4s steps(1,end) infinite">
+              <circle cx="44" cy="63" r="12.5" fill="none" stroke="#B4633E" stroke-width="3"></circle>
+              <circle cx="44" cy="63" r="9" fill="#26241F"></circle>
+              <circle cx="76" cy="63" r="12.5" fill="none" stroke="#B4633E" stroke-width="3"></circle>
+              <circle cx="76" cy="63" r="9" fill="#26241F"></circle>
+            </g>
+            <rect x="26" y="40" width="27" height="4.6" rx="2.3" fill="#B4633E"></rect>
+            <rect x="67" y="40" width="27" height="4.6" rx="2.3" fill="#B4633E"></rect>
+            <path d="M60 72 L68 83 L60 90 L52 83 Z" fill="#E0C39F"></path>
+            <path d="M60 90 Q40 84 20 90 L25 111 Q43 106 60 113 Z" fill="#E0C39F"></path>
+            <path d="M60 90 Q80 84 100 90 L95 111 Q77 106 60 113 Z" fill="#E0C39F"></path>
+            <path d="M60 88 Q41 82 22 88 L26 108 Q43 103 60 110 Z" fill="#FAF9F5" stroke="#D8CFBB" stroke-width="2"></path>
+            <path d="M60 88 Q79 82 98 88 L94 108 Q77 103 60 110 Z" fill="#FAF9F5" stroke="#D8CFBB" stroke-width="2"></path>
+            <path d="M30 93 h18 M31 98 h14" stroke="#D8CFBB" stroke-width="1.8" stroke-linecap="round"></path>
+            <path d="M72 93 h18 M75 98 h14" stroke="#D8CFBB" stroke-width="1.8" stroke-linecap="round"></path>
+            <path d="M60 88 V110" stroke="#D8CFBB" stroke-width="2"></path>
+          </svg>
+          <span style="font-size:11.5px;font-weight:600">Đọc sách</span>
+          <span style="font-size:10.5px;color:#8A8577;text-align:center;line-height:1.4">sách nâng ngang mỏ, mắt rà dòng</span>
         </div>
       </div>
 

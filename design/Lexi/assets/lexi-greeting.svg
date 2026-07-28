@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120" role="img" aria-label="Lexi xin chào">
+  <ellipse cx="101" cy="72" rx="9" ry="18" fill="#B4633E" transform="rotate(14 101 89)"></ellipse>
+  <path d="M40 44 L44 22 L54 40 Z" fill="#CC785C"></path>
+  <path d="M80 44 L76 22 L66 40 Z" fill="#CC785C"></path>
+  <circle cx="60" cy="66" r="42" fill="#CC785C"></circle>
+  <ellipse cx="44" cy="60" rx="20" ry="22" fill="#FAF9F5"></ellipse>
+  <ellipse cx="76" cy="60" rx="20" ry="22" fill="#FAF9F5"></ellipse>
+  <path d="M34 63 q10 -13 20 0" fill="none" stroke="#26241F" stroke-width="5" stroke-linecap="round"></path>
+  <path d="M66 63 q10 -13 20 0" fill="none" stroke="#26241F" stroke-width="5" stroke-linecap="round"></path>
+  <path d="M28 37 q13 -6 26 3" fill="none" stroke="#B4633E" stroke-width="4.6" stroke-linecap="round"></path>
+  <path d="M92 37 q-13 -6 -26 3" fill="none" stroke="#B4633E" stroke-width="4.6" stroke-linecap="round"></path>
+  <path d="M60 71 L68 82 L60 89 L52 82 Z" fill="#E0C39F"></path>
+</svg>

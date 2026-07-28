@@ -5,7 +5,15 @@
 // Bản tĩnh cho favicon/chip ≤20px: /public/lexi/*.svg.
 import "./lexi.css";
 
-export type LexiState = "idle" | "searching" | "found" | "conflict" | "error" | "static";
+export type LexiState =
+  | "idle"
+  | "greeting"
+  | "searching"
+  | "reading"
+  | "found"
+  | "conflict"
+  | "error"
+  | "static";
 
 const C = {
   clay: "#CC785C",
@@ -26,7 +34,9 @@ const C = {
 
 const LABELS: Record<LexiState, string> = {
   idle: "Lexi",
+  greeting: "Lexi xin chào",
   searching: "Lexi đang tra cứu",
+  reading: "Lexi đang đọc văn bản",
   found: "Lexi đã tìm được nguồn",
   conflict: "Lexi phát hiện mâu thuẫn",
   error: "Lexi không tra được — đã xảy ra lỗi",
@@ -43,6 +53,34 @@ function Head({ fill }: { fill: string }) {
       <ellipse cx={44} cy={60} rx={20} ry={22} fill={C.cream} />
       <ellipse cx={76} cy={60} rx={20} ry={22} fill={C.cream} />
     </>
+  );
+}
+
+/** Sách mở nâng ngang mỏ, dùng cho state "reading". */
+function Book() {
+  return (
+    <>
+      {/* bìa sách */}
+      <path d="M60 90 Q40 84 20 90 L25 111 Q43 106 60 113 Z" fill={C.beak} />
+      <path d="M60 90 Q80 84 100 90 L95 111 Q77 106 60 113 Z" fill={C.beak} />
+      {/* hai trang */}
+      <path d="M60 88 Q41 82 22 88 L26 108 Q43 103 60 110 Z" fill={C.cream} stroke={C.drainedBeak} strokeWidth={2} />
+      <path d="M60 88 Q79 82 98 88 L94 108 Q77 103 60 110 Z" fill={C.cream} stroke={C.drainedBeak} strokeWidth={2} />
+      <path d="M30 93 h18 M31 98 h14" stroke={C.drainedBeak} strokeWidth={1.8} strokeLinecap="round" />
+      <path d="M72 93 h18 M75 98 h14" stroke={C.drainedBeak} strokeWidth={1.8} strokeLinecap="round" />
+      <path d="M60 88 V110" stroke={C.drainedBeak} strokeWidth={2} />
+    </>
+  );
+}
+
+/** Cánh vẫy, dùng cho state "greeting". Cánh vẽ TRƯỚC Head (nếu không sẽ che mặt);
+ *  phép nghiêng tĩnh 8° nằm trên <ellipse> vì CSS animation ghi đè transform của <g>;
+ *  biên độ −8°…+16° là tối đa — vung mạnh hơn là đầu cánh bị cắt ở mép viewBox 120. */
+function WavingWing() {
+  return (
+    <g className="lexi-wave">
+      <ellipse cx={97} cy={74} rx={8.5} ry={17} fill={C.clayDeep} transform="rotate(8 97 91)" />
+    </g>
   );
 }
 
@@ -107,6 +145,38 @@ export function Lexi({
           <path d="M92 37 q-13 -6 -26 3" fill="none" stroke={C.clayDeep} strokeWidth={4.6} strokeLinecap="round" />
           <path d="M60 71 L68 82 L60 89 L52 82 Z" fill={C.beak} />
         </g>
+      )}
+
+      {state === "greeting" && (
+        <>
+          <WavingWing />
+          <g className="lexi-hop">
+            <Head fill={C.clay} />
+            {/* mắt nheo cười + chân mày cong lên */}
+            <path d="M34 63 q10 -13 20 0" fill="none" stroke={C.ink} strokeWidth={5} strokeLinecap="round" />
+            <path d="M66 63 q10 -13 20 0" fill="none" stroke={C.ink} strokeWidth={5} strokeLinecap="round" />
+            <path d="M28 37 q13 -6 26 3" fill="none" stroke={C.clayDeep} strokeWidth={4.6} strokeLinecap="round" />
+            <path d="M92 37 q-13 -6 -26 3" fill="none" stroke={C.clayDeep} strokeWidth={4.6} strokeLinecap="round" />
+            <path d="M60 71 L68 82 L60 89 L52 82 Z" fill={C.beak} />
+          </g>
+        </>
+      )}
+
+      {state === "reading" && (
+        <>
+          <Head fill={C.clay} />
+          {/* mắt hạ xuống — đang nhìn vào trang sách */}
+          <g className="lexi-read">
+            <circle cx={44} cy={63} r={12.5} fill="none" stroke={C.clayDeep} strokeWidth={3} />
+            <circle cx={44} cy={63} r={9} fill={C.ink} />
+            <circle cx={76} cy={63} r={12.5} fill="none" stroke={C.clayDeep} strokeWidth={3} />
+            <circle cx={76} cy={63} r={9} fill={C.ink} />
+          </g>
+          <rect x={26} y={40} width={27} height={4.6} rx={2.3} fill={C.clayDeep} />
+          <rect x={67} y={40} width={27} height={4.6} rx={2.3} fill={C.clayDeep} />
+          <path d="M60 72 L68 83 L60 90 L52 83 Z" fill={C.beak} />
+          <Book />
+        </>
       )}
 
       {state === "searching" && (
@@ -184,19 +254,23 @@ export function Lexi({
   );
 }
 
-/** Suy ra trạng thái từ luồng hỏi đáp. Dưới 24px thì truyền thẳng "static". */
+/** Suy ra trạng thái từ luồng hỏi đáp. Dưới 24px thì truyền thẳng "static".
+ *  "greeting" KHÔNG nằm ở đây — do sản phẩm chủ động chọn, không suy từ request. */
 export function lexiState({
   isLoading,
+  reading,
   hasError,
   hasConflict,
   hasAnswer,
 }: {
   isLoading: boolean;
+  /** tác vụ dài hàng chục giây (đối chiếu tài liệu) — thay searching bằng reading */
+  reading?: boolean;
   hasError?: boolean;
   hasConflict: boolean;
   hasAnswer: boolean;
 }): LexiState {
-  if (isLoading) return "searching";
+  if (isLoading) return reading ? "reading" : "searching";
   if (hasError) return "error";
   if (hasConflict) return "conflict";
   if (hasAnswer) return "found";

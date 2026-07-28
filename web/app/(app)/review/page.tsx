@@ -337,7 +337,7 @@ export default function ReviewPage() {
             <div className="grid h-[70vh] place-items-center text-center">
               <div>
                 <span className="inline-grid h-24 w-24 place-items-center rounded-[26px] border border-accent-wash-border bg-accent-wash">
-                  <Lexi state="searching" size={66} />
+                  <Lexi state="reading" size={66} />
                 </span>
                 <h2 className="serif mt-3 text-[22px] font-medium">
                   Đang đối chiếu {picked.size} văn bản…

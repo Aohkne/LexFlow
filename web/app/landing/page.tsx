@@ -76,7 +76,7 @@ export default function LandingPage() {
       {/* HERO */}
       <section className="mx-auto max-w-[1120px] px-8 pt-[64px] text-center">
         <span className="mb-5 inline-grid h-24 w-24 place-items-center rounded-[26px] border border-accent-wash-border bg-accent-wash">
-          <Lexi state="idle" size={72} decorative={false} label="Lexi — trợ thủ pháp lý của LexFlow" />
+          <Lexi state="greeting" size={80} decorative={false} label="Lexi — trợ thủ pháp lý của LexFlow xin chào" />
         </span>
         <br />
         <span className="inline-flex items-center gap-1.5 rounded-full border border-accent-wash-border bg-accent-wash px-3 py-1 text-xs text-accent-dim">
