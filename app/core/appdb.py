@@ -55,32 +55,34 @@ def save_chat_turn(
     answer: str,
     citations: list[dict],
     conflicts: list[dict],
+    scope: list[str] | None = None,
+    as_of: str | None = None,
 ) -> str | None:
     """Lưu 1 lượt hỏi–đáp (tạo phiên nếu chưa có) + audit log. Trả về session_id."""
     try:
         if not session_id:
             session_id = create_session(token, user_id, title=query, mode=mode)
         # PostgREST bắt buộc mọi row trong bulk insert có cùng bộ key (PGRST102)
-        _post(
-            "/chat_messages",
-            token,
-            [
-                {
-                    "session_id": session_id,
-                    "role": "user",
-                    "content": query,
-                    "citations": None,
-                    "conflicts": None,
-                },
-                {
-                    "session_id": session_id,
-                    "role": "assistant",
-                    "content": answer,
-                    "citations": citations,
-                    "conflicts": conflicts,
-                },
-            ],
-        )
+        row_user = {
+            "session_id": session_id,
+            "role": "user",
+            "content": query,
+            "citations": None,
+            "conflicts": None,
+        }
+        row_asst = {
+            "session_id": session_id,
+            "role": "assistant",
+            "content": answer,
+            "citations": citations,
+            "conflicts": conflicts,
+        }
+        extras = {"scope": scope or None, "as_of": as_of}
+        try:
+            _post("/chat_messages", token, [row_user | extras, row_asst | extras])
+        except httpx.HTTPStatusError:
+            # Migration 0005 chưa chạy (cột scope/as_of chưa có) → lưu bản tối thiểu
+            _post("/chat_messages", token, [row_user, row_asst])
         log_audit(
             token,
             user_id,
@@ -96,6 +98,40 @@ def save_chat_turn(
     except httpx.HTTPError as exc:
         logger.warning("Không lưu được chat history vào Supabase: %s", exc)
         return session_id
+
+
+def save_review_session(
+    token: str,
+    user_id: str,
+    *,
+    internal_doc_id: str,
+    internal_title: str,
+    against_doc_ids: list[str],
+    as_of: str,
+    score: int,
+    counts: dict,
+    findings: list[dict],
+) -> str | None:
+    """Lưu kết quả một phiên kiểm tra tuân thủ. Best-effort — trả id hoặc None."""
+    try:
+        rows = _post(
+            "/review_sessions",
+            token,
+            {
+                "user_id": user_id,
+                "internal_doc_id": internal_doc_id,
+                "internal_title": internal_title,
+                "against_doc_ids": against_doc_ids,
+                "as_of": as_of,
+                "score": score,
+                "counts": counts,
+                "findings": findings,
+            },
+        )
+        return rows[0]["id"]
+    except httpx.HTTPError as exc:
+        logger.warning("Không lưu được review session (migration 0005 đã chạy chưa?): %s", exc)
+        return None
 
 
 def record_change_events(token: str, events: list[dict]) -> int:

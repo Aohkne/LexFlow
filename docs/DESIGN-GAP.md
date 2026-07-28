@@ -10,11 +10,11 @@
 
 | # | Hạng mục | Hiện trạng | Việc cần làm |
 |---|---|---|---|
-| 1 | **Backend Kiểm tra tuân thủ** (`POST /reviews`) — màn 5 | UI `/review` đã đủ (config 3 bước + score strip + findings accordion) nhưng phần kết quả là **dữ liệu minh họa**, có ghi chú ngay trên UI | Xây service: mỗi điều nội bộ → retrieval điều luật liên quan → so khớp → findings + compliance score. Trùng với đề xuất B.2 trong `docs/PHAN-TICH-IO-UI.md` — khoảng trống giá trị nhất |
-| 2 | **Lưu phạm vi + as-of theo từng lượt chat** | `doc_ids` + `as_of` đã gửi lên backend và giới hạn retrieval đúng, nhưng **không lưu vào `chat_messages`** → mở lại phiên cũ, chip "Phạm vi" hiển thị mặc định | Thêm cột `scope jsonb` + `as_of date` vào `chat_messages` (migration) + ghi trong `save_chat_turn` — README design yêu cầu rõ để phục vụ audit |
+| 1 | **Backend Kiểm tra tuân thủ** (`POST /reviews`) — màn 5 | ✅ **XONG 28/07**: mỗi điều nội bộ → retrieval trong phạm vi chọn (lọc hiệu lực tại as-of) → Gemini phán định violation/warning/pass → findings + điểm; verify prod bắt đúng 2 mâu thuẫn cài chủ đích | — |
+| 2 | **Lưu phạm vi + as-of theo từng lượt chat** | ✅ **XONG 28/07** (migration `0005`): `chat_messages.scope/as_of`, `save_chat_turn` ghi kèm (fallback khi chưa migrate), mở lại phiên khôi phục đúng chip Phạm vi + "tra tại" theo lượt | — |
 | 3 | **Câu hỏi gợi ý tiếp theo (follow-up chips)** | Backend không sinh followups → không render | Thêm 1 lời gọi LLM phụ (hoặc gộp vào prompt chính, trả JSON) → SSE event `followups` |
 | 4 | **Trường dữ liệu văn bản còn thiếu**: cơ quan ban hành, ngày ban hành, lĩnh vực (Thanh toán / KYC / An toàn) | FE đang **suy đoán** cơ quan từ loại văn bản; preset lĩnh vực thay bằng preset theo nguồn (Pháp luật/Nội bộ); facet "Lĩnh vực" ở Thư viện thay bằng "Nguồn" | Khi làm KB mới: thêm `issuer`, `issued_date`, `field` vào `DocumentMeta` (đều optional — không vỡ corpus cũ). Khớp với nghiên cứu cấu trúc luật của bạn (số hiệu tự mã hóa cơ quan ban hành) |
-| 5 | **Danh sách phiên kiểm tra gần đây** (sidebar màn 5) | Placeholder "chưa có phiên nào" | Cần bảng `review_sessions` khi làm #1 |
+| 5 | **Danh sách phiên kiểm tra gần đây** (sidebar màn 5) | ✅ **XONG 28/07** (migration `0005`): bảng `review_sessions` (RLS của mình), backend lưu sau mỗi lần chạy, sidebar list 15 phiên gần nhất + mở lại qua `?session=` | — |
 
 ### Nhỏ hơn / quyết định sau
 

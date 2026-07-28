@@ -252,6 +252,7 @@ export type ReviewResult = {
   score: number;
   counts: Record<"violation" | "warning" | "pass", number>;
   findings: ReviewFinding[];
+  session_id: string | null;
 };
 
 export async function runReview(body: {

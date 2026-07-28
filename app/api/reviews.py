@@ -43,8 +43,19 @@ def create_review(req: ReviewRequest, user: AuthUser = Depends(get_current_user)
     except Exception as exc:  # noqa: BLE001
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 
-    # Audit best-effort (user.token rỗng ở dev mode)
+    # Lưu phiên + audit best-effort (user.token rỗng ở dev mode)
     if appdb.enabled() and user.token:
+        resp.session_id = appdb.save_review_session(
+            user.token,
+            user.id,
+            internal_doc_id=resp.internal_doc_id,
+            internal_title=resp.internal_title,
+            against_doc_ids=resp.against_doc_ids,
+            as_of=resp.as_of,
+            score=resp.score,
+            counts=resp.counts,
+            findings=[f.model_dump() for f in resp.findings],
+        )
         appdb.log_audit(
             user.token, user.id, action="review_run",
             detail={

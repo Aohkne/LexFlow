@@ -20,6 +20,7 @@ type Turn = {
   question: string;
   scopeLabel: string;
   narrow: boolean;
+  asOf: string | null; // hiệu lực tại — ghim theo lượt (null = hôm nay lúc hỏi)
   resp: ChatResponse;
 };
 type Session = { id: string; title: string; created_at: string };
@@ -92,29 +93,43 @@ function ChatScreen() {
       .catch(() => {});
   }, [loadSessions]);
 
-  // Mở lại phiên từ sidebar (?session=id)
+  // Mở lại phiên từ sidebar (?session=id) — khôi phục cả phạm vi + as-of theo lượt
   useEffect(() => {
     if (!sessionParam) return;
     (async () => {
-      const { data } = await createClient()
-        .from("chat_messages")
-        .select("role,content,citations,conflicts,created_at")
-        .eq("session_id", sessionParam)
-        .order("created_at", { ascending: true });
-      const rows = (data ?? []) as {
+      const sb = createClient();
+      const q = (cols: string) =>
+        sb
+          .from("chat_messages")
+          .select(cols)
+          .eq("session_id", sessionParam)
+          .order("created_at", { ascending: true });
+      // Cột scope/as_of có từ migration 0005 — DB cũ thì fallback bộ cột cũ
+      let { data } = await q("role,content,citations,conflicts,scope,as_of,created_at");
+      if (!data) ({ data } = await q("role,content,citations,conflicts,created_at"));
+      const rows = (data ?? []) as unknown as {
         role: string;
         content: string;
         citations: Citation[] | null;
         conflicts: ConflictAlert[] | null;
+        scope?: string[] | null;
+        as_of?: string | null;
       }[];
       const loaded: Turn[] = [];
       for (let i = 0; i < rows.length; i++) {
         if (rows[i].role === "user") {
           const a = rows[i + 1]?.role === "assistant" ? rows[i + 1] : null;
+          const sc = rows[i].scope ?? null;
           loaded.push({
             question: rows[i].content,
-            scopeLabel: "Toàn bộ đang hiệu lực",
-            narrow: false,
+            scopeLabel:
+              sc && sc.length === 1
+                ? sc[0]
+                : sc && sc.length > 1
+                  ? `${sc.length} văn bản đã chọn`
+                  : "Toàn bộ đang hiệu lực",
+            narrow: !!sc && sc.length > 0,
+            asOf: rows[i].as_of ?? null,
             resp: {
               answer: a?.content ?? "",
               citations: a?.citations ?? [],
@@ -172,6 +187,7 @@ function ChatScreen() {
       question,
       scopeLabel,
       narrow,
+      asOf: asOf || null,
       resp: { answer: "", citations: [], conflicts: [], session_id: null },
     });
     scrollBottom();
@@ -201,7 +217,7 @@ function ChatScreen() {
           },
         },
       );
-      setTurns((t) => [...t, { question, scopeLabel, narrow, resp: finished }]);
+      setTurns((t) => [...t, { question, scopeLabel, narrow, asOf: asOf || null, resp: finished }]);
       setLive(null);
       setLastFailed(null);
       scrollBottom();
@@ -674,7 +690,7 @@ function TurnView({
               </span>
             )}
             <span className="mono ml-0.5 text-[10.5px] text-muted">
-              tra tại {fmtDate(asOf || todayIso())}
+              tra tại {fmtDate(turn.asOf ?? (asOf || todayIso()))}
             </span>
           </div>
 

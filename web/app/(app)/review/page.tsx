@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import AppSidebar, { SidebarSectionLabel } from "@/components/app-sidebar";
 import { Lexi } from "@/components/lexi";
 import { articleAnchor } from "@/lib/anchors";
+import { createClient } from "@/lib/supabase/client";
 import {
   listDocuments,
   runReview,
@@ -31,7 +33,19 @@ const VERDICT_META: Record<
 type TimeMode = "today" | "date" | "future";
 type Phase = "idle" | "running" | "done" | "error";
 
+// Một dòng lịch sử trong bảng review_sessions (migration 0005)
+type StoredSession = ReviewResult & { id: string; created_at: string };
+
 export default function ReviewPage() {
+  return (
+    <Suspense>
+      <ReviewScreen />
+    </Suspense>
+  );
+}
+
+function ReviewScreen() {
+  const sessionParam = useSearchParams().get("session");
   const [internals, setInternals] = useState<DocumentSummary[]>([]);
   const [externals, setExternals] = useState<DocumentSummary[]>([]);
   const [internalId, setInternalId] = useState<string | null>(null);
@@ -45,6 +59,43 @@ export default function ReviewPage() {
   const [error, setError] = useState<string | null>(null);
   const [tab, setTab] = useState<"all" | Verdict>("all");
   const [open, setOpen] = useState<Record<number, boolean>>({ 0: true });
+  const [sessions, setSessions] = useState<
+    Pick<StoredSession, "id" | "internal_doc_id" | "score" | "counts" | "created_at">[]
+  >([]);
+
+  const loadSessions = useCallback(async () => {
+    const { data } = await createClient()
+      .from("review_sessions")
+      .select("id,internal_doc_id,score,counts,created_at")
+      .order("created_at", { ascending: false })
+      .limit(15);
+    setSessions((data as typeof sessions) ?? []);
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      await loadSessions();
+    })();
+  }, [loadSessions]);
+
+  // Mở lại phiên đã lưu từ sidebar (?session=id)
+  useEffect(() => {
+    if (!sessionParam) return;
+    (async () => {
+      const { data } = await createClient()
+        .from("review_sessions")
+        .select("*")
+        .eq("id", sessionParam)
+        .single();
+      if (!data) return;
+      const row = data as StoredSession;
+      setResult({ ...row, session_id: row.id });
+      setTab("all");
+      setOpen({ 0: true });
+      setError(null);
+      setPhase("done");
+    })();
+  }, [sessionParam]);
 
   useEffect(() => {
     listDocuments()
@@ -85,6 +136,7 @@ export default function ReviewPage() {
       setTab("all");
       setOpen({ 0: true });
       setPhase("done");
+      loadSessions();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Lỗi không xác định");
       setPhase("error");
@@ -113,8 +165,40 @@ export default function ReviewPage() {
         extra={
           <div className="border-t border-[#E9E3D5] pt-1">
             <SidebarSectionLabel>Phiên kiểm tra gần đây</SidebarSectionLabel>
-            <div className="px-2.5 py-2 text-xs leading-relaxed text-muted">
-              Kết quả chưa được lưu giữa các phiên — lịch sử kiểm tra sẽ bổ sung sau.
+            <div className="space-y-px">
+              {sessions.map((s) => (
+                <Link
+                  key={s.id}
+                  href={`/review?session=${s.id}`}
+                  className={`block rounded-[9px] px-2.5 py-2 transition-colors ${
+                    result?.session_id === s.id
+                      ? "bg-inset-strong"
+                      : "hover:bg-[#EFEADF]"
+                  }`}
+                >
+                  <span className="flex items-center gap-1.5">
+                    <span
+                      className={`h-1.5 w-1.5 flex-none rounded-full ${
+                        (s.counts?.violation ?? 0) > 0 ? "bg-red" : "bg-green"
+                      }`}
+                    />
+                    <span className="truncate text-[12.5px] font-medium text-foreground">
+                      {s.internal_doc_id}
+                    </span>
+                    <span className="mono ml-auto flex-none text-[10px] text-muted">
+                      {s.score}/100
+                    </span>
+                  </span>
+                  <span className="mono mt-0.5 block pl-3 text-[10px] text-muted">
+                    {new Date(s.created_at).toLocaleDateString("vi-VN")}
+                  </span>
+                </Link>
+              ))}
+              {sessions.length === 0 && (
+                <p className="px-2.5 py-2 text-xs leading-relaxed text-muted">
+                  Chưa có phiên nào — chạy kiểm tra đầu tiên để lưu lịch sử.
+                </p>
+              )}
             </div>
           </div>
         }

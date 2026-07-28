@@ -33,6 +33,8 @@ def chat_endpoint(req: ChatRequest, user: AuthUser = Depends(get_current_user)) 
             answer=resp.answer,
             citations=[c.model_dump() for c in resp.citations],
             conflicts=[c.model_dump() for c in resp.conflicts],
+            scope=req.doc_ids,
+            as_of=req.as_of,
         )
     return resp
 
@@ -77,6 +79,8 @@ def chat_stream_endpoint(
                 answer="".join(parts),
                 citations=citations,
                 conflicts=conflicts,
+                scope=req.doc_ids,
+                as_of=req.as_of,
             )
         yield _sse("done", {"session_id": session_id})
 

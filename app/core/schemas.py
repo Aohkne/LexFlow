@@ -149,6 +149,7 @@ class ReviewResponse(BaseModel):
     score: int = 0  # 0-100: pass=1, warning=0.5, violation=0 (trung bình theo điều)
     counts: dict[str, int] = Field(default_factory=dict)  # violation/warning/pass
     findings: list[ReviewFinding] = Field(default_factory=list)
+    session_id: str | None = None  # id trên Supabase (None khi chưa cấu hình/migration)
 
 
 class GraphNode(BaseModel):
