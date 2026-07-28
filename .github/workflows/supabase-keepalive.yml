@@ -1,0 +1,37 @@
+name: Supabase keep-alive
+
+# Supabase free tier pauses a project after ~7 days without any API request.
+# This workflow pings the project every 2 days so it never goes idle.
+# Requires repo secrets: SUPABASE_URL, SUPABASE_ANON_KEY.
+
+on:
+  schedule:
+    - cron: "0 1 */2 * *" # 01:00 UTC every 2 days (08:00 VN time)
+  workflow_dispatch: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase (auth health + REST)
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          set -e
+          auth=$(curl -s -o /dev/null -w "%{http_code}" \
+            "$SUPABASE_URL/auth/v1/health" \
+            -H "apikey: $SUPABASE_ANON_KEY")
+          echo "auth health: HTTP $auth"
+
+          rest=$(curl -s -o /dev/null -w "%{http_code}" \
+            "$SUPABASE_URL/rest/v1/" \
+            -H "apikey: $SUPABASE_ANON_KEY" \
+            -H "Authorization: Bearer $SUPABASE_ANON_KEY")
+          echo "rest api:    HTTP $rest"
+
+          # Fail the run (visible in Actions) if the project is unreachable/paused
+          if [ "$auth" != "200" ] || [ "$rest" != "200" ]; then
+            echo "::error::Supabase ping failed (auth=$auth rest=$rest) - project may be paused"
+            exit 1
+          fi
