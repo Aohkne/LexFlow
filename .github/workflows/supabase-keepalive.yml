@@ -24,10 +24,13 @@ jobs:
             -H "apikey: $SUPABASE_ANON_KEY")
           echo "auth health: HTTP $auth"
 
+          # Query a real table so the ping counts as database activity.
+          # RLS hides rows from anon -> expect HTTP 200 with an empty array.
+          # Note: publishable keys must NOT be sent as "Authorization: Bearer"
+          # (that header only accepts JWTs) and cannot call the /rest/v1/ root.
           rest=$(curl -s -o /dev/null -w "%{http_code}" \
-            "$SUPABASE_URL/rest/v1/" \
-            -H "apikey: $SUPABASE_ANON_KEY" \
-            -H "Authorization: Bearer $SUPABASE_ANON_KEY")
+            "$SUPABASE_URL/rest/v1/change_events?select=id&limit=1" \
+            -H "apikey: $SUPABASE_ANON_KEY")
           echo "rest api:    HTTP $rest"
 
           # Fail the run (visible in Actions) if the project is unreachable/paused
