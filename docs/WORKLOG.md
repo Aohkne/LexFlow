@@ -8,15 +8,17 @@
 
 ## 2026-07-28 (T3)
 
-**Giai đoạn:** sau Sprint 2 — hoàn thiện UX trước khi làm backend compliance.
+**Giai đoạn:** sau Sprint 2 — hoàn thiện UX + backend kiểm tra tuân thủ.
 
 - **Done:**
+  - **Backend kiểm tra tuân thủ `POST /reviews`** (nợ lớn nhất trong DESIGN-GAP): mỗi điều nội bộ → retrieval điều luật trong phạm vi chọn (lọc hiệu lực tại as-of) → Gemini phán định violation/warning/pass kèm trích dẫn hai phía → findings + điểm tuân thủ. 7 test offline. Màn `/review` bỏ dữ liệu minh họa, chọn tài liệu nội bộ thật (4 văn bản SHB), gọi API thật, deep-link căn cứ sang trình xem. **Verify prod:** SHB-QD-VI-2023 ↔ TT40-2024 → bắt đúng 2 mâu thuẫn cài chủ đích (hạn mức 150tr vs Điều 26; nộp tiền mặt vs Điều 25), điểm 33/100.
+  - Hạ tầng vận hành: workflow **Supabase keep-alive** (ping mỗi 2 ngày, tự cảnh báo khi project bị pause — đã verify run xanh); nhật ký `docs/WORKLOG.md` + lệnh `/worklog`.
   - Tích hợp mascot **Lexi** (con cú, 8 trạng thái) từ design handoff v2: avatar động theo vòng đời câu hỏi ở màn Tra cứu (searching → found/conflict), pha "đang đối chiếu" ở màn Kiểm tra (reading), chào ở Landing (greeting), trang lỗi/404 (error), favicon mới.
   - Review handoff phát hiện lỗi (SVG thiếu keyframes) → designer sửa theo kiến trúc "hoạt ảnh trong CSS, SVG tĩnh"; ô lỗi chat có thêm nút **Thử lại**.
   - Chốt **quy ước commit** (`docs/COMMIT-CONVENTION.md`): Conventional Commits, message tiếng Anh; tạo `CLAUDE.md` gốc repo.
-- **Ship:** commits `3e73992`, `f3d18e2`, `92efee7` — Vercel production, CI xanh. Không đổi backend.
-- **Decision:** không dùng Lexi làm logo sidebar (linh vật ≠ logo, theo designer); greeting đặt ở Landing vì "chỉ chào một lần".
-- **Next:** backend `POST /reviews` (kiểm tra tuân thủ thật) — khoảng trống giá trị nhất theo `docs/DESIGN-GAP.md`.
+- **Ship:** commits `3e73992` → `641ee5f` — Cloud Run rev 00013 + Vercel production, CI xanh.
+- **Decision:** không dùng Lexi làm logo sidebar (linh vật ≠ logo, theo designer); greeting đặt ở Landing vì "chỉ chào một lần"; điểm tuân thủ = trung bình (pass=1, warning=0.5, violation=0) theo điều.
+- **Next:** bảng `review_sessions` lưu lịch sử phiên kiểm tra; migration lưu scope+as_of theo lượt chat; issuer/field trong schema khi làm KB mới.
 
 ## 2026-07-27 (T2)
 
