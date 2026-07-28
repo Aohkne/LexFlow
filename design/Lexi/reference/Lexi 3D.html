@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lexi — linh vật LexFlow (3D)</title>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.184.0/build/three.module.js",
+    "three/addons/controls/OrbitControls.js": "https://unpkg.com/three@0.184.0/examples/jsm/controls/OrbitControls.js",
+    "three/addons/exporters/OBJExporter.js": "https://unpkg.com/three@0.184.0/examples/jsm/exporters/OBJExporter.js",
+    "three/addons/exporters/GLTFExporter.js": "https://unpkg.com/three@0.184.0/examples/jsm/exporters/GLTFExporter.js"
+  },
+  "integrity": {
+    "https://unpkg.com/three@0.184.0/build/three.module.js": "sha384-8FCZ1eVO6it4+pbec2aDtnTrwjWXZLJRC+MAGCIPDgsYnUrl/E0A2YlF8ioMKI/J",
+    "https://unpkg.com/three@0.184.0/build/three.core.js": "sha384-dw2ooPewaEIrAgl6oFDBmmBWCE9oW9LxRGcfwZ0hLvEprzo202wXl7vCYHRlSnOT",
+    "https://unpkg.com/three@0.184.0/examples/jsm/controls/OrbitControls.js": "sha384-4rziNxOBZKQ69i+w+f89KJ55TCYquwchVbByQwmaOeIOXdOU2PLDn3kOfXHwIJC9",
+    "https://unpkg.com/three@0.184.0/examples/jsm/exporters/OBJExporter.js": "sha384-nbwtoZENJD3Vq+ACK0CuGQdPMuDWHkamC2KJD70EV5nfg6jQjfppKOea07YJN+N3",
+    "https://unpkg.com/three@0.184.0/examples/jsm/exporters/GLTFExporter.js": "sha384-VofkvpG6HERhFCYbsUOHeNXBCqID2nfqkQqnVzE1jc/oPcz+qJ13ADdXH08hE+cQ"
+  }
+}
+</script>
+<style>
+  html,body{margin:0;height:100%;background:#F0EEE6}
+  three-d-stage:not(:defined){visibility:hidden}
+  three-d-stage{display:block;width:100vw;height:100vh}
+</style>
+</head>
+<body>
+<three-d-stage name="lexi-owl" background="#F0EEE6" autorotate></three-d-stage>
+<script src="three-d-stage.js"></script>
+<script type="module">
+const stage = document.querySelector('three-d-stage');
+const { THREE } = await stage.ready;
+
+const mat = (name, color, opts = {}) => Object.assign(
+  new THREE.MeshStandardMaterial({ color: new THREE.Color(color), roughness: 0.78, metalness: 0.05, ...opts }),
+  { name }
+);
+
+const M = {
+  clay:     mat('clay', '#CC785C', { roughness: 0.72 }),
+  clayDeep: mat('clay_deep', '#B4633E', { roughness: 0.7 }),
+  cream:    mat('cream', '#FAF9F5', { roughness: 0.85 }),
+  ink:      mat('ink', '#26241F', { roughness: 0.42 }),
+  tan:      mat('tan', '#E0C39F', { roughness: 0.62 }),
+  sage:     mat('sage', '#5B7A5B', { roughness: 0.8 }),
+  paper:    mat('paper', '#EAE4D6', { roughness: 0.9 }),
+  brass:    mat('brass', '#C9A227', { roughness: 0.38, metalness: 0.35 }),
+};
+
+const add = (parent, name, geo, material, pos = [0, 0, 0], rot = [0, 0, 0], scale = [1, 1, 1]) => {
+  const m = new THREE.Mesh(geo, material);
+  m.name = name;
+  m.position.set(...pos);
+  m.rotation.set(...rot);
+  m.scale.set(...scale);
+  parent.add(m);
+  return m;
+};
+
+const lexi = new THREE.Group();
+lexi.name = 'lexi';
+
+/* ---------- bệ & chồng sách ---------- */
+const plinth = new THREE.Group(); plinth.name = 'plinth'; lexi.add(plinth);
+add(plinth, 'base_disc', new THREE.CylinderGeometry(0.168, 0.176, 0.016, 64), M.paper, [0, 0.008, 0]);
+add(plinth, 'base_rim', new THREE.TorusGeometry(0.168, 0.006, 16, 64), M.clayDeep, [0, 0.016, 0], [Math.PI / 2, 0, 0]);
+
+const books = [
+  { n: 'book_bottom', w: 0.250, d: 0.180, h: 0.028, y: 0.030, rot: 0.10, spine: M.sage },
+  { n: 'book_middle', w: 0.228, d: 0.166, h: 0.026, y: 0.058, rot: -0.16, spine: M.clayDeep },
+  { n: 'book_top',    w: 0.206, d: 0.152, h: 0.024, y: 0.084, rot: 0.06, spine: M.ink },
+];
+for (const b of books) {
+  const g = new THREE.Group(); g.name = b.n; g.position.set(0, b.y, 0); g.rotation.y = b.rot; lexi.add(g);
+  add(g, b.n + '_pages', new THREE.BoxGeometry(b.w - 0.012, b.h - 0.007, b.d - 0.008), M.cream);
+  add(g, b.n + '_cover_top', new THREE.BoxGeometry(b.w, 0.0035, b.d), b.spine, [0, b.h / 2 - 0.0017, 0]);
+  add(g, b.n + '_cover_bottom', new THREE.BoxGeometry(b.w, 0.0035, b.d), b.spine, [0, -b.h / 2 + 0.0017, 0]);
+  add(g, b.n + '_spine', new THREE.BoxGeometry(0.010, b.h, b.d), b.spine, [-b.w / 2 + 0.005, 0, 0]);
+  add(g, b.n + '_spine_band', new THREE.BoxGeometry(0.0028, 0.010, b.d - 0.030), M.brass, [-b.w / 2 - 0.0004, 0, 0]);
+}
+const DECK = 0.096;
+
+/* ---------- thân (lathe hình trứng) ---------- */
+const profile = [
+  [0.002, 0.000], [0.062, 0.006], [0.093, 0.026], [0.110, 0.058], [0.118, 0.098],
+  [0.119, 0.138], [0.114, 0.176], [0.105, 0.212], [0.097, 0.242], [0.094, 0.262],
+  [0.097, 0.278], [0.093, 0.296], [0.078, 0.312], [0.048, 0.324], [0.002, 0.329],
+].map(([x, y]) => new THREE.Vector2(x, y));
+const body = add(lexi, 'body', new THREE.LatheGeometry(profile, 64), M.clay, [0, DECK, 0]);
+body.geometry.computeVertexNormals();
+
+const Y = (v) => DECK + v;
+
+/* ---------- yếm bụng ---------- */
+add(lexi, 'breast', new THREE.SphereGeometry(0.078, 40, 32), M.cream,
+  [0, Y(0.108), 0.074], [0, 0, 0], [1.02, 1.16, 0.58]);
+
+/* ---------- đĩa mặt cú ---------- */
+const face = new THREE.Group(); face.name = 'face'; face.position.set(0, Y(0.258), 0); lexi.add(face);
+for (const s of [-1, 1]) {
+  const side = s < 0 ? 'l' : 'r';
+  add(face, 'facial_disc_' + side, new THREE.SphereGeometry(0.047, 40, 32), M.cream,
+    [s * 0.042, 0.010, 0.074], [0, 0, 0], [1, 1.10, 0.52]);
+  add(face, 'eye_ring_' + side, new THREE.TorusGeometry(0.029, 0.0055, 14, 40), M.clayDeep,
+    [s * 0.042, 0.012, 0.092]);
+  add(face, 'eye_' + side, new THREE.SphereGeometry(0.0215, 32, 24), M.ink,
+    [s * 0.042, 0.012, 0.091], [0, 0, 0], [1, 1, 0.78]);
+  add(face, 'eye_glint_' + side, new THREE.SphereGeometry(0.0060, 16, 12), M.cream,
+    [s * 0.042 - s * 0.007, 0.020, 0.106]);
+  // chân mày nghiêm nghị
+  add(face, 'brow_' + side, new THREE.BoxGeometry(0.052, 0.0090, 0.014), M.clayDeep,
+    [s * 0.044, 0.047, 0.088], [0, 0, s * 0.30]);
+  // túm tai
+  add(lexi, 'ear_tuft_' + side, new THREE.ConeGeometry(0.028, 0.062, 24), M.clay,
+    [s * 0.055, Y(0.322), -0.004], [-0.20, 0, s * 0.34]);
+}
+
+/* ---------- mỏ ---------- */
+add(face, 'beak', new THREE.ConeGeometry(0.021, 0.058, 4), M.tan,
+  [0, -0.032, 0.100], [Math.PI / 2 + 0.30, 0, Math.PI / 4]);
+
+/* ---------- đuôi ---------- */
+add(lexi, 'tail', new THREE.SphereGeometry(0.052, 32, 24), M.clayDeep,
+  [0, Y(0.056), -0.092], [0.72, 0, 0], [0.80, 0.28, 0.98]);
+
+/* ---------- cánh ---------- */
+for (const s of [-1, 1]) {
+  add(lexi, 'wing_' + (s < 0 ? 'l' : 'r'), new THREE.SphereGeometry(0.062, 36, 28), M.clayDeep,
+    [s * 0.112, Y(0.155), 0.010], [0, 0, s * -0.10], [0.38, 1.44, 0.96]);
+}
+
+/* ---------- đuôi đã đặt ở trên ---------- */
+
+/* ---------- chân ---------- */
+for (const s of [-1, 1]) {
+  const side = s < 0 ? 'l' : 'r';
+  const foot = new THREE.Group(); foot.name = 'foot_' + side;
+  foot.position.set(s * 0.045, DECK + 0.006, 0.036); foot.rotation.y = s * 0.16; lexi.add(foot);
+  add(foot, 'shank_' + side, new THREE.CylinderGeometry(0.011, 0.013, 0.020, 20), M.tan, [0, 0.008, -0.010]);
+  for (const [i, ang] of [-0.44, 0, 0.44].entries()) {
+    add(foot, 'toe_' + side + '_' + i, new THREE.CapsuleGeometry(0.0065, 0.028, 6, 14), M.tan,
+      [Math.sin(ang) * 0.016, 0.0065, 0.010 + Math.cos(ang) * 0.006], [Math.PI / 2, 0, -ang]);
+  }
+}
+
+/* ---------- cuộn văn bản kẹp bên hông ---------- */
+const scroll = new THREE.Group(); scroll.name = 'scroll';
+scroll.position.set(0.118, Y(0.098), 0.048); scroll.rotation.set(0.30, 0.34, -0.80); lexi.add(scroll);
+add(scroll, 'scroll_body', new THREE.CylinderGeometry(0.018, 0.018, 0.094, 32), M.cream, [0, 0, 0], [0, 0, Math.PI / 2]);
+add(scroll, 'scroll_seal', new THREE.CylinderGeometry(0.014, 0.014, 0.006, 24), M.clayDeep, [0, -0.016, 0.006], [Math.PI / 2, 0, 0]);
+for (const s of [-1, 1]) {
+  add(scroll, 'scroll_cap_' + (s < 0 ? 'l' : 'r'), new THREE.TorusGeometry(0.018, 0.0035, 12, 28), M.tan,
+    [s * 0.047, 0, 0], [0, Math.PI / 2, 0]);
+}
+
+stage.setObject(lexi);
+</script>
+</body>
+</html>

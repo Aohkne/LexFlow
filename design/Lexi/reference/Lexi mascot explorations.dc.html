@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,500;0,600;1,400&amp;display=swap" rel="stylesheet">
+<style>
+  body{margin:0;background:#F0EEE6;color:#191919;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+  ::selection{background:#E7C9B6}
+  a{color:#8F4A30;text-decoration:none}
+  a:hover{color:#B4633E}
+  .serif{font-family:'Newsreader',Georgia,serif}
+  .mono{font-family:ui-monospace,"SF Mono",Menlo,monospace}
+  @keyframes fadeup{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  @keyframes lexiBreathe{0%,100%{transform:scaleY(1) translateY(0)}50%{transform:scaleY(1.022) translateY(-1.4px)}}
+  @keyframes lexiBlink{0%,90%,100%{transform:scaleY(1)}93%,95%{transform:scaleY(.07)}}
+  @keyframes lexiBlink2{0%,84%,100%{transform:scaleY(1)}86.5%,88.5%{transform:scaleY(.02)}91%{transform:scaleY(1)}93.5%,95%{transform:scaleY(.02)}97.5%{transform:scaleY(1)}}
+  @keyframes lexiSway{0%,100%{transform:rotate(-2deg) translateY(0)}50%{transform:rotate(2deg) translateY(-2.4px)}}
+  @keyframes lexiLid{0%,85.5%,100%{opacity:0}86.5%,88.5%{opacity:1}90.5%{opacity:0}93.5%,95%{opacity:1}97%{opacity:0}}
+  @keyframes lexiTuft{0%,88%,100%{transform:rotate(0)}92%{transform:rotate(-7deg)}96%{transform:rotate(3deg)}}
+  @keyframes lexiScroll{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-2.6px) rotate(-1.8deg)}}
+  @keyframes lexiShadow{0%,100%{transform:scaleX(1);opacity:.5}50%{transform:scaleX(.955);opacity:.4}}
+  @keyframes lexiScan{0%,100%{transform:translateX(-2.6px)}50%{transform:translateX(2.6px)}}
+  @keyframes lexiSearch{0%,100%{transform:translate(-2.8px,-2px)}22%{transform:translate(2.8px,-2px)}44%{transform:translate(3px,2.4px)}66%{transform:translate(-1.6px,3px)}84%{transform:translate(-3px,.4px)}}
+  @keyframes lexiDot{0%,100%{opacity:.22}40%{opacity:1}}
+  @keyframes lexiNod{0%,100%{transform:translateY(0)}50%{transform:translateY(-3.4px)}}
+  @keyframes lexiShake{0%,100%{transform:translateX(0)}18%{transform:translateX(-2.4px)}38%{transform:translateX(2.4px)}58%{transform:translateX(-1.5px)}78%{transform:translateX(1.5px)}}
+  @keyframes lexiDroop{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(2.6px) rotate(-3deg)}}
+  @keyframes lexiPop{0%{transform:scale(0);opacity:0}62%{transform:scale(1.18);opacity:1}100%{transform:scale(1);opacity:1}}
+  @keyframes lexiWing{0%,100%{transform:rotate(0)}50%{transform:rotate(3.5deg)}}
+  @media (prefers-reduced-motion:reduce){*{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important}}
+</style>
+</helmet>
+
+<section style="padding:34px 34px 20px;display:flex;flex-direction:column;gap:16px">
+
+  <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
+    <span class="mono" style="font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:#B4633E;font-weight:600">Lượt 4</span>
+    <h1 class="serif" style="margin:0;font-size:27px;font-weight:500;letter-spacing:-.02em">Lexi 2D — bản dẹt, có chuyển động</h1>
+    <span style="font-size:13px;color:#6E6A5E">Dựng lại con cú 3D thành vector phẳng, dùng được ngay trên web. Mọi chuyển động chạy bằng transform nên nhẹ.</span>
+  </div>
+
+  <div style="display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start">
+
+    <!-- 4b states -->
+    <div id="4b" style="width:760px;flex:none;display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;align-items:center;gap:9px">
+        <span class="mono" style="font-size:11px;font-weight:600;color:#fff;background:#CC785C;border-radius:6px;padding:3px 9px">4b</span>
+        <span style="font-size:13px;font-weight:600">Năm trạng thái, mỗi trạng thái một chuyển động</span>
+      </div>
+      <div style="background:#FAF9F5;border:1px solid #E4DFD2;border-radius:18px;padding:20px;box-shadow:0 4px 20px rgba(40,34,24,.07);display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+
+        <div style="background:#F0EEE6;border-radius:14px;padding:14px 10px 13px;display:flex;flex-direction:column;align-items:center;gap:8px">
+          <svg width="118" height="118" viewBox="0 0 120 120">
+            <g style="transform-box:fill-box;transform-origin:50% 92%;will-change:transform;animation:lexiSway 3.4s ease-in-out infinite">
+              <path d="M40 44 L44 22 L54 40 Z" fill="#CC785C"></path>
+              <path d="M80 44 L76 22 L66 40 Z" fill="#CC785C"></path>
+              <circle cx="60" cy="66" r="42" fill="#CC785C"></circle>
+              <ellipse cx="44" cy="60" rx="20" ry="22" fill="#FAF9F5"></ellipse>
+              <ellipse cx="76" cy="60" rx="20" ry="22" fill="#FAF9F5"></ellipse>
+              <g style="transform-box:fill-box;transform-origin:50% 50%;will-change:transform;animation:lexiBlink2 4.4s ease-in-out infinite">
+                <circle cx="44" cy="60" r="12.5" fill="none" stroke="#B4633E" stroke-width="3"></circle>
+                <circle cx="44" cy="60" r="9" fill="#26241F"></circle>
+                <circle cx="40.5" cy="56.5" r="2.8" fill="#FAF9F5"></circle>
+              </g>
+              <g style="transform-box:fill-box;transform-origin:50% 50%;will-change:transform;animation:lexiBlink2 4.4s ease-in-out infinite">
+                <circle cx="76" cy="60" r="12.5" fill="none" stroke="#B4633E" stroke-width="3"></circle>
+                <circle cx="76" cy="60" r="9" fill="#26241F"></circle>
+                <circle cx="72.5" cy="56.5" r="2.8" fill="#FAF9F5"></circle>
+              </g>
+              <path d="M28 37 q13 -6 26 3" fill="none" stroke="#B4633E" stroke-width="4.6" stroke-linecap="round"></path>
+              <path d="M92 37 q-13 -6 -26 3" fill="none" stroke="#B4633E" stroke-width="4.6" stroke-linecap="round"></path>
+              <path d="M60 71 L68 82 L60 89 L52 82 Z" fill="#E0C39F"></path>
+            </g>
+          </svg>
+          <span style="font-size:11.5px;font-weight:600">Sẵn sàng</span>
+          <span style="font-size:10.5px;color:#8A8577;text-align:center;line-height:1.4">nghiêng đầu nhẹ, chớp mắt kép</span>
+        </div>
+
+        <div style="background:#F0EEE6;border-radius:14px;padding:14px 10px 13px;display:flex;flex-direction:column;align-items:center;gap:8px">
+          <svg width="118" height="118" viewBox="0 0 120 120">
+            <path d="M40 44 L44 22 L54 40 Z" fill="#CC785C"></path>
+            <path d="M80 44 L76 22 L66 40 Z" fill="#CC785C"></path>
+            <circle cx="60" cy="66" r="42" fill="#CC785C"></circle>
+            <ellipse cx="44" cy="60" rx="20" ry="22" fill="#FAF9F5"></ellipse>
+            <ellipse cx="76" cy="60" rx="20" ry="22" fill="#FAF9F5"></ellipse>
+            <g style="transform-box:fill-box;transform-origin:50% 50%;will-change:transform;animation:lexiSearch 4.2s ease-in-out infinite">
+              <circle cx="44" cy="60" r="12.5" fill="none" stroke="#B4633E" stroke-width="3"></circle>
+              <circle cx="44" cy="60" r="9" fill="#26241F"></circle>
+              <circle cx="76" cy="60" r="12.5" fill="none" stroke="#B4633E" stroke-width="3"></circle>
+              <circle cx="76" cy="60" r="9" fill="#26241F"></circle>
+            </g>
+            <rect x="26" y="40" width="27" height="4.6" rx="2.3" fill="#B4633E"></rect>
+            <rect x="67" y="40" width="27" height="4.6" rx="2.3" fill="#B4633E"></rect>
+            <path d="M60 71 L68 82 L60 89 L52 82 Z" fill="#E0C39F"></path>
+          </svg>
+          <span style="font-size:11.5px;font-weight:600">Đang tra</span>
+          <span style="font-size:10.5px;color:#8A8577;text-align:center;line-height:1.4">mắt đảo tìm quanh trang</span>
+        </div>
+
+        <div style="background:#F0EEE6;border-radius:14px;padding:14px 10px 13px;display:flex;flex-direction:column;align-items:center;gap:8px">
+          <svg width="118" height="118" viewBox="0 0 120 120">
+            <g style="transform-box:fill-box;transform-origin:50% 100%;will-change:transform;animation:lexiNod 1.6s ease-in-out infinite">
+              <path d="M40 44 L44 22 L54 40 Z" fill="#5B7A5B"></path>
+              <path d="M80 44 L76 22 L66 40 Z" fill="#5B7A5B"></path>
+              <circle cx="60" cy="66" r="42" fill="#5B7A5B"></circle>
+              <ellipse cx="44" cy="60" rx="20" ry="22" fill="#FAF9F5"></ellipse>
+              <ellipse cx="76" cy="60" rx="20" ry="22" fill="#FAF9F5"></ellipse>
+              <path d="M34 63 q10 -13 20 0" fill="none" stroke="#26241F" stroke-width="5" stroke-linecap="round"></path>
+              <path d="M66 63 q10 -13 20 0" fill="none" stroke="#26241F" stroke-width="5" stroke-linecap="round"></path>
+              <path d="M60 71 L68 82 L60 89 L52 82 Z" fill="#E0C39F"></path>
+            </g>
+            <g style="transform-box:fill-box;transform-origin:50% 50%;will-change:transform;animation:lexiPop .5s cubic-bezier(.3,1.4,.5,1) .3s both">
+              <circle cx="96" cy="30" r="17" fill="#EAF0E7" stroke="#5B7A5B" stroke-width="2.5"></circle>
+              <path d="M88 30 l6 6 l11 -12" fill="none" stroke="#5B7A5B" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path>
+            </g>
+          </svg>
+          <span style="font-size:11.5px;font-weight:600">Có nguồn</span>
+          <span style="font-size:10.5px;color:#8A8577;text-align:center;line-height:1.4">gật nhẹ, dấu tích bật ra</span>
+        </div>
+
+        <div style="background:#F0EEE6;border-radius:14px;padding:14px 10px 13px;display:flex;flex-direction:column;align-items:center;gap:8px">
+          <svg width="118" height="118" viewBox="0 0 120 120">
+            <g style="transform-box:fill-box;transform-origin:50% 50%;will-change:transform;animation:lexiShake 2.6s ease-in-out infinite">
+              <path d="M40 44 L44 22 L54 40 Z" fill="#B4633E"></path>
+              <path d="M80 44 L76 22 L66 40 Z" fill="#B4633E"></path>
+              <circle cx="60" cy="66" r="42" fill="#B4633E"></circle>
+              <ellipse cx="44" cy="60" rx="20" ry="22" fill="#FAF9F5"></ellipse>
+              <ellipse cx="76" cy="60" rx="20" ry="22" fill="#FAF9F5"></ellipse>
+              <circle cx="44" cy="62" r="10" fill="#26241F"></circle>
+              <circle cx="76" cy="62" r="10" fill="#26241F"></circle>
+              <rect x="26" y="32" width="28" height="5" rx="2.5" fill="#8F4A30" transform="rotate(19 40 34)"></rect>
+              <rect x="66" y="32" width="28" height="5" rx="2.5" fill="#8F4A30" transform="rotate(-19 80 34)"></rect>
+              <path d="M60 73 L68 84 L60 91 L52 84 Z" fill="#E0C39F"></path>
+            </g>
+            <g style="transform-box:fill-box;transform-origin:50% 50%;will-change:transform;animation:lexiPop .5s cubic-bezier(.3,1.4,.5,1) .3s both">
+              <circle cx="97" cy="28" r="17" fill="#F7EDE6" stroke="#CC785C" stroke-width="2.5"></circle>
+              <rect x="94.6" y="19" width="4.8" height="12" rx="2.4" fill="#CC785C"></rect>
+              <circle cx="97" cy="35.5" r="2.8" fill="#CC785C"></circle>
+            </g>
+          </svg>
+          <span style="font-size:11.5px;font-weight:600">Có mâu thuẫn</span>
+          <span style="font-size:10.5px;color:#8A8577;text-align:center;line-height:1.4">lắc đầu, cảnh báo bật ra</span>
+        </div>
+
+        <div style="background:#F0EEE6;border-radius:14px;padding:14px 10px 13px;display:flex;flex-direction:column;align-items:center;gap:8px">
+          <svg width="118" height="118" viewBox="0 0 120 120">
+            <g style="transform-box:fill-box;transform-origin:50% 100%;will-change:transform;animation:lexiDroop 2.8s ease-in-out infinite">
+              <path d="M40 44 L44 22 L54 40 Z" fill="#9C9686"></path>
+              <path d="M80 44 L76 22 L66 40 Z" fill="#9C9686"></path>
+              <circle cx="60" cy="66" r="42" fill="#9C9686"></circle>
+              <ellipse cx="44" cy="60" rx="20" ry="22" fill="#F0EDE5"></ellipse>
+              <ellipse cx="76" cy="60" rx="20" ry="22" fill="#F0EDE5"></ellipse>
+              <path d="M35 60 h18" fill="none" stroke="#26241F" stroke-width="4.4" stroke-linecap="round"></path>
+              <path d="M67 60 h18" fill="none" stroke="#26241F" stroke-width="4.4" stroke-linecap="round"></path>
+              <rect x="26" y="34" width="27" height="4.6" rx="2.3" fill="#6E6A5E"></rect>
+              <rect x="67" y="34" width="27" height="4.6" rx="2.3" fill="#6E6A5E"></rect>
+              <path d="M60 71 L68 82 L60 89 L52 82 Z" fill="#D8CFBB"></path>
+            </g>
+            <g style="transform-box:fill-box;transform-origin:50% 50%;will-change:transform;animation:lexiPop .5s cubic-bezier(.3,1.4,.5,1) .3s both">
+              <circle cx="97" cy="28" r="17" fill="#F7E6E1" stroke="#A8412F" stroke-width="2.5"></circle>
+              <path d="M91 22 L103 34" fill="none" stroke="#A8412F" stroke-width="4" stroke-linecap="round"></path>
+              <path d="M103 22 L91 34" fill="none" stroke="#A8412F" stroke-width="4" stroke-linecap="round"></path>
+            </g>
+          </svg>
+          <span style="font-size:11.5px;font-weight:600">Gặp lỗi</span>
+          <span style="font-size:10.5px;color:#8A8577;text-align:center;line-height:1.4">đầu rũ xuống, dấu ✕ bật ra</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div id="4c" style="width:760px;flex:none;display:flex;flex-direction:column;gap:10px">
+      <div style="background:#FAF9F5;border:1px solid #E4DFD2;border-radius:18px;padding:20px 22px;box-shadow:0 4px 20px rgba(40,34,24,.07);display:flex;flex-direction:column;gap:16px">
+        <div style="display:flex;align-items:center;gap:9px">
+          <span class="mono" style="font-size:11px;font-weight:600;color:#fff;background:#CC785C;border-radius:6px;padding:3px 9px">4c</span>
+          <span style="font-size:13px;font-weight:600">Trong hội thoại</span>
+          <span style="font-size:12px;color:#8A8577">Avatar 28px — chuyển động rút gọn còn chớp mắt.</span>
+        </div>
+
+        <div style="display:flex;gap:11px;align-items:flex-start">
+          <svg width="30" height="30" viewBox="0 0 120 120" style="flex:none;margin-top:2px">
+            <circle cx="60" cy="60" r="52" fill="#CC785C"></circle>
+            <ellipse cx="42" cy="56" rx="22" ry="24" fill="#FAF9F5"></ellipse>
+            <ellipse cx="78" cy="56" rx="22" ry="24" fill="#FAF9F5"></ellipse>
+            <g style="transform-box:fill-box;transform-origin:50% 50%;will-change:transform;animation:lexiBlink 5.2s ease-in-out infinite"><circle cx="42" cy="56" r="11" fill="#26241F"></circle></g>
+            <g style="transform-box:fill-box;transform-origin:50% 50%;will-change:transform;animation:lexiBlink 5.2s ease-in-out infinite"><circle cx="78" cy="56" r="11" fill="#26241F"></circle></g>
+            <path d="M60 68 L69 80 L60 88 L51 80 Z" fill="#E0C39F"></path>
+          </svg>
+          <div style="flex:1;min-width:0">
+            <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
+              <span style="font-size:11px;font-weight:600">Lexi</span>
+              <span style="font-size:10px;padding:1px 8px;border-radius:999px;border:1px solid #CFE0C6;background:#EAF0E7;color:#5B7A5B">2 nguồn đang hiệu lực</span>
+            </div>
+            <div class="serif" style="margin-top:6px;font-size:15px;line-height:1.65;color:#26241F">Hạn mức giao dịch qua ví điện tử của khách hàng cá nhân là <strong style="font-weight:600">100 triệu đồng/ngày</strong><span class="mono" style="font-size:10px;background:#EFE7DA;color:#8F4A30;font-weight:600;border-radius:6px;padding:2px 6px;margin-left:3px">1</span></div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:11px;align-items:center;padding-top:14px;border-top:1px solid #EDE8DC">
+          <svg width="30" height="30" viewBox="0 0 120 120" style="flex:none">
+            <circle cx="60" cy="60" r="52" fill="#CC785C"></circle>
+            <ellipse cx="42" cy="56" rx="22" ry="24" fill="#FAF9F5"></ellipse>
+            <ellipse cx="78" cy="56" rx="22" ry="24" fill="#FAF9F5"></ellipse>
+            <g style="transform-box:fill-box;transform-origin:50% 50%;will-change:transform;animation:lexiSearch 4.2s ease-in-out infinite">
+              <circle cx="42" cy="56" r="11" fill="#26241F"></circle>
+              <circle cx="78" cy="56" r="11" fill="#26241F"></circle>
+            </g>
+            <path d="M60 68 L69 80 L60 88 L51 80 Z" fill="#E0C39F"></path>
+          </svg>
+          <span style="display:flex;align-items:center;gap:7px;font-size:12.5px;color:#6E6A5E">Đang đối chiếu 4 văn bản
+            <span style="display:flex;gap:4px;align-items:center">
+              <span style="width:5px;height:5px;border-radius:50%;background:#CC785C;animation:lexiDot 1.2s ease-in-out infinite"></span>
+              <span style="width:5px;height:5px;border-radius:50%;background:#CC785C;animation:lexiDot 1.2s ease-in-out .18s infinite"></span>
+              <span style="width:5px;height:5px;border-radius:50%;background:#CC785C;animation:lexiDot 1.2s ease-in-out .36s infinite"></span>
+            </span>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+<section style="padding:14px 34px 20px;display:flex;flex-direction:column;gap:16px">
+
+  <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
+    <span class="mono" style="font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:#B4633E;font-weight:600">Lượt 2</span>
+    <h1 class="serif" style="margin:0;font-size:27px;font-weight:500;letter-spacing:-.02em">Nhật ký hiệu lực — bản đầy đủ</h1>
+    <span style="font-size:13px;color:#6E6A5E">Đi sâu từ <a href="#1b">1b</a>: lọc theo loại sự kiện, nhóm theo năm, mốc “hôm nay”, và diff nguyên văn trước/sau.</span>
+  </div>
+
+  <div id="2a" style="width:760px;flex:none;display:flex;flex-direction:column;gap:10px">
+    <div style="display:flex;align-items:center;gap:10px">
+      <span class="mono" style="font-size:11px;font-weight:600;color:#fff;background:#CC785C;border-radius:6px;padding:3px 9px">2a</span>
+      <span style="font-size:13.5px;font-weight:600">Nhật ký hiệu lực · có lọc &amp; diff</span>
+    </div>
+
+    <div style="background:#FAF9F5;border:1px solid #E4DFD2;border-radius:18px;box-shadow:0 4px 20px rgba(40,34,24,.07);overflow:hidden">
+
+      <!-- header -->
+      <div style="padding:18px 22px 14px;border-bottom:1px solid #EDE8DC">
+        <div style="display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap">
+          <div style="flex:1;min-width:280px">
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+              <span style="font-size:9.5px;text-transform:uppercase;letter-spacing:.04em;color:#8A8577;background:#EAE4D6;border-radius:5px;padding:2px 7px">Thông tư</span>
+              <span style="font-size:15px;font-weight:600">TT 40/2024/TT-NHNN</span>
+              <span style="font-size:10px;padding:1px 8px;border-radius:999px;border:1px solid #CFE0C6;background:#EAF0E7;color:#5B7A5B">Đang hiệu lực</span>
+            </div>
+            <div class="serif" style="margin-top:5px;font-size:15px;color:#33302A">Hoạt động cung ứng dịch vụ trung gian thanh toán</div>
+          </div>
+          <div style="display:flex;gap:7px">
+            <button class="ghost" style="font-size:11.5px;color:#8A8577;background:#F0EBE0;border:none;border-radius:7px;padding:6px 11px;cursor:pointer">◷ Theo dõi thay đổi</button>
+            <button class="ghost" style="font-size:11.5px;color:#8A8577;background:#F0EBE0;border:none;border-radius:7px;padding:6px 11px;cursor:pointer">⧉ Xuất nhật ký</button>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:14px">
+          <sc-for list="{{ filters }}" as="f" hint-placeholder-count="5">
+            <button onClick="{{ f.pick }}" style="{{ f.style }}">{{ f.label }}<span class="mono" style="font-size:10px;opacity:.72;margin-left:6px">{{ f.count }}</span></button>
+          </sc-for>
+          <span style="margin-left:auto;display:flex;align-items:center;gap:8px;font-size:11.5px;color:#6E6A5E">Hiệu lực tại<span class="mono" style="font-size:11.5px;font-weight:600;color:#8F4A30;background:#F7EDE6;border:1px solid #E7C9B6;border-radius:7px;padding:3px 8px">28/07/2026</span></span>
+        </div>
+      </div>
+
+      <!-- stream -->
+      <div style="padding:4px 22px 20px">
+        <sc-for list="{{ groups }}" as="g" hint-placeholder-count="4">
+          <div style="position:relative">
+            <div style="position:sticky;top:0;z-index:4;display:flex;align-items:center;gap:10px;padding:11px 0 7px;background:#FAF9F5">
+              <span class="serif" style="font-size:17px;font-weight:600;color:#33302A">{{ g.year }}</span>
+              <span style="flex:1;height:1px;background:#EDE8DC"></span>
+              <span class="mono" style="font-size:10px;color:#B0A895">{{ g.count }} sự kiện</span>
+            </div>
+
+            <sc-for list="{{ g.events }}" as="e" hint-placeholder-count="2">
+              <div style="{{ e.rowStyle }}">
+                <span style="position:absolute;left:64px;top:0;bottom:0;width:1px;background:#E4DFD2"></span>
+
+                <span class="mono" style="flex:none;width:52px;text-align:right;font-size:10.5px;line-height:1.35;color:{{ e.dateColor }};padding-top:12px;font-weight:{{ e.dateWeight }}">{{ e.day }}<br>{{ e.month }}</span>
+                <span style="flex:none;width:25px;display:flex;justify-content:center;padding-top:14px;position:relative;z-index:2"><span style="{{ e.dotStyle }}"></span></span>
+
+                <span style="flex:1;min-width:0;padding:11px 12px 11px 2px">
+                  <span style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                    <span style="{{ e.kindStyle }}">{{ e.kind }}</span>
+                    <span style="{{ e.titleStyle }}">{{ e.title }}</span>
+                  </span>
+
+                  <sc-if value="{{ e.actor }}" hint-placeholder-val="{{ true }}">
+                    <span style="display:flex;align-items:center;gap:7px;margin-top:6px">
+                      <span class="mono" style="font-size:11.5px;font-weight:600;color:#8F4A30">{{ e.actor }}</span>
+                      <span style="font-size:11px;color:#B0A895">·</span>
+                      <span style="font-size:11px;color:#8A8577">{{ e.actorName }}</span>
+                    </span>
+                  </sc-if>
+
+                  <span style="display:block;margin-top:5px;font-size:11.5px;line-height:1.55;color:#6E6A5E">{{ e.body }}</span>
+
+                  <sc-if value="{{ e.hasArticles }}" hint-placeholder-val="{{ false }}">
+                    <span style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px">
+                      <sc-for list="{{ e.articles }}" as="a" hint-placeholder-count="2">
+                        <span class="mono" style="font-size:10px;color:#8F4A30;background:#F7EDE6;border:1px solid #E7C9B6;border-radius:6px;padding:2px 7px">{{ a }}</span>
+                      </sc-for>
+                    </span>
+                  </sc-if>
+
+                  <sc-if value="{{ e.hasDiff }}" hint-placeholder-val="{{ false }}">
+                    <span style="display:block;margin-top:9px">
+                      <button onClick="{{ e.toggle }}" style="font-size:11px;color:#8A8577;background:#F0EBE0;border:none;border-radius:7px;padding:5px 10px;cursor:pointer">{{ e.diffLabel }}</button>
+                      <sc-if value="{{ e.open }}" hint-placeholder-val="{{ false }}">
+                        <span style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:9px">
+                          <span style="display:block;background:#F0EDE5;border:1px solid #E4DFD2;border-radius:10px;padding:10px 12px">
+                            <span class="mono" style="display:block;font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:#9C9686;font-weight:600">Trước</span>
+                            <span class="serif" style="display:block;margin-top:6px;font-size:13px;font-style:italic;line-height:1.55;color:#6E6A5E">{{ e.before }}</span>
+                          </span>
+                          <span style="display:block;background:#EAF0E7;border:1px solid #CFE0C6;border-radius:10px;padding:10px 12px">
+                            <span class="mono" style="display:block;font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:#5B7A5B;font-weight:600">Sau · đang áp dụng</span>
+                            <span class="serif" style="display:block;margin-top:6px;font-size:13px;font-style:italic;line-height:1.55;color:#33302A">{{ e.after }}</span>
+                          </span>
+                        </span>
+                        <span style="display:flex;gap:7px;margin-top:9px">
+                          <a href="#2a" style="font-size:11px;color:#8F4A30;background:#F7EDE6;border:1px solid #E7C9B6;border-radius:7px;padding:5px 10px">Mở văn bản tác động ↗</a>
+                          <a href="#2a" style="font-size:11px;color:#8A8577;background:#F0EBE0;border-radius:7px;padding:5px 10px">Hỏi LexFlow về thay đổi này</a>
+                        </span>
+                      </sc-if>
+                    </span>
+                  </sc-if>
+                </span>
+              </div>
+            </sc-for>
+
+            <sc-if value="{{ g.today }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;align-items:center;gap:10px;padding:9px 0 9px 64px;position:relative">
+                <span style="position:absolute;left:0;right:0;top:50%;height:1px;background:#E7C9B6"></span>
+                <span class="mono" style="position:relative;font-size:10px;font-weight:600;color:#fff;background:#CC785C;border-radius:999px;padding:3px 10px">Hôm nay · 28/07/2026</span>
+              </div>
+            </sc-if>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="padding:12px 22px;border-top:1px solid #EDE8DC;background:#F5F2EA;display:flex;align-items:center;gap:10px">
+        <span style="font-size:11px;color:#8A8577">Nguồn: Công báo &amp; Cổng thông tin NHNN · đối chiếu tự động hằng ngày</span>
+        <span class="mono" style="margin-left:auto;font-size:10px;color:#B0A895">cập nhật 06:00 28/07/2026</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section style="padding:14px 34px 70px;display:flex;flex-direction:column;gap:16px">
+
+  <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
+    <span class="mono" style="font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:#B4633E;font-weight:600">Lượt 1</span>
+    <h1 class="serif" style="margin:0;font-size:27px;font-weight:500;letter-spacing:-.02em">Biểu đồ thời gian hiệu lực &amp; tác động</h1>
+    <span style="font-size:13px;color:#6E6A5E">4 hướng — cùng một dữ liệu: <span class="mono" style="font-size:11.5px;color:#8F4A30">TT 40/2024/TT-NHNN</span></span>
+  </div>
+
+  <div style="display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start">
+
+    <!-- ============ 1a ============ -->
+    <div id="1a" style="width:1180px;flex:none;display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span class="mono" style="font-size:11px;font-weight:600;color:#fff;background:#CC785C;border-radius:6px;padding:3px 9px">1a</span>
+        <span style="font-size:13.5px;font-weight:600">Trục hiệu lực + mốc tác động</span>
+        <span style="font-size:12.5px;color:#8A8577">Một văn bản, một thanh. Con trượt “hiệu lực tại” cho biết trạng thái ở bất kỳ ngày nào.</span>
+      </div>
+
+      <div style="background:#FAF9F5;border:1px solid #E4DFD2;border-radius:18px;padding:22px 26px 18px;box-shadow:0 4px 20px rgba(40,34,24,.07)">
+        <div style="display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;padding-bottom:18px;border-bottom:1px solid #EDE8DC">
+          <div style="flex:1;min-width:320px">
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+              <span style="font-size:9.5px;text-transform:uppercase;letter-spacing:.04em;color:#8A8577;background:#EAE4D6;border-radius:5px;padding:2px 7px">Thông tư</span>
+              <span style="font-size:15px;font-weight:600">TT 40/2024/TT-NHNN</span>
+              <span style="{{ asofPill }}">{{ asofStatus }}</span>
+            </div>
+            <div class="serif" style="margin-top:5px;font-size:15px;color:#33302A">Hoạt động cung ứng dịch vụ trung gian thanh toán</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:9px;background:#F0EEE6;border:1px solid #E4DFD2;border-radius:11px;padding:7px 11px">
+            <span style="font-size:11.5px;color:#6E6A5E">Hiệu lực tại</span>
+            <span class="mono" style="font-size:12px;font-weight:600;color:#8F4A30">{{ asofLabel }}</span>
+          </div>
+        </div>
+
+        <div style="padding:26px 0 0">
+          <input type="range" min="0" max="102" value="{{ asof }}" onChange="{{ setAsof }}" style="width:100%;accent-color:#CC785C;cursor:pointer">
+
+          <!-- track -->
+          <div style="position:relative;height:356px;margin-top:6px">
+            <!-- year grid -->
+            <div style="position:absolute;inset:0 0 26px 0">
+              <div style="position:absolute;left:0%;top:0;bottom:0;width:1px;background:#E4DFD2"></div>
+              <div style="position:absolute;left:11.8%;top:0;bottom:0;width:1px;background:#EDE8DC"></div>
+              <div style="position:absolute;left:23.5%;top:0;bottom:0;width:1px;background:#EDE8DC"></div>
+              <div style="position:absolute;left:35.3%;top:0;bottom:0;width:1px;background:#EDE8DC"></div>
+              <div style="position:absolute;left:47.1%;top:0;bottom:0;width:1px;background:#EDE8DC"></div>
+              <div style="position:absolute;left:58.8%;top:0;bottom:0;width:1px;background:#EDE8DC"></div>
+              <div style="position:absolute;left:70.6%;top:0;bottom:0;width:1px;background:#EDE8DC"></div>
+              <div style="position:absolute;left:82.4%;top:0;bottom:0;width:1px;background:#EDE8DC"></div>
+              <div style="position:absolute;left:94.1%;top:0;bottom:0;width:1px;background:#EDE8DC"></div>
+            </div>
+
+            <!-- as-of playhead -->
+            <div style="{{ headStyle }}">
+              <div style="position:absolute;top:-4px;left:-4px;width:9px;height:9px;border-radius:50%;background:#CC785C"></div>
+            </div>
+
+            <!-- lane: bản tiền thân -->
+            <div style="position:absolute;top:6px;left:5.9%;width:58.8%;height:26px;background:#F0EDE5;border:1px dashed #D8CFBB;border-radius:7px;display:flex;align-items:center;padding:0 10px;gap:8px;opacity:.85">
+              <span class="mono" style="font-size:10.5px;color:#9C9686">TT 23/2019/TT-NHNN</span>
+              <span style="font-size:10px;color:#9C9686">bản tiền thân · đã hết hiệu lực</span>
+            </div>
+
+            <!-- lane: văn bản gốc -->
+            <div style="position:absolute;top:44px;left:64.7%;right:0;height:38px;background:linear-gradient(90deg,#EAF0E7,#EAF0E7 88%,rgba(234,240,231,.35));border:1px solid #CFE0C6;border-radius:9px;display:flex;align-items:center;padding:0 13px;gap:10px">
+              <span style="width:6px;height:6px;border-radius:50%;background:#5B7A5B"></span>
+              <span style="font-size:12.5px;font-weight:600;color:#3F5B3F">Đang hiệu lực</span>
+              <span class="mono" style="font-size:10.5px;color:#5B7A5B">từ 01/07/2024 · chưa có ngày hết hiệu lực</span>
+            </div>
+
+            <!-- impact markers: mỗi mốc một băng riêng, không chồng lấn -->
+            <div style="position:absolute;top:82px;left:70.6%;width:2px;height:24px;background:#B4633E"></div>
+            <div style="position:absolute;top:106px;left:70.6%;transform:translateX(-1px);display:flex;flex-direction:column;gap:3px;padding:8px 12px;background:#F7EDE6;border:1px solid #E7C9B6;border-radius:10px;width:230px">
+              <span class="mono" style="font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:#B4633E;font-weight:600">Bổ sung · 01/01/2025</span>
+              <span style="font-size:11.5px;font-weight:600">QĐ 2345/QĐ-NHNN</span>
+              <span style="font-size:11px;color:#6E6A5E;line-height:1.4">Bổ sung yêu cầu xác thực vào <span class="mono" style="font-size:10.5px;color:#8F4A30">Điều 12</span></span>
+            </div>
+
+            <div style="position:absolute;top:82px;left:79.4%;width:2px;height:96px;background:#B4633E"></div>
+            <div style="position:absolute;top:178px;left:79.4%;transform:translateX(-100%);display:flex;flex-direction:column;gap:3px;padding:8px 12px;background:#F7EDE6;border:1px solid #E7C9B6;border-radius:10px;width:230px;text-align:right">
+              <span class="mono" style="font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:#B4633E;font-weight:600">Sửa đổi · 01/10/2025</span>
+              <span style="font-size:11.5px;font-weight:600">NĐ 52/2024/NĐ-CP</span>
+              <span style="font-size:11px;color:#6E6A5E;line-height:1.4">Nâng hạn mức tại <span class="mono" style="font-size:10.5px;color:#8F4A30">Điều 9</span> lên 100 triệu</span>
+            </div>
+
+            <div style="position:absolute;top:82px;left:94.1%;width:2px;height:168px;background:#D8CFBB"></div>
+            <div style="position:absolute;top:250px;left:94.1%;transform:translateX(-100%);display:flex;flex-direction:column;gap:3px;padding:8px 12px;background:#F5F2EA;border:1px dashed #D8CFBB;border-radius:10px;width:230px;text-align:right">
+              <span class="mono" style="font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:#8A8577;font-weight:600">Dự kiến · 01/01/2027</span>
+              <span style="font-size:11.5px;font-weight:600;color:#6E6A5E">Dự thảo TT 12/2026</span>
+              <span style="font-size:11px;color:#8A8577;line-height:1.4">Đề xuất thay thế Điều 5–8</span>
+            </div>
+
+            <!-- axis labels -->
+            <div style="position:absolute;left:0;right:0;bottom:0;height:20px">
+              <span class="mono" style="position:absolute;left:0%;font-size:10px;color:#B0A895">2019</span>
+              <span class="mono" style="position:absolute;left:11.8%;font-size:10px;color:#B0A895">2020</span>
+              <span class="mono" style="position:absolute;left:23.5%;font-size:10px;color:#B0A895">2021</span>
+              <span class="mono" style="position:absolute;left:35.3%;font-size:10px;color:#B0A895">2022</span>
+              <span class="mono" style="position:absolute;left:47.1%;font-size:10px;color:#B0A895">2023</span>
+              <span class="mono" style="position:absolute;left:58.8%;font-size:10px;color:#B0A895">2024</span>
+              <span class="mono" style="position:absolute;left:70.6%;font-size:10px;color:#B0A895">2025</span>
+              <span class="mono" style="position:absolute;left:82.4%;font-size:10px;color:#B0A895">2026</span>
+              <span class="mono" style="position:absolute;left:94.1%;font-size:10px;color:#B0A895">2027</span>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:18px;flex-wrap:wrap;padding-top:14px;margin-top:12px;border-top:1px solid #EDE8DC">
+            <span style="display:flex;align-items:center;gap:7px;font-size:11px;color:#6E6A5E"><span style="width:14px;height:10px;border-radius:3px;background:#EAF0E7;border:1px solid #CFE0C6"></span>Đang hiệu lực</span>
+            <span style="display:flex;align-items:center;gap:7px;font-size:11px;color:#6E6A5E"><span style="width:14px;height:10px;border-radius:3px;background:#F0EDE5;border:1px dashed #D8CFBB"></span>Hết hiệu lực</span>
+            <span style="display:flex;align-items:center;gap:7px;font-size:11px;color:#6E6A5E"><span style="width:14px;height:10px;border-radius:3px;background:#F7EDE6;border:1px solid #E7C9B6"></span>Văn bản tác động</span>
+            <span style="display:flex;align-items:center;gap:7px;font-size:11px;color:#6E6A5E"><span style="width:2px;height:12px;background:#CC785C"></span>Ngày đang xem</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ 1b ============ -->
+    <div id="1b" style="width:560px;flex:none;display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span class="mono" style="font-size:11px;font-weight:600;color:#fff;background:#CC785C;border-radius:6px;padding:3px 9px">1b</span>
+        <span style="font-size:13.5px;font-weight:600">Nhật ký hiệu lực (dọc)</span>
+      </div>
+      <div style="font-size:12.5px;color:#8A8577;margin-top:-6px">Đọc như lịch sử phiên bản. Hợp khi văn bản bị sửa nhiều lần và cần chi tiết từng lần.</div>
+
+      <div style="background:#FAF9F5;border:1px solid #E4DFD2;border-radius:18px;padding:20px 22px;box-shadow:0 4px 20px rgba(40,34,24,.07)">
+        <div style="display:flex;align-items:center;gap:9px;padding-bottom:14px;border-bottom:1px solid #EDE8DC">
+          <span style="font-size:15px;font-weight:600">TT 40/2024/TT-NHNN</span>
+          <span style="font-size:10px;padding:1px 8px;border-radius:999px;border:1px solid #CFE0C6;background:#EAF0E7;color:#5B7A5B">Đang hiệu lực</span>
+          <span class="mono" style="margin-left:auto;font-size:10.5px;color:#B0A895">5 sự kiện</span>
+        </div>
+
+        <div style="position:relative;padding:18px 0 2px 0">
+          <div style="position:absolute;left:63px;top:22px;bottom:22px;width:1px;background:#E4DFD2"></div>
+
+          <div style="display:flex;flex-direction:column;gap:2px">
+
+            <div style="display:flex;gap:0;align-items:flex-start;padding:9px 0">
+              <span class="mono" style="flex:none;width:52px;text-align:right;font-size:10.5px;color:#B0A895;padding-top:3px">20/05<br>2024</span>
+              <span style="flex:none;width:23px;display:flex;justify-content:center;padding-top:5px"><span style="width:9px;height:9px;border-radius:50%;background:#FAF9F5;border:2px solid #D8CFBB"></span></span>
+              <span style="flex:1;min-width:0">
+                <span style="display:block;font-size:12.5px;font-weight:600">Ban hành</span>
+                <span style="display:block;margin-top:2px;font-size:11.5px;color:#6E6A5E">Ngân hàng Nhà nước ký ban hành, chưa phát sinh hiệu lực.</span>
+              </span>
+            </div>
+
+            <div style="display:flex;gap:0;align-items:flex-start;padding:11px 0;background:#EAF0E7;border:1px solid #CFE0C6;border-radius:11px;margin:2px 0">
+              <span class="mono" style="flex:none;width:52px;text-align:right;font-size:10.5px;color:#5B7A5B;padding-top:3px;font-weight:600">01/07<br>2024</span>
+              <span style="flex:none;width:23px;display:flex;justify-content:center;padding-top:5px"><span style="width:11px;height:11px;border-radius:50%;background:#5B7A5B;border:2px solid #EAF0E7;box-shadow:0 0 0 2px #5B7A5B"></span></span>
+              <span style="flex:1;min-width:0;padding-right:12px">
+                <span style="display:block;font-size:12.5px;font-weight:600;color:#3F5B3F">Bắt đầu có hiệu lực</span>
+                <span style="display:block;margin-top:3px;font-size:11.5px;color:#4F6B4F;line-height:1.5">Đồng thời làm <span class="mono" style="font-size:10.5px">TT 23/2019/TT-NHNN</span> hết hiệu lực toàn bộ.</span>
+              </span>
+            </div>
+
+            <div style="display:flex;gap:0;align-items:flex-start;padding:9px 0">
+              <span class="mono" style="flex:none;width:52px;text-align:right;font-size:10.5px;color:#B0A895;padding-top:3px">01/01<br>2025</span>
+              <span style="flex:none;width:23px;display:flex;justify-content:center;padding-top:5px"><span style="width:9px;height:9px;border-radius:50%;background:#B4633E"></span></span>
+              <span style="flex:1;min-width:0">
+                <span style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
+                  <span style="font-size:10px;padding:1px 8px;border-radius:999px;border:1px solid #E7C9B6;background:#F7EDE6;color:#B4633E;font-weight:500">Bổ sung</span>
+                  <span class="mono" style="font-size:11.5px;color:#8F4A30;font-weight:600">QĐ 2345/QĐ-NHNN</span>
+                </span>
+                <span style="display:block;margin-top:4px;font-size:11.5px;color:#6E6A5E;line-height:1.5">Bổ sung yêu cầu xác thực sinh trắc học vào <span class="mono" style="font-size:10.5px;color:#8F4A30">Điều 12</span>.</span>
+              </span>
+            </div>
+
+            <div style="display:flex;gap:0;align-items:flex-start;padding:9px 0">
+              <span class="mono" style="flex:none;width:52px;text-align:right;font-size:10.5px;color:#B0A895;padding-top:3px">01/10<br>2025</span>
+              <span style="flex:none;width:23px;display:flex;justify-content:center;padding-top:5px"><span style="width:9px;height:9px;border-radius:50%;background:#B4633E"></span></span>
+              <span style="flex:1;min-width:0">
+                <span style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
+                  <span style="font-size:10px;padding:1px 8px;border-radius:999px;border:1px solid #E7C9B6;background:#F7EDE6;color:#B4633E;font-weight:500">Sửa đổi</span>
+                  <span class="mono" style="font-size:11.5px;color:#8F4A30;font-weight:600">NĐ 52/2024/NĐ-CP</span>
+                </span>
+                <span style="display:block;margin-top:4px;font-size:11.5px;color:#6E6A5E;line-height:1.5">Hạn mức tại <span class="mono" style="font-size:10.5px;color:#8F4A30">Điều 9</span>: 50 triệu → 100 triệu đồng/ngày.</span>
+                <span class="serif" style="display:block;margin-top:7px;padding:8px 11px;background:#F0EEE6;border-radius:9px;font-size:12.5px;font-style:italic;color:#33302A;line-height:1.5">“Tổng hạn mức giao dịch qua ví điện tử của một khách hàng cá nhân tối đa 100 triệu đồng trong một ngày.”</span>
+              </span>
+            </div>
+
+            <div style="display:flex;gap:0;align-items:flex-start;padding:9px 0;opacity:.72">
+              <span class="mono" style="flex:none;width:52px;text-align:right;font-size:10.5px;color:#B0A895;padding-top:3px">01/01<br>2027</span>
+              <span style="flex:none;width:23px;display:flex;justify-content:center;padding-top:5px"><span style="width:9px;height:9px;border-radius:50%;background:#FAF9F5;border:2px dashed #B0A895"></span></span>
+              <span style="flex:1;min-width:0">
+                <span style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
+                  <span style="font-size:10px;padding:1px 8px;border-radius:999px;border:1px dashed #D8CFBB;background:#F5F2EA;color:#8A8577">Dự kiến</span>
+                  <span class="mono" style="font-size:11.5px;color:#6E6A5E;font-weight:600">Dự thảo TT 12/2026</span>
+                </span>
+                <span style="display:block;margin-top:4px;font-size:11.5px;color:#8A8577;line-height:1.5">Đang lấy ý kiến — đề xuất thay thế Điều 5–8.</span>
+              </span>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ 1c ============ -->
+    <div id="1c" style="width:600px;flex:none;display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span class="mono" style="font-size:11px;font-weight:600;color:#fff;background:#CC785C;border-radius:6px;padding:3px 9px">1c</span>
+        <span style="font-size:13.5px;font-weight:600">Nhiều văn bản, so sánh chồng lấn</span>
+      </div>
+      <div style="font-size:12.5px;color:#8A8577;margin-top:-6px">Mỗi văn bản một làn. Nhìn ra khoảng thời gian hai văn bản cùng hiệu lực — nơi hay phát sinh mâu thuẫn.</div>
+
+      <div style="background:#FAF9F5;border:1px solid #E4DFD2;border-radius:18px;padding:20px 22px 16px;box-shadow:0 4px 20px rgba(40,34,24,.07)">
+        <div style="display:flex;align-items:center;gap:9px;padding-bottom:14px;border-bottom:1px solid #EDE8DC">
+          <span style="font-size:13.5px;font-weight:600">Chủ đề: Thanh toán &amp; ví điện tử</span>
+          <span class="mono" style="margin-left:auto;font-size:10.5px;color:#B0A895">4 văn bản · 2019–2027</span>
+        </div>
+
+        <div style="position:relative;padding:16px 0 0">
+          <div style="position:absolute;left:0;right:0;top:16px;height:242px">
+            <div style="position:absolute;left:23.5%;top:0;bottom:0;width:1px;background:#EDE8DC"></div>
+            <div style="position:absolute;left:47.1%;top:0;bottom:0;width:1px;background:#EDE8DC"></div>
+            <div style="position:absolute;left:70.6%;top:0;bottom:0;width:1px;background:#EDE8DC"></div>
+            <div style="position:absolute;left:94.1%;top:0;bottom:0;width:1px;background:#EDE8DC"></div>
+            <div style="position:absolute;left:89.1%;top:-6px;bottom:-6px;width:2px;background:#CC785C"></div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:20px;position:relative">
+
+            <div style="height:34px;position:relative">
+              <div style="position:absolute;left:5.9%;width:58.8%;top:0;height:34px;background:#F0EDE5;border:1px dashed #D8CFBB;border-radius:8px;display:flex;flex-direction:column;justify-content:center;padding:0 11px">
+                <span class="mono" style="font-size:10.5px;color:#9C9686;font-weight:600">TT 23/2019/TT-NHNN</span>
+                <span style="font-size:10px;color:#9C9686">01/07/2019 → 30/06/2024</span>
+              </div>
+            </div>
+
+            <div style="height:34px;position:relative">
+              <div style="position:absolute;left:64.7%;right:0;top:0;height:34px;background:#EAF0E7;border:1px solid #CFE0C6;border-radius:8px;display:flex;flex-direction:column;justify-content:center;padding:0 11px">
+                <span class="mono" style="font-size:10.5px;color:#3F5B3F;font-weight:600">TT 40/2024/TT-NHNN</span>
+                <span style="font-size:10px;color:#5B7A5B">01/07/2024 → nay</span>
+              </div>
+            </div>
+
+            <div style="height:34px;position:relative">
+              <div style="position:absolute;left:58.8%;right:0;top:0;height:34px;background:#EAF0E7;border:1px solid #CFE0C6;border-radius:8px;display:flex;flex-direction:column;justify-content:center;padding:0 11px">
+                <span class="mono" style="font-size:10.5px;color:#3F5B3F;font-weight:600">NĐ 52/2024/NĐ-CP</span>
+                <span style="font-size:10px;color:#5B7A5B">01/01/2024 → nay · sửa Điều 9 của TT 40</span>
+              </div>
+              <div style="position:absolute;left:79.4%;top:-14px;height:14px;width:2px;background:#B4633E"></div>
+              <div style="position:absolute;left:79.4%;top:-14px;transform:translate(-50%,-50%);width:11px;height:11px;border-radius:50%;background:#CC785C;color:#fff;font-size:7px;display:grid;place-items:center">↑</div>
+            </div>
+
+            <div style="height:34px;position:relative">
+              <div style="position:absolute;left:70.6%;right:0;top:0;height:34px;background:#EAF0E7;border:1px solid #CFE0C6;border-radius:8px"></div>
+              <div style="position:absolute;right:2%;top:0;height:34px;display:flex;flex-direction:column;justify-content:center;align-items:flex-end;text-align:right">
+                <span class="mono" style="font-size:10.5px;color:#3F5B3F;font-weight:600;white-space:nowrap">QĐ 2345/QĐ-NHNN</span>
+                <span style="font-size:10px;color:#5B7A5B;white-space:nowrap">01/01/2025 → nay · bổ sung Điều 12</span>
+              </div>
+            </div>
+
+            <div style="height:34px;position:relative">
+              <div style="position:absolute;left:94.1%;right:0;top:0;height:34px;background:#F5F2EA;border:1px dashed #D8CFBB;border-radius:8px"></div>
+              <div style="position:absolute;right:7%;top:0;height:34px;display:flex;flex-direction:column;justify-content:center;align-items:flex-end;text-align:right">
+                <span class="mono" style="font-size:10.5px;color:#8A8577;font-weight:600;white-space:nowrap">Dự thảo TT 12/2026</span>
+                <span style="font-size:10px;color:#B0A895;white-space:nowrap">dự kiến 01/01/2027</span>
+              </div>
+            </div>
+
+          </div>
+
+          <div style="position:relative;height:18px;margin-top:10px">
+            <span class="mono" style="position:absolute;left:0%;font-size:10px;color:#B0A895">2019</span>
+            <span class="mono" style="position:absolute;left:23.5%;font-size:10px;color:#B0A895">2021</span>
+            <span class="mono" style="position:absolute;left:47.1%;font-size:10px;color:#B0A895">2023</span>
+            <span class="mono" style="position:absolute;left:70.6%;font-size:10px;color:#B0A895">2025</span>
+            <span class="mono" style="position:absolute;left:89.1%;font-size:10px;color:#8F4A30;font-weight:600">hôm nay</span>
+          </div>
+
+          <div style="margin-top:12px;padding:10px 12px;background:#F7EDE6;border:1px solid #E7C9B6;border-radius:11px;display:flex;gap:9px;align-items:flex-start">
+            <span style="flex:none;width:20px;height:20px;border-radius:6px;background:#CC785C;color:#fff;font-size:11px;display:grid;place-items:center">⚠</span>
+            <span style="font-size:11.5px;color:#8F4A30;line-height:1.5">Từ <span class="mono" style="font-size:11px">01/2024 → 06/2024</span> có 2 văn bản cùng hiệu lực quy định về hạn mức ví điện tử — kiểm tra tài liệu nội bộ ban hành trong khoảng này.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ 1d ============ -->
+    <div id="1d" style="width:1180px;flex:none;display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span class="mono" style="font-size:11px;font-weight:600;color:#fff;background:#CC785C;border-radius:6px;padding:3px 9px">1d</span>
+        <span style="font-size:13.5px;font-weight:600">Theo từng điều khoản</span>
+        <span style="font-size:12.5px;color:#8A8577">Chi tiết nhất: điều nào bị sửa, khi nào, bởi văn bản nào. Dùng khi người dùng chỉ quan tâm vài điều.</span>
+      </div>
+
+      <div style="background:#FAF9F5;border:1px solid #E4DFD2;border-radius:18px;padding:20px 24px 18px;box-shadow:0 4px 20px rgba(40,34,24,.07)">
+        <div style="display:flex;align-items:center;gap:9px;padding-bottom:14px;border-bottom:1px solid #EDE8DC">
+          <span style="font-size:15px;font-weight:600">TT 40/2024/TT-NHNN</span>
+          <span style="font-size:12.5px;color:#8A8577">— vòng đời từng điều</span>
+          <span class="mono" style="margin-left:auto;font-size:10.5px;color:#B0A895">32 điều · hiển thị 6 điều có thay đổi</span>
+        </div>
+
+        <div style="display:grid;grid-template-columns:300px 1fr;gap:1px;background:#EDE8DC;border:1px solid #EDE8DC;border-radius:12px;overflow:hidden;margin-top:16px">
+
+          <div style="background:#F5F2EA;padding:9px 13px;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#8A8577;font-weight:600">Điều khoản</div>
+          <div style="background:#F5F2EA;padding:9px 13px;position:relative">
+            <span class="mono" style="position:absolute;left:2%;font-size:10px;color:#B0A895">2024</span>
+            <span class="mono" style="position:absolute;left:26%;font-size:10px;color:#B0A895">2025</span>
+            <span class="mono" style="position:absolute;left:50%;font-size:10px;color:#B0A895">2026</span>
+            <span class="mono" style="position:absolute;left:74%;font-size:10px;color:#B0A895">2027</span>
+          </div>
+
+          <div style="background:#FAF9F5;padding:11px 13px;display:flex;align-items:center;gap:9px"><span class="mono" style="font-size:11px;color:#B4633E;font-weight:600;width:52px">Điều 5</span><span style="font-size:12px;color:#33302A;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Điều kiện cung ứng dịch vụ</span></div>
+          <div style="background:#FAF9F5;padding:11px 13px;position:relative;height:20px">
+            <div style="position:absolute;left:2%;right:26%;top:50%;transform:translateY(-50%);height:8px;border-radius:4px;background:#DCE7D7"></div>
+            <div style="position:absolute;left:74%;right:0;top:50%;transform:translateY(-50%);height:8px;border-radius:4px;background:repeating-linear-gradient(90deg,#E4DFD2 0 5px,transparent 5px 10px)"></div>
+            <div style="position:absolute;left:74%;top:50%;transform:translate(-50%,-50%);width:11px;height:11px;border-radius:50%;background:#FAF9F5;border:2px dashed #B0A895"></div>
+          </div>
+
+          <div style="background:#FAF9F5;padding:11px 13px;display:flex;align-items:center;gap:9px"><span class="mono" style="font-size:11px;color:#B4633E;font-weight:600;width:52px">Điều 9</span><span style="font-size:12px;color:#33302A;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Hạn mức giao dịch ví điện tử</span></div>
+          <div style="background:#FAF9F5;padding:11px 13px;position:relative;height:20px">
+            <div style="position:absolute;left:2%;right:44%;top:50%;transform:translateY(-50%);height:8px;border-radius:4px;background:#DCE7D7"></div>
+            <div style="position:absolute;left:56%;right:0;top:50%;transform:translateY(-50%);height:8px;border-radius:4px;background:#EFC7B2"></div>
+            <div style="position:absolute;left:56%;top:50%;transform:translate(-50%,-50%);width:13px;height:13px;border-radius:50%;background:#CC785C;box-shadow:0 0 0 3px rgba(204,120,92,.18)"></div>
+            <span class="mono" style="position:absolute;left:59%;top:50%;transform:translateY(-50%);font-size:10px;color:#8F4A30;font-weight:600;white-space:nowrap">NĐ 52/2024 · 50tr → 100tr</span>
+          </div>
+
+          <div style="background:#FAF9F5;padding:11px 13px;display:flex;align-items:center;gap:9px"><span class="mono" style="font-size:11px;color:#B4633E;font-weight:600;width:52px">Điều 12</span><span style="font-size:12px;color:#33302A;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Xác thực khách hàng</span></div>
+          <div style="background:#FAF9F5;padding:11px 13px;position:relative;height:20px">
+            <div style="position:absolute;left:2%;right:74%;top:50%;transform:translateY(-50%);height:8px;border-radius:4px;background:#DCE7D7"></div>
+            <div style="position:absolute;left:26%;right:0;top:50%;transform:translateY(-50%);height:8px;border-radius:4px;background:#EFC7B2"></div>
+            <div style="position:absolute;left:26%;top:50%;transform:translate(-50%,-50%);width:13px;height:13px;border-radius:50%;background:#CC785C;box-shadow:0 0 0 3px rgba(204,120,92,.18)"></div>
+            <span class="mono" style="position:absolute;left:29%;top:50%;transform:translateY(-50%);font-size:10px;color:#8F4A30;font-weight:600;white-space:nowrap">QĐ 2345 · bổ sung sinh trắc học</span>
+          </div>
+
+          <div style="background:#FAF9F5;padding:11px 13px;display:flex;align-items:center;gap:9px"><span class="mono" style="font-size:11px;color:#B4633E;font-weight:600;width:52px">Điều 18</span><span style="font-size:12px;color:#33302A;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Báo cáo giao dịch đáng ngờ</span></div>
+          <div style="background:#FAF9F5;padding:11px 13px;position:relative;height:20px">
+            <div style="position:absolute;left:2%;right:0;top:50%;transform:translateY(-50%);height:8px;border-radius:4px;background:#DCE7D7"></div>
+          </div>
+
+          <div style="background:#FAF9F5;padding:11px 13px;display:flex;align-items:center;gap:9px"><span class="mono" style="font-size:11px;color:#B4633E;font-weight:600;width:52px">Điều 24</span><span style="font-size:12px;color:#33302A;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Lưu trữ chứng từ điện tử</span></div>
+          <div style="background:#FAF9F5;padding:11px 13px;position:relative;height:20px">
+            <div style="position:absolute;left:2%;right:0;top:50%;transform:translateY(-50%);height:8px;border-radius:4px;background:#DCE7D7"></div>
+          </div>
+
+          <div style="background:#FAF9F5;padding:11px 13px;display:flex;align-items:center;gap:9px;opacity:.7"><span class="mono" style="font-size:11px;color:#9C9686;font-weight:600;width:52px">Điều 31</span><span style="font-size:12px;color:#6E6A5E;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Điều khoản chuyển tiếp</span></div>
+          <div style="background:#FAF9F5;padding:11px 13px;position:relative;height:20px">
+            <div style="position:absolute;left:2%;right:56%;top:50%;transform:translateY(-50%);height:8px;border-radius:4px;background:#DCE7D7"></div>
+            <div style="position:absolute;left:44%;top:50%;transform:translate(-50%,-50%);width:11px;height:11px;border-radius:50%;background:#F0EDE5;border:2px solid #D8CFBB"></div>
+            <span class="mono" style="position:absolute;left:47%;top:50%;transform:translateY(-50%);font-size:10px;color:#9C9686;white-space:nowrap">hết hiệu lực 30/06/2025</span>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:18px;flex-wrap:wrap;padding-top:14px;margin-top:12px;border-top:1px solid #EDE8DC">
+          <span style="display:flex;align-items:center;gap:7px;font-size:11px;color:#6E6A5E"><span style="width:16px;height:8px;border-radius:4px;background:#DCE7D7"></span>Nguyên văn gốc</span>
+          <span style="display:flex;align-items:center;gap:7px;font-size:11px;color:#6E6A5E"><span style="width:16px;height:8px;border-radius:4px;background:#EFC7B2"></span>Đã bị sửa đổi/bổ sung</span>
+          <span style="display:flex;align-items:center;gap:7px;font-size:11px;color:#6E6A5E"><span style="width:16px;height:8px;border-radius:4px;background:repeating-linear-gradient(90deg,#E4DFD2 0 5px,transparent 5px 10px)"></span>Dự kiến thay đổi</span>
+          <span style="display:flex;align-items:center;gap:7px;font-size:11px;color:#6E6A5E"><span style="width:11px;height:11px;border-radius:50%;background:#F0EDE5;border:2px solid #D8CFBB"></span>Điều đã hết hiệu lực</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1260,&quot;height&quot;:1400}}">
+const START = 2019, SPAN = 8.5;
+
+const EVENTS = [
+  { id: 0, year: 2024, day: "20/05", month: "2024", kind: "Ban hành", tone: "neutral", title: "Ngân hàng Nhà nước ký ban hành",
+    body: "Đã ký, chưa phát sinh hiệu lực thi hành." },
+  { id: 1, year: 2024, day: "01/07", month: "2024", kind: "Hiệu lực", tone: "live", title: "Bắt đầu có hiệu lực toàn văn",
+    body: "Đồng thời làm TT 23/2019/TT-NHNN hết hiệu lực toàn bộ.", articles: ["Điều 1–32"] },
+  { id: 2, year: 2025, day: "01/01", month: "2025", kind: "Bổ sung", tone: "amend", title: "Bổ sung yêu cầu xác thực sinh trắc học",
+    actor: "QĐ 2345/QĐ-NHNN", actorName: "Giải pháp an toàn trong thanh toán trực tuyến",
+    body: "Giao dịch trên 10 triệu đồng phải xác thực bằng khuôn mặt khớp dữ liệu căn cước.", articles: ["Điều 12"],
+    before: "Xác thực bằng mã OTP gửi tới số điện thoại đã đăng ký.",
+    after: "Xác thực bằng OTP và đối chiếu sinh trắc học khuôn mặt với dữ liệu căn cước công dân." },
+  { id: 3, year: 2025, day: "30/06", month: "2025", kind: "Hết hiệu lực", tone: "dead", title: "Điều khoản chuyển tiếp hết hiệu lực",
+    body: "Kết thúc thời gian ân hạn cho tổ chức đã được cấp phép trước 01/07/2024.", articles: ["Điều 31"] },
+  { id: 4, year: 2025, day: "01/10", month: "2025", kind: "Sửa đổi", tone: "amend", title: "Nâng hạn mức giao dịch ví điện tử",
+    actor: "NĐ 52/2024/NĐ-CP", actorName: "Thanh toán không dùng tiền mặt",
+    body: "Hạn mức ngày của khách hàng cá nhân tăng từ 50 triệu lên 100 triệu đồng.", articles: ["Điều 9", "Khoản 2"],
+    before: "Tổng hạn mức giao dịch qua ví điện tử của một khách hàng cá nhân tối đa 50 triệu đồng trong một ngày.",
+    after: "Tổng hạn mức giao dịch qua ví điện tử của một khách hàng cá nhân tối đa 100 triệu đồng trong một ngày." },
+  { id: 5, year: 2027, day: "01/01", month: "2027", kind: "Dự kiến", tone: "future", title: "Đề xuất thay thế Điều 5–8",
+    actor: "Dự thảo TT 12/2026", actorName: "đang lấy ý kiến, chưa ban hành",
+    body: "Nếu ban hành sẽ thay thế toàn bộ nhóm điều về điều kiện cung ứng dịch vụ.", articles: ["Điều 5–8"] },
+];
+
+const FILTERS = [
+  { id: "all", label: "Tất cả" },
+  { id: "live", label: "Hiệu lực" },
+  { id: "amend", label: "Sửa đổi / Bổ sung" },
+  { id: "dead", label: "Hết hiệu lực" },
+  { id: "future", label: "Dự kiến" },
+];
+
+const TONE = {
+  neutral: { pill: "#E4DFD2;background:#F0EDE5;color:#6E6A5E", dot: "width:9px;height:9px;border-radius:50%;background:#FAF9F5;border:2px solid #D8CFBB", date: "#B0A895", row: "transparent" },
+  live: { pill: "#CFE0C6;background:#EAF0E7;color:#5B7A5B", dot: "width:11px;height:11px;border-radius:50%;background:#5B7A5B;box-shadow:0 0 0 3px rgba(91,122,91,.18)", date: "#5B7A5B", row: "#EAF0E7" },
+  amend: { pill: "#E7C9B6;background:#F7EDE6;color:#B4633E", dot: "width:10px;height:10px;border-radius:50%;background:#CC785C;box-shadow:0 0 0 3px rgba(204,120,92,.16)", date: "#B4633E", row: "transparent" },
+  dead: { pill: "#E4DFD2;background:#F0EDE5;color:#9C9686", dot: "width:9px;height:9px;border-radius:50%;background:#D8CFBB", date: "#B0A895", row: "transparent" },
+  future: { pill: "#D8CFBB;background:#F5F2EA;color:#8A8577", dot: "width:9px;height:9px;border-radius:50%;background:#FAF9F5;border:2px dashed #B0A895", date: "#B0A895", row: "transparent" },
+};
+
+class Component extends DCLogic {
+  state = { asof: 89, filter: "all", open: { 4: true } };
+
+  renderVals() {
+    const frac = this.state.asof / 102;
+    const y = START + frac * SPAN;
+    const year = Math.floor(y);
+    const month = Math.min(12, Math.max(1, Math.floor((y - year) * 12) + 1));
+    const label = String(month).padStart(2, "0") + "/" + year;
+
+    const live = y >= 2024.5;
+    const pre = y >= 2019.5 && y < 2024.5;
+    const status = live ? "Đang hiệu lực" : pre ? "Chưa ban hành · TT 23/2019 đang áp dụng" : "Chưa tồn tại";
+    const tone = live
+      ? "#CFE0C6;background:#EAF0E7;color:#5B7A5B"
+      : "#E4DFD2;background:#F0EDE5;color:#9C9686";
+
+    const st = this.state;
+    const counts = { all: EVENTS.length };
+    FILTERS.slice(1).forEach((f) => { counts[f.id] = EVENTS.filter((e) => e.tone === f.id).length; });
+
+    const filters = FILTERS.map((f) => ({
+      label: f.label,
+      count: counts[f.id],
+      pick: () => this.setState({ filter: f.id }),
+      style: "display:flex;align-items:center;font-size:11.5px;padding:5px 11px;border-radius:999px;cursor:pointer;transition:all .15s;border:1px solid " +
+        (st.filter === f.id ? "#CC785C;background:#F7EDE6;color:#8F4A30;font-weight:500" : "#E4DFD2;background:#FAF9F5;color:#6E6A5E"),
+    }));
+
+    const shown = st.filter === "all" ? EVENTS : EVENTS.filter((e) => e.tone === st.filter);
+    const years = [...new Set(shown.map((e) => e.year))];
+
+    const groups = years.map((yr) => ({
+      year: String(yr),
+      count: shown.filter((e) => e.year === yr).length,
+      today: yr === 2025,
+      events: shown.filter((e) => e.year === yr).map((e) => {
+        const t = TONE[e.tone];
+        const open = !!st.open[e.id];
+        const future = e.tone === "future";
+        return {
+          ...e,
+          hasArticles: !!e.articles,
+          hasDiff: !!e.before,
+          open,
+          diffLabel: open ? "⌃ Ẩn nguyên văn" : "⌄ Xem nguyên văn trước / sau",
+          toggle: () => this.setState((p) => ({ open: { ...p.open, [e.id]: !p.open[e.id] } })),
+          dateColor: t.date,
+          dateWeight: e.tone === "live" ? "600" : "400",
+          dotStyle: t.dot,
+          kindStyle: "font-size:10px;padding:1px 8px;border-radius:999px;font-weight:500;border:1px solid " + t.pill,
+          titleStyle: "font-size:12.5px;font-weight:600;color:" + (future ? "#6E6A5E" : "#191919"),
+          rowStyle: "position:relative;display:flex;align-items:flex-start;border-radius:11px;margin:2px 0;transition:background .15s;" +
+            (t.row === "transparent" ? "" : "background:" + t.row + ";") +
+            (future ? "opacity:.74;" : ""),
+        };
+      }),
+    }));
+
+    return {
+      filters,
+      groups,
+      asof: this.state.asof,
+      setAsof: (e) => this.setState({ asof: Number(e.target.value) }),
+      asofLabel: label,
+      asofStatus: status,
+      asofPill: "font-size:10.5px;padding:2px 10px;border-radius:999px;border:1px solid " + tone,
+      headStyle: "position:absolute;top:0;bottom:26px;left:" + (frac * 100).toFixed(2) + "%;width:2px;background:#CC785C;z-index:5",
+    };
+  }
+}
+
+</script>
+</body>
+</html>

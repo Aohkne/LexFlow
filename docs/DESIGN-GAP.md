@@ -55,6 +55,14 @@
 - `ChatRequest.doc_ids: list[str]` — giới hạn retrieval trong văn bản được chọn (`search_in_docs`), nối với scope picker. Có test (`tests/test_stream.py::test_doc_ids_gioi_han_pham_vi`).
 - Badge Cảnh báo trên sidebar đếm số `change_events` thật.
 
+## 4b. Lexi — mascot trợ thủ (bổ sung 28/07)
+
+Handoff v2 tại `design/Lexi/` đã tích hợp: component `web/components/lexi.tsx` + `lexi.css` (hoạt ảnh nằm trong CSS, SVG public/ là bản tĩnh có chủ ý), favicon `app/icon.svg`.
+
+Vị trí đã gắn (quy tắc: một Lexi động/màn): Tra cứu (empty state `searching` 66px trong khung 96px; avatar 30px cạnh câu trả lời — lượt mới nhất động `found`/`conflict`, lượt cũ tĩnh; ô lỗi `error` + nút Thử lại), `/review` (idle → searching giả lập ~1.4s → conflict/found cạnh tiêu đề kết quả), Landing hero (`idle` 72px) + avatar preview tĩnh, mini-card Auth (tĩnh 22px), Thư viện không có kết quả (`idle` 44px), trang 404 `not-found.tsx` (`error` 66px). **Không** dùng Lexi làm logo sidebar (chỉ định của designer — linh vật ≠ logo).
+
+Backlog nếu muốn nhờ Claude design vẽ tiếp: `wave` (vẫy chào một lần cho hero/empty lần đầu), `reading` (cầm tài liệu — phân biệt kiểm tra tài liệu với tra cứu luật).
+
 ## 5. Đề xuất thứ tự làm tiếp
 
 1. **Backend Kiểm tra tuân thủ** (#1 — biến màn 5 thành thật; giá trị demo lớn nhất cho SHB)

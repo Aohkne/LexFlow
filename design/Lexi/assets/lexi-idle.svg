@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120" role="img" aria-label="Lexi">
+  <path d="M40 44 L44 22 L54 40 Z" fill="#CC785C"></path>
+  <path d="M80 44 L76 22 L66 40 Z" fill="#CC785C"></path>
+  <circle cx="60" cy="66" r="42" fill="#CC785C"></circle>
+  <ellipse cx="44" cy="60" rx="20" ry="22" fill="#FAF9F5"></ellipse>
+  <ellipse cx="76" cy="60" rx="20" ry="22" fill="#FAF9F5"></ellipse>
+  <circle cx="44" cy="60" r="12.5" fill="none" stroke="#B4633E" stroke-width="3"></circle>
+  <circle cx="44" cy="60" r="9" fill="#26241F"></circle>
+  <circle cx="40.5" cy="56.5" r="2.8" fill="#FAF9F5"></circle>
+  <circle cx="76" cy="60" r="12.5" fill="none" stroke="#B4633E" stroke-width="3"></circle>
+  <circle cx="76" cy="60" r="9" fill="#26241F"></circle>
+  <circle cx="72.5" cy="56.5" r="2.8" fill="#FAF9F5"></circle>
+  <path d="M28 37 q13 -6 26 3" fill="none" stroke="#B4633E" stroke-width="4.6" stroke-linecap="round"></path>
+  <path d="M92 37 q-13 -6 -26 3" fill="none" stroke="#B4633E" stroke-width="4.6" stroke-linecap="round"></path>
+  <path d="M60 71 L68 82 L60 89 L52 82 Z" fill="#E0C39F"></path>
+</svg>

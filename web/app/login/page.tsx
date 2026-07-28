@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { Lexi } from "@/components/lexi";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -225,7 +226,11 @@ export default function LoginPage() {
 
           {/* Mini answer card */}
           <div className="mt-6 rounded-2xl border border-dark-bd bg-dark-card p-4">
-            <div className="flex flex-wrap gap-1.5">
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="mr-1 flex items-center gap-1.5">
+                <Lexi state="static" size={22} />
+                <span className="text-[11px] font-semibold text-[#E8E2D4]">Lexi</span>
+              </span>
               <span className="rounded-full border border-green-bd/40 bg-green/10 px-2 py-0.5 text-[10px] text-[#9DBB9D]">
                 2 nguồn đang hiệu lực
               </span>

@@ -14,6 +14,7 @@ import {
   type DocumentSummary,
 } from "@/lib/api";
 import { articleAnchor } from "@/lib/anchors";
+import { Lexi } from "@/components/lexi";
 
 type Turn = {
   question: string;
@@ -59,6 +60,7 @@ function ChatScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [lastFailed, setLastFailed] = useState<string | null>(null);
   const [sessions, setSessions] = useState<Session[]>([]);
   const [draft, setDraft] = useState("");
   const [asOf, setAsOf] = useState("");
@@ -201,10 +203,12 @@ function ChatScreen() {
       );
       setTurns((t) => [...t, { question, scopeLabel, narrow, resp: finished }]);
       setLive(null);
+      setLastFailed(null);
       scrollBottom();
       loadSessions();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Lỗi không xác định");
+      setLastFailed(question);
       setLive(null);
     } finally {
       setLoading(false);
@@ -260,8 +264,8 @@ function ChatScreen() {
             {/* Intro */}
             {allTurns.length === 0 && (
               <div className="pb-6 pt-1.5 text-center">
-                <span className="inline-grid h-11 w-11 place-items-center rounded-xl bg-accent text-[22px] text-white">
-                  ⎈
+                <span className="inline-grid h-24 w-24 place-items-center rounded-[26px] border border-accent-wash-border bg-accent-wash">
+                  <Lexi state="searching" size={66} />
                 </span>
                 <h1 className="serif mt-3.5 text-[27px] font-medium tracking-[-.015em]">
                   Hỏi về quy định — nhận câu trả lời truy được nguồn
@@ -282,13 +286,26 @@ function ChatScreen() {
                 turn={t}
                 first={i === 0}
                 streaming={live !== null && i === turns.length}
+                latest={i === allTurns.length - 1 && !error}
                 asOf={asOf}
               />
             ))}
 
             {error && (
-              <div className="mt-4 rounded-[13px] border border-red-bd bg-red-bg px-4 py-3 text-sm text-red">
-                {error}
+              <div className="mt-4 flex items-center gap-3.5 rounded-[13px] border border-red-bd bg-red-bg px-4 py-3.5">
+                <Lexi state="error" size={44} />
+                <div className="min-w-0 flex-1 text-sm leading-normal text-red">
+                  <span className="block font-medium">Không tra cứu được</span>
+                  <span className="block text-[12.5px] opacity-90">{error}</span>
+                </div>
+                {lastFailed && (
+                  <button
+                    onClick={() => ask(lastFailed)}
+                    className="flex-none rounded-[9px] bg-accent px-3.5 py-1.5 text-[12.5px] font-medium text-white transition-colors hover:bg-accent-hover"
+                  >
+                    Thử lại
+                  </button>
+                )}
               </div>
             )}
             <div className="h-2" />
@@ -561,11 +578,14 @@ function TurnView({
   turn,
   first,
   streaming,
+  latest,
   asOf,
 }: {
   turn: Turn;
   first: boolean;
   streaming: boolean;
+  /** Chỉ lượt mới nhất có Lexi động — quy tắc "một Lexi động trên màn hình". */
+  latest: boolean;
   asOf: string;
 }) {
   const { resp } = turn;
@@ -624,12 +644,24 @@ function TurnView({
 
       {/* Trả lời */}
       <div className="mt-4 flex gap-2.5">
-        <span className="mt-0.5 grid h-7 w-7 flex-none place-items-center rounded-lg bg-accent text-sm text-white">
-          ⎈
+        <span className="mt-px flex-none">
+          <Lexi
+            state={
+              streaming
+                ? "searching"
+                : latest && resp.answer
+                  ? resp.conflicts.length > 0
+                    ? "conflict"
+                    : "found"
+                  : "static"
+            }
+            size={30}
+          />
         </span>
         <div className="min-w-0 flex-1">
           {/* Trust bar */}
           <div className="mb-3 flex flex-wrap items-center gap-1.5">
+            <span className="mr-1 text-[11.5px] font-semibold text-fg-strong">Lexi</span>
             {resp.citations.length > 0 && (
               <span className="inline-flex items-center gap-1.5 rounded-full border border-green-bd bg-green-bg px-2.5 py-[3px] text-[11.5px] text-green">
                 <span className="h-1.5 w-1.5 rounded-full bg-green" />

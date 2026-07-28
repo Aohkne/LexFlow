@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Lexi } from "@/components/lexi";
 
 /** Trang giới thiệu (marketing) — theo design handoff "LexFlow Landing".
  *  Số liệu phần Stats dùng số thật của hệ thống thay cho số minh họa trong design. */
@@ -73,7 +74,11 @@ export default function LandingPage() {
       </header>
 
       {/* HERO */}
-      <section className="mx-auto max-w-[1120px] px-8 pt-[76px] text-center">
+      <section className="mx-auto max-w-[1120px] px-8 pt-[64px] text-center">
+        <span className="mb-5 inline-grid h-24 w-24 place-items-center rounded-[26px] border border-accent-wash-border bg-accent-wash">
+          <Lexi state="idle" size={72} decorative={false} label="Lexi — trợ thủ pháp lý của LexFlow" />
+        </span>
+        <br />
         <span className="inline-flex items-center gap-1.5 rounded-full border border-accent-wash-border bg-accent-wash px-3 py-1 text-xs text-accent-dim">
           <span className="h-1.5 w-1.5 rounded-full bg-accent" />
           Dành cho khối Pháp chế &amp; Tuân thủ ngân hàng
@@ -115,7 +120,9 @@ export default function LandingPage() {
               </div>
             </div>
             <div className="mt-4 flex gap-2.5">
-              <span className="grid h-[26px] w-[26px] flex-none place-items-center rounded-lg bg-accent text-[13px] text-white">⎈</span>
+              <span className="flex-none">
+                <Lexi state="static" size={26} />
+              </span>
               <div className="flex-1">
                 <div className="mb-2.5 flex flex-wrap gap-1.5">
                   <span className="inline-flex items-center gap-1 rounded-full border border-green-bd bg-green-bg px-2 py-0.5 text-[11px] text-green">

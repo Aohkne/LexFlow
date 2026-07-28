@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Lexi — kiểm tra</title>
+<link rel="stylesheet" href="assets/lexi.css">
+<style>
+  body{margin:0;padding:40px;background:#F0EEE6;font-family:system-ui,sans-serif;color:#191919}
+  h1{font-size:20px;font-weight:600;margin:0 0 6px}
+  h2{font-size:14px;font-weight:600;margin:34px 0 4px}
+  p{font-size:13px;color:#6E6A5E;margin:0 0 18px;max-width:640px;line-height:1.55}
+  .row{display:flex;flex-wrap:wrap;gap:16px}
+  .card{background:#FAF9F5;border:1px solid #E4DFD2;border-radius:14px;padding:16px;display:flex;flex-direction:column;align-items:center;gap:9px;width:176px}
+  .card b{font-size:12px}
+  .card code{font-size:10.5px;color:#8A8577}
+  .card img{display:block;width:88px;height:88px}
+  .card .lexi{width:88px;height:88px}
+</style>
+</head>
+<body>
+<h1>Lexi — kiểm tra trước khi tích hợp</h1>
+<p>Hàng trên: SVG inline + <code>assets/lexi.css</code> — <strong>phải có chuyển động</strong>. Hàng dưới: 6 file <code>.svg</code> nhúng bằng <code>&lt;img&gt;</code> — <strong>tĩnh là đúng</strong>, đó là bản dùng cho favicon / OG image / email.</p>
+
+<h2>1. Có chuyển động (SVG inline + lexi.css)</h2>
+<div class="row">
+  <div class="card">
+    <svg class="lexi" viewBox="0 0 120 120" aria-hidden="true">
+      <g class="lexi-sway">
+        <path d="M40 44 L44 22 L54 40 Z" fill="#CC785C"></path>
+        <path d="M80 44 L76 22 L66 40 Z" fill="#CC785C"></path>
+        <circle cx="60" cy="66" r="42" fill="#CC785C"></circle>
+        <ellipse cx="44" cy="60" rx="20" ry="22" fill="#FAF9F5"></ellipse>
+        <ellipse cx="76" cy="60" rx="20" ry="22" fill="#FAF9F5"></ellipse>
+        <g class="lexi-blink">
+          <circle cx="44" cy="60" r="12.5" fill="none" stroke="#B4633E" stroke-width="3"></circle>
+          <circle cx="44" cy="60" r="9" fill="#26241F"></circle>
+          <circle cx="40.5" cy="56.5" r="2.8" fill="#FAF9F5"></circle>
+        </g>
+        <g class="lexi-blink">
+          <circle cx="76" cy="60" r="12.5" fill="none" stroke="#B4633E" stroke-width="3"></circle>
+          <circle cx="76" cy="60" r="9" fill="#26241F"></circle>
+          <circle cx="72.5" cy="56.5" r="2.8" fill="#FAF9F5"></circle>
+        </g>
+        <path d="M28 37 q13 -6 26 3" fill="none" stroke="#B4633E" stroke-width="4.6" stroke-linecap="round"></path>
+        <path d="M92 37 q-13 -6 -26 3" fill="none" stroke="#B4633E" stroke-width="4.6" stroke-linecap="round"></path>
+        <path d="M60 71 L68 82 L60 89 L52 82 Z" fill="#E0C39F"></path>
+      </g>
+    </svg>
+    <b>Sẵn sàng</b><code>nghiêng đầu + chớp mắt</code>
+  </div>
+
+  <div class="card">
+    <svg class="lexi" viewBox="0 0 120 120" aria-hidden="true">
+      <path d="M40 44 L44 22 L54 40 Z" fill="#CC785C"></path>
+      <path d="M80 44 L76 22 L66 40 Z" fill="#CC785C"></path>
+      <circle cx="60" cy="66" r="42" fill="#CC785C"></circle>
+      <ellipse cx="44" cy="60" rx="20" ry="22" fill="#FAF9F5"></ellipse>
+      <ellipse cx="76" cy="60" rx="20" ry="22" fill="#FAF9F5"></ellipse>
+      <g class="lexi-search">
+        <circle cx="44" cy="60" r="12.5" fill="none" stroke="#B4633E" stroke-width="3"></circle>
+        <circle cx="44" cy="60" r="9" fill="#26241F"></circle>
+        <circle cx="76" cy="60" r="12.5" fill="none" stroke="#B4633E" stroke-width="3"></circle>
+        <circle cx="76" cy="60" r="9" fill="#26241F"></circle>
+      </g>
+      <rect x="26" y="40" width="27" height="4.6" rx="2.3" fill="#B4633E"></rect>
+      <rect x="67" y="40" width="27" height="4.6" rx="2.3" fill="#B4633E"></rect>
+      <path d="M60 71 L68 82 L60 89 L52 82 Z" fill="#E0C39F"></path>
+    </svg>
+    <b>Đang tra</b><code>mắt đảo tìm</code>
+  </div>
+
+  <div class="card">
+    <svg class="lexi" viewBox="0 0 120 120" aria-hidden="true">
+      <g class="lexi-nod">
+        <path d="M40 44 L44 22 L54 40 Z" fill="#5B7A5B"></path>
+        <path d="M80 44 L76 22 L66 40 Z" fill="#5B7A5B"></path>
+        <circle cx="60" cy="66" r="42" fill="#5B7A5B"></circle>
+        <ellipse cx="44" cy="60" rx="20" ry="22" fill="#FAF9F5"></ellipse>
+        <ellipse cx="76" cy="60" rx="20" ry="22" fill="#FAF9F5"></ellipse>
+        <path d="M34 63 q10 -13 20 0" fill="none" stroke="#26241F" stroke-width="5" stroke-linecap="round"></path>
+        <path d="M66 63 q10 -13 20 0" fill="none" stroke="#26241F" stroke-width="5" stroke-linecap="round"></path>
+        <path d="M60 71 L68 82 L60 89 L52 82 Z" fill="#E0C39F"></path>
+      </g>
+      <g class="lexi-pop">
+        <circle cx="96" cy="30" r="17" fill="#EAF0E7" stroke="#5B7A5B" stroke-width="2.5"></circle>
+        <path d="M88 30 l6 6 l11 -12" fill="none" stroke="#5B7A5B" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path>
+      </g>
+    </svg>
+    <b>Có nguồn</b><code>gật + dấu tích</code>
+  </div>
+
+  <div class="card">
+    <svg class="lexi" viewBox="0 0 120 120" aria-hidden="true">
+      <g class="lexi-shake">
+        <path d="M40 44 L44 22 L54 40 Z" fill="#B4633E"></path>
+        <path d="M80 44 L76 22 L66 40 Z" fill="#B4633E"></path>
+        <circle cx="60" cy="66" r="42" fill="#B4633E"></circle>
+        <ellipse cx="44" cy="60" rx="20" ry="22" fill="#FAF9F5"></ellipse>
+        <ellipse cx="76" cy="60" rx="20" ry="22" fill="#FAF9F5"></ellipse>
+        <circle cx="44" cy="62" r="10" fill="#26241F"></circle>
+        <circle cx="76" cy="62" r="10" fill="#26241F"></circle>
+        <rect x="26" y="32" width="28" height="5" rx="2.5" fill="#8F4A30" transform="rotate(19 40 34)"></rect>
+        <rect x="66" y="32" width="28" height="5" rx="2.5" fill="#8F4A30" transform="rotate(-19 80 34)"></rect>
+        <path d="M60 73 L68 84 L60 91 L52 84 Z" fill="#E0C39F"></path>
+      </g>
+      <g class="lexi-pop">
+        <circle cx="97" cy="28" r="17" fill="#F7EDE6" stroke="#CC785C" stroke-width="2.5"></circle>
+        <rect x="94.6" y="19" width="4.8" height="12" rx="2.4" fill="#CC785C"></rect>
+        <circle cx="97" cy="35.5" r="2.8" fill="#CC785C"></circle>
+      </g>
+    </svg>
+    <b>Có mâu thuẫn</b><code>lắc đầu + cảnh báo</code>
+  </div>
+
+  <div class="card">
+    <svg class="lexi" viewBox="0 0 120 120" aria-hidden="true">
+      <g class="lexi-droop">
+        <path d="M40 44 L44 22 L54 40 Z" fill="#9C9686"></path>
+        <path d="M80 44 L76 22 L66 40 Z" fill="#9C9686"></path>
+        <circle cx="60" cy="66" r="42" fill="#9C9686"></circle>
+        <ellipse cx="44" cy="60" rx="20" ry="22" fill="#F0EDE5"></ellipse>
+        <ellipse cx="76" cy="60" rx="20" ry="22" fill="#F0EDE5"></ellipse>
+        <path d="M35 60 h18" fill="none" stroke="#26241F" stroke-width="4.4" stroke-linecap="round"></path>
+        <path d="M67 60 h18" fill="none" stroke="#26241F" stroke-width="4.4" stroke-linecap="round"></path>
+        <rect x="26" y="34" width="27" height="4.6" rx="2.3" fill="#6E6A5E"></rect>
+        <rect x="67" y="34" width="27" height="4.6" rx="2.3" fill="#6E6A5E"></rect>
+        <path d="M60 71 L68 82 L60 89 L52 82 Z" fill="#D8CFBB"></path>
+      </g>
+      <g class="lexi-pop">
+        <circle cx="97" cy="28" r="17" fill="#F7E6E1" stroke="#A8412F" stroke-width="2.5"></circle>
+        <path d="M91 22 L103 34" fill="none" stroke="#A8412F" stroke-width="4" stroke-linecap="round"></path>
+        <path d="M103 22 L91 34" fill="none" stroke="#A8412F" stroke-width="4" stroke-linecap="round"></path>
+      </g>
+    </svg>
+    <b>Gặp lỗi</b><code>đầu rũ + dấu ✕</code>
+  </div>
+</div>
+
+<h2>2. Bản tĩnh (file .svg qua &lt;img&gt;)</h2>
+<div class="row">
+  <div class="card"><img src="assets/lexi-idle.svg" alt=""><b>idle</b><code>lexi-idle.svg</code></div>
+  <div class="card"><img src="assets/lexi-searching.svg" alt=""><b>searching</b><code>lexi-searching.svg</code></div>
+  <div class="card"><img src="assets/lexi-found.svg" alt=""><b>found</b><code>lexi-found.svg</code></div>
+  <div class="card"><img src="assets/lexi-conflict.svg" alt=""><b>conflict</b><code>lexi-conflict.svg</code></div>
+  <div class="card"><img src="assets/lexi-error.svg" alt=""><b>error</b><code>lexi-error.svg</code></div>
+  <div class="card"><img src="assets/lexi-avatar.svg" alt=""><b>avatar</b><code>lexi-avatar.svg</code></div>
+</div>
+</body>
+</html>

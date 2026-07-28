@@ -1,0 +1,77 @@
+/* lexi.css — hoạt ảnh của linh vật Lexi.
+   Đặt cạnh component và import một lần:  import './lexi.css';
+   Hoạt ảnh nằm ở ĐÂY, không nằm trong file .svg — nên không bị
+   SVGR / next/image / bundler nào lược bỏ. */
+
+.lexi { display: block; flex: none; }
+
+/* nhóm gốc: transform-origin tính theo bbox của chính phần tử */
+.lexi [class^="lexi-"] { transform-box: fill-box; will-change: transform; }
+
+/* --- idle: nghiêng đầu + chớp mắt kép --- */
+.lexi-sway  { transform-origin: 50% 92%; animation: lexiSway 3.4s ease-in-out infinite; }
+.lexi-blink { transform-origin: 50% 50%; animation: lexiBlink 4.4s ease-in-out infinite; }
+
+@keyframes lexiSway {
+  0%, 100% { transform: rotate(-2deg) translateY(0); }
+  50%      { transform: rotate(2deg) translateY(-2.4px); }
+}
+@keyframes lexiBlink {
+  0%, 84%, 100%   { transform: scaleY(1); }
+  86.5%, 88.5%    { transform: scaleY(.02); }
+  91%             { transform: scaleY(1); }
+  93.5%, 95%      { transform: scaleY(.02); }
+  97.5%           { transform: scaleY(1); }
+}
+
+/* --- searching: mắt đảo tìm quanh trang (ngang + dọc) --- */
+.lexi-search { transform-origin: 50% 50%; animation: lexiSearch 4.2s ease-in-out infinite; }
+
+@keyframes lexiSearch {
+  0%, 100% { transform: translate(-2.8px, -2px); }
+  22%      { transform: translate(2.8px, -2px); }
+  44%      { transform: translate(3px, 2.4px); }
+  66%      { transform: translate(-1.6px, 3px); }
+  84%      { transform: translate(-3px, .4px); }
+}
+
+/* --- found: gật nhẹ --- */
+.lexi-nod { transform-origin: 50% 100%; animation: lexiNod 1.6s ease-in-out infinite; }
+
+@keyframes lexiNod {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-3.4px); }
+}
+
+/* --- conflict: lắc đầu --- */
+.lexi-shake { transform-origin: 50% 50%; animation: lexiShake 2.6s ease-in-out infinite; }
+
+@keyframes lexiShake {
+  0%, 100% { transform: translateX(0); }
+  18%      { transform: translateX(-2.4px); }
+  38%      { transform: translateX(2.4px); }
+  58%      { transform: translateX(-1.5px); }
+  78%      { transform: translateX(1.5px); }
+}
+
+/* --- error: đầu rũ xuống, thở dài --- */
+.lexi-droop { transform-origin: 50% 100%; animation: lexiDroop 2.8s ease-in-out infinite; }
+
+@keyframes lexiDroop {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  50%      { transform: translateY(2.6px) rotate(-3deg); }
+}
+
+/* --- badge bật ra một lần (dấu tích / cảnh báo / lỗi) --- */
+.lexi-pop { transform-origin: 50% 50%; animation: lexiPop .5s cubic-bezier(.3, 1.4, .5, 1) .3s both; }
+
+@keyframes lexiPop {
+  0%   { transform: scale(0); opacity: 0; }
+  62%  { transform: scale(1.18); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* Người dùng tắt hiệu ứng: mọi thứ đứng yên, badge vẫn hiện. */
+@media (prefers-reduced-motion: reduce) {
+  .lexi [class^="lexi-"] { animation: none !important; transform: none !important; opacity: 1 !important; }
+}

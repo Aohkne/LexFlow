@@ -10,6 +10,7 @@ import {
   type DocumentSummary,
 } from "@/lib/api";
 import { articleAnchor, groupRelationships } from "@/lib/anchors";
+import { Lexi } from "@/components/lexi";
 
 type StatusFacet = "all" | "live" | "expired";
 type SourceFacet = "all" | "external" | "internal";
@@ -262,7 +263,10 @@ export default function DocsPage() {
               );
             })}
             {docs && shown.length === 0 && (
-              <p className="py-6 text-center text-sm text-muted">Không tìm thấy văn bản phù hợp.</p>
+              <div className="py-8 text-center">
+                <Lexi state="idle" size={44} className="mx-auto" />
+                <p className="mt-2.5 text-sm text-muted">Không tìm thấy văn bản phù hợp.</p>
+              </div>
             )}
           </div>
         </div>

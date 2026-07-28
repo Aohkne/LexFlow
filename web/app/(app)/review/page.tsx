@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import AppSidebar, { SidebarSectionLabel } from "@/components/app-sidebar";
+import { Lexi } from "@/components/lexi";
 import { listDocuments, type DocumentSummary } from "@/lib/api";
 
 /**
@@ -83,7 +84,8 @@ export default function ReviewPage() {
   const [filter, setFilter] = useState<"all" | "live" | "external" | "internal">("all");
   const [timeMode, setTimeMode] = useState<TimeMode>("today");
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
-  const [ran, setRan] = useState(false);
+  // "running" là giả lập (~1.4s) để chốt UX — backend /reviews thật sẽ thay bằng thời gian gọi API
+  const [phase, setPhase] = useState<"idle" | "running" | "done">("idle");
   const [tab, setTab] = useState<"all" | Verdict>("all");
   const [open, setOpen] = useState<Record<number, boolean>>({ 0: true });
 
@@ -299,8 +301,11 @@ export default function ReviewPage() {
 
         <div className="border-t border-border-soft px-5 py-3.5">
           <button
-            onClick={() => setRan(true)}
-            disabled={picked.size === 0}
+            onClick={() => {
+              setPhase("running");
+              window.setTimeout(() => setPhase("done"), 1400);
+            }}
+            disabled={picked.size === 0 || phase === "running"}
             className="w-full rounded-[10px] bg-accent px-3.5 py-2.5 text-[13px] font-medium text-white transition-colors hover:bg-accent-hover disabled:opacity-50"
           >
             Chạy kiểm tra {picked.size} văn bản
@@ -314,11 +319,11 @@ export default function ReviewPage() {
       {/* RESULTS */}
       <div className="min-w-0 flex-1 overflow-y-auto">
         <div className="max-w-[820px] px-8 pb-14 pt-6">
-          {!ran ? (
+          {phase === "idle" ? (
             <div className="grid h-[70vh] place-items-center text-center">
               <div>
-                <span className="inline-grid h-11 w-11 place-items-center rounded-xl bg-accent text-[20px] text-white">
-                  ⎗
+                <span className="inline-grid h-24 w-24 place-items-center rounded-[26px] border border-accent-wash-border bg-accent-wash">
+                  <Lexi state="idle" size={66} />
                 </span>
                 <h2 className="serif mt-3 text-[22px] font-medium">Chưa có phiên kiểm tra</h2>
                 <p className="mx-auto mt-1.5 max-w-[380px] text-[13px] leading-relaxed text-dim">
@@ -328,9 +333,24 @@ export default function ReviewPage() {
                 </p>
               </div>
             </div>
+          ) : phase === "running" ? (
+            <div className="grid h-[70vh] place-items-center text-center">
+              <div>
+                <span className="inline-grid h-24 w-24 place-items-center rounded-[26px] border border-accent-wash-border bg-accent-wash">
+                  <Lexi state="searching" size={66} />
+                </span>
+                <h2 className="serif mt-3 text-[22px] font-medium">
+                  Đang đối chiếu {picked.size} văn bản…
+                </h2>
+                <p className="mx-auto mt-1.5 max-w-[380px] text-[13px] leading-relaxed text-dim">
+                  Lexi rà từng điều của tài liệu nội bộ với quy định pháp luật đã chọn.
+                </p>
+              </div>
+            </div>
           ) : (
             <>
               <div className="flex flex-wrap items-center gap-2.5">
+                <Lexi state={counts.violation > 0 ? "conflict" : "found"} size={40} />
                 <h2 className="serif text-[25px] font-medium tracking-[-.015em]">
                   SHB-QD-VINHANH-2026 — Ví điện tử nhanh
                 </h2>

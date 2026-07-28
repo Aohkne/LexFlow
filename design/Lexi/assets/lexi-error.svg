@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120" role="img" aria-label="Lexi gặp lỗi">
+  <path d="M40 44 L44 22 L54 40 Z" fill="#9C9686"></path>
+  <path d="M80 44 L76 22 L66 40 Z" fill="#9C9686"></path>
+  <circle cx="60" cy="66" r="42" fill="#9C9686"></circle>
+  <ellipse cx="44" cy="60" rx="20" ry="22" fill="#F0EDE5"></ellipse>
+  <ellipse cx="76" cy="60" rx="20" ry="22" fill="#F0EDE5"></ellipse>
+  <path d="M35 60 h18" fill="none" stroke="#26241F" stroke-width="4.4" stroke-linecap="round"></path>
+  <path d="M67 60 h18" fill="none" stroke="#26241F" stroke-width="4.4" stroke-linecap="round"></path>
+  <rect x="26" y="34" width="27" height="4.6" rx="2.3" fill="#6E6A5E"></rect>
+  <rect x="67" y="34" width="27" height="4.6" rx="2.3" fill="#6E6A5E"></rect>
+  <path d="M60 71 L68 82 L60 89 L52 82 Z" fill="#D8CFBB"></path>
+  <circle cx="97" cy="28" r="17" fill="#F7E6E1" stroke="#A8412F" stroke-width="2.5"></circle>
+  <path d="M91 22 L103 34" fill="none" stroke="#A8412F" stroke-width="4" stroke-linecap="round"></path>
+  <path d="M103 22 L91 34" fill="none" stroke="#A8412F" stroke-width="4" stroke-linecap="round"></path>
+</svg>

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120" role="img" aria-label="Lexi đang tra cứu">
+  <path d="M40 44 L44 22 L54 40 Z" fill="#CC785C"></path>
+  <path d="M80 44 L76 22 L66 40 Z" fill="#CC785C"></path>
+  <circle cx="60" cy="66" r="42" fill="#CC785C"></circle>
+  <ellipse cx="44" cy="60" rx="20" ry="22" fill="#FAF9F5"></ellipse>
+  <ellipse cx="76" cy="60" rx="20" ry="22" fill="#FAF9F5"></ellipse>
+  <circle cx="41" cy="58" r="12.5" fill="none" stroke="#B4633E" stroke-width="3"></circle>
+  <circle cx="41" cy="58" r="9" fill="#26241F"></circle>
+  <circle cx="73" cy="58" r="12.5" fill="none" stroke="#B4633E" stroke-width="3"></circle>
+  <circle cx="73" cy="58" r="9" fill="#26241F"></circle>
+  <rect x="26" y="40" width="27" height="4.6" rx="2.3" fill="#B4633E"></rect>
+  <rect x="67" y="40" width="27" height="4.6" rx="2.3" fill="#B4633E"></rect>
+  <path d="M60 71 L68 82 L60 89 L52 82 Z" fill="#E0C39F"></path>
+</svg>

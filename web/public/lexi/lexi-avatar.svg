@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120" role="img" aria-label="Lexi">
+  <circle cx="60" cy="60" r="52" fill="#CC785C"></circle>
+  <ellipse cx="42" cy="56" rx="22" ry="24" fill="#FAF9F5"></ellipse>
+  <ellipse cx="78" cy="56" rx="22" ry="24" fill="#FAF9F5"></ellipse>
+  <circle cx="42" cy="56" r="11" fill="#26241F"></circle>
+  <circle cx="78" cy="56" r="11" fill="#26241F"></circle>
+  <circle cx="38" cy="52" r="3.2" fill="#FAF9F5"></circle>
+  <circle cx="74" cy="52" r="3.2" fill="#FAF9F5"></circle>
+  <path d="M60 68 L69 80 L60 88 L51 80 Z" fill="#E0C39F"></path>
+</svg>
