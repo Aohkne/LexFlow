@@ -1,70 +1,23 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import AppSidebar, { SidebarSectionLabel } from "@/components/app-sidebar";
 import { Lexi } from "@/components/lexi";
-import { listDocuments, type DocumentSummary } from "@/lib/api";
+import { articleAnchor } from "@/lib/anchors";
+import {
+  listDocuments,
+  runReview,
+  type DocumentSummary,
+  type ReviewFinding,
+  type ReviewResult,
+} from "@/lib/api";
 
-/**
- * Màn Kiểm tra tài liệu (tuân thủ) — UI theo design handoff.
- * LƯU Ý: backend POST /reviews chưa tồn tại; phần "Kết quả" hiển thị DỮ LIỆU MINH HỌA
- * để chốt UX trước (xem docs/DESIGN-GAP.md).
- */
+/** Màn Kiểm tra tài liệu (tuân thủ) — gọi backend POST /reviews thật:
+ *  mỗi điều nội bộ → retrieval điều luật trong phạm vi chọn → Gemini phán định
+ *  violation/warning/pass → findings + điểm tuân thủ. */
 
-type Verdict = "violation" | "warning" | "pass";
-
-type Finding = {
-  verdict: Verdict;
-  location: string;
-  title: string;
-  summary: string;
-  internalQuote: string;
-  legalRef: string;
-  legalQuote: string;
-  legalLive: boolean;
-  suggestion: string;
-};
-
-const DEMO_FINDINGS: Finding[] = [
-  {
-    verdict: "violation",
-    location: "Mục 3.1, trang 4",
-    title: "Hạn mức ví điện tử vượt trần quy định",
-    summary: "Tài liệu nội bộ đặt hạn mức 150 triệu đồng/tháng — vượt mức trần 100 triệu.",
-    internalQuote:
-      "Tổng hạn mức giao dịch qua ví điện tử nhanh của một khách hàng cá nhân tối đa là 150 triệu đồng trong một tháng.",
-    legalRef: "TT 40/2024/TT-NHNN · Điều 26",
-    legalQuote:
-      "Tổng hạn mức giao dịch qua các Ví điện tử cá nhân của 1 khách hàng tại 1 tổ chức cung ứng dịch vụ Ví điện tử tối đa là 100 triệu đồng Việt Nam trong một tháng.",
-    legalLive: true,
-    suggestion: "Hạ hạn mức tháng về tối đa 100 triệu đồng, hoặc bổ sung căn cứ thỏa thuận riêng theo quy định NHNN.",
-  },
-  {
-    verdict: "warning",
-    location: "Mục 2.2, trang 3",
-    title: "Kích hoạt ví trước khi hoàn tất liên kết tài khoản",
-    summary: "Cho phép dùng ví ngay sau eKYC, hoãn liên kết tài khoản 30 ngày — rủi ro không tuân thủ điều kiện sử dụng ví.",
-    internalQuote:
-      "Ví điện tử nhanh được kích hoạt và sử dụng ngay sau khi hoàn tất eKYC mà không bắt buộc phải hoàn thành liên kết với tài khoản thanh toán.",
-    legalRef: "TT 40/2024/TT-NHNN · Điều 22",
-    legalQuote:
-      "Khách hàng chỉ được sử dụng Ví điện tử sau khi đã hoàn thành việc liên kết Ví điện tử với tài khoản đồng Việt Nam hoặc thẻ ghi nợ của khách hàng.",
-    legalLive: true,
-    suggestion: "Yêu cầu hoàn tất liên kết trước khi cho phép giao dịch, hoặc giới hạn ví ở trạng thái 'chưa kích hoạt' đến khi liên kết.",
-  },
-  {
-    verdict: "pass",
-    location: "Mục 1, trang 1–2",
-    title: "Phạm vi và định danh eKYC",
-    summary: "Quy trình định danh khách hàng bằng CCCD gắn chip phù hợp quy định hiện hành.",
-    internalQuote:
-      "Khách hàng cá nhân được mở ví điện tử nhanh hoàn toàn trực tuyến bằng định danh điện tử (eKYC) với căn cước công dân gắn chip.",
-    legalRef: "NĐ 52/2024/NĐ-CP · Điều 25",
-    legalQuote: "Việc mở ví điện tử bằng phương thức điện tử thực hiện theo quy định về định danh và xác thực khách hàng.",
-    legalLive: true,
-    suggestion: "",
-  },
-];
+type Verdict = ReviewFinding["verdict"];
 
 const VERDICT_META: Record<
   Verdict,
@@ -76,29 +29,34 @@ const VERDICT_META: Record<
 };
 
 type TimeMode = "today" | "date" | "future";
+type Phase = "idle" | "running" | "done" | "error";
 
 export default function ReviewPage() {
-  const [lib, setLib] = useState<DocumentSummary[]>([]);
+  const [internals, setInternals] = useState<DocumentSummary[]>([]);
+  const [externals, setExternals] = useState<DocumentSummary[]>([]);
+  const [internalId, setInternalId] = useState<string | null>(null);
   const [picked, setPicked] = useState<Set<string>>(new Set());
   const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState<"all" | "live" | "external" | "internal">("all");
+  const [filter, setFilter] = useState<"all" | "live">("all");
   const [timeMode, setTimeMode] = useState<TimeMode>("today");
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
-  // "running" là giả lập (~1.4s) để chốt UX — backend /reviews thật sẽ thay bằng thời gian gọi API
-  const [phase, setPhase] = useState<"idle" | "running" | "done">("idle");
+  const [phase, setPhase] = useState<Phase>("idle");
+  const [result, setResult] = useState<ReviewResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [tab, setTab] = useState<"all" | Verdict>("all");
   const [open, setOpen] = useState<Record<number, boolean>>({ 0: true });
 
   useEffect(() => {
     listDocuments()
       .then((d) => {
-        setLib(d.filter((x) => x.source === "external"));
+        const ins = d.filter((x) => x.source === "internal");
+        setInternals(ins);
+        setInternalId((cur) => cur ?? ins[0]?.doc_id ?? null);
+        const ext = d.filter((x) => x.source === "external");
+        setExternals(ext);
         setPicked(
           new Set(
-            d
-              .filter((x) => x.source === "external" && x.status === "con_hieu_luc")
-              .slice(0, 3)
-              .map((x) => x.doc_id),
+            ext.filter((x) => x.status === "con_hieu_luc").slice(0, 3).map((x) => x.doc_id),
           ),
         );
       })
@@ -106,21 +64,39 @@ export default function ReviewPage() {
   }, []);
 
   const pool = useMemo(() => {
-    let p = lib;
+    let p = externals;
     if (filter === "live") p = p.filter((d) => d.status === "con_hieu_luc");
-    if (filter === "external") p = p.filter((d) => d.source === "external");
-    if (filter === "internal") p = p.filter((d) => d.source === "internal");
     const q = search.trim().toLowerCase();
     if (q) p = p.filter((d) => `${d.doc_id} ${d.title}`.toLowerCase().includes(q));
     return p;
-  }, [lib, filter, search]);
+  }, [externals, filter, search]);
 
-  const counts = {
-    violation: DEMO_FINDINGS.filter((f) => f.verdict === "violation").length,
-    warning: DEMO_FINDINGS.filter((f) => f.verdict === "warning").length,
-    pass: DEMO_FINDINGS.filter((f) => f.verdict === "pass").length,
-  };
-  const findings = tab === "all" ? DEMO_FINDINGS : DEMO_FINDINGS.filter((f) => f.verdict === tab);
+  async function execute() {
+    if (!internalId || picked.size === 0) return;
+    setPhase("running");
+    setError(null);
+    try {
+      const res = await runReview({
+        internal_doc_id: internalId,
+        against_doc_ids: [...picked],
+        as_of: timeMode === "today" ? null : date,
+      });
+      setResult(res);
+      setTab("all");
+      setOpen({ 0: true });
+      setPhase("done");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Lỗi không xác định");
+      setPhase("error");
+    }
+  }
+
+  const counts = result?.counts ?? { violation: 0, warning: 0, pass: 0 };
+  const findings = result
+    ? tab === "all"
+      ? result.findings
+      : result.findings.filter((f) => f.verdict === tab)
+    : [];
 
   const timeHint: Record<TimeMode, string> = {
     today: "Đối chiếu với các văn bản đang hiệu lực hôm nay.",
@@ -138,7 +114,7 @@ export default function ReviewPage() {
           <div className="border-t border-[#E9E3D5] pt-1">
             <SidebarSectionLabel>Phiên kiểm tra gần đây</SidebarSectionLabel>
             <div className="px-2.5 py-2 text-xs leading-relaxed text-muted">
-              Chưa có phiên nào được lưu — lịch sử phiên sẽ nối với backend kiểm tra tuân thủ.
+              Kết quả chưa được lưu giữa các phiên — lịch sử kiểm tra sẽ bổ sung sau.
             </div>
           </div>
         }
@@ -156,26 +132,38 @@ export default function ReviewPage() {
         <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">
           {/* Bước 1 */}
           <StepLabel n={1} label="Tài liệu nội bộ" />
-          <div className="mt-2 rounded-[12px] border border-border bg-background p-3">
-            <div className="flex items-start gap-3">
-              <span className="grid h-9 w-[30px] flex-none place-items-center rounded-md border border-border bg-panel text-[9px] font-bold text-accent-hover">
-                TXT
-              </span>
-              <div className="min-w-0 flex-1">
-                <div className="truncate text-[13px] font-medium">
-                  SHB-QD-VINHANH-2026 — Quy định ví điện tử nhanh
-                </div>
-                <div className="mono mt-0.5 text-[10px] text-muted">4 điều · quy định nội bộ mẫu</div>
+          <div className="mt-2 overflow-hidden rounded-[11px] border border-border">
+            {internals.map((d) => {
+              const on = d.doc_id === internalId;
+              return (
+                <label
+                  key={d.doc_id}
+                  className={`flex cursor-pointer items-start gap-2.5 border-b border-border-soft px-3 py-2.5 last:border-b-0 ${
+                    on ? "bg-accent-wash" : "bg-panel"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="internal-doc"
+                    checked={on}
+                    onChange={() => setInternalId(d.doc_id)}
+                    className="mt-0.5 accent-[#CC785C]"
+                  />
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-[12px] font-semibold">{d.doc_id}</span>
+                    <span className="mt-0.5 block truncate text-[11px] text-dim">{d.title}</span>
+                  </span>
+                  <span className="mono mt-0.5 flex-none text-[10px] text-muted">
+                    {d.n_articles} điều
+                  </span>
+                </label>
+              );
+            })}
+            {internals.length === 0 && (
+              <div className="bg-panel px-3 py-4 text-center text-[11.5px] text-muted">
+                Chưa tải được danh sách tài liệu nội bộ.
               </div>
-            </div>
-            <div className="mt-2.5 flex gap-2">
-              <button className="rounded-[7px] bg-inset px-2.5 py-1.5 text-[11.5px] text-faint" disabled>
-                Đổi tài liệu
-              </button>
-              <button className="rounded-[7px] bg-inset px-2.5 py-1.5 text-[11.5px] text-faint" disabled>
-                Xem trước
-              </button>
-            </div>
+            )}
           </div>
 
           {/* Bước 2 */}
@@ -196,8 +184,6 @@ export default function ReviewPage() {
               [
                 ["all", "Tất cả"],
                 ["live", "Đang hiệu lực"],
-                ["external", "Pháp luật"],
-                ["internal", "Nội bộ"],
               ] as const
             ).map(([id, label]) => (
               <button
@@ -260,7 +246,7 @@ export default function ReviewPage() {
             )}
           </div>
           <p className="mt-2 text-[10.5px] leading-snug text-muted">
-            Mặc định LexFlow đề xuất văn bản theo chủ đề của tài liệu nội bộ.
+            Câu trả lời chỉ đối chiếu trong các văn bản được chọn.
           </p>
 
           {/* Bước 3 */}
@@ -301,17 +287,14 @@ export default function ReviewPage() {
 
         <div className="border-t border-border-soft px-5 py-3.5">
           <button
-            onClick={() => {
-              setPhase("running");
-              window.setTimeout(() => setPhase("done"), 1400);
-            }}
-            disabled={picked.size === 0 || phase === "running"}
+            onClick={execute}
+            disabled={!internalId || picked.size === 0 || phase === "running"}
             className="w-full rounded-[10px] bg-accent px-3.5 py-2.5 text-[13px] font-medium text-white transition-colors hover:bg-accent-hover disabled:opacity-50"
           >
-            Chạy kiểm tra {picked.size} văn bản
+            {phase === "running" ? "Đang kiểm tra…" : `Chạy kiểm tra ${picked.size} văn bản`}
           </button>
           <p className="mono mt-1.5 text-center text-[10px] text-muted">
-            Bản xem trước UI — kết quả bên phải là dữ liệu minh họa
+            Mỗi điều nội bộ được đối chiếu bằng AI — có thể mất ~30 giây
           </p>
         </div>
       </div>
@@ -327,9 +310,8 @@ export default function ReviewPage() {
                 </span>
                 <h2 className="serif mt-3 text-[22px] font-medium">Chưa có phiên kiểm tra</h2>
                 <p className="mx-auto mt-1.5 max-w-[380px] text-[13px] leading-relaxed text-dim">
-                  Chọn văn bản đối chiếu ở panel trái rồi bấm{" "}
-                  <span className="font-medium text-accent-dim">Chạy kiểm tra</span> để xem báo cáo
-                  mẫu.
+                  Chọn tài liệu nội bộ và văn bản đối chiếu ở panel trái rồi bấm{" "}
+                  <span className="font-medium text-accent-dim">Chạy kiểm tra</span>.
                 </p>
               </div>
             </div>
@@ -347,21 +329,47 @@ export default function ReviewPage() {
                 </p>
               </div>
             </div>
-          ) : (
+          ) : phase === "error" ? (
+            <div className="grid h-[70vh] place-items-center text-center">
+              <div>
+                <span className="inline-grid h-24 w-24 place-items-center rounded-[26px] border border-red-bd bg-red-bg">
+                  <Lexi state="error" size={66} />
+                </span>
+                <h2 className="serif mt-3 text-[22px] font-medium">Không kiểm tra được</h2>
+                <p className="mx-auto mt-1.5 max-w-[400px] text-[13px] leading-relaxed text-red">
+                  {error}
+                </p>
+                <button
+                  onClick={execute}
+                  className="mt-4 rounded-[10px] bg-accent px-5 py-2 text-[13px] font-medium text-white transition-colors hover:bg-accent-hover"
+                >
+                  Thử lại
+                </button>
+              </div>
+            </div>
+          ) : result ? (
             <>
               <div className="flex flex-wrap items-center gap-2.5">
                 <Lexi state={counts.violation > 0 ? "conflict" : "found"} size={40} />
                 <h2 className="serif text-[25px] font-medium tracking-[-.015em]">
-                  SHB-QD-VINHANH-2026 — Ví điện tử nhanh
+                  {result.internal_doc_id} — {result.internal_title}
                 </h2>
-                <span className="rounded-full border border-amber-bd bg-amber-bg px-2.5 py-0.5 text-[11px] text-amber">
-                  Cần xử lý
-                </span>
+                {counts.violation > 0 ? (
+                  <span className="rounded-full border border-red-bd bg-red-bg px-2.5 py-0.5 text-[11px] text-red">
+                    Cần xử lý
+                  </span>
+                ) : counts.warning > 0 ? (
+                  <span className="rounded-full border border-amber-bd bg-amber-bg px-2.5 py-0.5 text-[11px] text-amber">
+                    Cần rà soát
+                  </span>
+                ) : (
+                  <span className="rounded-full border border-green-bd bg-green-bg px-2.5 py-0.5 text-[11px] text-green">
+                    Đạt
+                  </span>
+                )}
               </div>
               <div className="mono mt-1 text-[11px] text-muted">
-                Đối chiếu {picked.size} văn bản · hiệu lực tại{" "}
-                {timeMode === "today" ? new Date().toISOString().slice(0, 10) : date} · dữ liệu minh
-                họa
+                Đối chiếu {result.against_doc_ids.length} văn bản · hiệu lực tại {result.as_of}
               </div>
 
               {/* Score strip */}
@@ -371,11 +379,14 @@ export default function ReviewPage() {
                     Mức tuân thủ
                   </div>
                   <div className="mt-1 flex items-baseline gap-1">
-                    <span className="serif text-[32px] font-medium">72</span>
+                    <span className="serif text-[32px] font-medium">{result.score}</span>
                     <span className="mono text-[11px] text-muted">/100</span>
                   </div>
                   <div className="mt-1.5 h-[5px] overflow-hidden rounded-full bg-inset-strong">
-                    <div className="h-full rounded-full bg-accent" style={{ width: "72%" }} />
+                    <div
+                      className="h-full rounded-full bg-accent"
+                      style={{ width: `${result.score}%` }}
+                    />
                   </div>
                 </div>
                 {(
@@ -400,7 +411,7 @@ export default function ReviewPage() {
                 <div className="flex rounded-[11px] bg-[#E7E3D8] p-[3px] text-[11.5px]">
                   {(
                     [
-                      ["all", `Tất cả ${DEMO_FINDINGS.length}`],
+                      ["all", `Tất cả ${result.findings.length}`],
                       ["violation", `Vi phạm ${counts.violation}`],
                       ["warning", `Cảnh báo ${counts.warning}`],
                       ["pass", `Tuân thủ ${counts.pass}`],
@@ -425,6 +436,7 @@ export default function ReviewPage() {
                 {findings.map((f, i) => {
                   const meta = VERDICT_META[f.verdict];
                   const isOpen = !!open[i];
+                  const anchor = f.legal_ref ? articleAnchor(f.legal_ref) : "";
                   return (
                     <div key={i} className="overflow-hidden rounded-[14px] border border-border bg-panel">
                       <button
@@ -443,7 +455,7 @@ export default function ReviewPage() {
                             >
                               {meta.label}
                             </span>
-                            <span className="mono text-[10px] text-muted">{f.location}</span>
+                            <span className="mono text-[10px] text-muted">{f.article}</span>
                           </span>
                           <span className="mt-1 block text-[14.5px] font-semibold leading-snug">
                             {f.title}
@@ -461,28 +473,40 @@ export default function ReviewPage() {
                           <div className="grid gap-2.5 md:grid-cols-2">
                             <div className="rounded-[10px] bg-background p-3">
                               <div className="mono text-[10px] text-faint">
-                                Tài liệu nội bộ · {f.location}
+                                Tài liệu nội bộ · {f.article}
                               </div>
                               <p className="serif mt-1.5 text-[13px] italic leading-relaxed text-fg-strong">
-                                “{f.internalQuote}”
+                                “{f.internal_quote}”
                               </p>
                             </div>
                             <div
                               className={`rounded-[10px] border bg-white p-3 ${
-                                f.legalLive ? "border-green-bd" : "border-border"
+                                f.legal_live ? "border-green-bd" : "border-border"
                               }`}
                             >
                               <div className="flex items-center gap-2">
-                                <span className="mono text-[10px] text-accent-hover">{f.legalRef}</span>
-                                {f.legalLive && (
+                                <span className="mono text-[10px] text-accent-hover">
+                                  {f.legal_ref ?? "Không có căn cứ đối chiếu"}
+                                </span>
+                                {f.legal_ref && f.legal_live && (
                                   <span className="rounded-full border border-green-bd bg-green-bg px-1.5 py-px text-[9.5px] text-green">
                                     Đang hiệu lực
                                   </span>
                                 )}
                               </div>
-                              <p className="serif mt-1.5 text-[13px] italic leading-relaxed text-fg-strong">
-                                “{f.legalQuote}”
-                              </p>
+                              {f.legal_quote && (
+                                <p className="serif mt-1.5 text-[13px] italic leading-relaxed text-fg-strong">
+                                  “{f.legal_quote}”
+                                </p>
+                              )}
+                              {f.legal_doc_id && (
+                                <Link
+                                  href={`/docs/${encodeURIComponent(f.legal_doc_id)}${anchor ? `#${anchor}` : ""}`}
+                                  className="mt-2 inline-block text-[11px] font-medium text-accent-hover hover:text-accent-dim"
+                                >
+                                  Mở toàn văn điều khoản ↗
+                                </Link>
+                              )}
                             </div>
                           </div>
                           {f.suggestion && (
@@ -500,14 +524,19 @@ export default function ReviewPage() {
                     </div>
                   );
                 })}
+                {findings.length === 0 && (
+                  <p className="py-6 text-center text-[12.5px] text-muted">
+                    Không có phát hiện nào trong nhóm này.
+                  </p>
+                )}
               </div>
 
               <p className="mt-6 text-center text-[10.5px] text-muted">
-                Kết quả mang tính hỗ trợ rà soát — vui lòng đối chiếu bản gốc trước khi ban hành tài
-                liệu.
+                Kết quả do AI đối chiếu, mang tính hỗ trợ rà soát — vui lòng kiểm chứng với bản gốc
+                trước khi ban hành tài liệu.
               </p>
             </>
-          )}
+          ) : null}
         </div>
       </div>
     </>

@@ -117,6 +117,40 @@ class ChatResponse(BaseModel):
     session_id: str | None = None  # id phiên trên Supabase (None khi chưa cấu hình)
 
 
+class ReviewRequest(BaseModel):
+    """Kiểm tra tuân thủ: đối chiếu 1 tài liệu nội bộ với các văn bản pháp luật."""
+
+    internal_doc_id: str
+    # [] = tự chọn toàn bộ văn bản external đang hiệu lực tại as_of
+    against_doc_ids: list[str] = Field(default_factory=list)
+    as_of: str | None = None  # ISO date; None = hôm nay
+
+
+class ReviewFinding(BaseModel):
+    """Kết quả đối chiếu một điều nội bộ với căn cứ pháp lý."""
+
+    verdict: str = "warning"  # violation | warning | pass
+    article: str  # điều nội bộ, ví dụ "Điều 2"
+    title: str
+    summary: str = ""
+    internal_quote: str = ""
+    legal_doc_id: str | None = None
+    legal_ref: str | None = None  # ví dụ "Thông tư 40/2024 — Điều 26"
+    legal_quote: str | None = None
+    legal_live: bool = True  # căn cứ còn hiệu lực tại as_of
+    suggestion: str | None = None
+
+
+class ReviewResponse(BaseModel):
+    internal_doc_id: str
+    internal_title: str
+    as_of: str
+    against_doc_ids: list[str] = Field(default_factory=list)
+    score: int = 0  # 0-100: pass=1, warning=0.5, violation=0 (trung bình theo điều)
+    counts: dict[str, int] = Field(default_factory=dict)  # violation/warning/pass
+    findings: list[ReviewFinding] = Field(default_factory=list)
+
+
 class GraphNode(BaseModel):
     id: str
     label: str

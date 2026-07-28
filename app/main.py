@@ -7,7 +7,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api import admin, chat, documents, graph
+from app.api import admin, chat, documents, graph, reviews
 from app.core import tracing
 from app.core.config import settings
 
@@ -38,6 +38,7 @@ app.include_router(admin.router)
 app.include_router(chat.router)
 app.include_router(documents.router)
 app.include_router(graph.router)
+app.include_router(reviews.router)
 
 
 @app.get("/")

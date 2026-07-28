@@ -229,6 +229,45 @@ export async function getDocument(docId: string): Promise<DocumentDetail> {
   return res.json();
 }
 
+// ---- Kiểm tra tuân thủ ----
+
+export type ReviewFinding = {
+  verdict: "violation" | "warning" | "pass";
+  article: string;
+  title: string;
+  summary: string;
+  internal_quote: string;
+  legal_doc_id: string | null;
+  legal_ref: string | null;
+  legal_quote: string | null;
+  legal_live: boolean;
+  suggestion: string | null;
+};
+
+export type ReviewResult = {
+  internal_doc_id: string;
+  internal_title: string;
+  as_of: string;
+  against_doc_ids: string[];
+  score: number;
+  counts: Record<"violation" | "warning" | "pass", number>;
+  findings: ReviewFinding[];
+};
+
+export async function runReview(body: {
+  internal_doc_id: string;
+  against_doc_ids: string[];
+  as_of?: string | null;
+}): Promise<ReviewResult> {
+  const res = await fetch(`${API_BASE}/reviews`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...(await authHeaders()) },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) throw new Error((await res.json().catch(() => null))?.detail ?? res.statusText);
+  return res.json();
+}
+
 export async function getGraph(): Promise<GraphData> {
   const res = await fetch(`${API_BASE}/graph`, { headers: await authHeaders() });
   if (!res.ok) throw new Error((await res.json()).detail ?? res.statusText);
