@@ -53,14 +53,24 @@ def chat_stream(prompt: str, *, system: str | None = None) -> Iterator[str]:
 
 @retry(stop=stop_after_attempt(3), wait=wait_exponential(min=1, max=10))
 @observe(name="gemini.chat_json", as_type="generation")
-def chat_json(prompt: str, *, system: str | None = None, reasoning: bool = True) -> dict:
-    """Sinh JSON có cấu trúc (cho conflict detector, mapping...)."""
+def chat_json(
+    prompt: str,
+    *,
+    system: str | None = None,
+    reasoning: bool = True,
+    temperature: float | None = None,
+) -> dict:
+    """Sinh JSON có cấu trúc (cho conflict detector, review...).
+
+    `temperature=0` cho các phán định cần tái lập được (review tuân thủ).
+    """
     client = get_client()
     model = settings.gemini_reasoning_model if reasoning else settings.gemini_chat_model
     update_generation(model=model)
     cfg = types.GenerateContentConfig(
         system_instruction=system,
         response_mime_type="application/json",
+        temperature=temperature,
     )
     resp = client.models.generate_content(model=model, contents=prompt, config=cfg)
     text = (resp.text or "{}").strip()

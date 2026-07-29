@@ -3,8 +3,14 @@
 Mỗi điều nội bộ → retrieval các điều luật liên quan (chỉ trong phạm vi văn bản
 đối chiếu, chỉ bản đang hiệu lực tại as_of) → Gemini phán định JSON
 (violation | warning | pass) kèm trích dẫn hai phía → tổng hợp findings + điểm.
+
+Không tìm thấy căn cứ → verdict `not_assessed` (loại khỏi mẫu số điểm) —
+"không biết" phải khác "đạt". Phán định chạy temperature=0 + self-consistency
+(2 lần, bất đồng → lần 3 lấy đa số) để điểm ổn định giữa các lần chạy.
 """
 from __future__ import annotations
+
+from concurrent.futures import ThreadPoolExecutor
 
 from app.core.llm import chat_json
 from app.core.schemas import CorpusDocument, ReviewFinding, ReviewResponse
@@ -17,9 +23,18 @@ _SYSTEM = (
     "định nội bộ có tuân thủ các điều luật được cung cấp không.\n"
     "- verdict=violation: nội dung nội bộ TRÁI với quy định pháp luật (khác hạn mức, "
     "điều kiện, cho phép điều luật cấm...).\n"
-    "- verdict=warning: không trái trực tiếp nhưng có rủi ro/thiếu ràng buộc mà luật "
-    "yêu cầu, hoặc căn cứ chưa đủ rõ.\n"
+    "- verdict=warning: không trái trực tiếp nhưng THIẾU một ràng buộc mà điều luật "
+    "được cung cấp bắt buộc, hoặc căn cứ chưa đủ rõ để kết luận.\n"
     "- verdict=pass: phù hợp với quy định pháp luật.\n"
+    "Quy tắc ranh giới (áp dụng nhất quán):\n"
+    "1. Nội bộ đặt con số/điều kiện KHÁC điều luật → violation "
+    "(ví dụ: hạn mức 150 triệu khi luật quy định trần 100 triệu).\n"
+    "2. Nội bộ im lặng về một nghĩa vụ mà điều luật được cung cấp bắt buộc phải có "
+    "→ warning, nêu rõ nghĩa vụ còn thiếu.\n"
+    "3. Nội bộ chỉ nhắc lại luật hoặc CHẶT HƠN luật (hạn mức thấp hơn trần, điều kiện "
+    "nghiêm hơn) → pass, KHÔNG phải warning.\n"
+    "4. Điều luật cung cấp không liên quan tới nội dung điều nội bộ → pass, ghi rõ "
+    "trong summary là không có căn cứ liên quan trực tiếp.\n"
     "Chỉ kết luận dựa trên các điều luật được cung cấp, không suy diễn từ kiến thức "
     "ngoài. Trích dẫn nguyên văn phần liên quan ở cả hai phía. Trả lời tiếng Việt, JSON."
 )
@@ -35,15 +50,41 @@ _SCHEMA_HINT = (
 )
 
 _VERDICTS = {"violation", "warning", "pass"}
+NOT_ASSESSED = "not_assessed"
+# Trọng số điểm — not_assessed KHÔNG có mặt: loại khỏi mẫu số, không phải điểm 0
 _WEIGHT = {"pass": 1.0, "warning": 0.5, "violation": 0.0}
 # Chặn tài liệu bất thường (nội bộ thực tế chỉ vài điều)
 MAX_ARTICLES = 30
+# Số điều phán định song song (mỗi điều 2-3 lần gọi Gemini do self-consistency)
+_MAX_WORKERS = 4
 
 
 def _score(findings: list[ReviewFinding]) -> int:
-    if not findings:
+    """Điểm 0-100 trên các điều ĐÃ đối chiếu được; không có điều nào → 0 (UI hiện '—')."""
+    assessed = [f for f in findings if f.verdict in _WEIGHT]
+    if not assessed:
         return 0
-    return round(100 * sum(_WEIGHT.get(f.verdict, 0.5) for f in findings) / len(findings))
+    return round(100 * sum(_WEIGHT[f.verdict] for f in assessed) / len(assessed))
+
+
+def _normalize_verdict(data: dict) -> str:
+    verdict = data.get("verdict", "warning")
+    return verdict if verdict in _VERDICTS else "warning"
+
+
+def _judge(prompt: str) -> dict:
+    """Self-consistency: chạy 2 lần (temperature=0); bất đồng verdict → lần 3 lấy đa số.
+
+    Ba lần ra ba verdict khác nhau → lấy warning (mức giữa, buộc người rà soát nhìn lại).
+    """
+    votes = [chat_json(prompt, system=_SYSTEM, temperature=0.0) for _ in range(2)]
+    if _normalize_verdict(votes[0]) != _normalize_verdict(votes[1]):
+        votes.append(chat_json(prompt, system=_SYSTEM, temperature=0.0))
+    for data in votes:
+        if sum(_normalize_verdict(d) == _normalize_verdict(data) for d in votes) >= 2:
+            return data
+    # Ba lần ra ba verdict khác nhau → chắc chắn có warning trong đó (3 mức distinct)
+    return next(d for d in votes if _normalize_verdict(d) == "warning")
 
 
 def _review_article(
@@ -54,9 +95,9 @@ def _review_article(
     )
     if not chunks:
         return ReviewFinding(
-            verdict="pass",
+            verdict=NOT_ASSESSED,
             article=article_label,
-            title="Không tìm thấy quy định pháp luật liên quan trực tiếp",
+            title="Chưa đối chiếu được — không tìm thấy căn cứ pháp lý liên quan",
             summary=(
                 "Không đối chiếu được với văn bản nào trong phạm vi đã chọn — "
                 "cần pháp chế xác nhận điều này không thuộc phạm vi điều chỉnh."
@@ -74,15 +115,12 @@ def _review_article(
         f"Điều nội bộ cần đánh giá ({article_label}):\n{article_text}\n\n"
         f"Các điều luật đang hiệu lực (tại {as_of}) để đối chiếu:\n{listing}"
     )
-    data = chat_json(prompt, system=_SYSTEM)
+    data = _judge(prompt)
 
     by_id = {c["id"]: c for c in chunks}
     legal = by_id.get(data.get("legal_chunk_id")) or chunks[0]
-    verdict = data.get("verdict", "warning")
-    if verdict not in _VERDICTS:
-        verdict = "warning"
     return ReviewFinding(
-        verdict=verdict,
+        verdict=_normalize_verdict(data),
         article=article_label,
         title=data.get("title") or f"Đánh giá {article_label}",
         summary=data.get("summary") or "",
@@ -100,11 +138,16 @@ def run_review(
     internal: CorpusDocument, against_ids: list[str], as_of: str | None = None
 ) -> ReviewResponse:
     as_of = as_of or today_iso()
-    findings = [
-        _review_article(a.article, a.text, against_ids, as_of)
-        for a in internal.articles[:MAX_ARTICLES]
-    ]
-    counts = {v: sum(1 for f in findings if f.verdict == v) for v in ("violation", "warning", "pass")}
+    articles = internal.articles[:MAX_ARTICLES]
+    # Song song theo điều — bù lại chi phí self-consistency (2-3 lần gọi mỗi điều)
+    with ThreadPoolExecutor(max_workers=_MAX_WORKERS) as pool:
+        findings = list(
+            pool.map(lambda a: _review_article(a.article, a.text, against_ids, as_of), articles)
+        )
+    counts = {
+        v: sum(1 for f in findings if f.verdict == v)
+        for v in ("violation", "warning", "pass", NOT_ASSESSED)
+    }
     return ReviewResponse(
         internal_doc_id=internal.doc_id,
         internal_title=internal.title,

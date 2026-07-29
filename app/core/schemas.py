@@ -129,7 +129,8 @@ class ReviewRequest(BaseModel):
 class ReviewFinding(BaseModel):
     """Kết quả đối chiếu một điều nội bộ với căn cứ pháp lý."""
 
-    verdict: str = "warning"  # violation | warning | pass
+    # violation | warning | pass | not_assessed (không tìm thấy căn cứ để đối chiếu)
+    verdict: str = "warning"
     article: str  # điều nội bộ, ví dụ "Điều 2"
     title: str
     summary: str = ""
@@ -146,8 +147,10 @@ class ReviewResponse(BaseModel):
     internal_title: str
     as_of: str
     against_doc_ids: list[str] = Field(default_factory=list)
-    score: int = 0  # 0-100: pass=1, warning=0.5, violation=0 (trung bình theo điều)
-    counts: dict[str, int] = Field(default_factory=dict)  # violation/warning/pass
+    # 0-100: pass=1, warning=0.5, violation=0 — trung bình trên các điều ĐÃ đối chiếu
+    # (not_assessed loại khỏi mẫu số; không đối chiếu được điều nào → 0, UI hiện "—")
+    score: int = 0
+    counts: dict[str, int] = Field(default_factory=dict)  # violation/warning/pass/not_assessed
     findings: list[ReviewFinding] = Field(default_factory=list)
     session_id: str | None = None  # id trên Supabase (None khi chưa cấu hình/migration)
 

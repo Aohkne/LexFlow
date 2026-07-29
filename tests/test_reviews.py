@@ -73,9 +73,10 @@ def test_review_tra_findings_va_diem(client, mock_llm):
     # SHB-QD-VI-2023 có 3 điều → 3 findings, mỗi điều 1 lần retrieval + 1 lần LLM
     assert len(body["findings"]) == 3
     assert len(mock_llm["search"]) == 3
-    assert len(mock_llm["judge"]) == 3
+    # Self-consistency: mỗi điều phán định 2 lần (verdict trùng → không cần lần 3)
+    assert len(mock_llm["judge"]) == 6
     assert all(f["verdict"] == "violation" for f in body["findings"])
-    assert body["counts"] == {"violation": 3, "warning": 0, "pass": 0}
+    assert body["counts"] == {"violation": 3, "warning": 0, "pass": 0, "not_assessed": 0}
     assert body["score"] == 0  # toàn violation
     f = body["findings"][0]
     assert f["legal_ref"] == "Thông tư 40/2024 — Điều 26"
@@ -92,7 +93,8 @@ def test_review_khong_chon_pham_vi_mac_dinh_external(client, mock_llm):
     assert all(not d.startswith("SHB-") for d in against)  # không đối chiếu với nội bộ
 
 
-def test_review_khong_tim_thay_can_cu_thi_pass(client, monkeypatch):
+def test_review_khong_tim_thay_can_cu_thi_not_assessed(client, monkeypatch):
+    """Không có căn cứ → not_assessed, KHÔNG phải pass — tài liệu lạc đề không được 100 điểm."""
     monkeypatch.setattr(review_mod, "search_in_docs", lambda *a, **kw: [])
     monkeypatch.setattr(
         review_mod, "chat_json",
@@ -104,8 +106,34 @@ def test_review_khong_tim_thay_can_cu_thi_pass(client, monkeypatch):
     )
     assert resp.status_code == 200
     body = resp.json()
-    assert all(f["verdict"] == "pass" for f in body["findings"])
-    assert body["score"] == 100
+    assert all(f["verdict"] == "not_assessed" for f in body["findings"])
+    assert body["score"] == 0  # không điều nào được đối chiếu → không có điểm
+    assert body["counts"]["not_assessed"] == len(body["findings"])
+
+
+def test_score_loai_not_assessed_khoi_mau_so():
+    from app.core.schemas import ReviewFinding
+
+    findings = [
+        ReviewFinding(verdict="pass", article="Điều 1", title="t"),
+        ReviewFinding(verdict="not_assessed", article="Điều 2", title="t"),
+        ReviewFinding(verdict="not_assessed", article="Điều 3", title="t"),
+    ]
+    # 1 điều đối chiếu được và pass → 100, hai điều not_assessed không kéo tụt
+    assert review_mod._score(findings) == 100
+
+
+def test_judge_bat_dong_thi_lay_da_so(monkeypatch):
+    """2 lần đầu khác verdict → gọi lần 3, lấy đa số."""
+    answers = iter(
+        [{"verdict": "violation"}, {"verdict": "pass"}, {"verdict": "violation"}]
+    )
+    calls = []
+    monkeypatch.setattr(
+        review_mod, "chat_json", lambda *a, **kw: calls.append(1) or next(answers)
+    )
+    assert review_mod._judge("prompt")["verdict"] == "violation"
+    assert len(calls) == 3
 
 
 def test_review_verdict_la_bay_ve_warning(client, monkeypatch):

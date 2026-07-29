@@ -68,17 +68,29 @@ def search_in_docs(
     query: str, doc_ids: list[str], *, top_k: int = 3,
     as_of: str | None = None, effective_only: bool = True,
 ) -> list[dict]:
-    """Vector search giới hạn trong một nhóm văn bản (bước mở rộng qua graph)."""
+    """Hybrid search (vector + BM25, RRF) giới hạn trong một nhóm văn bản.
+
+    Đường retrieval của review tuân thủ + mở rộng qua graph — cần cả nhánh từ khoá
+    chính xác ("150 triệu", tên định chế) chứ không chỉ tương đồng ngữ nghĩa.
+    """
     if not doc_ids:
         return []
     tbl = _open_table()
     ids = ", ".join(f"'{d}'" for d in doc_ids)
-    hits = (
-        tbl.search(list(_qv(query)))
-        .where(f"doc_id IN ({ids})", prefilter=True)
-        .limit(top_k * 2)
-        .to_list()
+    where = f"doc_id IN ({ids})"
+    pool = max(top_k * 2, 8)
+
+    vector_hits = (
+        tbl.search(list(_qv(query))).where(where, prefilter=True).limit(pool).to_list()
     )
+    try:
+        fts_hits = (
+            tbl.search(query, query_type="fts").where(where, prefilter=True).limit(pool).to_list()
+        )
+    except Exception:
+        fts_hits = []  # FTS chưa sẵn sàng → chỉ dùng vector
+
+    hits = _rrf(vector_hits, fts_hits, pool)
     if effective_only:
         hits = [
             r for r in hits
