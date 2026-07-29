@@ -28,6 +28,7 @@ const VERDICT_META: Record<
   violation: { label: "Vi phạm", glyph: "✕", fg: "text-red", bg: "bg-red-bg", bd: "border-red-bd" },
   warning: { label: "Cảnh báo", glyph: "⚠", fg: "text-amber", bg: "bg-amber-bg", bd: "border-amber-bd" },
   pass: { label: "Tuân thủ", glyph: "✓", fg: "text-green", bg: "bg-green-bg", bd: "border-green-bd" },
+  not_assessed: { label: "Chưa đối chiếu", glyph: "?", fg: "text-grey", bg: "bg-grey-bg", bd: "border-border" },
 };
 
 type TimeMode = "today" | "date" | "future";
@@ -144,6 +145,9 @@ function ReviewScreen() {
   }
 
   const counts = result?.counts ?? { violation: 0, warning: 0, pass: 0 };
+  const notAssessed = counts.not_assessed ?? 0;
+  // Số điều thực sự được đối chiếu — điểm chỉ có nghĩa trên nhóm này
+  const assessed = counts.violation + counts.warning + counts.pass;
   const findings = result
     ? tab === "all"
       ? result.findings
@@ -434,7 +438,10 @@ function ReviewScreen() {
           ) : result ? (
             <>
               <div className="flex flex-wrap items-center gap-2.5">
-                <Lexi state={counts.violation > 0 ? "conflict" : "found"} size={40} />
+                <Lexi
+                  state={counts.violation > 0 ? "conflict" : assessed > 0 ? "found" : "idle"}
+                  size={40}
+                />
                 <h2 className="serif text-[25px] font-medium tracking-[-.015em]">
                   {result.internal_doc_id} — {result.internal_title}
                 </h2>
@@ -446,9 +453,13 @@ function ReviewScreen() {
                   <span className="rounded-full border border-amber-bd bg-amber-bg px-2.5 py-0.5 text-[11px] text-amber">
                     Cần rà soát
                   </span>
-                ) : (
+                ) : assessed > 0 ? (
                   <span className="rounded-full border border-green-bd bg-green-bg px-2.5 py-0.5 text-[11px] text-green">
                     Đạt
+                  </span>
+                ) : (
+                  <span className="rounded-full border border-border bg-grey-bg px-2.5 py-0.5 text-[11px] text-grey">
+                    Chưa đối chiếu được
                   </span>
                 )}
               </div>
@@ -457,28 +468,44 @@ function ReviewScreen() {
               </div>
 
               {/* Score strip */}
-              <div className="mt-4 grid grid-cols-2 gap-px overflow-hidden rounded-[14px] border border-border bg-border lg:grid-cols-[1.25fr_1fr_1fr_1fr]">
+              <div
+                className={`mt-4 grid grid-cols-2 gap-px overflow-hidden rounded-[14px] border border-border bg-border ${
+                  notAssessed > 0
+                    ? "lg:grid-cols-[1.25fr_1fr_1fr_1fr_1fr]"
+                    : "lg:grid-cols-[1.25fr_1fr_1fr_1fr]"
+                }`}
+              >
                 <div className="bg-panel px-4 py-3.5">
                   <div className="text-[10px] font-semibold uppercase tracking-[.1em] text-faint">
                     Mức tuân thủ
                   </div>
                   <div className="mt-1 flex items-baseline gap-1">
-                    <span className="serif text-[32px] font-medium">{result.score}</span>
+                    <span className="serif text-[32px] font-medium">
+                      {assessed > 0 ? result.score : "—"}
+                    </span>
                     <span className="mono text-[11px] text-muted">/100</span>
                   </div>
                   <div className="mt-1.5 h-[5px] overflow-hidden rounded-full bg-inset-strong">
                     <div
                       className="h-full rounded-full bg-accent"
-                      style={{ width: `${result.score}%` }}
+                      style={{ width: `${assessed > 0 ? result.score : 0}%` }}
                     />
                   </div>
+                  {notAssessed > 0 && (
+                    <p className="mt-1.5 text-[10px] leading-snug text-muted">
+                      Tính trên {assessed} điều đối chiếu được
+                    </p>
+                  )}
                 </div>
                 {(
                   [
                     ["Vi phạm", counts.violation, "text-red"],
                     ["Cảnh báo", counts.warning, "text-amber"],
                     ["Tuân thủ", counts.pass, "text-green"],
-                  ] as const
+                    ...(notAssessed > 0
+                      ? ([["Chưa đối chiếu", notAssessed, "text-grey"]] as const)
+                      : []),
+                  ] as readonly (readonly [string, number, string])[]
                 ).map(([label, n, cls]) => (
                   <div key={label} className="bg-panel px-4 py-3.5">
                     <div className="text-[10px] font-semibold uppercase tracking-[.1em] text-faint">
@@ -499,7 +526,10 @@ function ReviewScreen() {
                       ["violation", `Vi phạm ${counts.violation}`],
                       ["warning", `Cảnh báo ${counts.warning}`],
                       ["pass", `Tuân thủ ${counts.pass}`],
-                    ] as const
+                      ...(notAssessed > 0
+                        ? ([["not_assessed", `Chưa đối chiếu ${notAssessed}`]] as const)
+                        : []),
+                    ] as readonly (readonly ["all" | Verdict, string])[]
                   ).map(([id, label]) => (
                     <button
                       key={id}

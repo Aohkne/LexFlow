@@ -232,7 +232,8 @@ export async function getDocument(docId: string): Promise<DocumentDetail> {
 // ---- Kiểm tra tuân thủ ----
 
 export type ReviewFinding = {
-  verdict: "violation" | "warning" | "pass";
+  // not_assessed = không tìm thấy căn cứ để đối chiếu (loại khỏi mẫu số điểm)
+  verdict: "violation" | "warning" | "pass" | "not_assessed";
   article: string;
   title: string;
   summary: string;
@@ -250,7 +251,8 @@ export type ReviewResult = {
   as_of: string;
   against_doc_ids: string[];
   score: number;
-  counts: Record<"violation" | "warning" | "pass", number>;
+  // not_assessed optional — phiên lưu trước bản verdict 4 mức không có khoá này
+  counts: Record<"violation" | "warning" | "pass", number> & { not_assessed?: number };
   findings: ReviewFinding[];
   session_id: string | null;
 };
