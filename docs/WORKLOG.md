@@ -6,6 +6,17 @@
 
 ---
 
+## 2026-07-29 (T4)
+
+**Giai đoạn:** thiết kế kiến trúc RAG v2 cho KB mới + trả nợ chất lượng review.
+
+- **Done:**
+  - **Chốt `docs/RAG-DESIGN.md`** (brainstorm + phản biện trên nền `docs/SCHEMA_KG.md` v0.4): Neo4j là nguồn chân lý — LanceDB là chỉ mục dẫn xuất (id row = id node KG); pipeline QA 5 bước (router viện dẫn → hybrid prefilter as-of → graph expansion cấp Điều → sufficiency check → provenance answer); pipeline review 2 chiều (trái luật + thiếu nghĩa vụ); "hợp đồng truy vấn" 5 truy vấn Cypher chốt tuần 2 của kế hoạch KB; danh mục không-làm (GraphRAG community, reranker...).
+  - **Ship ngay 3 mục không phụ thuộc KB mới:** (1) verdict thứ 4 `not_assessed` — không tìm thấy căn cứ ≠ đạt, loại khỏi mẫu số điểm (trước đó tài liệu lạc đề được 100/100), UI hiện tile/tab "Chưa đối chiếu" + điểm "—" khi không đối chiếu được điều nào; (2) `search_in_docs` (đường retrieval của review) thành hybrid vector+BM25/RRF — bắt từ khoá chính xác kiểu "150 triệu"; (3) ổn định phán định: rubric có quy tắc ranh giới, temperature=0, self-consistency 2 lần (bất đồng → lần 3 lấy đa số), chạy song song 4 điều để giữ latency.
+- **Ship:** commits `f7ac3a9` → `9203b99`; Cloud Run + Vercel production; 63 pytest + ruff + eslint + build xanh.
+- **Decision:** "không biết" phải khác "đạt" trong điểm tuân thủ; không theo GraphRAG community-summary (corpus nhỏ, quan hệ tường minh → duyệt cạnh xác định); lọc hiệu lực phải chuyển thành prefilter LanceDB trước khi nạp KB có phiên bản.
+- **Next:** theo lộ trình RAG-DESIGN §7 — tuần 2 KB: hợp đồng truy vấn + schema row LanceDB mới; sau đó router viện dẫn + graph expansion cấp Điều.
+
 ## 2026-07-28 (T3)
 
 **Giai đoạn:** sau Sprint 2 — hoàn thiện UX + backend kiểm tra tuân thủ.
