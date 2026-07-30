@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Schema KG v0.5 — Pháp luật Ngân hàng &amp; Fintech VN</title>
+<style>
+  :root{
+    --ink:#16181d; --ink2:#3d434e; --ink3:#6b7280;
+    --line:#e2e5ea; --line2:#c9cfd8;
+    --bg:#fbfcfd; --card:#ffffff;
+    --cautruc:#2563a8;   --cautruc-bg:#eaf2fb;
+    --thamchieu:#a8622a; --thamchieu-bg:#fdf1e7;
+    --ngunghia:#6d4a9c;  --ngunghia-bg:#f3edfa;
+    --temporal:#2f7a52;  --temporal-bg:#e9f5ee;
+    --ok:#1f7a45; --warn:#9a6a12; --bad:#a52833;
+    --ok-bg:#e9f6ee; --warn-bg:#fdf5e3; --bad-bg:#fdecee;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font:15px/1.62 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:36px 24px 96px}
+  header.top{border-bottom:2px solid var(--ink);padding-bottom:22px;margin-bottom:32px}
+  h1{font-size:27px;line-height:1.25;margin:0 0 10px;letter-spacing:-.01em}
+  .sub{color:var(--ink2);font-size:14px}
+  .pill{display:inline-block;padding:2px 9px;border-radius:11px;font-size:12px;font-weight:600;vertical-align:2px}
+  .pill.v{background:var(--ink);color:#fff}
+  .pill.ok{background:var(--ok-bg);color:var(--ok);border:1px solid #bfe3cd}
+  .pill.warn{background:var(--warn-bg);color:var(--warn);border:1px solid #eddcb0}
+  .pill.bad{background:var(--bad-bg);color:var(--bad);border:1px solid #f2c4c9}
+
+  h2{font-size:19px;margin:44px 0 6px;padding-top:20px;border-top:1px solid var(--line);letter-spacing:-.01em}
+  h2 .n{color:var(--ink3);font-weight:400;margin-right:8px}
+  h3{font-size:15.5px;margin:26px 0 8px}
+  h4{font-size:14px;margin:20px 0 6px;color:var(--ink2)}
+  p{margin:10px 0}
+  .lead{color:var(--ink2);font-size:14.5px;margin-top:4px}
+
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13.5px}
+  th,td{text-align:left;vertical-align:top;padding:8px 10px;border-bottom:1px solid var(--line)}
+  th{background:#f4f6f9;font-weight:650;font-size:12.5px;letter-spacing:.02em;text-transform:uppercase;color:var(--ink2)}
+  td code,p code,li code{background:#f0f2f6;padding:1px 5px;border-radius:4px;font-size:12.5px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  tr.hl td{background:#fffaf0}
+
+  pre{background:#1c1f26;color:#e6e9ef;padding:15px 17px;border-radius:8px;overflow-x:auto;
+    font:12.5px/1.65 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;margin:12px 0}
+  pre .c{color:#8f9aab}
+  pre .k{color:#8fc7ff}
+  pre .s{color:#b6e3a0}
+
+  .box{background:var(--card);border:1px solid var(--line);border-radius:9px;padding:15px 17px;margin:14px 0}
+  .box.ok{background:var(--ok-bg);border-color:#bfe3cd}
+  .box.warn{background:var(--warn-bg);border-color:#eddcb0}
+  .box.bad{background:var(--bad-bg);border-color:#f2c4c9}
+  .box.key{background:#fff;border-left:4px solid var(--ink);border-radius:0 9px 9px 0}
+  .box h4{margin-top:0}
+  .box p:last-child{margin-bottom:0}
+
+  .layers{display:grid;grid-template-columns:repeat(auto-fit,minmax(228px,1fr));gap:12px;margin:16px 0}
+  .layer{border-radius:9px;padding:13px 15px;border:1px solid}
+  .layer.a{background:var(--cautruc-bg);border-color:#c3d9f0}
+  .layer.b{background:var(--thamchieu-bg);border-color:#f0d6bd}
+  .layer.c{background:var(--ngunghia-bg);border-color:#dccdf0}
+  .layer.d{background:var(--temporal-bg);border-color:#c2e0ce}
+  .layer .t{font-weight:700;font-size:12.5px;text-transform:uppercase;letter-spacing:.04em;margin-bottom:7px}
+  .layer.a .t{color:var(--cautruc)} .layer.b .t{color:var(--thamchieu)}
+  .layer.c .t{color:var(--ngunghia)} .layer.d .t{color:var(--temporal)}
+  .layer ul{margin:0;padding-left:17px;font-size:13px}
+  .layer li{margin:3px 0}
+
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+  .chip{font-size:12.5px;padding:3px 9px;border-radius:5px;border:1px solid var(--line2);background:#fff;
+    font-family:ui-monospace,Menlo,monospace}
+  .chip.new{background:#fff6e0;border-color:#e8cf94;font-weight:600}
+  .chip.miss{background:var(--bad-bg);border-color:#f2c4c9}
+
+  ol,ul{padding-left:22px} li{margin:5px 0}
+  .small{font-size:13px;color:var(--ink2)}
+  .tiny{font-size:12px;color:var(--ink3)}
+  hr.soft{border:0;border-top:1px dashed var(--line2);margin:22px 0}
+
+  .timeline{position:relative;margin:20px 0 8px;padding-left:0}
+  .tl-bar{height:3px;background:var(--line2);position:relative;margin:34px 0 8px;border-radius:2px}
+  .tl-pt{position:absolute;top:-5px;width:13px;height:13px;border-radius:50%;background:#fff;
+    border:3px solid var(--temporal);transform:translateX(-50%)}
+  .tl-lb{position:absolute;top:-34px;transform:translateX(-50%);font-size:11.5px;text-align:center;
+    white-space:nowrap;color:var(--ink2)}
+  .tl-lb b{display:block;color:var(--ink);font-size:12px}
+
+  .toc{background:var(--card);border:1px solid var(--line);border-radius:9px;padding:14px 18px;margin:22px 0 0}
+  .toc ol{columns:2;column-gap:30px;margin:6px 0 0;font-size:13.5px}
+  .toc a{color:var(--ink2);text-decoration:none;border-bottom:1px solid transparent}
+  .toc a:hover{border-bottom-color:var(--ink3)}
+  @media(max-width:680px){ .toc ol{columns:1} h1{font-size:22px} }
+  footer{margin-top:60px;padding-top:18px;border-top:1px solid var(--line);color:var(--ink3);font-size:12.5px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <h1>Đồ thị Tri thức — Pháp luật Ngân hàng &amp; Fintech Việt Nam</h1>
+  <div class="sub">
+    <span class="pill v">v0.5</span> &nbsp;·&nbsp; 29/07/2026 &nbsp;·&nbsp;
+    bản đặc tả để <b>mentor review</b> &nbsp;·&nbsp; Neo4j 5.x / AuraDB Free
+  </div>
+  <p class="lead" style="margin-top:14px">
+    <b>Phạm vi bản này: bài toán tra cứu điểm-thời-gian (hỏi đáp).</b>
+    Tầng chuẩn tắc phục vụ kiểm tra tuân thủ <b>chưa thuộc phạm vi</b> — đang trong giai đoạn
+    xác định bài toán, xem §10.
+  </p>
+
+  <div class="toc">
+    <div class="tiny" style="text-transform:uppercase;letter-spacing:.05em;font-weight:700">Mục lục</div>
+    <ol>
+      <li><a href="#s1">Điều cần review kỹ nhất</a></li>
+      <li><a href="#s2">Nhật ký thay đổi v0.4 → v0.5</a></li>
+      <li><a href="#s3">Meta-schema — node theo bốn tầng</a></li>
+      <li><a href="#s4">Khoá ba nhánh của <code>Dieu</code></a></li>
+      <li><a href="#s5">Đánh số Điều và Khoản</a></li>
+      <li><a href="#s6">13 quan hệ giữa văn bản</a></li>
+      <li><a href="#s7">Tầng thời gian</a></li>
+      <li><a href="#s8">Độ tin cậy và nguồn</a></li>
+      <li><a href="#s9">Quyết định thiết kế đã chốt</a></li>
+      <li><a href="#s10">Việc còn mở &amp; ngoài phạm vi</a></li>
+    </ol>
+  </div>
+</header>
+
+
+<!-- ============ 1 ============ -->
+<h2 id="s1"><span class="n">1</span>Điều cần review kỹ nhất</h2>
+<p class="lead">Ba chỗ tôi muốn được phản biện trước tiên, vì chúng là quyết định chứ không phải dữ kiện.</p>
+
+<div class="box key">
+  <h4>1.1 · Phiên bản ở cấp Điều, không ở cấp Khoản</h4>
+  <p>Khi một thông tư sửa đúng một khoản, hệ thống tạo <b>phiên bản mới cho toàn bộ Điều</b> chứa khoản đó.
+  Đây là cách văn bản hợp nhất vận hành trong thực tế, và giảm 3–5 lần số node so với phiên bản cấp khoản.
+  Đánh đổi: không diff được ở mức khoản.</p>
+  <p class="small"><b>Câu hỏi cho mentor:</b> đánh đổi này có chấp nhận được với phạm vi 6 tuần, hay chiều diff
+  mịn là thứ bắt buộc phải có?</p>
+</div>
+
+<div class="box key">
+  <h4>1.2 · Temporal chọn lọc — chỉ nhóm "nóng" được dựng phiên bản</h4>
+  <p>6 văn bản trong cụm trọng tâm có <code>muc_temporal = "day_du"</code> (dựng node phiên bản đầy đủ);
+  phần còn lại chỉ giữ thuộc tính ngày (<code>"co_ban"</code>). Lý do: chi phí xác minh thủ công tuyến tính theo
+  số phiên bản, và toàn văn các Điều bị sửa <b>chỉ lấy được thủ công</b> (vbpl chặn robots,
+  thuvienphapluat yêu cầu tài khoản trả phí).</p>
+  <p class="small"><b>Câu hỏi:</b> ranh giới nóng/nguội đặt ở 6 văn bản có hợp lý, hay nên mở rộng?</p>
+</div>
+
+<div class="box key">
+  <h4>1.3 · Ba trạng thái hiệu lực là không đủ — cần trạng thái thứ tư</h4>
+  <p><b>Điều 57 khoản 2 Luật 64/2025 đảo ngược quy tắc của Luật 80/2015.</b> Trước đây văn bản gốc hết hiệu lực
+  thì văn bản quy định chi tiết <i>đồng thời</i> hết hiệu lực (Đ.154 kh.4 Luật 80/2015). Nay:
+  <i>"tiếp tục có hiệu lực trong trường hợp không trái với văn bản quy phạm pháp luật thay thế"</i>.</p>
+  <p>Hệ quả: <b>không thể lan truyền cái chết bằng traversal</b>. Mỗi văn bản chi tiết chuyển sang trạng thái
+  <code>hieu_luc_co_dieu_kien</code>, và việc xác định "có trái hay không" là phán đoán ngữ nghĩa, hệ thống
+  <b>không tự quyết</b> — chỉ đánh dấu và bàn giao.</p>
+  <p class="small"><b>Câu hỏi:</b> đây là hạn chế cần nêu, hay là kết quả nghiên cứu đáng đưa lên phần đóng góp?</p>
+</div>
+
+
+<!-- ============ 2 ============ -->
+<h2 id="s2"><span class="n">2</span>Nhật ký thay đổi v0.4 → v0.5</h2>
+<p class="lead">Mọi thay đổi đều từ một lần đối chiếu nguồn cụ thể. Cột cuối ghi mức xác minh.</p>
+
+<table>
+  <thead><tr><th style="width:22%">Hạng mục</th><th style="width:30%">v0.4</th><th style="width:34%">v0.5</th><th style="width:14%">Nguồn</th></tr></thead>
+  <tbody>
+    <tr class="hl">
+      <td><b>Số quan hệ vbpl</b></td>
+      <td>"bộ 12 quan hệ của vbpl"</td>
+      <td><b>13 quan hệ.</b> Bổ sung <code>HUONG_DAN_AP_DUNG</code> — v0.4 bỏ sót. Xem §6</td>
+      <td><span class="pill ok">sơ cấp</span> bảng ghép cặp trích từ vbpl</td>
+    </tr>
+    <tr class="hl">
+      <td><b>Bảng chữ cái Điểm</b></td>
+      <td>26 chữ, có <code>ô ơ ư</code></td>
+      <td><b>23 chữ.</b> <code>đ</code> là chữ duy nhất thêm vào so với ASCII; <b>không</b> dùng ô ơ ư ă â ê.
+          Hàm tra bảng phải có đúng 23 phần tử</td>
+      <td><span class="pill ok">xác nhận</span></td>
+    </tr>
+    <tr class="hl">
+      <td><b>TT 25/2025 hiệu lực</b></td>
+      <td>ghi "31/08/2025" ở ô ngày sửa; dễ đọc thành ngày hiệu lực duy nhất</td>
+      <td>Hiệu lực chung <b>31/8/2025</b> (ngày ký), <b>phân kỳ</b> thêm hai mốc:
+          <b>01/12/2025</b> và <b>01/3/2026</b> (khoản 2 Điều 15 — hộ kinh doanh)</td>
+      <td><span class="pill ok">Công báo</span> + báo Tài chính</td>
+    </tr>
+    <tr class="hl">
+      <td><b>Phụ lục I hiện hành</b></td>
+      <td>NĐ 78/2025 Phụ lục I</td>
+      <td><b>NĐ 187/2025 Phụ lục I</b> — thay toàn bộ Phụ lục I của NĐ 78/2025 từ 01/7/2025</td>
+      <td><span class="pill ok">Công báo</span></td>
+    </tr>
+    <tr>
+      <td><code>Khoan</code> đánh số</td>
+      <td>chỉ có <code>ten</code> nullable</td>
+      <td>Thêm <code>so_khoan_goc</code> + <code>so_khoan_hau_to</code> — vì "<b>khoản 2đ</b>" là hợp lệ theo
+          chính Phụ lục I. v0.4 vá cho Điều nhưng bỏ Khoản</td>
+      <td><span class="pill warn">suy ra</span> từ Phụ lục I</td>
+    </tr>
+    <tr>
+      <td><code>nguon_hieu_luc_den</code></td>
+      <td>3 giá trị</td>
+      <td>Thêm <code>khang_dinh_theo_lop</code> — ngày nêu tường minh nhưng cho <b>một lớp</b> văn bản,
+          không cho văn bản này. Ca gốc: 28/02/2027 tại Đ.3 kh.1 Luật 87/2025</td>
+      <td><span class="pill ok">nguyên văn</span></td>
+    </tr>
+    <tr>
+      <td><code>da_xac_minh_nguon</code></td>
+      <td>boolean</td>
+      <td><b>Ba mức:</b> <code>so_cap</code> · <code>thu_cap</code> · <code>chua_kiem</code>. Lý do ở §8.2</td>
+      <td>bài học phương pháp</td>
+    </tr>
+    <tr>
+      <td><code>VanBan.trang_thai</code></td>
+      <td>3 giá trị</td>
+      <td>Thêm <code>hieu_luc_co_dieu_kien</code> (Đ.57 kh.2). Xem §1.3</td>
+      <td><span class="pill ok">3 nguồn độc lập</span></td>
+    </tr>
+    <tr>
+      <td><code>QUY_DINH_CHI_TIET_HUONG_DAN</code></td>
+      <td>một cạnh, không thuộc tính</td>
+      <td>Thêm <code>co_uy_quyen</code> + <code>dieu_khoan_uy_quyen</code>. Nhãn của vbpl gộp hai thứ mà
+          Đ.53 kh.2 đối xử khác nhau</td>
+      <td><span class="pill ok">Đ.53 kh.2</span></td>
+    </tr>
+    <tr>
+      <td><code>CHAM_DUT_AP_DUNG</code></td>
+      <td>căn cứ "Điều 3 Luật 87/2025"</td>
+      <td>Căn cứ <b>xác nhận đúng</b> — Đ.3 kh.2. Bổ sung <code>pham_vi_loai</code>,
+          <code>pham_vi_mo_ta</code>, <code>co_the_bi_bac</code>.
+          <span class="pill warn">chờ instance</span></td>
+      <td><span class="pill ok">nguyên văn</span></td>
+    </tr>
+    <tr>
+      <td>Văn bản hợp nhất</td>
+      <td>có cạnh <code>HOP_NHAT</code>, không đánh dấu node</td>
+      <td>Thêm cờ <code>la_vbhn</code>. <b>VBHN không nằm trong 14 loại VBQPPL ở Đ.4</b> ⇒ phi quy phạm,
+          phải loại khỏi truy vấn nội dung. Xem §7.4</td>
+      <td><span class="pill ok">Đ.4 Luật 64/2025</span></td>
+    </tr>
+  </tbody>
+</table>
+
+
+<!-- ============ 3 ============ -->
+<h2 id="s3"><span class="n">3</span>Meta-schema — node theo bốn tầng</h2>
+
+<div class="layers">
+  <div class="layer a">
+    <div class="t">Cấu trúc văn bản</div>
+    <ul>
+      <li><code>VanBan</code></li>
+      <li><code>VanBanKemTheo</code></li>
+      <li><code>PhuLuc</code></li>
+      <li><code>Chuong</code> · <code>Muc</code></li>
+      <li><code>Dieu</code> · <code>Khoan</code> · <code>Diem</code></li>
+    </ul>
+  </div>
+  <div class="layer b">
+    <div class="t">Tham chiếu / tổ chức</div>
+    <ul>
+      <li><code>CoQuanBanHanh</code></li>
+      <li><code>LinhVuc</code></li>
+      <li><code>DeMuc</code></li>
+    </ul>
+  </div>
+  <div class="layer c">
+    <div class="t">Ngữ nghĩa</div>
+    <ul>
+      <li><code>KhaiNiem</code> <span class="tiny">— tinh thần SKOS</span></li>
+      <li><code>ThucTheChiuDieuChinh</code> <span class="tiny">— P2</span></li>
+    </ul>
+  </div>
+  <div class="layer d">
+    <div class="t">Thời gian</div>
+    <ul>
+      <li><code>PhienBanDieu</code></li>
+      <li><code>SuKienLapPhap</code> <span class="tiny">— mới v0.5</span></li>
+    </ul>
+  </div>
+</div>
+
+<div class="box">
+  <h4>Ba node mà v0.4 thêm vào và v0.5 giữ nguyên — lý do vẫn đứng vững</h4>
+  <table style="margin-bottom:0">
+    <tbody>
+      <tr><td style="width:26%"><code>VanBanKemTheo</code></td>
+        <td>Dạng "quyết định ban hành kèm theo quy chế": quy chế có <b>hệ đánh số Điều riêng</b>, độc lập với
+        thân quyết định. Không tách node thì Điều 1 của quyết định và Điều 1 của quy chế
+        <b>va vào cùng một khoá</b> — lỗi im lặng.</td></tr>
+      <tr><td><code>PhuLuc</code></td>
+        <td>NĐ 187/2025 thay <b>toàn bộ</b> Phụ lục I của NĐ 78/2025 mà <b>không chạm</b> Điều 63 và 71.
+        Phụ lục không phải node riêng thì thao tác "thay thế phụ lục" không có đích để trỏ.</td></tr>
+      <tr><td><code>Diem</code></td>
+        <td>Viện dẫn thực tế đi tới tận điểm (<i>điểm c khoản 2 Điều 7</i>). Dựng <b>theo nhu cầu</b> ở tầng
+        nóng, không dựng đại trà.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="box warn">
+  <h4>Giới hạn có chủ đích — gạch đầu dòng không mô hình hoá được</h4>
+  <p>Phụ lục I cho phép cấp thấp nhất là <b>gạch đầu dòng không đánh số</b>. Không có số ⇒ không có địa chỉ
+  ⇒ không viện dẫn tới được ⇒ không thể làm node có khoá ổn định. Chúng nằm lại trong <code>noi_dung</code>
+  của <code>Diem</code> cha. <b>Đây là giới hạn được ghi nhận, không phải sơ suất.</b></p>
+</div>
+
+
+<!-- ============ 4 ============ -->
+<h2 id="s4"><span class="n">4</span>Khoá ba nhánh của <code>Dieu</code></h2>
+<p class="lead">Khoá phẳng <code>{số hiệu}#dieu_{n}</code> không phân biệt được ba nguồn Điều khác nhau
+trong cùng một văn bản.</p>
+
+<pre><span class="c">// Ba nhánh — nhánh "than" PHẢI viết tường minh, không được để trống</span>
+40/2024/TT-NHNN<span class="k">#than/</span>dieu_41              <span class="c">// Điều trong thân văn bản</span>
+40/2024/TT-NHNN<span class="k">#kemtheo_quyche/</span>dieu_1      <span class="c">// Điều trong quy chế ban hành kèm theo</span>
+40/2024/TT-NHNN<span class="k">#phuluc_I/</span>dieu_1            <span class="c">// Điều trong phụ lục có đánh số Điều</span></pre>
+
+<div class="box warn">
+  <p><b>Vì sao nhánh <code>than</code> không được để trống:</b> nếu để trống thì khoá của Điều trong thân
+  văn bản trùng đúng dạng khoá cũ, và mọi truy vấn kiểm tra di trú <b>mất khả năng phân biệt</b>
+  "đã di trú" với "chưa di trú".</p>
+</div>
+
+<pre><span class="c">// Lệnh di trú từ khoá phẳng</span>
+<span class="k">MATCH</span> (d:Dieu)
+<span class="k">WHERE</span> <span class="k">NOT</span> d.id <span class="k">CONTAINS</span> <span class="s">'#than/'</span>
+  <span class="k">AND</span> <span class="k">NOT</span> d.id <span class="k">CONTAINS</span> <span class="s">'#kemtheo_'</span>
+  <span class="k">AND</span> <span class="k">NOT</span> d.id <span class="k">CONTAINS</span> <span class="s">'#phuluc_'</span>
+<span class="k">SET</span> d.id = replace(d.id, <span class="s">'#dieu_'</span>, <span class="s">'#than/dieu_'</span>), d.nhanh = <span class="s">'than'</span>;</pre>
+
+
+<!-- ============ 5 ============ -->
+<h2 id="s5"><span class="n">5</span>Đánh số Điều và Khoản</h2>
+<p class="lead">Một trường <code>so | int</code> không biểu diễn được <b>Điều 15a</b>, và cũng không sắp xếp được.
+Cơ sở: Phụ lục I, Mục 1 Phần II điểm 5.</p>
+
+<table>
+  <thead><tr><th>Trường</th><th>Kiểu</th><th>Điều 15a</th><th>Khoản 2đ <span class="pill warn">mới v0.5</span></th></tr></thead>
+  <tbody>
+    <tr><td><code>nhanh</code></td><td>string</td><td><code>"than"</code></td><td>—</td></tr>
+    <tr><td><code>so_hien_thi</code></td><td>string</td><td><code>"15a"</code></td><td><code>"2đ"</code></td></tr>
+    <tr><td><code>so_goc</code></td><td>int</td><td><code>15</code></td><td><code>2</code></td></tr>
+    <tr><td><code>so_hau_to</code></td><td>int</td><td><code>1</code> <span class="tiny">(a)</span></td><td><code>5</code> <span class="tiny">(đ)</span></td></tr>
+  </tbody>
+</table>
+<p class="small">Khoá sắp xếp là cặp <code>(so_goc, so_hau_to)</code>. <code>so_hau_to = 0</code> nghĩa là không có hậu tố.</p>
+
+<div class="box bad">
+  <h4>⚠️ Bẫy bảng chữ cái tiếng Việt — xuất hiện HAI lần</h4>
+  <p>Một lần ở hậu tố Điều (<code>15a 15b 15c 15d 15đ…</code>), một lần ở ký hiệu <code>Diem</code>
+  (<code>a) b) c) d) đ) e)…</code>).</p>
+  <p><b>Chuỗi đúng — 23 chữ:</b></p>
+  <div class="chips">
+    <span class="chip">a</span><span class="chip">b</span><span class="chip">c</span><span class="chip">d</span>
+    <span class="chip new">đ</span><span class="chip">e</span><span class="chip">g</span><span class="chip">h</span>
+    <span class="chip">i</span><span class="chip">k</span><span class="chip">l</span><span class="chip">m</span>
+    <span class="chip">n</span><span class="chip">o</span><span class="chip">p</span><span class="chip">q</span>
+    <span class="chip">r</span><span class="chip">s</span><span class="chip">t</span><span class="chip">u</span>
+    <span class="chip">v</span><span class="chip">x</span><span class="chip">y</span>
+  </div>
+  <p><b><code>đ</code> là chữ duy nhất thêm vào so với ASCII.</b> Không có <code>f j w z</code>.
+  Không dùng <code>ă â ê ô ơ ư</code>. Sau <code>e</code> là <code>g</code>.</p>
+  <p>⇒ <code>ord(ch) - ord('a')</code> cho <code>đ = 3</code> (sai, phải là <code>4</code>) và
+  <code>e = 4</code> (sai, phải là <code>5</code>). <b>Luôn tra bảng 23 phần tử tường minh</b>,
+  không bao giờ tính bằng mã ký tự.</p>
+</div>
+
+<div class="box warn">
+  <h4>Bẫy khi tách cấu trúc từ PDF</h4>
+  <p>Phụ lục I ấn định <b>cỡ chữ 13–14 cho mọi cấp bố cục</b> — Phần, Chương, Mục, Điều, khoản, điểm
+  đều cùng cỡ, phân biệt chỉ bằng đậm/nghiêng và thụt đầu dòng.
+  <b>Mọi giải thuật tách cấu trúc dựa vào cỡ chữ chắc chắn thất bại</b> trên văn bản Việt Nam.
+  Phải tách bằng <b>mẫu đánh số ở đầu dòng</b>.</p>
+</div>
+
+
+<!-- ============ 6 ============ -->
+<h2 id="s6"><span class="n">6</span>13 quan hệ giữa văn bản</h2>
+<p class="lead">Mỗi cạnh <b>có hướng</b>, hiện dưới hai nhãn tuỳ đứng ở đầu nào. Quy ước chiều:
+văn bản <b>chủ động / mới hơn</b> → văn bản <b>bị tác động / cũ hơn</b>.</p>
+
+<table>
+  <thead><tr><th style="width:5%">#</th><th style="width:30%">Nhãn đầu chủ động</th><th style="width:31%">Nhãn đầu bị động</th><th>Cạnh trong schema</th></tr></thead>
+  <tbody>
+    <tr class="hl"><td>1</td><td>hướng dẫn áp dụng</td><td>được hướng dẫn áp dụng</td><td><code>HUONG_DAN_AP_DUNG</code> <span class="pill warn">mới v0.5</span></td></tr>
+    <tr><td>2</td><td>quy định chi tiết, hướng dẫn thi hành</td><td>được quy định chi tiết, hướng dẫn thi hành</td><td><code>QUY_DINH_CHI_TIET_HUONG_DAN</code></td></tr>
+    <tr><td>3</td><td>hợp nhất</td><td>được hợp nhất</td><td><code>HOP_NHAT</code></td></tr>
+    <tr><td>4</td><td>sửa đổi bổ sung</td><td>được sửa đổi bổ sung</td><td><code>SUA_DOI_BO_SUNG</code></td></tr>
+    <tr><td>5</td><td>đính chính</td><td>được đính chính</td><td><code>DINH_CHINH</code></td></tr>
+    <tr><td>6</td><td>bãi bỏ</td><td><b>bị</b> bãi bỏ</td><td><code>BAI_BO</code></td></tr>
+    <tr><td>7</td><td>dẫn chiếu</td><td>được dẫn chiếu</td><td><code>DAN_CHIEU</code></td></tr>
+    <tr><td>8</td><td>căn cứ ban hành</td><td><b>áp dụng</b> <span class="tiny">← bất quy tắc</span></td><td><code>CAN_CU</code></td></tr>
+    <tr><td>9</td><td>giải thích</td><td>được giải thích</td><td><code>GIAI_THICH</code></td></tr>
+    <tr><td>10</td><td>đình chỉ thi hành</td><td><b>bị</b> đình chỉ thi hành</td><td><code>DINH_CHI_THI_HANH</code></td></tr>
+    <tr><td>11</td><td>tạm ngưng hiệu lực</td><td><b>bị</b> tạm ngưng hiệu lực</td><td><code>TAM_NGUNG_HIEU_LUC</code></td></tr>
+    <tr><td>12</td><td>công bố</td><td>được công bố</td><td><code>CONG_BO</code></td></tr>
+    <tr><td>13</td><td>thay thế</td><td>được thay thế</td><td><code>THAY_THE</code></td></tr>
+  </tbody>
+</table>
+
+<div class="box ok">
+  <h4>Quy tắc ghép cặp — dùng được để trích xuất tự động</h4>
+  <p><b>12 trên 13 cặp theo đúng một khuôn:</b> <code>X</code> ⟷ <code>được X</code> hoặc <code>bị X</code>.
+  Chỉ <b>cặp #8 bất quy tắc</b> — hai nhãn không chung gốc từ.</p>
+  <p>⇒ Thuật toán: khớp <code>^(được|bị)\s+(.+)$</code> với nhãn còn lại; ghép được 12 cặp,
+  phần dư là ngoại lệ duy nhất, xử lý tay.</p>
+</div>
+
+<h3>6.1 · <code>bị</code> và <code>được</code> mã hoá cách thức can thiệp</h3>
+<table>
+  <thead><tr><th style="width:14%">Tiền tố</th><th style="width:52%">Quan hệ</th><th>Nghĩa chung</th></tr></thead>
+  <tbody>
+    <tr><td><b><code>bị</code></b> (3)</td>
+      <td>bãi bỏ · đình chỉ thi hành · tạm ngưng hiệu lực</td>
+      <td><b>Can thiệp bất lợi</b> — huỷ bỏ hoặc treo</td></tr>
+    <tr><td><code>được</code> (9)</td>
+      <td>thay thế · sửa đổi bổ sung · đính chính · hợp nhất · hướng dẫn áp dụng · quy định chi tiết · dẫn chiếu · giải thích · công bố</td>
+      <td><b>Diễn biến bình thường</b> trong vòng đời</td></tr>
+    <tr><td>bất quy tắc</td><td>căn cứ ban hành ⟷ áp dụng</td><td>Thẩm quyền ban hành</td></tr>
+  </tbody>
+</table>
+<p class="small">Ranh giới <b>không phải</b> "có chấm dứt hiệu lực hay không" — <code>thay thế</code> cũng chấm dứt
+hiệu lực nhưng vẫn mang <code>được</code>. Ranh giới là <b>kế thừa</b> so với <b>triệt tiêu</b>.</p>
+
+<div class="box key">
+  <h4>6.2 · <code>thay thế</code> vs <code>bãi bỏ</code> — khác biệt có hệ quả thật</h4>
+  <table style="margin-bottom:8px">
+    <tbody>
+      <tr><td style="width:20%"><b>thay thế</b></td>
+        <td><b>Có văn bản kế nhiệm.</b> Vấn đề tiếp tục được điều chỉnh; nghĩa vụ di trú sang văn bản mới.</td></tr>
+      <tr><td><b>bãi bỏ</b></td>
+        <td><b>Có thể không có gì thay thế.</b> Nghĩa vụ có thể biến mất hoàn toàn — đó là một
+        <b>khoảng trống lập pháp</b>.</td></tr>
+    </tbody>
+  </table>
+  <p>⇒ Ca kiểm chứng bắt buộc: tìm mọi <code>VanBan</code> bị <code>BAI_BO</code> mà <b>không</b> có cạnh
+  <code>THAY_THE</code> nào trỏ tới, rồi kiểm xem còn gì đang neo vào nó không.</p>
+  <p class="small">Tiền lệ học thuật: Colombo, Cambria &amp; Invernici (EDBT/ICDT 2025) gọi đây là
+  <i>"legislative void"</i> và đo được tương quan <i>r</i> = 0,394 (<i>p</i> = 0,02) giữa cảnh báo loại này và
+  can thiệp lập pháp về sau.</p>
+</div>
+
+<h3>6.3 · Hai cạnh cần thuộc tính bổ sung</h3>
+
+<pre><span class="c">// Nhãn #2 của vbpl GỘP hai thứ mà Điều 53 khoản 2 đối xử khác nhau.</span>
+<span class="c">// R5 (cùng ngày hiệu lực) chỉ áp cho văn bản quy định chi tiết theo uỷ quyền,</span>
+<span class="c">// KHÔNG áp cho văn bản hướng dẫn thuần tuý. Gộp ⇒ báo lỗi giả.</span>
+(A)-[:<span class="k">QUY_DINH_CHI_TIET_HUONG_DAN</span> {
+  co_uy_quyen:         <span class="k">true</span> | <span class="k">false</span> | <span class="k">null</span>,   <span class="c">// null = chưa xác định</span>
+  dieu_khoan_uy_quyen: <span class="s">"khoản 5 Điều 12"</span>       <span class="c">// vị trí trong B</span>
+}]-&gt;(B)
+
+<span class="c">// Căn cứ: khoản 2 Điều 3 Luật 87/2025 — văn bản ngang cấp cắt PHẠM VI ÁP DỤNG</span>
+<span class="c">// của văn bản khác, mà không sửa, không thay thế, không bãi bỏ, không treo hiệu lực.</span>
+(A)-[:<span class="k">CHAM_DUT_AP_DUNG</span> {
+  ngay_cham_dut:  <span class="k">date</span>,
+  pham_vi_loai:   <span class="s">'dia_gioi'</span> | <span class="s">'nhom_doi_tuong'</span> | <span class="s">'toan_bo'</span>,
+  pham_vi_mo_ta:  <span class="k">string</span>,
+  can_cu:         <span class="s">"khoản 2 Điều 3 Luật 87/2025/QH15"</span>,
+  co_the_bi_bac:  <span class="k">boolean</span>       <span class="c">// khoản 1 có HAI cửa thoát</span>
+}]-&gt;(B)</pre>
+
+<div class="box warn">
+  <p><b><code>CHAM_DUT_AP_DUNG</code> — chưa đủ điều kiện đưa vào bản chạy.</b>
+  Căn cứ pháp lý đã xác nhận đúng, và không cạnh nào trong 13 diễn tả được hình thái này
+  (bốn cạnh chạm tới <i>hiệu lực</i>; không cạnh nào chạm tới <i>phạm vi áp dụng</i>).
+  Nhưng cơ chế được xác lập ở <b>cấp xã/huyện</b>, còn corpus fintech toàn ở cấp trung ương.
+  <b>Cần tìm một instance thật</b> — điều khoản chuyển tiếp của thông tư ấn định ngày một thông tư cũ ngừng
+  áp dụng cho một nhóm đối tượng. Không tìm được ⇒ chuyển sang "hướng phát triển", và schema dừng ở 13 cạnh.</p>
+</div>
+
+<div class="box bad">
+  <h4>⚠️ <code>CAN_CU</code> là hub bậc cao, nghèo ngữ nghĩa</h4>
+  <p>Bộ luật Dân sự 91/2015 có <b>104</b> cạnh vào qua nhãn <code>áp dụng</code>. Mọi thông tư đều liệt kê 3–6
+  văn bản trong phần Căn cứ, phần lớn là viện dẫn thẩm quyền hình thức chứ không phải phụ thuộc nội dung.
+  Luật Các TCTD 32/2024 sẽ là hub tương tự trong corpus này.</p>
+  <p>⇒ <b>Không duyệt <code>CAN_CU</code> trong truy vấn suy ra nội dung.</b> Dùng nó để dựng cây thẩm quyền và
+  kiểm tra tính hợp thức ban hành.</p>
+</div>
+
+
+<!-- ============ 7 ============ -->
+<h2 id="s7"><span class="n">7</span>Tầng thời gian</h2>
+<p class="lead"><code>Dieu</code> là <b>định danh bất biến</b> của điều luật xuyên suốt lịch sử.
+Nội dung tại từng thời điểm nằm ở node <code>PhienBanDieu</code> riêng.</p>
+
+<h3>7.1 · Chuỗi phiên bản thật — Điều 41 TT 40/2024</h3>
+<div class="timeline">
+  <div class="tl-bar">
+    <div class="tl-pt" style="left:6%"></div>
+    <div class="tl-lb" style="left:6%"><b>17/7/2024</b>v1 — bản gốc</div>
+    <div class="tl-pt" style="left:47%"></div>
+    <div class="tl-lb" style="left:47%"><b>05/11/2025</b>v2 — TT 41/2025</div>
+    <div class="tl-pt" style="left:88%"></div>
+    <div class="tl-lb" style="left:88%"><b>19/5/2026</b>v3 — TT 22/2026</div>
+  </div>
+</div>
+<p class="small">Cả ba số hiệu đã đối chiếu Công báo. TT 22/2026 đồng thời <b>bãi bỏ Điều 16, 17, 18 của
+TT 41/2025</b> — một văn bản sửa đổi bị văn bản sửa đổi sau đó bãi bỏ một phần. Đây là ca kiểm thử trong
+bộ test.</p>
+
+<pre><span class="c">// Quy ước khoảng NỬA MỞ [hieu_luc_tu, hieu_luc_den)</span>
+<span class="c">// Ngày kết thúc của phiên bản cũ BẰNG ĐÚNG ngày bắt đầu của phiên bản mới,</span>
+<span class="c">// không trừ một ngày ⇒ không thể sai lệch ở biên.</span>
+<span class="k">MATCH</span> (d:Dieu {id:<span class="s">"40/2024/TT-NHNN#than/dieu_41"</span>})-[:<span class="k">CO_PHIEN_BAN</span>]-&gt;(p:PhienBanDieu)
+<span class="k">WHERE</span> p.hieu_luc_tu &lt;= $ngay
+  <span class="k">AND</span> (p.hieu_luc_den <span class="k">IS NULL</span> <span class="k">OR</span> $ngay &lt; p.hieu_luc_den)
+<span class="k">RETURN</span> p.noi_dung
+<span class="c">// 04/11/2025 → v1  ·  05/11/2025 → v2  ·  19/05/2026 → v3</span></pre>
+
+<h3>7.2 · Ngày hiệu lực nằm TRÊN CẠNH, không trên node</h3>
+<div class="box ok">
+  <p><b>Lý do: hiệu lực phân kỳ.</b> Một văn bản sửa đổi có thể cho một số điều thi hành ngay và một số điều
+  lùi lại. Đặt ngày hiệu lực làm thuộc tính của <code>VanBan</code> thì toàn bộ các Điều bị sửa buộc phải dùng
+  chung một ngày — sai với chính văn bản.</p>
+  <p><b>Ca chứng minh:</b> TT 25/2025/TT-NHNN có hiệu lực chung <b>31/8/2025</b>, nhưng một số quy định từ
+  <b>01/12/2025</b> và quy định về hộ kinh doanh từ <b>01/3/2026</b> (khoản 2 Điều 15).
+  Ba mốc, một văn bản.</p>
+</div>
+
+<pre>(TT41_2025)-[:<span class="k">SUA_DOI_BO_SUNG</span> {
+  dieu_khoan_nguon: <span class="s">"khoản 3 Điều 1"</span>,          <span class="c">// vế thực hiện sửa</span>
+  dieu_khoan_dich:  <span class="s">"Điều 41"</span>,                 <span class="c">// vế bị sửa</span>
+  nhanh_dich:       <span class="s">"than"</span>,
+  loai_thao_tac:    <span class="s">"sua_doi"</span>,                 <span class="c">// sua_doi | bo_sung | thay_the_cum_tu | bai_bo</span>
+  ngay_hieu_luc:    <span class="k">date</span>(<span class="s">"2025-11-05"</span>),      <span class="c">// ĐẶT TRÊN CẠNH</span>
+  trich_dan_nguon:  <span class="s">"congbao.chinhphu.vn/..."</span>,
+  do_tin_cay:       <span class="s">"thu_cong"</span>
+}]-&gt;(TT40_2024)</pre>
+
+<h3>7.3 · Bốn trạng thái hiệu lực</h3>
+<table>
+  <thead><tr><th style="width:26%">Giá trị</th><th>Nghĩa</th></tr></thead>
+  <tbody>
+    <tr><td><code>chua_hieu_luc</code></td><td>Đã ban hành, chưa tới ngày có hiệu lực</td></tr>
+    <tr><td><code>hieu_luc</code></td><td>Đang có hiệu lực</td></tr>
+    <tr><td><code>het_hieu_luc</code></td><td>Hết hiệu lực theo một trong ba trường hợp tại Đ.57 kh.1</td></tr>
+    <tr class="hl"><td><code>hieu_luc_co_dieu_kien</code> <span class="pill warn">mới v0.5</span></td>
+      <td><b>Văn bản gốc đã hết hiệu lực, nhưng văn bản quy định chi tiết không tự động chết theo</b>
+      (Đ.57 kh.2). Trạng thái này bắt buộc kèm <code>ly_do_ra_soat</code>. Hệ thống <b>không tự phán định</b>
+      "có trái hay không" — chỉ đánh dấu và bàn giao cho người rà soát.</td></tr>
+  </tbody>
+</table>
+
+<pre><span class="c">// R8 — Điều 57 khoản 2: KHÔNG lan truyền cái chết, chỉ đánh dấu</span>
+<span class="k">MATCH</span> (goc:VanBan)&lt;-[:<span class="k">QUY_DINH_CHI_TIET_HUONG_DAN</span>]-(ct:VanBan)
+<span class="k">WHERE</span> goc.hieu_luc_den <span class="k">IS NOT NULL</span> <span class="k">AND</span> goc.hieu_luc_den &lt;= $ngay
+  <span class="k">AND</span> ct.trang_thai = <span class="s">'hieu_luc'</span>
+<span class="k">SET</span> ct.trang_thai    = <span class="s">'hieu_luc_co_dieu_kien'</span>,
+    ct.ly_do_ra_soat = <span class="s">'Văn bản gốc '</span> + goc.so_hieu + <span class="s">' hết hiệu lực. Theo Đ.57 kh.2 '</span> +
+                       <span class="s">'Luật 64/2025, văn bản này tiếp tục có hiệu lực nếu không trái với '</span> +
+                       <span class="s">'văn bản thay thế — CẦN RÀ SOÁT THỦ CÔNG.'</span>;</pre>
+
+<h3>7.4 · Văn bản hợp nhất là phi quy phạm</h3>
+<div class="box bad">
+  <p><b>VBHN không nằm trong 14 loại VBQPPL tại Điều 4 Luật 64/2025.</b> Nó không có hiệu lực pháp lý độc lập —
+  chỉ là bản trình bày hợp nhất của văn bản gốc cộng các sửa đổi.</p>
+  <p>⇒ Nếu nạp VBHN như một <code>VanBan</code> bình thường, đồ thị sẽ <b>đếm trùng</b>: một lần từ văn bản gốc +
+  văn bản sửa đổi, một lần nữa từ VBHN. <b>Lỗi im lặng</b> — đồ thị vẫn chạy, kết quả vẫn hợp lý, chỉ là sai.</p>
+  <p>⇒ Bắt buộc có cờ <code>la_vbhn: boolean</code>, và mọi truy vấn suy ra nội dung phải loại nó ra.
+  VBHN chỉ dùng làm <b>ground truth</b> để kiểm chuỗi phiên bản.</p>
+</div>
+
+
+<!-- ============ 8 ============ -->
+<h2 id="s8"><span class="n">8</span>Độ tin cậy và nguồn</h2>
+
+<h3>8.1 · <code>nguon_hieu_luc_den</code> — bốn giá trị</h3>
+<table>
+  <thead><tr><th style="width:26%">Giá trị</th><th>Nghĩa</th></tr></thead>
+  <tbody>
+    <tr><td><code>khang_dinh</code></td><td>Ngày kết thúc được nêu <b>tường minh</b> trong một văn bản có trong corpus, cho <b>chính văn bản này</b></td></tr>
+    <tr class="hl"><td><code>khang_dinh_theo_lop</code> <span class="pill warn">mới v0.5</span></td>
+      <td>Nêu tường minh nhưng cho <b>một lớp</b> văn bản, không cho văn bản này.
+      Ca gốc: <b>28/02/2027</b> tại Đ.3 kh.1 Luật 87/2025, áp cho <i>mọi</i> nghị quyết HĐND và quyết định
+      UBND cấp huyện. Kèm <code>can_cu_lop</code></td></tr>
+    <tr><td><code>suy_ra</code></td><td>Tính được từ quan hệ đã có (<code>THAY_THE</code>, phiên bản kế tiếp)</td></tr>
+    <tr><td><code>mac_dinh</code></td><td>Rơi vào mốc trần chung — <b>không</b> có văn bản cụ thể nào nói</td></tr>
+  </tbody>
+</table>
+<p class="small">Không có trường này thì một <code>hieu_luc_den</code> do <b>suy đoán</b> trông <b>y hệt</b> một
+<code>hieu_luc_den</code> <b>đọc được từ văn bản</b>, và toàn bộ phần đánh giá độ tin cậy của đồ thị mất căn cứ.
+Giá trị thứ hai còn cần thiết vì ngày 28/02/2027 <b>khả bác theo hai đường</b> ngay trong khoản 1.</p>
+
+<h3>8.2 · <code>da_xac_minh_nguon</code> — ba mức, không phải boolean</h3>
+<div class="box key">
+  <p>Trong quá trình dựng v0.5 đã xảy ra một sai sót có giá trị minh hoạ: một điều khoản <b>có thật và quan
+  trọng</b> (Điều 3 Luật 87/2025) từng bị kết luận là không tồn tại.</p>
+  <p><b>Cơ chế gây lỗi:</b> nguồn sơ cấp (PDF Công báo có chữ ký) chặn truy cập tự động ⇒ phải dựa vào nguồn
+  thứ cấp ⇒ <b>mọi nguồn thứ cấp đều cắt cụt phần cuối văn bản</b> ⇒ suy cấu trúc từ khuôn mẫu thông thường
+  ("luật sửa đổi thường có hai điều") ⇒ kết luận sai.</p>
+  <p>Đây chính là chế độ hỏng mà đồ án sinh ra để chống lại, và nó đã xảy ra trong điều kiện thực. Ba hệ quả:</p>
+  <ol class="small" style="margin-bottom:0">
+    <li><code>da_xac_minh_nguon</code> phải có ba mức: <code>so_cap</code> (đọc bản Công báo / PDF ký) ·
+      <code>thu_cap</code> (đọc nguồn thứ cấp) · <code>chua_kiem</code>. Lỗi xảy ra đúng ở vùng
+      "thứ cấp mà tưởng là đủ".</li>
+    <li><b>Điều khoản chuyển tiếp là vùng rủi ro cao nhất</b> — nó nằm cuối văn bản, chỗ nguồn thứ cấp hay cắt,
+      và lại chính là nơi chứa quy tắc về hiệu lực và phạm vi áp dụng.
+      <b>Với mỗi văn bản, đọc điều cuối cùng TRƯỚC.</b></li>
+    <li><b>Không suy cấu trúc văn bản từ khuôn mẫu.</b> Phụ lục I quy định thể thức trình bày,
+      không quy định số điều.</li>
+  </ol>
+</div>
+
+
+<!-- ============ 9 ============ -->
+<h2 id="s9"><span class="n">9</span>Quyết định thiết kế đã chốt</h2>
+<table>
+  <thead><tr><th style="width:5%">#</th><th style="width:23%">Hạng mục</th><th>Quyết định</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td>Cấp phân rã</td><td><b>Điều</b> cho toàn corpus · <b>Khoản</b> cho nhóm lõi · <b>Điểm</b> tạo <i>theo nhu cầu</i> ở tầng nóng</td></tr>
+    <tr><td>2</td><td>Cấp phiên bản</td><td><b>Điều</b>. Sửa một khoản ⇒ phiên bản mới cho toàn Điều. Đánh đổi: không diff mức khoản</td></tr>
+    <tr><td>3</td><td>Temporal</td><td><b>Chọn lọc</b>: version-node cho 6 văn bản nóng, date-property cho phần còn lại</td></tr>
+    <tr><td>4</td><td>Ngày hiệu lực sửa đổi</td><td><b>Trên cạnh</b> <code>SUA_DOI_BO_SUNG</code> / <code>TAO_PHIEN_BAN</code>, không trên node — vì hiệu lực phân kỳ</td></tr>
+    <tr><td>5</td><td>Nền tảng</td><td>Neo4j 5.x. AuraDB Free <b>chỉ có uniqueness constraint</b> — ràng buộc tồn tại và kiểu phải kiểm bằng truy vấn validate</td></tr>
+    <tr><td>6</td><td>Tầng ngữ nghĩa</td><td><code>KhaiNiem</code> theo <b>tinh thần SKOS</b> (cá thể, không phải <code>owl:Class</code>) · <code>ThucTheChiuDieuChinh</code> hạ xuống P2</td></tr>
+    <tr><td>7</td><td>Án lệ</td><td><b>Loại bỏ</b> <code>VuAn</code> — Việt Nam theo dân luật, gần như không có án lệ fintech</td></tr>
+    <tr><td>8</td><td>Khoản có tên gọi</td><td>Khoản CÓ THỂ có tên ⇒ <code>Khoan.ten</code> <b>nullable</b>. <code>null</code> (chưa biết / không có) <b>khác</b> <code>""</code></td></tr>
+    <tr><td>9</td><td>Lớp không gian</td><td><code>DiaGioi</code> <b>không dựng</b> trong 6 tuần — corpus fintech toàn ở cấp trung ương. Nhưng giữ <code>nguon_hieu_luc_den</code></td></tr>
+    <tr><td>10</td><td>Định danh</td><td>Giữ <b>số hiệu chính thức</b> làm khoá (<code>40/2024/TT-NHNN#than/dieu_41</code>), không dùng UUID</td></tr>
+  </tbody>
+</table>
+
+
+<!-- ============ 10 ============ -->
+<h2 id="s10"><span class="n">10</span>Việc còn mở &amp; ngoài phạm vi</h2>
+
+<h3>10.1 · Chưa xác minh được — không trích dẫn trước khi kiểm</h3>
+<table>
+  <thead><tr><th style="width:5%">#</th><th>Nội dung</th><th style="width:17%">Trạng thái</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td><b>Luật 87/2025 sửa những Điều nào của Luật 64/2025.</b> Phải kiểm Điều 4, 53, 55, 56, 57, 58 còn nguyên văn không. Nếu có văn bản hợp nhất thì trích bản hợp nhất</td><td><span class="pill bad">chưa kiểm</span></td></tr>
+    <tr><td>2</td><td>Quy tắc <i>"trách nhiệm pháp lý nhẹ hơn thì áp dụng văn bản mới"</i> (Đ.156 kh.4 Luật 80/2015) — <b>dường như không còn</b> trong 6 khoản của Đ.58 Luật 64/2025</td><td><span class="pill warn">nghi</span></td></tr>
+    <tr><td>3</td><td>Tên 9 chương và <b>tiêu đề chính thức</b> của các Điều 53–58 Luật 64/2025. Số điều đã chắc; tiêu đề chỉ đọc được từ nguồn thứ cấp</td><td><span class="pill warn">thứ cấp</span></td></tr>
+    <tr><td>4</td><td>Phạm vi công bố hết hiệu lực tại <b>Điều 42 khoản 2 NĐ 356/2025</b> — NĐ 13/2023 bị công bố hết hiệu lực <i>toàn bộ</i> hay chỉ bị thay thế? Quyết định nhánh nào của Đ.57 kh.2 áp dụng</td><td><span class="pill bad">chưa kiểm</span></td></tr>
+    <tr><td>5</td><td><b>Một instance thật của <code>CHAM_DUT_AP_DUNG</code></b> trong corpus fintech</td><td><span class="pill bad">chưa tìm</span></td></tr>
+    <tr><td>6</td><td>Đếm số văn bản trong corpus dùng dạng <b>"quyết định ban hành kèm quy chế"</b> — con số này quyết định mức cấp bách của nhánh <code>kemtheo</code></td><td><span class="pill warn">chưa đếm</span></td></tr>
+    <tr><td>7</td><td>Toàn văn các Điều bị sửa của TT 41/2025, TT 22/2026, TT 25/2025 — chỉ lấy được thủ công</td><td><span class="pill warn">đang làm</span></td></tr>
+    <tr><td>8</td><td>Một <b>VBHN của TT 40/2024</b> ban hành sau 19/5/2026 để làm ground truth cho chuỗi ba phiên bản. Tra cứu hiện tại <b>không tìm thấy</b></td><td><span class="pill warn">không thấy</span></td></tr>
+    <tr><td>9</td><td>Xác minh lại <b>32/2024/QH15</b>, <b>46/2010/QH12</b>, <b>14/2022/QH15</b> ở mức sơ cấp — hiện đang ở mức thứ cấp</td><td><span class="pill warn">thứ cấp</span></td></tr>
+    <tr><td>10</td><td>Hai cạnh <code>CONG_BO</code> và <code>GIAI_THICH</code> nhiều khả năng có <b>số instance bằng 0</b> trong corpus fintech (công bố là Lệnh của Chủ tịch nước → luật; giải thích là thẩm quyền UBTVQH, cực hiếm dùng). Đếm trước khi giữ</td><td><span class="pill warn">chưa đếm</span></td></tr>
+  </tbody>
+</table>
+
+<h3>10.2 · Ngoài phạm vi bản v0.5</h3>
+<div class="box">
+  <p><b>Tầng chuẩn tắc phục vụ kiểm tra tuân thủ chưa thuộc phạm vi bản này.</b> Bảy node
+  (<code>NghiaVu</code>, <code>BuocBatBuoc</code>, <code>NgoaiLe</code>, <code>ChuThe</code>,
+  <code>QuyTrinh</code>, <code>Buoc</code>, <code>PhanQuyet</code>) và ràng buộc đẳng cấu
+  <code>CAN_CU_TAI</code> đã được thiết kế nhưng <b>đang chờ chốt lại phát biểu bài toán</b>.</p>
+  <p class="small" style="margin-bottom:0">Lý do dừng: chưa xác định được <b>nguồn gold label độc lập</b>.
+  Nếu tập luồng nghiệp vụ do chính tác giả soạn ra kèm khuyết tật cài sẵn, thì kết quả không đo được năng lực
+  thật. Đang cân nhắc bốn hướng: kiểm tra chiều ngược (dữ liệu thu thập không có căn cứ pháp lý) ·
+  phân tích tác động khi luật đổi · kiểm tra mạch lạc của chính tập quy phạm · xây benchmark cho LLM.
+  <b>Đây là câu hỏi muốn xin ý kiến mentor.</b></p>
+</div>
+
+<h3>10.3 · Tài liệu đi kèm</h3>
+<table>
+  <thead><tr><th style="width:34%">Tệp</th><th>Nội dung</th></tr></thead>
+  <tbody>
+    <tr><td><code>schema-kg-v05.md</code></td><td>Đặc tả đầy đủ — thuộc tính từng node, ràng buộc, nhật ký thay đổi</td></tr>
+    <tr><td><code>00-constraints.cypher</code></td><td>Constraint + index cho AuraDB Free</td></tr>
+    <tr><td><code>01-seed.cypher</code></td><td>Dữ liệu mẫu đã đối chiếu Công báo</td></tr>
+    <tr><td><code>02-validate.cypher</code></td><td>Truy vấn ràng buộc toàn vẹn + truy vấn năng lực</td></tr>
+    <tr><td><code>cau-truc-phap-luat-viet-nam.html</code></td><td>Phần A v1.7 — nguồn của mọi phát hiện đưa vào schema này</td></tr>
+    <tr><td><code>corpus-seed-daxacminh.csv</code></td><td>Danh sách văn bản seed kèm mức xác minh và việc còn phải kiểm</td></tr>
+  </tbody>
+</table>
+
+<footer>
+  Schema KG v0.5 · 29/07/2026 · bản đặc tả để mentor review · phạm vi: bài toán tra cứu điểm-thời-gian.<br>
+  Mọi số hiệu văn bản trong tài liệu này đã đối chiếu congbao.chinhphu.vn, trừ các mục ghi rõ ở §10.1.
+</footer>
+
+</div>
+</body>
+</html>
