@@ -1,0 +1,19 @@
+Điều 27. Sử dụng tài khoản đảm bảo thanh toán cho dịch vụ ví điện tử
+1. Tổ chức cung ứng dịch vụ ví điện tử phải đảm bảo duy trì tổng số dư trên tất cả các tài khoản đâm bảo thanh toán cho dịch vụ ví điện tử mở tại các ngân hàng hợp tác không thấp hơn tổng số dư tất cả các ví điện tử đã phát hành cho khách hàng tại cùng một thời điểm.
+2. Trường hợp đồng thời cung ứng dịch vụ ví điện tử và dịch vụ hỗ trợ thu hộ, chi hộ, tổ chức cung ứng dịch vụ trung gian thanh toán phải đảm bảo:
+a) Tài khoản đảm bảo thanh toán cho dịch vụ ví điện tử không được sử dụng chung với tài khoản đảm bảo thanh toán cho dịch vụ hỗ trợ thu hộ, chi hộ và phải tách bạch với các tài khoản thanh toán khác tại ngân hàng hợp tác;
+b) Việc sử dụng (ghi nợ/ghi có) tài khoản đảm bảo thanh toán cho dịch vụ ví điện tử phải tách bạch với việc sử dụng (ghi nợ/ghi có) tài khoản đảm bảo thanh toán cho dịch vụ hỗ trợ thu hộ, chi hộ.
+3. Tài khoản đảm bảo thanh toán cho dịch vụ ví điện tử chỉ được sử dụng vào việc:
+a) Chuyển tiền đến tài khoản đồng Việt Nam của chủ ví điện tử tại ngân hàng liên kết (cho việc sử dụng ví điện tử quy định tại
+điểm a khoản 2 Điều 25 Thông tư này
+);
+b) Chuyển tiền đến tài khoản đồng Việt Nam tại ngân hàng, chi nhánh ngân hàng nước ngoài (cho việc sử dụng ví điện tử quy định tại
+điểm b khoản 2 Điều 25 Thông tư này
+);
+c) Chuyển tiền đến tài khoản đảm bảo thanh toán cho dịch vụ ví điện tử của chính tổ chức cung ứng dịch vụ ví điện tử đó mở tại ngân hàng hợp tác;
+d) Chuyển tiền đến tài khoản đảm bảo thanh toán cho dịch vụ ví điện tử của tổ chức cung ứng dịch vụ ví điện tử khác;
+đ) Thanh toán vào tài khoản thanh toán của đơn vị chấp nhận thanh toán, đơn vị cung ứng dịch vụ công tương ứng với giao dịch sử dụng ví điện tử để thanh toán theo quy định tại
+điểm đ khoản 2 Điều 25 Thông tư này;
+e) Hoàn trả tiền cho chủ ví điện tử trong trường hợp sử dụng ví điện tử theo quy định tại
+khoản 4 Điều 25 Thông tư này.
+g) Tổ chức cung ứng dịch vụ ví điện tử được rút tiền phí mà các bên khấu trừ từ tài khoản đảm bảo thanh toán cho dịch vụ ví điện tử trong trường hợp các bên liên quan khấu trừ trực tiếp tiền phí dịch vụ trên ví điện tử. Tổ chức cung ứng dịch vụ ví điện tử thỏa thuận với ngân hàng hợp tác về biện pháp chứng minh, đảm bảo số tiền rút từ tài khoản đảm bảo thanh toán là số tiền phí được các bên khấu trừ trong giao dịch ví điện tử.

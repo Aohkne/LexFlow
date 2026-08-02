@@ -1,0 +1,5 @@
+Điều 2. Đối tượng áp dụng
+1. Tổ chức cung ứng dịch vụ thanh toán không dùng tiền mặt.
+2. Tổ chức cung ứng dịch vụ trung gian thanh toán.
+3. Tổ chức, cá nhân có liên quan đến hoạt động cung ứng dịch vụ thanh toán không dùng tiền mặt, dịch vụ trung gian thanh toán.
+4. Tổ chức, cá nhân sử dụng dịch vụ thanh toán không dùng tiền mặt, dịch vụ trung gian thanh toán (sau đây gọi là khách hàng).

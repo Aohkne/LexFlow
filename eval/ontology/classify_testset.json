@@ -1,0 +1,153 @@
+[
+  {
+    "case": "1",
+    "don_vi": "Điều 2 khoản 1",
+    "nguon": "ND52-2024-dieu2.txt",
+    "ky_vong": "premise",
+    "thuc_te": "premise",
+    "khop": true,
+    "them_ky_vong": "",
+    "them_thuc_te": "",
+    "test_path": [
+      "A: đứng riêng dưới tiêu đề 'Đối tượng áp dụng' (luật tiêu đề → meta_cu) → B",
+      "B: không tự bị vi phạm, bản thân đơn vị không phát biểu cổng nào → premise",
+      "C: chỉ khai báo một vai chủ thể, không tự chặn gì → premise/vai_tro"
+    ],
+    "rationale": "khai báo vai trò chủ thể — danh ngữ trần, không có vị ngữ để vi phạm hay chặn cổng",
+    "warnings": []
+  },
+  {
+    "case": "1",
+    "don_vi": "Điều 2 khoản 2",
+    "nguon": "ND52-2024-dieu2.txt",
+    "ky_vong": "premise",
+    "thuc_te": "premise",
+    "khop": true,
+    "them_ky_vong": "",
+    "them_thuc_te": "",
+    "test_path": [
+      "A: đứng riêng dưới tiêu đề 'Đối tượng áp dụng' (luật tiêu đề → meta_cu) → B",
+      "B: không tự bị vi phạm, bản thân đơn vị không phát biểu cổng nào → premise",
+      "C: chỉ khai báo một vai chủ thể, không tự chặn gì → premise/vai_tro"
+    ],
+    "rationale": "khai báo vai trò chủ thể — danh ngữ trần, không có vị ngữ để vi phạm hay chặn cổng",
+    "warnings": []
+  },
+  {
+    "case": "1",
+    "don_vi": "Điều 2 khoản 3",
+    "nguon": "ND52-2024-dieu2.txt",
+    "ky_vong": "premise",
+    "thuc_te": "premise",
+    "khop": true,
+    "them_ky_vong": "",
+    "them_thuc_te": "",
+    "test_path": [
+      "A: đứng riêng dưới tiêu đề 'Đối tượng áp dụng' (luật tiêu đề → meta_cu) → B",
+      "B: không tự bị vi phạm, bản thân đơn vị không phát biểu cổng nào → premise",
+      "C: chỉ khai báo một vai chủ thể, không tự chặn gì → premise/vai_tro"
+    ],
+    "rationale": "khai báo vai trò chủ thể — danh ngữ trần, không có vị ngữ để vi phạm hay chặn cổng",
+    "warnings": []
+  },
+  {
+    "case": "1",
+    "don_vi": "Điều 2 khoản 4",
+    "nguon": "ND52-2024-dieu2.txt",
+    "ky_vong": "premise",
+    "thuc_te": "premise",
+    "khop": true,
+    "them_ky_vong": "khách hàng",
+    "them_thuc_te": "khách hàng",
+    "test_path": [
+      "A: đứng riêng dưới tiêu đề 'Đối tượng áp dụng' (luật tiêu đề → meta_cu) → B",
+      "B: không tự bị vi phạm, bản thân đơn vị không phát biểu cổng nào → premise",
+      "C: chỉ khai báo một vai chủ thể, không tự chặn gì → premise/vai_tro"
+    ],
+    "rationale": "khai báo vai trò chủ thể — danh ngữ trần, không có vị ngữ để vi phạm hay chặn cổng",
+    "warnings": []
+  },
+  {
+    "case": "2",
+    "don_vi": "Điều 37 khoản 1",
+    "nguon": "ND52-2024-dieu37.txt",
+    "ky_vong": "meta_cu",
+    "thuc_te": "meta_cu",
+    "khop": true,
+    "them_ky_vong": "thoi_gian/van_ban 2024-07-01",
+    "them_thuc_te": "thoi_gian/van_ban 2024-07-01",
+    "test_path": [
+      "A: vị ngữ là mệnh đề phạm vi/hiệu lực, không phải hành vi → B",
+      "B: không tự bị vi phạm, nhưng chặn cổng quy định khác → C",
+      "C: phủ cấp 'van_ban' (thoi_gian) → meta_cu"
+    ],
+    "rationale": "mệnh đề chặn cổng thoi_gian, phủ cấp van_ban",
+    "warnings": []
+  },
+  {
+    "case": "2b",
+    "don_vi": "diễn đạt \"kể từ ngày\" của đề bài",
+    "nguon": "(chuỗi trong đề bài)",
+    "ky_vong": "meta_cu",
+    "thuc_te": "meta_cu",
+    "khop": true,
+    "them_ky_vong": "thoi_gian/van_ban 2024-07-01",
+    "them_thuc_te": "thoi_gian/van_ban 2024-07-01",
+    "test_path": [
+      "A: vị ngữ là mệnh đề phạm vi/hiệu lực, không phải hành vi → B",
+      "B: không tự bị vi phạm, nhưng chặn cổng quy định khác → C",
+      "C: phủ cấp 'van_ban' (thoi_gian) → meta_cu"
+    ],
+    "rationale": "mệnh đề chặn cổng thoi_gian, phủ cấp van_ban",
+    "warnings": []
+  },
+  {
+    "case": "3",
+    "don_vi": "Điều 22 khoản 2",
+    "nguon": "ND52-2024-dieu22.txt",
+    "ky_vong": "actor_cu",
+    "thuc_te": "actor_cu",
+    "khop": true,
+    "them_ky_vong": "8 điểm con",
+    "them_thuc_te": "8 điểm con",
+    "test_path": [
+      "A: có dấu hiệu nghĩa vụ/cấm đoán cùng đơn vị (cam, nghia_vu) → actor_cu"
+    ],
+    "rationale": "hành vi bắt buộc/cấm đoán nằm cùng đơn vị với chủ thể",
+    "warnings": []
+  },
+  {
+    "case": "4",
+    "don_vi": "Điều 16 khoản 2 (điểm b có tiết)",
+    "nguon": "TT17-2024-dieu16.txt",
+    "ky_vong": "actor_cu",
+    "thuc_te": "actor_cu",
+    "khop": true,
+    "them_ky_vong": "điểm b có ≥2 tiết",
+    "them_thuc_te": "điểm b có ≥2 tiết (thực tế 2)",
+    "test_path": [
+      "A: có dấu hiệu nghĩa vụ/cấm đoán cùng đơn vị (nghia_vu) → actor_cu"
+    ],
+    "rationale": "hành vi bắt buộc/cấm đoán nằm cùng đơn vị với chủ thể",
+    "warnings": []
+  },
+  {
+    "case": "5",
+    "don_vi": "câu giả định về phạm vi Mục",
+    "nguon": "(chuỗi trong đề bài — KHÔNG phải luật)",
+    "ky_vong": "meta_cu",
+    "thuc_te": "meta_cu",
+    "khop": true,
+    "them_ky_vong": "chu_the/muc",
+    "them_thuc_te": "chu_the/muc",
+    "test_path": [
+      "A: vị ngữ là mệnh đề phạm vi/hiệu lực, không phải hành vi → B",
+      "B: không tự bị vi phạm, nhưng chặn cổng quy định khác → C",
+      "C: phủ cấp 'muc' (chu_the) → meta_cu"
+    ],
+    "rationale": "mệnh đề chặn cổng chu_the, phủ cấp muc",
+    "warnings": [
+      "phạm vi cổng chưa quy được về khoá node: phạm vi 'Mục' không có node tương ứng trong parser (cây chỉ có Điều→Khoản→Điểm) — chưa quy được về khoá node"
+    ]
+  }
+]

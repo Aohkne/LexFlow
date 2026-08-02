@@ -1,0 +1,36 @@
+Điều 25. Sử dụng dịch vụ ví điện tử
+1. Việc nạp tiền vào ví điện tử được thực hiện thông qua:
+a) Nộp tiền mặt vào tài khoản đảm bảo thanh toán của tổ chức cung ứng dịch vụ trung gian thanh toán (cho dịch vụ ví điện tử) mở tại ngân hàng hợp tác;
+b) Nhận tiền từ tài khoản đồng Việt Nam của chủ ví điện tử tại ngân hàng liên kết;
+c) Nhận tiền từ tài khoản đồng Việt Nam mở tại ngân hàng, chi nhánh ngân hàng nước ngoài, trừ trường hợp quy định tại điểm b khoản này;
+d) Nhận tiền từ ví điện tử khác trong cùng hệ thống (do một tổ chức cung ứng dịch vụ ví điện tử mở);
+đ) Nhận tiền từ ví điện tử khác ngoài hệ thống (do tổ chức cung ứng dịch vụ ví điện tử khác mở).
+2. Chủ ví điện tử được sử dụng ví điện tử để:
+a) Rút tiền ra khỏi ví điện tử về tài khoản đồng Việt Nam của chủ ví điện tử tại ngân hàng liên kết;
+b) Chuyển tiền đến tài khoản đồng Việt Nam mở tại ngân hàng, chi nhánh ngân hàng nước ngoài, trừ trường hợp quy định tại điểm a khoản này;
+c) Chuyển tiền đến ví điện tử khác trong cùng hệ thống (do một tổ chức cung ứng dịch vụ ví điện tử mở);
+d) Chuyển tiền đến ví điện tử khác ngoài hệ thống (do tổ chức cung ứng dịch vụ ví điện tử khác mở);
+đ) Thanh toán cho hàng hóa, dịch vụ; nộp phí, lệ phí cho các dịch vụ công hợp pháp theo quy định của pháp luật.
+3. Khách hàng không được sử dụng ví điện tử để thực hiện các giao dịch cho các mục đích rửa tiền, tài trợ khủng bố, tài trợ phổ biến vũ khí hủy diệt hàng loạt, lừa đảo, gian lận và các hành vi vi phạm pháp luật khác.
+4. Tổ chức cung ứng dịch vụ ví điện tử thực hiện hoàn trả tiền cho chủ ví điện tử trong các trường hợp:
+a) Tổ chức cung ứng dịch vụ ví điện tử chấm dứt cung ứng dịch vụ ví điện tử cho khách hàng;
+b) Tổ chức cung ứng dịch vụ ví điện tử chấm dứt hoạt động, bị thu hồi Giấy phép, giải thể hoặc phá sản theo quy định của pháp luật;
+c) Chủ ví điện tử không thực hiện liên kết ví điện tử với tài khoản đồng Việt Nam hoặc thẻ ghi nợ của chính chủ ví điện tử theo quy định tại
+khoản 4 Điều 24 Thông tư này;
+d) Chi trả thừa kế theo quy định của pháp luật khi chủ ví điện tử là cá nhân chết hoặc bị tuyên bố là đã chết;
+đ) Theo yêu cầu của cơ quan nhà nước có thẩm quyền theo quy định của pháp luật;
+e) Các trường hợp đóng ví điện tử và xử lý số dư còn lại khi đóng ví điện tử theo thỏa thuận bằng văn bản giữa chủ ví điện tử và tổ chức cung ứng dịch vụ ví điện tử theo quy định tại
+điểm h khoản 1 Điều 19 Thông tư này.
+5. Tổ chức cung ứng dịch vụ ví điện tử không được nhận tiền mặt từ khách hàng để nạp tiền vào ví điện tử; không được phép cấp tín dụng cho khách hàng sử dụng ví điện tử, trả lãi trên số dư ví điện tử.
+6. Tổ chức cung ứng dịch vụ ví điện tử hướng dẫn khách hàng sử dụng ví điện tử đảm bảo nguyên tắc:
+a) Phạm vi sử dụng và hạn mức giao dịch theo từng đối tượng khách hàng phù hợp với quy định về quản lý rủi ro, thỏa thuận mở và sử dụng ví điện tử theo quy định tại
+điểm c khoản 1 Điều 28 Thông tư này;
+b) Có đủ thông tin cần thiết để kiểm tra, đối chiếu, xác minh thông tin nhận biết khách hàng trong quá trình sử dụng ví điện tử;
+c) Chỉ được sử dụng ví điện tử để thực hiện các giao dịch theo quy định tại
+khoản 2 Điều 25 Thông tư này
+bằng phương tiện điện tử khi đã hoàn thành việc đối chiếu khớp đúng giấy tờ tùy thân và thông tin sinh trắc học của chủ ví điện tử hoặc người đại diện (đối với khách hàng cá nhân) hoặc người đại diện hợp pháp (đối với khách hàng tổ chức) với:
+(i) Dữ liệu sinh trắc học được lưu trong bộ phận lưu trữ thông tin được mã hóa của thẻ căn cước công dân hoặc thẻ căn cước của người đó đã được xác thực chính xác là do cơ quan Công an cấp hoặc thông qua xác thực tài khoản định danh điện tử của người đó do Hệ thống định danh và xác thực điện tử tạo lập; hoặc
+(ii) Dữ liệu sinh trắc học được thu thập thông qua gặp mặt trực tiếp người đó đối với trường hợp là người nước ngoài không sử dụng danh tính điện tử, người gốc Việt Nam chưa xác định được quốc tịch; hoặc
+(iii) Dữ liệu sinh trắc học đã được thu thập và kiểm tra (đảm bảo sự khớp đúng giữa dữ liệu sinh trắc học của người đó với dữ liệu sinh trắc học trong bộ phận lưu trữ thông tin được mã hóa của thẻ căn cước công dân hoặc thẻ căn cước đã được xác thực chính xác là do cơ quan Công an cấp hoặc với dữ liệu sinh trắc học của người đó thông qua xác thực tài khoản định danh điện tử do Hệ thống định danh và xác thực điện tử tạo lập); hoặc
+(iv) Dữ liệu sinh trắc học của người đó được lưu trong Cơ sở dữ liệu quốc gia về dân cư trong trường hợp sử dụng thẻ căn cước công dân không có bộ phận lưu trữ thông tin được mã hóa;
+d) Áp dụng các biện pháp xác thực đối với từng loại giao dịch trong thanh toán bằng phương tiện điện tử theo quy định của Ngân hàng Nhà nước.
