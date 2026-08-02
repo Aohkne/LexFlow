@@ -226,9 +226,11 @@ def test_tt40_k6_sach_nho_sua_TANG_TACH_chu_khong_nho_noi_guard(index):
     assert not any("hạ mức" in w for w in cu.warnings), cu.warnings
 
 
-# Case thật CÒN LẠI có lỗi cứng, giữ để canh phép nới không thành lối thoát: mô hình
-# đổi *"Điều này"* thành *"Điều 26"*. Suy ra đúng, nhưng số 26 không nằm trong đoạn
-# được viện dẫn — và bao lồi cũng không có nó, nên `relax_absence` không cứu.
+# Case thật thứ ba, chép nguyên văn từ `pred.jsonl`: mô hình đổi *"Điều này"* thành
+# *"Điều 26"*. `relax_absence` KHÔNG cứu được (bao lồi cũng không chứa số 26) — cứu nó
+# là `relax_dereference`, một luật hẹp và khác hẳn. Hai phép nới phải phân biệt được
+# nhau qua chính câu cảnh báo, nếu không thì người duyệt không biết bản ghi sạch vì lý
+# do nào.
 _TT40_D26_K2 = {
     "logic": "any",
     "subject": {"units": [1], "quote": "Quy định tại khoản 1 Điều này",
@@ -238,12 +240,33 @@ _TT40_D26_K2 = {
 }
 
 
-def test_noi_khong_cuu_duoc_so_khong_co_trong_bao_loi(index):
-    """Canh ranh giới: `relax_absence` chỉ bỏ cáo buộc SAI, không bỏ cáo buộc đúng."""
+def test_dereference_duoc_ha_muc_va_noi_ro_ly_do(index):
     dieu = _dieu(index, "TT40-2024-dieu26.txt")
     khoan = _khoan(dieu, "2")
     units = segment(dieu, khoan)
-    assert "Điều 26" not in dieu.text[hull(units, [1])[0] : hull(units, [1])[1]]
+    span = hull(units, [1])
+    # Bao lồi thật sự KHÔNG chứa số 26 ⇒ `relax_absence` bất lực, đúng như thiết kế.
+    assert "Điều 26" not in dieu.text[span[0] : span[1]]
     cu = build_cu(_TT40_D26_K2, khoan, dieu, units, role="actor_cu")
-    assert any("bịa số" in e and "26" in e for e in cu.errors), cu.errors
+    assert cu.errors == [], cu.errors
+    assert any("khai triển viện dẫn tương đối" in w for w in cu.warnings), cu.warnings
+    # Và không được nhận nhầm công của phép nới kia.
+    assert not any("thu hẹp sai chỗ" in w for w in cu.warnings)
+    # Điểm mấu chốt: khoá node ĐÃ có sẵn, giải tất định, nhãn không cần mang số.
+    assert cu.references == ["40/2024/TT-NHNN#than/dieu_26#khoan_1"]
+
+
+def test_so_bia_that_trong_cung_ban_ghi_van_do(index):
+    """Canh ranh giới: nới khuôn "Điều này" không được kéo theo số nào khác.
+
+    Dựng tay — corpus không có case nào vừa khai triển viện dẫn tương đối vừa bịa thêm
+    một số khác, nên vế này không kiểm được bằng dữ liệu thật.
+    """
+    dieu = _dieu(index, "TT40-2024-dieu26.txt")
+    khoan = _khoan(dieu, "2")
+    units = segment(dieu, khoan)
+    data = json.loads(json.dumps(_TT40_D26_K2))
+    data["subject"]["label"] = "Quy định tại khoản 1 Điều 26, hạn mức 500 triệu đồng"
+    cu = build_cu(data, khoan, dieu, units, role="actor_cu")
+    assert any("bịa số" in e and "500" in e for e in cu.errors), cu.errors
     assert not cu.ok

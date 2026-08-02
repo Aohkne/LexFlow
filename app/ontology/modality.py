@@ -279,6 +279,69 @@ def relax_absence(delta: Delta, claim: str, evidence: str) -> tuple[Delta, list[
     return out, notes
 
 
+# Viện dẫn tương đối mà văn bản QPPL dùng để tự trỏ về chính nó. Chỉ dựng cho `Điều`
+# và `khoản`: `điểm` đánh bằng chữ cái nên không sinh ra số để mà tranh cãi, còn
+# "Thông tư này"/"Nghị định này" thì corpus chưa có case nào mô hình khai triển ra số
+# hiệu — dựng trước là thiết kế không có dữ liệu.
+_TU_TRO = {
+    "dieu": (re.compile(r"Điều\s+này", re.I), "Điều"),
+    "khoan": (re.compile(r"khoản\s+này", re.I), "khoản"),
+}
+
+
+def relax_dereference(
+    delta: Delta, claim: str, source: str, *, so_dieu: int = 0, so_khoan: int = 0
+) -> tuple[Delta, list[str]]:
+    """Bỏ cáo buộc "bịa số" khi số đó chỉ là mô hình KHAI TRIỂN một viện dẫn tương đối.
+
+    Case thật: luật viết *"Quy định tại khoản 1 **Điều này** không áp dụng…"*, mô hình
+    viết *"Quy định tại khoản 1 **Điều 26**"*. Suy ra đúng — nó **là** Điều 26 — nhưng
+    số 26 không có trong đoạn được viện dẫn nên guard đọc thành bịa số.
+
+    Ba điều kiện phải đủ cả, và cả ba đều kiểm được TẤT ĐỊNH:
+
+    1. đoạn luật đã neo thật sự chứa cụm tự trỏ (`"Điều này"` / `"khoản này"`);
+    2. số bị tố cáo **khớp đúng** số Điều/Khoản đang xét;
+    3. trong nhãn, số đó đứng **ngay sau** đúng từ đó (`"Điều 26"`, không phải một số 26
+       lạc ở chỗ khác).
+
+    Vế 3 là vế chống lọt: thiếu nó thì một nhãn viết *"áp dụng cho 26 tổ chức"* trong
+    một Khoản của Điều 26 cũng được tha, mà đó mới đúng là bịa số.
+
+    KHÔNG mở rộng thành "mọi số suy ra được đều tha": `citation.py` đã giải viện dẫn
+    tương đối thành khoá node ở `references` một cách tất định rồi, nên nhãn chép thêm
+    số vào **không mang thêm thông tin** — phép nới này chỉ để bản ghi khỏi bị đánh dấu
+    không dùng được, không phải để khuyến khích mô hình tự suy.
+    """
+    if not delta.added_numbers:
+        return delta, []
+    ngu_canh = {"dieu": so_dieu, "khoan": so_khoan}
+    con_lai, bo = [], []
+    for n in delta.added_numbers:
+        cua = next(
+            (
+                tu
+                for key, (re_tu_tro, tu) in _TU_TRO.items()
+                if ngu_canh[key] > 0
+                and n == str(ngu_canh[key])
+                and re_tu_tro.search(source)
+                and re.search(rf"{tu}\s+0*{re.escape(n)}(?!\d)", claim, re.I)
+            ),
+            None,
+        )
+        (bo if cua else con_lai).append((n, cua) if cua else n)
+    if not bo:
+        return delta, []
+    out = delta.model_copy(deep=True)
+    out.added_numbers = con_lai
+    return out, [
+        f"hạ mức 'bịa số {n}': mô hình khai triển viện dẫn tương đối {tu.lower()} này → "
+        f"{tu} {n}, khớp đúng đơn vị đang xét. Khoá node đã có sẵn ở `references` "
+        f"(giải tất định), nhãn không cần mang số này"
+        for n, tu in bo
+    ]
+
+
 def explain(claim: str, source: str, max_ops: int = 4) -> str:
     """Diff mức TỪ, in gọn kiểu `khi → phải`.
 

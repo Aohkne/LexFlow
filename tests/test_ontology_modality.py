@@ -11,6 +11,7 @@ from app.ontology.modality import (
     find_markers,
     find_numbers,
     modality_delta,
+    relax_dereference,
 )
 from app.ontology.parser import parse_dieu
 from app.ontology.segmenter import segment
@@ -182,15 +183,76 @@ def test_chep_lai_lenh_cam_roi_bo_duoi_khong_phai_dieu_kien_thanh_nghia_vu():
     assert d.lost["dieu_kien"] == ["khi"]  # vẫn nêu ra như một cảnh báo
 
 
-def test_dereference_dieu_nay_van_la_loi_cung():
-    """Ranh giới cố ý GIỮ: mô hình đổi *"Điều này"* thành *"Điều 26"*.
-
-    Suy ra đúng, nhưng số 26 không có trong đoạn được viện dẫn. Giữ nguyên lỗi cứng
-    theo đúng kỷ luật "thà bỏ đích còn hơn phát ra khoá sai" — hạ nó xuống là mở đường
-    cho mọi phép "suy ra hộ" khác đi kèm một con số tự nghĩ.
-    """
+def test_dereference_dieu_nay_bi_bat_o_tang_dem_so():
+    """Phép đếm một mình vẫn phải coi đây là bịa số — nới là việc của tầng sau."""
     d = modality_delta("Quy định tại khoản 1 Điều 26", "Quy định tại khoản 1 Điều này")
     assert d.hard_error and d.added_numbers == ["26"]
+
+
+# --- `relax_dereference`: nới ĐÚNG một khuôn, và chỉ khuôn đó -----------------
+#
+# Đo trước khi dựng: quét 294 nhãn trong `pred.jsonl`, **1** nhãn thêm số so với đoạn
+# đã neo, và đúng nó khớp khuôn này. Không có case nào "nguồn có viện dẫn tương đối
+# nhưng số thêm vào KHÁC" — tức corpus hiện tại không kiểm được vế chống lọt. Vì vậy
+# vế đó phải được canh bằng test dựng tay ở dưới, không thể dựa vào dữ liệu.
+
+_NGUON = "Quy định tại khoản 1 Điều này không áp dụng đối với"
+
+
+def test_khai_trien_dieu_nay_duoc_ha_muc():
+    d = modality_delta("Quy định tại khoản 1 Điều 26", _NGUON)
+    out, notes = relax_dereference(d, "Quy định tại khoản 1 Điều 26", _NGUON,
+                                   so_dieu=26, so_khoan=2)
+    assert not out.hard_error and out.added_numbers == []
+    assert any("khai triển viện dẫn tương đối" in n and "references" in n for n in notes)
+
+
+def test_khong_ha_muc_khi_so_khong_khop_don_vi_dang_xet():
+    """Mô hình ghi *"Điều 27"* trong khi đang ở Điều 26 — đó là trỏ sai đích, phải đỏ."""
+    claim = "Quy định tại khoản 1 Điều 27"
+    d = modality_delta(claim, _NGUON)
+    out, notes = relax_dereference(d, claim, _NGUON, so_dieu=26, so_khoan=2)
+    assert out.hard_error and out.added_numbers == ["27"] and notes == []
+
+
+def test_khong_ha_muc_khi_nguon_khong_co_cum_tu_tro():
+    """Nguồn không hề viết *"Điều này"* thì số kia không phải khai triển của gì cả."""
+    claim = "Quy định tại khoản 1 Điều 26"
+    src = "Quy định tại khoản 1 không áp dụng đối với"
+    d = modality_delta(claim, src)
+    out, notes = relax_dereference(d, claim, src, so_dieu=26, so_khoan=2)
+    assert out.hard_error and notes == []
+
+
+def test_khong_ha_muc_khi_so_lac_o_cho_khac_trong_nhan():
+    """Vế chống lọt: số khớp Điều đang xét nhưng KHÔNG đứng sau chữ "Điều".
+
+    Thiếu vế này thì một nhãn bịa *"áp dụng cho 26 tổ chức"* nằm trong Điều 26 cũng
+    được tha — mà đó mới đúng là bịa số. Corpus chưa có case nào như vậy nên test này
+    dựng tay, và nói rõ là dựng tay.
+    """
+    claim = "Quy định này áp dụng cho 26 tổ chức"
+    d = modality_delta(claim, _NGUON)
+    assert d.added_numbers == ["26"]
+    out, notes = relax_dereference(d, claim, _NGUON, so_dieu=26, so_khoan=2)
+    assert out.hard_error and out.added_numbers == ["26"] and notes == []
+
+
+def test_chi_ha_dung_so_khop_giu_nguyen_so_con_lai():
+    claim = "Quy định tại khoản 1 Điều 26 áp dụng cho 500 tỷ đồng"
+    d = modality_delta(claim, _NGUON)
+    assert set(d.added_numbers) == {"26", "500"}
+    out, notes = relax_dereference(d, claim, _NGUON, so_dieu=26, so_khoan=2)
+    assert out.added_numbers == ["500"] and out.hard_error
+    assert len(notes) == 1
+
+
+def test_khoan_khong_co_so_thi_khong_khop_duoc():
+    """Điều không chẻ khoản ⇒ `so_khoan=0`, "khoản này" không có số để khớp."""
+    claim = "quy định tại khoản 0 Điều này"
+    d = modality_delta(claim, "quy định tại khoản này")
+    out, _ = relax_dereference(d, claim, "quy định tại khoản này", so_dieu=26, so_khoan=0)
+    assert out.added_numbers == d.added_numbers
 
 
 def test_explain_chi_dich_danh_chu_bi_doi():

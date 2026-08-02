@@ -398,13 +398,65 @@ Dấu hiệu tách được, tìm ra bằng cách nhìn dữ liệu:
 
 Số cuối: **1/49** lỗi cứng, và nó là cái **đúng**.
 
-#### Cố ý giữ: *"Điều này"* → *"Điều 26"*
+---
 
-Suy ra đúng — đó **là** Điều 26. Nhưng số 26 không nằm trong đoạn được viện dẫn, và
-`citation.py` đã giải viện dẫn tương đối một cách **tất định** rồi, không cần mô hình
-suy hộ kèm một con số tự điền. Hạ nó xuống là mở cửa cho mọi phép "suy ra hộ" khác.
-Đây là **một lớp lỗi khác** hai lớp ở trên (bịa · lệch neo), nên xứng đáng một quyết
-định riêng chứ không đi ghép vào đợt này.
+### 4.5. Lớp lỗi thứ ba: khai triển viện dẫn tương đối
+
+Lỗi cứng còn lại sau §4.4 là TT40 Điều 26 khoản 2: luật viết *"Quy định tại khoản 1
+**Điều này** không áp dụng…"*, mô hình viết *"Quy định tại khoản 1 **Điều 26**"*.
+
+Nó **không** thuộc hai lớp trên. Mô hình suy ra **đúng** — đó *là* Điều 26 — nhưng số
+26 không nằm trong đoạn nó viện dẫn (`units=[1]`, dài 53 ký tự), và bao lồi cũng không
+có ⇒ `relax_absence` bất lực. Guard làm đúng hợp đồng; mô hình cũng không sai về nghĩa.
+
+**Đo trước khi dựng luật** (294 nhãn trong `pred.jsonl`):
+
+| | số case |
+|---|---|
+| nhãn thêm số so với đoạn đã neo | **1** |
+| …trong đó nguồn có cụm tự trỏ (`"Điều này"`…) | **1** |
+| …và số thêm vào **khớp** đơn vị đang xét | **1** ← luật đụng tới |
+| nguồn có cụm tự trỏ nhưng số thêm vào **khác** | **0** ← luật không được đụng |
+
+Dòng cuối bằng 0 nghĩa là **corpus không kiểm được vế chống lọt**. Vế đó phải canh
+bằng test dựng tay, và test phải nói rõ là dựng tay.
+
+**Luật (`modality.relax_dereference`)** — ba điều kiện, đủ cả ba mới hạ mức, cả ba đều
+kiểm tất định:
+
+1. đoạn luật đã neo **thật sự** chứa `"Điều này"` / `"khoản này"`;
+2. số bị tố cáo **khớp đúng** số Điều/Khoản đang xét;
+3. trong nhãn, số đó đứng **ngay sau** đúng từ đó (`"Điều 26"`).
+
+Vế 3 là vế chống lọt: thiếu nó thì một nhãn bịa *"áp dụng cho **26** tổ chức"* nằm
+trong Điều 26 cũng được tha — mà đó mới đúng là bịa số.
+
+Chỉ dựng cho `Điều` và `khoản`: `điểm` đánh bằng chữ cái nên không sinh số, còn
+*"Thông tư này"* / *"Nghị định này"* thì **chưa có case nào** mô hình khai triển ra số
+hiệu — dựng trước là thiết kế không có dữ liệu.
+
+**Vì sao hạ mức chứ không sửa mô hình:** `citation.py` đã giải viện dẫn tương đối
+thành khoá node ở `references` một cách tất định — bản ghi này mang sẵn
+`['40/2024/TT-NHNN#than/dieu_26#khoan_1']`. Việc dereference đã xong ở đúng chỗ của nó;
+nhãn chép thêm số vào **không mang thêm thông tin**. Phép nới chỉ để bản ghi khỏi bị
+đánh dấu không dùng được, **không** để khuyến khích mô hình tự suy.
+
+#### Lỗi cứng 1 → 0, và vì sao con số đó không được đứng một mình
+
+**0/49 lỗi cứng** — nhưng nó là 0 vì **2 bản ghi được nới**, mỗi lần đều để lại cảnh
+báo nêu đích danh:
+
+| bản ghi | nới bằng | cảnh báo còn lại |
+|---|---|---|
+| TT17 Đ16 k2 | `relax_absence` | *"`quote` thu hẹp sai chỗ: `text` KHÔNG chứa đoạn mà nhãn đang mô tả"* |
+| TT40 Đ26 k2 | `relax_dereference` | *"khai triển viện dẫn tương đối… khoá node đã có sẵn ở `references`"* |
+
+Hai câu cảnh báo **khác nhau** là có chủ ý: người duyệt phải biết bản ghi sạch vì lý do
+nào. Bản ghi được nới vẫn là bản ghi **cần đọc kỹ**, không phải bản ghi đã ổn — riêng
+TT17 Đ16 k2 thì `text` và `constraint_label` vẫn đang nói về hai đoạn khác nhau.
+
+Toàn corpus: **82 cảnh báo trên 28/49 bản ghi**. Số lỗi cứng bằng 0 **không** có nghĩa
+là không còn gì để duyệt.
 
 ---
 
@@ -424,8 +476,8 @@ Sau khi trích: **49 CU** (9 meta-CU), **45 bản ghi premise** (11 có bí danh
 Cổng: **5/9 quy được về khoá node**, 4 còn lại khai rõ `suy_ra_duoc=False` kèm lý do.
 Mốc ngày (§4.2): **7/9** meta-CU có `dieu_kien_cong`, trong đó 6 cái đọc ra ngày ISO.
 
-Lỗi cứng: **1/49** — TT40 Đ26 k2, mô hình đổi *"Điều này"* thành *"Điều 26"*; cố ý giữ
-(§4.4). TT40 Đ52 k6 đã sạch sau khi sửa tầng tách đơn vị.
+Lỗi cứng: **0/49** — nhưng xem §4.5: nó là 0 vì **2 bản ghi được nới**, mỗi lần kèm
+một cảnh báo nêu đích danh. Toàn corpus còn **82 cảnh báo trên 28/49 bản ghi**.
 
 ---
 
@@ -491,7 +543,8 @@ thêm hai cấp đó vào cây, không phải sửa classifier.
 **6. Nhánh "Đối tượng áp dụng có nghĩa vụ thật" chưa có dữ liệu.** Xem §2.
 
 **7. `conditions[]` và mốc ngày của cổng thời gian — ĐÃ CHỐT, xem §4.2.** Giữ 4-tuple,
-cho ô điều kiện mang object có cấu trúc. Lỗi cứng 5 → 2, rồi **→ 1** sau §4.3.
+cho ô điều kiện mang object có cấu trúc. Lỗi cứng **5 → 2** (§4.2) → **1** (§4.3) →
+**0** (§4.4 sửa tầng tách, §4.5 lớp lỗi thứ ba) — với hai bản ghi được nới có ghi tên.
 
 **7a. TT40 Điều 52 khoản 6 — ĐÃ XỬ LÝ ở tầng tách, xem §4.4.** Mục này đã sai **hai
 lần**, cùng một kiểu sai: suy luận nghe hợp lý mà không mở dữ liệu ra xem.

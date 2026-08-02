@@ -18,7 +18,12 @@ import json
 
 from app.core.llm import chat_json
 from app.ontology.citation import parse_citations, to_node_ids
-from app.ontology.modality import explain, modality_delta, relax_absence
+from app.ontology.modality import (
+    explain,
+    modality_delta,
+    relax_absence,
+    relax_dereference,
+)
 from app.ontology.parser import tiet_logic
 from app.ontology.schema import (
     ComplianceUnit,
@@ -105,21 +110,37 @@ def _evidence(units: list[Unit], g: Grounding, dieu_text: str) -> str:
 
 
 def _check(
-    label: str, source: str, where: str, evidence: str | None = None
+    label: str,
+    source: str,
+    where: str,
+    evidence: str | None = None,
+    ctx: tuple[int, int] | None = None,
 ) -> tuple[list[str], list[str]]:
     """Đối chiếu diễn giải với chữ của luật → (lỗi cứng, cảnh báo).
 
-    `source` là lát cắt hẹp (sau `quote`); `evidence` là bao lồi các đơn vị đã chọn.
-    Cáo buộc VẮNG MẶT được kiểm lại trên `evidence` trước khi cho thành lỗi cứng —
-    nhãn mô tả chữ nằm trong bằng chứng đã trích dẫn thì không phải là bịa, mà là
-    `quote` thu hẹp sai chỗ. Việc hạ mức luôn kèm cảnh báo nêu đích danh.
+    `source` là lát cắt hẹp (sau `quote`); `evidence` là bao lồi các đơn vị đã chọn;
+    `ctx` là `(số Điều, số Khoản)` đang xét.
+
+    Hai phép nới, cả hai chỉ chạy khi ĐÃ có lỗi cứng và cả hai đều để lại cảnh báo nêu
+    đích danh — không có phép nới nào diễn ra trong im lặng:
+
+    1. `relax_dereference` — số bị tố cáo chỉ là mô hình khai triển `"Điều này"`;
+    2. `relax_absence` — cáo buộc VẮNG MẶT phải kiểm trên toàn bộ bằng chứng đã trích
+       dẫn, vì nhãn mô tả chữ nằm trong đó thì không phải bịa mà là `quote` thu hẹp
+       sai chỗ.
     """
     if not label.strip():
         return [], []
     delta = modality_delta(label, source)
     notes: list[str] = []
+    if delta.hard_error and ctx is not None:
+        delta, n = relax_dereference(
+            delta, label, source, so_dieu=ctx[0], so_khoan=ctx[1]
+        )
+        notes += n
     if delta.hard_error and evidence is not None and evidence != source:
-        delta, notes = relax_absence(delta, label, evidence)
+        delta, n = relax_absence(delta, label, evidence)
+        notes += n
     msgs = delta.describe()
     if delta.hard_error:
         return [f"{where}: {'; '.join(msgs)} | {explain(label, source)}"], [
@@ -128,7 +149,13 @@ def _check(
     return [], [f"{where}: {m}" for m in msgs + notes]
 
 
-def _field(raw: dict, units: list[Unit], dieu_text: str, where: str) -> tuple[GroundedField, list[str], list[str]]:
+def _field(
+    raw: dict,
+    units: list[Unit],
+    dieu_text: str,
+    where: str,
+    ctx: tuple[int, int] | None = None,
+) -> tuple[GroundedField, list[str], list[str]]:
     g = resolve(raw, units, dieu_text)
     text = dieu_text[g.char_span[0] : g.char_span[1]] if g.char_span else ""
     label = (raw.get("label") or "").strip()
@@ -141,7 +168,9 @@ def _field(raw: dict, units: list[Unit], dieu_text: str, where: str) -> tuple[Gr
                 f"{where}: quote không nằm trong đơn vị đã chọn, lùi về span đơn vị | "
                 f"{explain(g.quote, text)}"
             )
-        e, w = _check(label, text, where, evidence=_evidence(units, g, dieu_text))
+        e, w = _check(
+            label, text, where, evidence=_evidence(units, g, dieu_text), ctx=ctx
+        )
         errors += e
         warnings += w
     field = GroundedField(text=text, label=label, grounding=g, issues=errors + warnings)
@@ -260,6 +289,11 @@ def build_cu(
     raw_subject = data.get("subject") or {}
     mien_subject = subject_khong_ap_dung(role, gates)
 
+    # Ngữ cảnh để giải viện dẫn tự trỏ ("Điều này" / "khoản này") — xem
+    # `modality.relax_dereference`. Khoản 0 = Điều không chẻ khoản, khi đó "khoản này"
+    # không có số để mà khớp.
+    ctx = (dieu.so_goc, khoan.so_goc if khoan.so_hien_thi else 0)
+
     subject: GroundedField | None
     subject_source: str | None
     if mien_subject and not (raw_subject.get("units") or []):
@@ -267,7 +301,7 @@ def build_cu(
         # bị ràng buộc — bắt điền ô này chỉ tổ đẩy mô hình đi chọn bừa một đơn vị.
         subject, subject_source = None, None
     else:
-        subject, e, w = _field(raw_subject, units, dieu.text, "subject")
+        subject, e, w = _field(raw_subject, units, dieu.text, "subject", ctx=ctx)
         errors += e
         warnings += w
         subject_source = raw_subject.get("source")
@@ -287,7 +321,7 @@ def build_cu(
                 "chủ ngữ ngữ pháp, cân nhắc để trống"
             )
 
-    action, e, w = _field(data.get("action") or {}, units, dieu.text, "action")
+    action, e, w = _field(data.get("action") or {}, units, dieu.text, "action", ctx=ctx)
     errors += e
     warnings += w
 
@@ -330,7 +364,7 @@ def build_cu(
             for label_key in ("object_label", "constraint_label"):
                 e, w = _check(
                     (raw.get(label_key) or "").strip(), text,
-                    f"{where}.{label_key}", evidence=evidence,
+                    f"{where}.{label_key}", evidence=evidence, ctx=ctx,
                 )
                 item_err += e
                 item_warn += w
