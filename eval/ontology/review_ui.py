@@ -149,9 +149,13 @@ def split_rows(rows: list[dict]) -> tuple[list[dict], list[dict]]:
 
 
 class _Handler(BaseHTTPRequestHandler):
-    """Server tối giản chỉ phục vụ localhost: trả trang và nhận lệnh lưu."""
+    """Server tối giản chỉ phục vụ localhost: trả trang và nhận lệnh lưu.
 
-    html: str = ""
+    Đọc lại HTML từ ĐĨA mỗi lần GET. Giữ một bản trong bộ nhớ gây lỗi im lặng đã gặp
+    thật: sinh lại trang xong, F5 vẫn ra bản cũ, và người duyệt tưởng công cụ đếm sai.
+    """
+
+    out_path: Path = _OUT
 
     def _send(self, code: int, body: bytes, ctype: str) -> None:
         self.send_response(code)
@@ -161,7 +165,7 @@ class _Handler(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
     def do_GET(self) -> None:  # noqa: N802 - chữ ký của BaseHTTPRequestHandler
-        self._send(200, self.html.encode("utf-8"), "text/html; charset=utf-8")
+        self._send(200, self.out_path.read_bytes(), "text/html; charset=utf-8")
 
     def do_POST(self) -> None:  # noqa: N802
         n = int(self.headers.get("Content-Length") or 0)
@@ -204,9 +208,10 @@ def main(argv: list[str] | None = None) -> Path:
     print(f"Đã ghi {out} — {n['actor_cu']} actor-CU · {n['meta_cu']} meta-CU · {n_pr} premise")
 
     if args.serve:
-        _Handler.html = html
+        _Handler.out_path = out
         url = f"http://127.0.0.1:{args.port}/"
-        print(f"Server tại {url} (chỉ localhost). Nút Lưu sẽ ghi vào {_GOLD}. Ctrl+C để dừng.")
+        print(f"Server tại {url} (chỉ localhost). Nút Lưu sẽ ghi vào {_GOLD}.")
+        print(f"  Sinh lại {out} rồi F5 là thấy ngay — không cần restart. Ctrl+C để dừng.")
         if not args.no_open:
             webbrowser.open(url)
         try:
