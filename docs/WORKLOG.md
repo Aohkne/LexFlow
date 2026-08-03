@@ -6,6 +6,28 @@
 
 ---
 
+## 2026-08-03 (T2)
+
+**Giai đoạn:** đối chiếu code đang có với đặc tả **KG v0.5** — không viết thêm code, chỉ đo.
+
+- **Done:** `docs/KG-CONFORMANCE-v05.md` — đối chiếu từng mục của `research/schema-kg-v05.html`.
+  - **Phát hiện đầu tiên, quan trọng hơn mọi ô đạt/chưa: repo có HAI schema văn bản, v0.5 mô tả MỘT.** Tầng app đang chạy khoá bằng `TT40-2024` (chuỗi viết tắt do LLM sinh, `extract.py:35`); tầng PoC ontology khoá bằng `40/2024/TT-NHNN#than/dieu_41#khoan_2`. **Không có bảng map.** Cùng một Điều 41 tồn tại dưới hai khoá không quy về nhau được — trái §9 quyết định #10, và `docs/RAG-DESIGN.md §1.1` đã hứa *"id row **trùng** id node KG ⇒ không cần bảng map"*, lời hứa đó hiện **không đúng** với tầng app.
+  - **Điểm theo khối:** §4 khoá nhánh **1/3** · §5 đánh số **5/6** · §3 node **4/15** · §6 quan hệ **4/13** · §7 thời gian **0/5** · §8 tin cậy **0/2** · §9 ba quyết định đạt, hai không đạt. Phần v0.5 đặc tả kỹ nhất (đánh số + khoá nhánh `than`) **đã thoả và có test canh**; phần từ cấp Điều trở lên **phần lớn chưa tồn tại dưới dạng code**.
+  - **Ba chỗ MÂU THUẪN, tách riêng khỏi "chưa dựng"** — thiếu thì dựng thêm là xong, ba cái này đang nói ngược nhau ngay trong repo:
+    1. **Lỗi đang sống trong UI.** `api/documents.py:49` `status = "con_hieu_luc" if effective else "het_hieu_luc"`, mà `is_effective` trả `False` khi `ref < valid_from` ⇒ **văn bản CHƯA tới ngày hiệu lực đang hiển thị là HẾT hiệu lực**. Hai trạng thái ở hai đầu đối lập của vòng đời bị gộp làm một. §7.3 có đủ bốn trạng thái chính là để chặn ca này.
+    2. **Khoảng đóng vs nửa mở.** `versioning.py:37-40` dùng `vf <= ref <= vt`, trong khi `RAG-DESIGN.md §1.2` tuyên bố nửa mở là *"bộ lọc thời gian **DUY NHẤT** — không viết biến thể thứ hai ở bất cứ đâu"* và §7.1 buộc `hieu_luc_den` của bản cũ **bằng đúng** `hieu_luc_tu` của bản mới. ⇒ đúng ngày biên sẽ khớp **cả hai** phiên bản. Chưa bắn vì **0/278 điều có `valid_to`** — nghĩa là nó sẽ hỏng đúng lúc tầng thời gian bắt đầu có dữ liệu, lúc khó thấy nhất.
+    3. **Khoá `#than/` hardcode ở hai chỗ** (`parser.py:232`, `citation.py:198`): Điều nằm trong quy chế kèm theo hoặc phụ lục vẫn nhận khoá `#than/` — đúng cái va khoá im lặng mà §3 dựng `VanBanKemTheo` để chặn. Chưa hỏng vì cả 18 fixture đều là thân văn bản.
+  - **Hai chỗ dễ nhận vơ, phải tách bạch.** (a) `Article.chapter`/`section` **có khai báo nhưng 0/278 điều có giá trị** — trường chết, không phải node `Chuong`/`Muc`. (b) Trạng thái duyệt Supabase `pending|approved|rejected` **không phải** `da_xac_minh_nguon`: nó là *"đã có người bấm duyệt"*, còn v0.5 hỏi *"đọc Công báo hay đọc nguồn thứ cấp"* — mà §8.2 kể một ca hỏng thật nằm gọn trong vùng "thứ cấp mà tưởng là đủ". Ngược lại `Gate.pham_vi` nhận `"chuong"/"muc"` nhưng luôn kèm `suy_ra_duoc=False` là cách xử lý **trung thực**, ghi lại để không ai đi "sửa" nó thành `True`.
+  - **Cách lưu quan hệ khác kiểu, không chỉ khác tên.** `graph.py:67` dùng **một** kiểu cạnh `REL` mang property `rel_type`, không phải 13 kiểu cạnh có tên ⇒ **mọi câu Cypher trong v0.5 không chạy được** (`-[:QUY_DINH_CHI_TIET_HUONG_DAN]-`, `-[:CO_PHIEN_BAN]->`). Kéo theo: **ca kiểm chứng bắt buộc của §6.2** (`BAI_BO` mà không có `THAY_THE` = *legislative void*) hiện **không chạy được**, vì `BAI_BO` không tồn tại như một loại — đó là một **năng lực v0.5 hứa** mà hệ chưa có, không chỉ là một cạnh thiếu.
+  - **Bốn chỗ PoC đã đi TRƯỚC v0.5, đề nghị v0.6 hấp thụ**: tiết `(i)` (4/586 viện dẫn, cả 4 ở văn bản đã hết hiệu lực; chữ "tiết" **0 lần** trong 557k ký tự) · điều không chẻ khoản (**25/267 = 9,4%**) · `DieuKienCong` — §7 đòi `PhienBanDieu.hieu_luc_tu` nhưng **không nói lấy ngày ở đâu ra**, đây chính là mặt trích xuất của nó, kèm `moc: bat_dau|ket_thuc` chống đảo ngữ nghĩa · trục *tin cậy trích xuất* (`do_tin_cay` + `Grounding.status`) bên cạnh trục *tin cậy nguồn* của §8.
+  - **Một lỗi trong chính v0.5**: §2 changelog gọi `so_khoan_goc`/`so_khoan_hau_to`, §5 (bảng chuẩn) gọi `so_goc`/`so_hau_to`. Code theo §5 — nên sửa changelog cho khớp bảng của chính nó.
+- **Ship:** không đụng code. **284 pytest + ruff xanh**, `--classify` **94 đơn vị không đổi** (premise 45 · meta_cu 9 · actor_cu 40).
+- **Decision:** người dùng chốt **chỉ viết báo cáo**, không sửa ba lỗi ở trên trong cùng đợt — sửa hiệu lực/khoá là thay đổi hành vi, không đi kèm một đợt đo đạc. Ba mục vào bảng "việc còn đọng, đã có chẩn đoán" kèm mức + chi phí để lần sau không phải chẩn lại.
+- **Ghi chú:** báo cáo viết theo **bản working copy** của `research/schema-kg-v05.html` (v0.5 vòng 4, chưa commit), không theo bản trong git HEAD (còn 3 trạng thái hiệu lực, chưa có §1.3b `QuyTacHieuLuc`).
+- **Next:** ưu tiên cao và rẻ: `status` bốn trạng thái · `is_effective` sang nửa mở (một dấu `<` + test biên) · chặn khoá `#than/` bịa. Ưu tiên cao nhưng lớn: thống nhất không gian ID — quyết định kiến trúc, chạm corpus + Neo4j + web + LanceDB, phải chốt trước khi dựng `PhienBanDieu`.
+
+---
+
 ## 2026-08-02 (CN)
 
 **Giai đoạn:** hạ bước phân loại xuống **mức Khoản**, chạy trước khi trích S-O-A-C.
