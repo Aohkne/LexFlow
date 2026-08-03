@@ -1,7 +1,8 @@
 # Bảng review schema KG + PoC tầng chuẩn tắc
 
 > **Cho người review.** Tài liệu này gộp hai thứ vốn nằm rời: schema KG đã chốt
-> (`research/schema-kg-v05.html` — bản v0.5; `docs/SCHEMA_KG.md` — bản v0.4 cũ hơn) và
+> (`research/schema-kg-v05.html` — v0.5, quyết định mới nhất; `docs/SCHEMA_KG.md` —
+> v0.4, bản đặc tả đầy đủ. **Hai vai khác nhau, không phải bản cũ/mới** — xem §6 mục 13) và
 > PoC tầng chuẩn tắc vừa làm (`app/ontology/`, commit `8ec3ab4`). Mọi con số trong đây
 > đo được từ `eval/ontology/`, không phải ước lượng — cột **bằng chứng** chỉ ra chỗ
 > kiểm lại.
@@ -150,7 +151,7 @@ duyệt biết bản ghi sạch vì lý do nào:
 | 10 | Vế chống lọt của `relax_dereference` **chưa kiểm được bằng dữ liệu** | corpus có **0** case "nguồn có viện dẫn tương đối nhưng số thêm vào khác" ⇒ chỉ canh được bằng test dựng tay, và test có ghi rõ là dựng tay | — | thấp |
 | 11 | `role` mới **gắn nhãn**, chưa thật sự **gate** | meta-CU đáng ra phải được đánh giá **trước** và chặn actor-CU; hiện chỉ có nhãn | logic tuân thủ | trung bình |
 | 12 | Tiết `(i)/(ii)` không có địa chỉ; `connector` = `unknown` khi chỉ ngăn bằng `;` | đo được **4/586** viện dẫn đi tới cấp tiết, cả 4 đều trong văn bản đã hết hiệu lực ⇒ không cấp khoá node. Nhưng **quan hệ logic** thì giữ | `;` trong tiếng Việt pháp lý dùng cho **cả** liệt kê lẫn lựa chọn — đoán là sai | trung bình |
-| 13 | **Hai bản schema sống song song** | `docs/SCHEMA_KG.md` là **v0.4** (markdown), `research/schema-kg-v05.html` là **v0.5** (HTML). Mọi trích dẫn của PoC trỏ về bản v0.5 | người review dễ đọc nhầm bản cũ | **cần dọn** |
+| 13 | **Hai bản schema sống song song** — cố ý giữ, **không** xoá v0.4 | Kiểm coverage: v0.5 là tài liệu *để review*, **không phủ hết** v0.4. Bảy mục chỉ có ở v0.4: phân tầng corpus NÓNG/ẤM/NỀN · ràng buộc & chỉ mục · kế hoạch 6 tuần · rủi ro & QA · `so_hieu_chuan_hoa` · `KE_THUA_CO_QUAN` · `SU_DUNG_KHAI_NIEM`. Hai cái áp chót chặn **khoá va chạm âm thầm** ⇒ xoá là mất thật | **đã giảm nhẹ**: `SCHEMA_KG.md` có banner nêu rõ v0.5 thắng khi mâu thuẫn, bảy mục chỉ có ở v0.4, và chỗ v0.5 siết lại (ngày hiệu lực của quan hệ sửa đổi nằm **trên cạnh** — TT 25/2025 có **ba** mốc trong một văn bản). Gộp thành v0.6 markdown: **chưa làm** | thấp |
 
 ---
 
