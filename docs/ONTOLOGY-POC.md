@@ -720,6 +720,62 @@ Cờ "điểm không tồn tại" cũng từng được dùng làm **mồi sinh 
 `test_ontology_condition_address.py`; nay đổi mồi sang cờ `quote` lệch đơn vị, và các điều kiện
 trong test chia nhau một điểm **có thật** — sát thực tế hơn ca cũ.
 
+## 14e. Câu bao trùm quyết phép nối các tiết — mục để ngỏ ở §14c nay chốt
+
+### Vấn đề
+
+`tiet_logic` chỉ đọc **liên từ hiện** trên từng tiết (`hoặc`/`và`). TT18 Đ9 k3 điểm c có
+chapeau *"…nhưng phải đảm bảo **các nguyên tắc sau**:"* rồi hai tiết ngăn bằng `;` — máy trả
+`unknown` và bàn giao cho người câu hỏi *"và hay hoặc?"*, dù **câu trả lời nằm ngay trong chữ
+luật**. Cùng loại sai với `source_diem` ở §14d: hỏi người một câu văn bản đã trả lời.
+
+### Đo TRƯỚC khi viết mẫu — và số liệu bác bỏ một phần đề xuất ban đầu
+
+Cả 18 fixture chỉ có **5 Điểm có tiết**: 2 đã giải bằng "hoặc", 3 còn `unknown`, và trong 3 cái
+đó **chỉ 1** mang cụm chapeau. Luật này mua **đúng một ca** hôm nay. Nó đáng viết vì tất định và
+vì cụm đó lặp khắp VBQPPL, **không** vì số lượng — nói rõ để không ai đọc nhầm thành một thắng
+lợi lớn.
+
+Thứ bắt buộc phải đo là cụm `"sau"` trong corpus mang **bốn nghĩa trái ngược nhau**:
+
+| dạng | ví dụ nguyên văn trong corpus | phải ra |
+|---|---|---|
+| ALL | `"phải đảm bảo các nguyên tắc sau:"` · `"đáp ứng tối thiểu các yêu cầu sau:"` | `all` |
+| **ANY** | `"đáp ứng ít nhất MỘT TRONG các tiêu chí sau:"` | **`any`** |
+| loại trừ | `"KHÔNG ÁP DỤNG đối với các trường hợp sau:"` · `"TRỪ các quy định sau đây"` | `unknown` |
+| định nghĩa | `"(sau đây GỌI LÀ …)"` — **15+ lần, dạng ĐÔNG NHẤT** | `unknown` |
+
+Một regex lỏng sẽ bắt nhầm **chính dạng đông nhất**, và tệ hơn là đọc `any` thành `all` — đảo
+nghĩa pháp lý. Ba chốt chặn:
+
+1. **Vị trí** — cụm phải nằm ở **đuôi** chapeau. Một mình điều này loại hết `(sau đây gọi là …)`
+   vì chúng luôn nằm giữa câu; từ điển chỉ là lớp thứ hai.
+2. **`một trong` / `ít nhất một`** hạ xuống `any`.
+3. **Loại trừ và định nghĩa** trả `unknown` — chúng là danh sách *ngoại lệ* hoặc *thuật ngữ*,
+   gán phép nối cho chúng là trả lời một câu hỏi khác với câu đang hỏi.
+
+`(?<!bù )` trong mẫu loại trừ giữ *"Hệ thống **bù trừ** điện tử"* khỏi bị đọc thành mệnh đề trừ.
+
+### Thứ tự ưu tiên
+
+**Liên từ hiện thắng chapeau.** "hoặc" nói về đúng hai tiết đang xét; chapeau nói về cả danh
+sách. Chapeau chỉ là đường lui khi tiết im lặng.
+
+### Máy quyết thì phải để lại vết
+
+Đọc "hoặc" không cần cảnh báo — đó là **một từ**, không sai được. Chapeau là một **mẫu**, và mẫu
+thì sai được. Nên mỗi lần chapeau quyết thay tiết, `extractor` nêu `tiet_logic_tu_chapeau` kèm
+**đúng cụm đã khớp**, xếp **T5** — không vào hàng đợi duyệt (máy đã quyết được, không có câu hỏi
+nào bàn giao) nhưng đếm và soát lại được. Khi đã có đủ ca thật thì bỏ cảnh báo này đi; một ca thì
+chưa đủ để im lặng.
+
+### Hệ quả: một nhánh mã mất hết ca thật
+
+Sau thay đổi này corpus **không còn** Điểm nào rơi vào `tiet_semicolon_mo_ho` — TT18 Đ9 k3 điểm c
+là ca thật duy nhất. Nhánh mã vẫn còn và vẫn phải chạy đúng, nên test của nó chuyển sang một
+**Điểm dựng tay** và nói rõ mình là dựng tay. Sửa fixture cho vừa test thì rẻ hơn, nhưng fixture
+là chữ luật thật — sửa nó là làm hỏng thứ đắt nhất trong repo.
+
 ## 15. Câu hỏi mở cho mentor
 
 1. Ba tầng tất định ở §4 có đủ để coi là **kiểm soát tính trung thành** cho tầng chuẩn tắc, hay vẫn cần

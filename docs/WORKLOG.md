@@ -59,6 +59,56 @@
     độc bị loại **từ gốc**; đường duy nhất còn lại là nội dung cảnh báo `diem_khai_lech`, vẫn escape.
   - **Còn nợ:** hai mã cờ mới **bắn 0 lần** trên corpus này — chúng chỉ được chứng minh bằng test đơn vị,
     chưa bằng dữ liệu thật.
+- **Done (câu bao trùm quyết phép nối các tiết — `docs/ONTOLOGY-POC.md` §14e).** Chốt mục để ngỏ
+  từ §14c. Cùng loại sai với §14d: `tiet_logic` chỉ đọc liên từ hiện, nên TT18 Đ9 k3 điểm c —
+  chapeau *"phải đảm bảo **các nguyên tắc sau**:"* — vẫn bàn giao cho người câu hỏi *"và hay
+  hoặc?"* dù **câu trả lời nằm ngay trong chữ luật**.
+  - **Đo trước khi viết mẫu, và số liệu bác một phần đề xuất ban đầu của tôi.** Cả 18 fixture chỉ
+    có **5 Điểm có tiết**; 2 đã giải bằng "hoặc", 3 còn `unknown`, và trong 3 cái đó **chỉ 1**
+    mang cụm chapeau. Luật này mua **đúng một ca** — đáng viết vì tất định và vì cụm lặp khắp
+    VBQPPL, **không** vì số lượng.
+  - **Cụm `"sau"` trong corpus mang BỐN nghĩa trái ngược nhau**, đây mới là thứ phải canh: ALL
+    (*"phải đảm bảo các nguyên tắc sau:"*) · **ANY** (*"đáp ứng ít nhất **một trong** các tiêu chí
+    sau:"*) · loại trừ (*"**không áp dụng** đối với các trường hợp sau:"*, *"**trừ** các quy định
+    sau đây"*) · định nghĩa (*"(sau đây **gọi là** …)"* — **15+ lần, dạng ĐÔNG NHẤT**). Regex lỏng
+    sẽ bắt nhầm chính dạng đông nhất, và tệ hơn là đọc `any` thành `all` — **đảo nghĩa pháp lý**.
+  - **Ba chốt chặn:** (1) **vị trí** — cụm phải ở **đuôi** chapeau, một mình điều này loại hết
+    `(sau đây gọi là …)` vì chúng luôn nằm giữa câu; (2) `một trong`/`ít nhất một` hạ xuống `any`;
+    (3) loại trừ và định nghĩa trả `unknown`, không đoán. `(?<!bù )` giữ *"Hệ thống **bù trừ** điện
+    tử"* khỏi bị đọc thành mệnh đề trừ. **Liên từ hiện luôn thắng chapeau** — "hoặc" nói về đúng
+    hai tiết đang xét, chapeau nói về cả danh sách.
+  - **Máy quyết thì để lại vết.** Đọc "hoặc" là đọc **một từ**, không cần cảnh báo; chapeau là một
+    **mẫu**, mà mẫu thì sai được ⇒ mã `tiet_logic_tu_chapeau` nêu đích danh cụm đã khớp, xếp **T5**
+    (không vào hàng đợi vì máy đã quyết được, nhưng đếm và soát lại được). Một ca thật thì chưa đủ
+    để im lặng.
+  - **Đo: 7 dự đoán ghi trước khi chạy, 7 đúng.** Tổng cảnh báo **76 → 76** (một mã đổi chỗ cho mã
+    khác) · T2 **3 → 2** · T5 **43 → 44** · hàng đợi **33 → 32** · `logic` của TT18 Đ9 k3 điểm c
+    `unknown → all` · **không bản ghi nào khác đổi**. `--classify` **94 đơn vị 45/9/40**,
+    `classify_testset` **9/9**, pytest **344**, ruff sạch.
+  - **Hệ quả: một nhánh mã mất hết ca thật.** Corpus không còn Điểm nào rơi vào
+    `tiet_semicolon_mo_ho`. Nhánh vẫn phải chạy đúng nên test của nó chuyển sang **Điểm dựng tay**
+    và nói rõ là dựng tay — sửa fixture cho vừa test thì rẻ hơn, nhưng fixture là **chữ luật thật**,
+    sửa nó là làm hỏng thứ đắt nhất trong repo.
+- **Done (duyệt 33 cờ — nhãn người, `anotate/flag_verdicts.jsonl`).** Cờ ĐÚNG 15 · Báo động GIẢ 8
+  · Không chắc **10**. Con số đáng đọc nhất là **10/33 (30%) không quyết được** — cờ không đưa đủ
+  cho người duyệt, đó là hỏng của trang chứ không phải của người đọc. Ba kết luận rút ra:
+  - **T3 xếp sai mức, và chính code đã nói trước.** 8/9 cờ T3 là báo động giả — không phải mô hình
+    bỗng tốt lên mà vì `modality.py:65-68` đã viết sẵn: *"thêm số lần xuất hiện của một nhóm **đã
+    có sẵn** thì không [phải bịa] — đó thường chỉ là **phân phối lệnh cấm ra từng vế**, hoặc **thay
+    từ đồng nghĩa**"*. Đối chiếu chữ luật đúng hai dạng đó: TT40 Đ25 k5 luật viết *"không được…;
+    không được phép…"* rồi tỉnh lược vế ba, mô hình viết rõ ra; 4 ca *"khi"* là luật viết *"(trong)
+    trường hợp"* — **cùng nhóm `dieu_kien`**. Tín hiệu bịa thật là `invented_groups` → lỗi cứng,
+    hiện **0/49**. ⇒ T3 nên xuống T5 và đổi tên; **chưa làm**.
+  - **`guard_ngoai_mau` (13 cờ) là MỘT lỗ hổng mẫu, không phải 13 việc.** 10/13 là đúng hai cụm
+    `'dịch vụ ví điện tử'`, `'dịch vụ chuyển mạch tài chính'`. Thử trực tiếp: dạng C (danh ngữ trần)
+    chỉ nhận khi cụm **mở đầu đơn vị**, nên `"Đối với dịch vụ ví điện tử,"` rơi ngoài cả ba dạng.
+  - **Câu hỏi T2 tôi viết còn thiếu.** Người duyệt trả lời *"loại trừ nhau về đối tượng áp dụng"* —
+    nhưng loại trừ nhau **chưa đủ**: với `(g₁→c₁)∧(g₂→c₂)` vs `(g₁∧c₁)∨(g₂∧c₂)`, hàng "không thuộc
+    guard nào" cho AND = **miễn trừ** còn OR = **bất khả thi**. Điều kiện đúng là **phân hoạch**
+    (loại trừ **và** phủ hết). Hướng đã chốt: bảng phân hoạch người viết một lần, **khoá theo miền
+    giá trị chứ không theo `thuoc_tinh`** (hai ca có `thuoc_tinh` khác nhau — `khách hàng` vs `tài
+    khoản thanh toán` — nhưng **cùng miền** `{cá nhân, tổ chức}`); máy **chứng minh**, không suy
+    diễn; `connector` giữ `unknown`. **Chưa làm — việc kế tiếp.**
 - **Done (đối chiếu v0.5):** `docs/KG-CONFORMANCE-v05.md` — xem mục dưới.
 
 - **Done:** `docs/KG-CONFORMANCE-v05.md` — đối chiếu từng mục của `research/schema-kg-v05.html`.

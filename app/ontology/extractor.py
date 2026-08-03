@@ -25,7 +25,7 @@ from app.ontology.modality import (
     relax_absence,
     relax_dereference,
 )
-from app.ontology.parser import tach_guard, tiet_logic
+from app.ontology.parser import chapeau_cua_diem, chapeau_logic, tach_guard, tiet_logic
 from app.ontology.schema import (
     ActorCU,
     ComplianceUnit,
@@ -437,6 +437,16 @@ def _build_conditions(
         logic = "unknown"
         if diem_node and diem_node.tiet:
             logic = tiet_logic(diem_node)
+            # Liên từ hiện ("hoặc") là MỘT TỪ, không cần nêu; câu bao trùm là một MẪU,
+            # và mẫu thì sai được. Nêu đích danh cụm đã khớp để mọi lần chapeau quyết
+            # thay tiết đều đếm và soát lại được — chưa có đủ ca thật để im lặng.
+            if not {t.connector for t in diem_node.tiet} & {"hoac", "va"}:
+                _, cum = chapeau_logic(chapeau_cua_diem(diem_node))
+                if cum:
+                    item_warn.append(
+                        f"{where}: tiet_logic_tu_chapeau: {len(diem_node.tiet)} tiết không "
+                        f"có liên từ, phép nối {logic!r} đọc từ câu bao trùm ({cum!r})"
+                    )
             sub = []
             for t in diem_node.tiet:
                 tg = _guard(t.text, t.start, dieu, f"{where} tiết ({t.marker})", item_warn)

@@ -203,14 +203,72 @@ def khoan_de_trich(dieu: DieuNode) -> list[KhoanNode]:
     ]
 
 
+# --- Câu bao trùm của một Điểm quyết phép nối các tiết ------------------------
+#
+# Đo trên 18 fixture trước khi viết: cả corpus chỉ có **5 Điểm có tiết**, 2 đã giải
+# được bằng liên từ hiện ("hoặc"), 3 còn `unknown`. Trong 3 cái đó chỉ **1** mang cụm
+# chapeau — TT18 Đ9 k3 điểm c, *"phải đảm bảo **các nguyên tắc sau**:"*. Nên luật này
+# mua đúng một ca hôm nay; nó đáng viết vì tất định và vì cụm đó lặp lại khắp VBQPPL,
+# không vì số lượng.
+#
+# Cái bắt buộc phải đo là **cụm "sau" trong corpus có ĐỦ BA CỰC TRÁI NGƯỢC NHAU**:
+#
+#   ALL       "phải đảm bảo các nguyên tắc sau:"  ·  "đáp ứng tối thiểu các yêu cầu sau:"
+#   ANY       "đáp ứng ít nhất MỘT TRONG các tiêu chí sau:"
+#   loại trừ  "KHÔNG ÁP DỤNG đối với các trường hợp sau:"  ·  "TRỪ các quy định sau đây"
+#   định nghĩa "(sau đây GỌI LÀ …)" — 15+ lần, dạng ĐÔNG NHẤT trong corpus
+#
+# Một regex lỏng sẽ bắt nhầm chính cái dạng đông nhất, và tệ hơn là đọc `any` thành
+# `all` — đảo nghĩa pháp lý. Ba chốt chặn: cụm phải nằm ở **ĐUÔI** chapeau (một mình
+# điều này đã loại hết `(sau đây gọi là …)` vì chúng nằm giữa câu); "một trong" hạ
+# xuống `any`; loại trừ và định nghĩa trả `unknown` chứ không đoán.
+_CHAPEAU_DS = re.compile(
+    r"(?:các|những)\s+[^.;:\n]{0,40}?(?:sau đây|như sau|sau)\s*:?\s*$", re.IGNORECASE
+)
+_CHAPEAU_ANY = re.compile(r"một trong|ít nhất một", re.IGNORECASE)
+# "(?<!bù )" giữ "Hệ thống bù trừ điện tử" khỏi bị đọc thành mệnh đề loại trừ.
+_CHAPEAU_TRU = re.compile(
+    r"không áp dụng|(?<!bù )trừ\s+(?:các|những|trường hợp|quy định)", re.IGNORECASE
+)
+_CHAPEAU_DINH_NGHIA = re.compile(r"được hiểu|gọi là|gọi tắt", re.IGNORECASE)
+
+
+def chapeau_cua_diem(diem: DiemNode) -> str:
+    """Phần chữ của Điểm nằm TRƯỚC tiết đầu tiên. Rỗng nếu Điểm không có tiết."""
+    if not diem.tiet:
+        return ""
+    return diem.text[: diem.tiet[0].start - diem.start]
+
+
+def chapeau_logic(chapeau: str) -> tuple[str, str | None]:
+    """Câu bao trùm → (all | any | unknown, cụm đã khớp).
+
+    Chỉ đọc dấu hiệu HIỆN trong chữ luật, cùng hạng với việc đọc "hoặc"/"và" — không
+    suy diễn. Không khớp thì trả `unknown`, không đoán.
+    """
+    t = " ".join(chapeau.split())
+    m = _CHAPEAU_DS.search(t)
+    if not m:
+        return "unknown", None
+    # Danh sách định nghĩa hay danh sách NGOẠI LỆ không phải phép nối các yêu cầu —
+    # gán `all`/`any` cho chúng là trả lời một câu hỏi khác với câu đang hỏi.
+    if _CHAPEAU_DINH_NGHIA.search(t) or _CHAPEAU_TRU.search(t):
+        return "unknown", None
+    return ("any" if _CHAPEAU_ANY.search(t) else "all"), m.group(0)
+
+
 def tiet_logic(diem: DiemNode) -> str:
-    """Các tiết của một Điểm kết hợp theo phép gì: all | any | unknown."""
+    """Các tiết của một Điểm kết hợp theo phép gì: all | any | unknown.
+
+    Liên từ hiện trên chính tiết THẮNG câu bao trùm: nó nói về đúng hai tiết đang xét,
+    còn chapeau nói về cả danh sách. Chapeau chỉ là đường lui khi tiết im lặng.
+    """
     conns = {t.connector for t in diem.tiet}
     if "hoac" in conns:
         return "any"
     if "va" in conns:
         return "all"
-    return "unknown"
+    return chapeau_logic(chapeau_cua_diem(diem))[0]
 
 
 # --- Guard "áp dụng khi" — tất định, không hỏi LLM (xem GuardApDung) ------------

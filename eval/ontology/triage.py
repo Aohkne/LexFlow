@@ -66,6 +66,10 @@ _RULES: list[tuple[int, str, re.Pattern[str]]] = [
     (4, "khai điểm nhưng neo ra ngoài mọi điểm", re.compile(r"diem_khai_lech")),
     (4, "span không bao hết các tiết", re.compile(r"span không bao hết")),
     (4, "cổng thời gian thiếu mốc ngày", re.compile(r"chưa tách được mốc ngày")),
+    # Máy ĐÃ quyết được từ chữ luật ⇒ không có câu hỏi nào bàn giao cho người, nên không
+    # vào hàng đợi. Nhưng vẫn phải đếm: đây là một MẪU (khác liên từ "hoặc" vốn là một
+    # từ), và mẫu thì sai được — soát lại rẻ hơn nhiều so với phát hiện muộn.
+    (5, "phép nối tiết đọc từ câu bao trùm", re.compile(r"tiet_logic_tu_chapeau")),
     (5, "nhãn tóm lược: MẤT dấu hiệu", re.compile(r"mất dấu hiệu")),
     (5, "quote lệch marker/dấu câu", re.compile(r"quote không nằm trong")),
 ]

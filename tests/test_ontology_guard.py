@@ -15,7 +15,7 @@ from pathlib import Path
 import pytest
 
 from app.ontology.extractor import build_cu
-from app.ontology.parser import hop_guard, parse_dieu, tach_guard
+from app.ontology.parser import hop_guard, parse_dieu, tach_guard, tiet_logic
 from app.ontology.segmenter import segment
 
 _DIR = Path("data/fixtures")
@@ -234,9 +234,40 @@ def test_moi_tiet_deu_co_guard_thi_doi_ma_va_liet_ke_gia_tri(index):
     assert "'cá nhân'" in w and "'tổ chức'" in w
 
 
-def test_tiet_thieu_guard_thi_giu_nguyen_ma_cu(index):
-    """TT18 Đ9 k3 điểm c — ca chapeau, không tiết nào có guard ⇒ câu hỏi cũ."""
-    cu = _cu_theo_diem(index, "TT18-2024-dieu9.txt", "3", "c")
+_DIEM_TU_DUNG = """Điều 9. Ca dựng tay
+3. Tổ chức phải thực hiện:
+c) Khi tiếp nhận yêu cầu, tổ chức xử lý theo quy định tại Điều 8 Thông tư này:
+(i) Đối với khách hàng là cá nhân, tổ chức phải lưu bản sao giấy tờ tùy thân;
+(ii) Tổ chức lưu trữ tài liệu trong thời hạn 05 năm.
+"""
+
+
+def test_tiet_thieu_guard_thi_giu_nguyen_ma_cu():
+    """Chỉ MỘT tiết có guard, chapeau không giải được ⇒ vẫn là câu hỏi cũ.
+
+    Ca này dựng tay, không lấy từ fixture: sau khi luật chapeau vào (`tiet_logic` đọc
+    "các … sau"), corpus **không còn** Điểm nào rơi vào nhánh `tiet_semicolon_mo_ho` —
+    TT18 Đ9 k3 điểm c, ca thật duy nhất trước đây, nay giải được bằng chapeau. Nhánh mã
+    vẫn còn và vẫn phải chạy đúng, nên nó cần một ca; ca dựng tay nói rõ mình là dựng
+    tay còn hơn một fixture bị sửa cho vừa test.
+    """
+    dieu = parse_dieu(_DIEM_TU_DUNG, "01/2026/TT-TEST")
+    khoan = next(k for k in dieu.khoan if k.so_hien_thi == "3")
+    d = next(x for x in khoan.diem if x.so_hien_thi == "c")
+    assert len(d.tiet) == 2 and tiet_logic(d) == "unknown"
+
+    units = segment(dieu, khoan)
+    uid = next(u.uid for u in units if u.source_diem == "c")
+    cu = build_cu(
+        {
+            "subject": {"units": [uid]}, "action": {"units": [uid]}, "logic": "all",
+            "conditions": [{"source_diem": "c", "units": [uid],
+                            "object_label": "", "constraint_label": ""}],
+        },
+        khoan, dieu, units, role="actor_cu",
+    )
+    c = next(x for x in cu.conditions if x.source_diem == "c")
+    assert sum(1 for s in c.sub if s.ap_dung_khi) == 1, "ca này cần ĐÚNG một tiết có guard"
     w = " ".join(cu.warnings)
     assert "tiet_semicolon_mo_ho" in w
     assert "tiet_semicolon_guard_da_phu" not in w
@@ -245,7 +276,9 @@ def test_tiet_thieu_guard_thi_giu_nguyen_ma_cu(index):
 
 @pytest.mark.parametrize(
     ("fixture", "khoan_so", "diem_so"),
-    [("TT17-2024-dieu16.txt", "1", "a"), ("TT18-2024-dieu9.txt", "3", "c")],
+    # TT18 Đ9 k3 điểm c rời danh sách này: nó nay ra `all` từ CÂU BAO TRÙM, không phải
+    # từ guard — bất biến "guard không nâng connector" vẫn đúng, ca đó chỉ hết là ví dụ.
+    [("TT17-2024-dieu16.txt", "1", "a"), ("TT17-2024-dieu16.txt", "2", "b")],
 )
 def test_connector_van_la_unknown_du_guard_da_phu(index, fixture, khoan_so, diem_so):
     """Guard KHÔNG được tự nâng `unknown` lên `all`.
