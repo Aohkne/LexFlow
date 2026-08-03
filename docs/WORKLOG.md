@@ -25,6 +25,40 @@
   - Tìm ra khi dựng hàng đợi: **9 cảnh báo mang địa chỉ không phân biệt được** (`điều kiện g` khi điểm `g` xuất hiện **5 lần** ở ND52 Đ22 k2). Đã đánh số **chỉ khi thật sự trùng** để 46 bản ghi còn lại không đổi nhãn.
   - **Mọi script `eval/ontology` có `import app.*` đều chạy sai theo lệnh trong docstring của chính nó** (`ModuleNotFoundError: No module named 'app'`) — tức trang duyệt nhãn cũ chưa từng mở được theo hướng dẫn. Đã sửa sang dạng `-m`.
   - Nút Lưu dùng `alert()` — hộp thoại chặn cả event loop của tab. Đổi sang dòng trạng thái.
+- **Done (`source_diem` suy từ parser — `docs/ONTOLOGY-POC.md` §14d).** Đợt cuối ngày, **thay thế**
+  cách xử lý T6 ghi ở mục trên: 19 cờ *"điểm không tồn tại"* không còn được **gom lại** mà bị **xoá tận
+  gốc**.
+  - **Chẩn đoán đầu tiên sai, và cái sai đáng ghi hơn cái đúng.** Phản xạ là gọi đây là *lỗi prompt* rồi
+    đi dạy mô hình trả `null` cho đúng. Nhưng như thế là **chấp nhận LLM làm nguồn sự thật cho một trường
+    parser đã biết chắc**: `parser.py` tách `a)` `b)` `c)` thành `DiemNode`, `segmenter.py` dán nhãn đó
+    lên từng đơn vị (`Unit.source_diem`) và **in sẵn trong menu** (`[7] (điểm b) …`). Hỏi lại mô hình
+    "vế này thuộc điểm nào" là hỏi câu **đã có đáp án in trong đề bài**. Chính `schema.py` đã ghi luật này
+    cho `logic` (*"suy ra TẤT ĐỊNH từ parser, KHÔNG hỏi LLM"*); `source_diem` lọt lưới vì nó nằm cùng
+    object JSON với các trường mô hình thật sự phải trả lời.
+  - **Sửa:** `_suy_diem()` lấy `source_diem` từ nhãn điểm của các đơn vị mô hình chọn. Một điểm → lấy;
+    nhiều điểm → `None` + `diem_vat_nhieu_diem`; không điểm nào & Khoản **không** chẻ điểm → `None`, **im
+    lặng** (parser chắc chắn, không có gì bàn giao cho người); không điểm nào & Khoản **có** chẻ điểm →
+    `None` + `diem_khai_lech`. Lời khai của LLM **vẫn đọc nhưng bị giáng xuống làm phép đối chiếu** — nó
+    không quyết định giá trị nào nữa, chỉ còn là máy dò bịa miễn phí.
+  - **Đo (chạy lại `--batch` toàn corpus):** cảnh báo **95 → 76** (−19, đúng nhóm cờ đó) · **mọi mức khác
+    không đổi một cờ nào** (T1 1/1/3 · T2 1/2 · T3 9 · T4 1/13/1/1 · T5 25/18) · điều kiện có `source_diem`
+    **102/102 → 83/102** · bản ghi có cờ **28/49 → 21/49** · lỗi cứng **0/49** · `--classify` vẫn **94 đơn
+    vị 45/9/40** · `classify_testset` **9/9**. Bỏ riêng `source_diem` ra thì **49/49 bản ghi trùng khít**
+    bản cũ ⇒ thay đổi **cô lập**, không kéo theo gì.
+  - **Hàng đợi duyệt vẫn 33 cờ — và đó là kết quả đúng.** 19 cờ kia trước đã bị mục T6 loại khỏi hàng đợi
+    rồi; sửa lần này bỏ **cái gây nhiễu**, không bỏ việc phải duyệt. Bộ máy T6 (`_diem_bia_toan_bo`, mục
+    "lỗi hệ thống" trên trang) đã **gỡ hẳn**: giữ một bộ dò không bao giờ khớp sẽ khiến người đọc sau tưởng
+    chỗ đó vẫn đang được canh.
+  - **Hai thứ lộ ra khi sửa.** (1) **5 test cũ neo vào đơn vị đầu tiên rồi *khai* một điểm khác** — chúng
+    xanh dưới mã cũ **vì mã cũ tin lời khai**, tức chính bộ test cũng mang giả định sai. (2) Nhãn địa chỉ
+    `"(không rõ điểm)"` là chuỗi, không bao giờ bằng `None`, nên nếu không ánh xạ ngược thì **19/102 điều
+    kiện hiện cờ mà không kèm chữ của luật** — đúng loại lỗi im lặng trang duyệt sinh ra để chặn. Đã vá cả
+    `triage._field_text` lẫn `flag_ui._locate`, kèm test.
+  - **Bịt XSS bằng cấu trúc thay vì bằng lọc:** `source_diem` từng là chuỗi LLM điều khiển được (có ca mô
+    hình trả nguyên chuỗi viện dẫn `"b, c, d, đ khoản 2 Điều 25"`), phải trông vào `escape()`. Nay chuỗi
+    độc bị loại **từ gốc**; đường duy nhất còn lại là nội dung cảnh báo `diem_khai_lech`, vẫn escape.
+  - **Còn nợ:** hai mã cờ mới **bắn 0 lần** trên corpus này — chúng chỉ được chứng minh bằng test đơn vị,
+    chưa bằng dữ liệu thật.
 - **Done (đối chiếu v0.5):** `docs/KG-CONFORMANCE-v05.md` — xem mục dưới.
 
 - **Done:** `docs/KG-CONFORMANCE-v05.md` — đối chiếu từng mục của `research/schema-kg-v05.html`.

@@ -1,4 +1,4 @@
-"""Test trang duyệt CỜ — phần Python (dựng thẻ, neo span, gom lỗi hệ thống).
+"""Test trang duyệt CỜ — phần Python (dựng thẻ, neo span, tra địa chỉ về điều kiện).
 
 Phần JavaScript (nút phán quyết, localStorage) không test được ở đây vì repo không có
 trình chạy test cho web — cùng giới hạn đã ghi ở `test_ontology_review_ui.py`.
@@ -47,15 +47,33 @@ def test_span_to_sang_tro_dung_chu_cua_luat(payload):
     assert n, "không thẻ nào có span — trang sẽ không tô sáng được gì"
 
 
-def test_loi_he_thong_gom_rieng_khong_vao_hang_doi(payload):
-    """13 bản ghi 'điểm không tồn tại' là MỘT lỗi prompt, không phải 19 việc phải quyết."""
-    assert payload["he_thong"], "không nhận ra nhóm lỗi hệ thống"
-    ids = {h["id"] for h in payload["he_thong"]}
-    lot = [
+def test_khong_con_co_diem_khong_ton_tai(payload):
+    """Cờ đông nhất cũ (19 cờ / 13 bản ghi) phải BIẾN MẤT, không phải bị ẩn đi.
+
+    Trước đây trang này gom chúng thành một mục "lỗi hệ thống" để người duyệt khỏi quyết
+    19 lần cho cùng một khuyết tật. Nay `source_diem` suy từ nhãn parser
+    (`docs/ONTOLOGY-POC.md` §14d) nên cờ đó không sinh ra được nữa — và chỗ gom cũng đã
+    gỡ. Canh cả hai vế: không cờ nào trong hàng đợi, và mã nguồn không còn sinh chuỗi đó.
+    """
+    lot = [c for c in payload["cards"] if "điểm không tồn tại" in c["warning"]]
+    assert not lot, f"cờ lẽ ra đã bị xoá tận gốc: {[c['id'] for c in lot]}"
+    src = Path("app/ontology/extractor.py").read_text(encoding="utf-8")
+    assert "điểm không tồn tại" not in src
+
+
+def test_dia_chi_khong_ro_diem_van_mo_ra_duoc_chu_cua_luat(payload):
+    """19/102 điều kiện nay mang `source_diem is None` — chúng KHÔNG được thành cờ mù.
+
+    Nhãn địa chỉ của chúng là "(không rõ điểm)", một chuỗi không bao giờ bằng `None`, nên
+    thiếu phép ánh xạ ngược thì đúng những cờ đó hiện ra mà không kèm đoạn luật nào.
+    """
+    from eval.ontology.triage import KHONG_RO_DIEM
+
+    mu = [
         c for c in payload["cards"]
-        if c["id"] in ids and "điểm không tồn tại" in c["warning"]
+        if KHONG_RO_DIEM in c["field"] and not c["span"] and not c.get("candidates")
     ]
-    assert not lot, f"cờ hệ thống lọt vào hàng đợi: {[c['id'] for c in lot]}"
+    assert not mu, f"cờ không tra ra được chữ của luật: {[c['field'] for c in mu]}"
 
 
 def test_dia_chi_mo_ho_thi_khong_lang_le_lay_cai_dau():

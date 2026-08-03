@@ -11,11 +11,17 @@ Nên ở đây cờ được xếp thành 5 mức theo **hậu quả nếu bỏ 
     T1  máy đã tự quyết thay người  — nới lỏng lỗi cứng, tự gộp span, tự lùi span
     T2  phép logic chưa xác định    — 'và' hay 'hoặc'; đọc sai là đảo nghĩa pháp lý
     T3  nghi bịa tình thái          — nhãn THÊM dấu hiệu nghĩa vụ/cấm mà nguồn không có
-    T4  neo sai phạm vi             — quote thu hẹp sai chỗ, điểm không tồn tại
+    T4  neo sai phạm vi             — quote thu hẹp sai chỗ, span vắt qua nhiều điểm
     T5  ít giá trị đọc              — nhãn tóm lược (MẤT dấu hiệu), quote mất marker
 
 T5 cố ý vẫn được đếm và in số, không bị xoá: một loại cờ bị ẩn đi thì lần sau không ai
 biết nó còn tồn tại. Nhưng nó không vào hàng đợi duyệt.
+
+Từng có mức **T6 · khuyết tật hệ thống** gom 19 cờ "điểm không tồn tại" (13 bản ghi) thành
+một dòng, để người duyệt khỏi quyết 19 lần cho cùng một lỗi. Nay bỏ: cờ đó đã bị xoá **tận
+gốc** — `source_diem` suy từ nhãn parser thay vì lấy lời khai của LLM (`docs/ONTOLOGY-POC.md`
+§14d), nên không còn gì để gom. Giữ lại một bộ dò không bao giờ khớp sẽ khiến người đọc sau
+tưởng chỗ đó vẫn đang được canh.
 
 Chạy:
     uv run python eval/ontology/triage.py              # bảng tóm tắt
@@ -30,6 +36,11 @@ import re
 from pathlib import Path
 
 _PRED = Path("eval/ontology/pred.jsonl")
+
+#: Bản sao của `app.ontology.extractor.KHONG_RO_DIEM`. Không import trực tiếp vì file này
+#: cố ý chạy được ở dạng đường dẫn trần (`python eval/ontology/triage.py`), lúc đó gói
+#: `app` không nằm trên `sys.path`. `tests/test_ontology_diem_suy.py` canh hai bên khớp.
+KHONG_RO_DIEM = "(không rõ điểm)"
 
 # (mức, nhãn, mẫu nhận diện). Thứ tự QUAN TRỌNG: khớp mẫu đầu tiên thắng, nên mẫu hẹp
 # phải đứng trước mẫu rộng — "hạ mức" phải bắt trước "quote không nằm trong".
@@ -47,7 +58,12 @@ _RULES: list[tuple[int, str, re.Pattern[str]]] = [
     # sai dữ liệu, nhưng mất ràng buộc — cùng họ hậu quả với neo sai phạm vi.
     (4, "guard không tách được — phạm vi rộng hơn luật", re.compile(r"guard_ngoai_mau")),
     (4, "quote thu hẹp sai chỗ", re.compile(r"thu hẹp sai chỗ")),
-    (4, "điểm không tồn tại trong khoản", re.compile(r"điểm không tồn tại")),
+    # Hai mã thay cho "điểm không tồn tại". Cờ cũ hỏi người một câu mà **parser đã biết
+    # đáp án** (Khoản có chẻ Điểm hay không) nên nó bị xoá tận gốc: `source_diem` nay suy
+    # từ nhãn parser dán lên `units`. Hai mã dưới đây là phần CÒN LẠI, tức những chỗ máy
+    # thật sự không quyết được và phải mở luật ra đọc.
+    (4, "span vắt qua nhiều điểm", re.compile(r"diem_vat_nhieu_diem")),
+    (4, "khai điểm nhưng neo ra ngoài mọi điểm", re.compile(r"diem_khai_lech")),
     (4, "span không bao hết các tiết", re.compile(r"span không bao hết")),
     (4, "cổng thời gian thiếu mốc ngày", re.compile(r"chưa tách được mốc ngày")),
     (5, "nhãn tóm lược: MẤT dấu hiệu", re.compile(r"mất dấu hiệu")),
@@ -78,24 +94,6 @@ def load(path: Path = _PRED) -> list[dict]:
     ]
 
 
-def _diem_bia_toan_bo(row: dict) -> bool:
-    """Mọi `source_diem` mô hình khai đều KHÔNG tồn tại ⇒ Khoản không chẻ Điểm.
-
-    Đo trên corpus: đúng **13** bản ghi như vậy, sinh **19** cờ — nhóm cờ đông nhất.
-    Nhưng cả 13 đều có `khoan.diem == []`: mô hình đang dùng `source_diem` như **số
-    thứ tự** cho các ý trong một đoạn văn liền, chứ không phải như **địa chỉ** của một
-    Điểm có thật. Đó là MỘT khuyết tật của prompt, không phải 13 việc phải đọc luật.
-
-    Suy ra được từ chính `pred.jsonl`, không cần mở fixture: nếu mọi điều kiện có nêu
-    điểm đều bị gắn cờ "điểm không tồn tại" thì Khoản không có Điểm nào để mà trỏ tới.
-    """
-    khai = [c for c in row.get("conditions", []) if c.get("source_diem")]
-    if not khai:
-        return False
-    n_bia = sum(1 for w in row.get("warnings", []) if "điểm không tồn tại" in w)
-    return n_bia == len(khai)
-
-
 def triage(rows: list[dict]) -> list[dict]:
     """Mỗi bản ghi → mức xấu nhất + các cờ, sắp xếp theo mức rồi theo số cờ."""
     out = []
@@ -108,17 +106,11 @@ def triage(rows: list[dict]) -> list[dict]:
             flags.append((tier, label, w))
         if not flags:
             continue
-        he_thong = _diem_bia_toan_bo(r)
-        # Bản ghi mà cờ DUY NHẤT là khuyết tật hệ thống thì không vào hàng đợi đọc —
-        # nó đi vào một dòng tổng kết. Còn cờ loại khác thì vẫn phải đọc.
-        con_lai = [f for f in flags if "điểm không tồn tại" not in f[2]]
-        worst = min(f[0] for f in (con_lai if (he_thong and con_lai) else flags))
         out.append(
             {
                 "id": r["id"],
                 "type": r.get("type", "?"),
-                "worst": 6 if (he_thong and not con_lai) else worst,
-                "he_thong": he_thong,
+                "worst": min(f[0] for f in flags),
                 "flags": sorted(flags, key=lambda f: f[0]),
                 "n": len(flags),
                 "row": r,
@@ -143,7 +135,13 @@ def _field_text(row: dict, field_path: str) -> tuple[list[str], bool]:
         if "#" in want:
             want, _, raw_idx = want.partition("#")
             idx = int(raw_idx) if raw_idx.isdigit() else None
-        hits = [c for c in row.get("conditions", []) if (c.get("source_diem") or None) == want]
+        # `source_diem` nay suy từ parser nên "không rõ điểm" là kết quả THƯỜNG GẶP, không
+        # còn là ca hiếm: 19/102 điều kiện. Không ánh xạ ngược thì đúng những điều kiện đó
+        # tra ra rỗng và người duyệt thấy cảnh báo không kèm chữ của luật.
+        hits = [
+            c for c in row.get("conditions", [])
+            if (c.get("source_diem") or None) == (None if want == KHONG_RO_DIEM else want)
+        ]
         if idx is not None:
             return ([hits[idx - 1].get("text", "")] if 0 < idx <= len(hits) else [], False)
         return [c.get("text", "") for c in hits], len(hits) > 1
@@ -183,22 +181,6 @@ def summary(items: list[dict], rows: list[dict]) -> str:
 def queue(items: list[dict], max_tier: int = 4) -> str:
     """Hàng đợi duyệt: chỉ T0–T4, kèm chữ của luật để quyết ngay không phải mở file."""
     out: list[str] = []
-
-    ht = [it for it in items if it["he_thong"]]
-    if ht:
-        n_co = sum(1 for it in ht for f in it["flags"] if "điểm không tồn tại" in f[2])
-        out += [
-            f"### [{TIER_NAME[6]}] · {len(ht)} bản ghi · {n_co} cờ",
-            "",
-            "Mọi `source_diem` mô hình khai đều không tồn tại ⇒ **Khoản không chẻ Điểm nào**. "
-            "Mô hình đang dùng `source_diem` như *số thứ tự* cho các ý trong một đoạn liền, "
-            "không phải như *địa chỉ*. Một khuyết tật của prompt — **không cần đọc luật bản nào**:",
-            "",
-        ]
-        for it in ht:
-            khai = [c.get("source_diem") for c in it["row"].get("conditions", [])]
-            out.append(f"- `{it['id']}` — mô hình khai {khai}, Khoản không có Điểm")
-        out.append("")
 
     for it in items:
         if it["worst"] > max_tier:

@@ -152,7 +152,9 @@ def _rows(cu: ComplianceUnit) -> str:
             "điều kiện theo nghĩa nghĩa vụ</i></td></tr>"
         )
     for c in cu.conditions:
-        # source_diem do LLM trả về → phải escape; chỉ thẻ <b> bên dưới là cố ý.
+        # `source_diem` nay do parser suy ra (`extractor._suy_diem`) nên không còn là chuỗi
+        # LLM điều khiển được; giữ escape làm lớp phòng thủ thứ hai. Lời khai của mô hình
+        # chỉ còn đi vào HTML qua cảnh báo `diem_khai_lech`, và cảnh báo đã escape ở dưới.
         name = f"condition[{escape(c.source_diem or '-')}]"
         if c.sub:
             # Tiết không có địa chỉ node, nhưng phép kết hợp thì phải hiện ra —

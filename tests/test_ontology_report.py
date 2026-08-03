@@ -86,8 +86,14 @@ def test_escape_html_trong_van_ban():
     assert "<script" not in out
 
 
-def test_source_diem_van_duoc_escape_trong_ten_hang(dieu):
-    """Tên hàng có thẻ <b> cố ý cho phần tiết, nhưng dữ liệu LLM thì không được."""
+def test_source_diem_do_llm_khai_khong_vao_duoc_bao_cao(dieu):
+    """Chuỗi LLM khai không còn tới được `_rows` — nó không quyết định gì nữa.
+
+    Trước đây `source_diem` lấy thẳng lời khai nên phải trông vào `escape()`. Nay giá
+    trị suy từ nhãn parser dán lên `units`, nên chuỗi độc bị **loại từ gốc** thay vì bị
+    khử ở đầu ra: bịt bằng cấu trúc mạnh hơn bịt bằng lọc. Vẫn khẳng định luôn là output
+    không có thẻ sống, để test bắt được cả trường hợp lời khai lẻn vào đường khác.
+    """
     from app.ontology.extractor import build_cu
     from app.ontology.report import _rows
 
@@ -98,7 +104,31 @@ def test_source_diem_van_duoc_escape_trong_ten_hang(dieu):
          "conditions": [{"source_diem": "<img src=x onerror=alert(1)>", "units": [3]}]},
         k2, dieu, units,
     )
+    assert cu.conditions[0].source_diem != "<img src=x onerror=alert(1)>"
     html = _rows(cu)
+    assert "<img" not in html
+
+
+def test_canh_bao_mang_loi_khai_cua_llm_van_duoc_escape(dieu):
+    """Lời khai bị giáng xuống làm phép đối chiếu, nhưng vẫn được TRÍCH vào cảnh báo.
+
+    Đó là đường duy nhất còn lại cho chuỗi LLM đi vào HTML, nên nó phải qua `escape()`.
+    """
+    from app.ontology.extractor import build_cu
+    from app.ontology.report import render
+
+    k2 = dieu.khoan[1]
+    assert k2.diem, "ca này cần Khoản CÓ chẻ Điểm để `diem_khai_lech` phát sinh"
+    units = segment(dieu, k2)
+    chapeau = next(u.uid for u in units if u.uid > 0 and u.source_diem is None)
+    cu = build_cu(
+        {"subject": {"units": [1]}, "action": {"units": [1]}, "logic": "all",
+         "conditions": [{"source_diem": "<img src=x onerror=alert(1)>",
+                         "units": [chapeau]}]},
+        k2, dieu, units,
+    )
+    assert any("diem_khai_lech" in w for w in cu.warnings)
+    html = render(cu, dieu)
     assert "<img" not in html
     assert "&lt;img" in html
 

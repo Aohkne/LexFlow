@@ -145,11 +145,46 @@ def test_uid_sai_lam_mat_provenance(dieu, k2, units):
     assert any("mất provenance" in e for e in cu.errors)
 
 
-def test_diem_khong_ton_tai_bi_canh_bao(dieu, k2, units):
+def test_source_diem_lay_tu_units_chu_khong_lay_loi_khai(dieu, k2, units):
+    """Lời khai sai không kéo được `source_diem` đi theo — parser thắng.
+
+    Đơn vị [5] thuộc điểm `b` và parser biết điều đó (`Unit.source_diem`), nên hỏi lại
+    LLM là hỏi câu đã có đáp án. Ca `"z"` ở đây là bản thu nhỏ của lỗi thật đo được
+    trên corpus: 13/49 bản ghi khai điểm cho những Khoản không chẻ điểm nào.
+    """
     data = _llm_tot()
     data["conditions"][0]["source_diem"] = "z"
     cu = build_cu(data, k2, dieu, units)
-    assert any("điểm không tồn tại" in w for w in cu.warnings)
+    assert cu.conditions[0].source_diem == "b"
+    assert not any("z" == c.source_diem for c in cu.conditions)
+
+
+def test_khai_diem_nhung_neo_ngoai_moi_diem_thi_bao_lech(dieu, k2, units):
+    """Khoản CÓ chẻ điểm mà mọi đơn vị nằm ngoài ⇒ mâu thuẫn thật, phải nói ra.
+
+    Khác hẳn ca Khoản không chẻ điểm: ở đó parser chắc chắn nên im lặng là đúng, còn ở
+    đây có hai câu trả lời khả dĩ và máy không được tự chọn.
+    """
+    data = _llm_tot()
+    chapeau = next(u.uid for u in units if u.uid > 0 and u.source_diem is None)
+    data["conditions"][0] = {"source_diem": "b", "units": [chapeau],
+                             "object_label": "", "constraint_label": ""}
+    cu = build_cu(data, k2, dieu, units)
+    assert cu.conditions[0].source_diem is None
+    assert any("diem_khai_lech" in w for w in cu.warnings)
+
+
+def test_span_vat_qua_nhieu_diem_thi_khong_quy_ve_mot_diem(dieu, k2, units):
+    """Neo trùm hai điểm ⇒ KHÔNG có điểm nào đúng; đoán bừa sẽ giấu mất neo quá rộng."""
+    a = next(u for u in units if u.source_diem == "a")
+    b = next(u for u in units if u.source_diem == "b")
+    data = _llm_tot()
+    data["conditions"][0] = {"source_diem": "a", "units": [a.uid, b.uid],
+                             "object_label": "", "constraint_label": ""}
+    cu = build_cu(data, k2, dieu, units)
+    assert cu.conditions[0].source_diem is None
+    w = " ".join(cu.warnings)
+    assert "diem_vat_nhieu_diem" in w and "a, b" in w
 
 
 def test_subject_neo_tieu_de_thi_ha_ve_inherited():

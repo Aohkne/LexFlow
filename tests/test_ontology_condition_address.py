@@ -51,14 +51,23 @@ def _payload(units, conditions):
     }
 
 
-def _cond(units, src: str):
-    """Điều kiện trỏ vào một Điểm KHÔNG tồn tại — sinh cảnh báo một cách tất định.
+_QUOTE_MA = "cụm này chắc chắn không có trong luật"
 
-    Dùng cờ này (thay vì cờ tình thái) vì nó không phụ thuộc từ điển deontic: test
-    canh *địa chỉ* của cảnh báo, không canh việc phát hiện ra cảnh báo.
+
+def _cond(units, src: str):
+    """Điều kiện neo vào một Điểm CÓ THẬT, kèm `quote` bịa để sinh cảnh báo tất định.
+
+    Cảnh báo dùng làm mồi phải độc lập với từ điển deontic (test canh *địa chỉ*, không
+    canh việc phát hiện). Trước đây mồi là "điểm không tồn tại" — cờ đó đã biến mất khi
+    `source_diem` chuyển sang suy từ `units`, nên đổi sang cờ `quote` lệch đơn vị.
     """
-    uid = next(u.uid for u in units if u.uid > 0)
-    return {"source_diem": src, "units": [uid], "object_label": "", "constraint_label": ""}
+    uid = next(u.uid for u in units if u.source_diem == src)
+    return {"source_diem": src, "units": [uid], "quote": _QUOTE_MA,
+            "object_label": "", "constraint_label": ""}
+
+
+def _dia_chi(cu):
+    return [w.split(":", 1)[0] for w in cu.warnings if "quote không nằm trong" in w]
 
 
 def test_nhieu_dieu_kien_cung_diem_thi_dia_chi_phai_phan_biet_duoc(index):
@@ -66,12 +75,12 @@ def test_nhieu_dieu_kien_cung_diem_thi_dia_chi_phai_phan_biet_duoc(index):
     khoan = _khoan(dieu, "2")
     units = segment(dieu, khoan)
     cu = build_cu(
-        _payload(units, [_cond(units, "z") for _ in range(3)]),
+        _payload(units, [_cond(units, "g") for _ in range(3)]),
         khoan, dieu, units, role="actor_cu",
     )
-    diachi = [w.split(":", 1)[0] for w in cu.warnings if "điểm không tồn tại" in w]
-    assert diachi == ["điều kiện z#1", "điều kiện z#2", "điều kiện z#3"]
-    # Điều đáng canh nhất: ba địa chỉ KHÁC NHAU. Trước khi sửa cả ba đều là "điều kiện z".
+    diachi = _dia_chi(cu)
+    assert diachi == ["điều kiện g#1", "điều kiện g#2", "điều kiện g#3"]
+    # Điều đáng canh nhất: ba địa chỉ KHÁC NHAU. Trước khi sửa cả ba đều là "điều kiện g".
     assert len(set(diachi)) == 3
 
 
@@ -81,12 +90,11 @@ def test_diem_khong_trung_thi_nhan_giu_nguyen_khong_danh_so(index):
     khoan = _khoan(dieu, "2")
     units = segment(dieu, khoan)
     cu = build_cu(
-        _payload(units, [_cond(units, "y"), _cond(units, "z")]),
+        _payload(units, [_cond(units, "g"), _cond(units, "h")]),
         khoan, dieu, units, role="actor_cu",
     )
-    diachi = [w.split(":", 1)[0] for w in cu.warnings if "điểm không tồn tại" in w]
-    assert diachi == ["điều kiện y", "điều kiện z"]
-    assert not any("#" in d for d in diachi)
+    assert _dia_chi(cu) == ["điều kiện g", "điều kiện h"]
+    assert not any("#" in d for d in _dia_chi(cu))
 
 
 def test_dieu_kien_khong_neu_diem_cung_duoc_danh_so(index):

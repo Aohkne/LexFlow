@@ -35,7 +35,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 
 from app.ontology.parser import khoan_de_trich, parse_dieu
-from eval.ontology.triage import TIER_NAME, load, triage
+from eval.ontology.triage import KHONG_RO_DIEM, TIER_NAME, load, triage
 
 _INDEX = Path("data/fixtures/_index.json")
 _OUT = Path("eval/ontology/flags.html")
@@ -64,7 +64,12 @@ def _locate(row: dict, field: str) -> dict:
         if "#" in want:
             want, _, raw = want.partition("#")
             idx = int(raw) if raw.isdigit() else None
-        hits = [c for c in row.get("conditions", []) if (c.get("source_diem") or None) == want]
+        # "(không rõ điểm)" phải tra ngược về `source_diem is None` — xem chú thích cùng
+        # tên trong `triage._field_text`.
+        hits = [
+            c for c in row.get("conditions", [])
+            if (c.get("source_diem") or None) == (None if want == KHONG_RO_DIEM else want)
+        ]
         if idx is not None and 0 < idx <= len(hits):
             hits = [hits[idx - 1]]
         return {
@@ -90,7 +95,6 @@ def build_payload(max_tier: int = 4) -> dict:
 
     trees: dict[str, object] = {}
     cards: list[dict] = []
-    he_thong: list[dict] = []
 
     for it in items:
         row = it["row"]
@@ -107,19 +111,7 @@ def build_payload(max_tier: int = 4) -> dict:
         if khoan is None:
             continue
 
-        if it["he_thong"]:
-            he_thong.append(
-                {
-                    "id": row["id"],
-                    "khai": [c.get("source_diem") for c in row.get("conditions", [])],
-                }
-            )
-
         for tier, kind, w in it["flags"]:
-            # Cờ "điểm không tồn tại" của bản ghi hệ thống đã được gom thành một mục —
-            # đưa lại vào hàng đợi là bắt người duyệt quyết 19 lần cho cùng một lỗi.
-            if it["he_thong"] and "điểm không tồn tại" in w:
-                continue
             if tier > max_tier:
                 continue
             field = w.split(":", 1)[0].strip() if ":" in w else "—"
@@ -153,7 +145,7 @@ def build_payload(max_tier: int = 4) -> dict:
             )
 
     cards.sort(key=lambda c: (c["tier"], c["id"]))
-    return {"cards": cards, "he_thong": he_thong}
+    return {"cards": cards}
 
 
 def to_jsonl(rows: list[dict]) -> str:
@@ -224,7 +216,6 @@ def main(argv: list[str] | None = None) -> Path:
         by_tier[c["tier"]] = by_tier.get(c["tier"], 0) + 1
     tom = " · ".join(f"T{t}:{n}" for t, n in sorted(by_tier.items()))
     print(f"Đã ghi {out} — {len(payload['cards'])} cờ cần quyết ({tom})")
-    print(f"  gom riêng: {len(payload['he_thong'])} bản ghi lỗi hệ thống, không vào hàng đợi")
 
     if args.serve:
         _Handler.out_path = out
@@ -287,8 +278,6 @@ button.on[data-v="khong_chac"]{background:var(--warnbg);border-color:var(--warn)
 input.note{flex:1;min-width:170px;padding:6px 9px;border-radius:7px;border:1px solid var(--line);
  background:var(--bg);color:var(--fg)}
 .amb{background:var(--badbg);border:1px solid var(--bad);border-radius:7px;padding:9px 12px;margin:9px 0;font-size:13px}
-.sys{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:13px;margin:14px 0}
-.sys li{font-size:13px;margin:3px 0}
 .muted{color:var(--dim);font-size:12.5px}
 </style>
 </head>
@@ -339,15 +328,6 @@ function render() {
   const hide = document.getElementById("hideDone").checked;
   const app = document.getElementById("app");
   let html = "";
-
-  if (DATA.he_thong.length) {
-    html += '<div class="sys"><b>Lỗi hệ thống — không vào hàng đợi (' +
-      DATA.he_thong.length + ' bản ghi)</b><div class="muted">Mọi <code>source_diem</code> ' +
-      'mô hình khai đều không tồn tại ⇒ Khoản không chẻ Điểm nào. Một khuyết tật của prompt, ' +
-      'sửa một lần — không cần quyết từng bản ghi.</div><ul>' +
-      DATA.he_thong.map(h => "<li><code>" + esc(h.id) + "</code> — khai " +
-        esc(JSON.stringify(h.khai)) + "</li>").join("") + "</ul></div>";
-  }
 
   DATA.cards.forEach((c, i) => {
     if (hide && c.verdict) return;

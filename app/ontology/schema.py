@@ -154,7 +154,10 @@ class SubCondition(BaseModel):
 class ConditionItem(BaseModel):
     """Một điều kiện — thường ứng với một Điểm con của Khoản."""
 
-    source_diem: str | None  # "b"; None nếu Khoản không chẻ Điểm
+    # "b"; None nếu Khoản không chẻ Điểm. Suy ra TẤT ĐỊNH từ nhãn điểm mà parser đã dán
+    # lên các đơn vị mô hình chọn (`Unit.source_diem`), KHÔNG lấy lời khai của LLM —
+    # xem `extractor._suy_diem`.
+    source_diem: str | None
     text: str  # chữ của luật tại span
     object_label: str = ""
     constraint_label: str = ""

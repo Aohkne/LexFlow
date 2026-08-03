@@ -645,6 +645,81 @@ thứ mà cả thiết kế "parser sinh 100%" sinh ra để tránh. Test đơn 
 thẳng `tach_guard(khoan.text, khoan.start)`, tức đã tự cho mình đúng đầu vào. Nay có thêm một
 test đi qua `build_cu` và cố ý neo vào **đơn vị cuối cùng**, xa cụm guard nhất.
 
+## 14d. `source_diem` suy từ parser — xoá một câu hỏi thay vì trả lời nó cho khéo hơn
+
+### Vấn đề
+
+Nhóm cờ đông nhất trong `pred.jsonl` là **19 cờ "điểm không tồn tại trong khoản"** trên **13/49
+bản ghi**. Đo lại từng ca:
+
+```
+52/2024/NĐ-CP#than/dieu_22#khoan_3     điểm THẬT=[]   LLM khai=['a','b','c']
+18/2024/TT-NHNN#than/dieu_9#khoan_1    điểm THẬT=[]   LLM khai=['a','b']
+…  (13/13 bản ghi đều có khoan.diem == [])
+```
+
+Mô hình dùng `a`, `b`, `c` làm **số thứ tự** cho các ý trong một đoạn văn liền, không phải làm
+**địa chỉ** của một Điểm có thật.
+
+### Chẩn đoán sai lần đầu, và vì sao nó sai
+
+Phản xạ đầu tiên là gọi đây là *lỗi prompt* và đi dạy mô hình trả `null` cho đúng. Sai — không
+phải vì cách sửa đó không chạy được, mà vì nó **chấp nhận LLM làm nguồn sự thật cho một trường
+parser đã biết chắc**. `parser.py` tách `a)` `b)` `c)` thành `DiemNode`; `segmenter.py` dán nhãn
+đó lên từng đơn vị (`Unit.source_diem`) và in ra ngay trong menu (`[7] (điểm b) …`). Hỏi lại mô
+hình "vế này thuộc điểm nào" là hỏi một câu **đã có đáp án in sẵn trong đề bài**.
+
+Chính `schema.py` đã ghi luật này cho `logic`: *"Suy ra **TẤT ĐỊNH** từ parser, **KHÔNG** hỏi
+LLM."* `source_diem` lọt lưới vì nó nằm trong cùng object JSON với các trường mô hình thật sự
+phải trả lời.
+
+### Quyết định
+
+`ConditionItem.source_diem` **suy từ nhãn điểm của các đơn vị mô hình chọn** (`_suy_diem`), theo
+ba nhánh:
+
+| các đơn vị đã chọn thuộc | `source_diem` | cảnh báo |
+|---|---|---|
+| đúng **một** điểm | điểm đó | — |
+| **nhiều** điểm | `None` | `diem_vat_nhieu_diem` |
+| **không** điểm nào, Khoản KHÔNG chẻ điểm | `None` | — (parser chắc chắn) |
+| **không** điểm nào, Khoản CÓ chẻ điểm | `None` | `diem_khai_lech` |
+
+Không sửa prompt, không gọi lại LLM để lấy giá trị — chỉ đọc lại thứ đã có.
+
+**Lời khai của mô hình vẫn được đọc, nhưng bị giáng xuống làm phép đối chiếu.** Nó không quyết
+định giá trị nào nữa, chỉ dùng để phát hiện neo lệch (`diem_khai_lech`). Giữ lại vì đó là một máy
+dò bịa miễn phí; xoá hẳn khỏi prompt sẽ làm mọi `pred.jsonl` cũ hết so sánh được.
+
+### Vì sao im lặng ở nhánh 3 mà không ở nhánh 4
+
+Cờ tồn tại để **bàn giao một câu hỏi cho người**. Khoản không chẻ điểm thì không còn câu hỏi nào:
+parser biết chắc, người duyệt mở luật ra cũng chỉ đọc lại đúng điều parser đã biết. Ngược lại,
+Khoản **có** chẻ điểm mà mọi đơn vị lại nằm ngoài mọi điểm là mâu thuẫn thật — có hai đáp án khả
+dĩ và máy không được tự chọn.
+
+Cùng lý do đó, nhánh "vắt nhiều điểm" **không** tự chọn một điểm: span thật sự trùm hai điểm thì
+không điểm nào đúng, và đoán bừa sẽ **giấu mất** chuyện điều kiện bị neo quá rộng.
+
+### Hai thứ được lợi kèm
+
+- **Bịt XSS bằng cấu trúc thay vì bằng lọc.** `source_diem` từng là chuỗi LLM điều khiển được và
+  phải trông vào `escape()` ở `report.py`. Nay chuỗi độc bị loại **từ gốc**. Đường duy nhất còn
+  lại cho lời khai đi vào HTML là nội dung cảnh báo `diem_khai_lech`, và cảnh báo vẫn escape.
+- **Guard và tiết neo đúng hơn.** `diem_node` tra theo `source_diem`; lời khai sai từng làm
+  `diem_node` thành `None`, kéo theo mất cả `tiet` lẫn guard tầng Điểm.
+
+### Test phải sửa — và vì sao đó là tin tốt
+
+5 test cũ neo vào **đơn vị đầu tiên** rồi *khai* một điểm khác (`uid = next(u for u in units if
+u.uid > 0)` kèm `source_diem: "a"`). Chúng xanh dưới mã cũ vì mã cũ tin lời khai; chúng đỏ ngay
+dưới mã mới vì mã mới đọc nơi đơn vị thật sự nằm. Tức là **chính bộ test cũng đang mang giả định
+sai**, và thay đổi này phát hiện ra. Đã sửa cho neo vào đơn vị thật của điểm.
+
+Cờ "điểm không tồn tại" cũng từng được dùng làm **mồi sinh cảnh báo tất định** trong
+`test_ontology_condition_address.py`; nay đổi mồi sang cờ `quote` lệch đơn vị, và các điều kiện
+trong test chia nhau một điểm **có thật** — sát thực tế hơn ca cũ.
+
 ## 15. Câu hỏi mở cho mentor
 
 1. Ba tầng tất định ở §4 có đủ để coi là **kiểm soát tính trung thành** cho tầng chuẩn tắc, hay vẫn cần

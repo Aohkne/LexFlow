@@ -65,7 +65,7 @@ def test_ca_goc_connector_khong_doi(index):
     dieu = _dieu(index, "TT17-2024-dieu16.txt")
     khoan = _khoan(dieu, "1")
     units = segment(dieu, khoan)
-    uid = next(u.uid for u in units if u.uid > 0)
+    uid = next(u.uid for u in units if u.source_diem == "a")
     cu = build_cu(
         {
             "subject": {"units": [uid]}, "action": {"units": [uid]}, "logic": "all",
@@ -212,7 +212,9 @@ def _cu_theo_diem(index, fixture: str, khoan_so: str, diem_so: str):
     dieu = _dieu(index, fixture)
     khoan = _khoan(dieu, khoan_so)
     units = segment(dieu, khoan)
-    uid = next(u.uid for u in units if u.uid > 0)
+    # Neo vào đơn vị THẬT SỰ thuộc điểm: `source_diem` nay suy từ `units` chứ không lấy
+    # lời khai, nên neo vào đơn vị đầu tiên rồi khai "a" là tự tạo mâu thuẫn.
+    uid = next(u.uid for u in units if u.source_diem == diem_so)
     return build_cu(
         {
             "subject": {"units": [uid]}, "action": {"units": [uid]}, "logic": "all",

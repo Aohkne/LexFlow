@@ -81,6 +81,12 @@ _SCHEMA_HINT = """Trả đúng cấu trúc JSON sau:
 }"""
 
 
+#: Nhãn địa chỉ cho điều kiện có `source_diem is None`. Xuất hiện trong CHỮ của cảnh
+#: báo, nên công cụ duyệt phải ánh xạ nó ngược về `None` để tra ra đúng điều kiện —
+#: `eval/ontology/triage.py` giữ một bản sao và có test canh hai bên không lệch nhau.
+KHONG_RO_DIEM = "(không rõ điểm)"
+
+
 def resolve(raw: dict, units: list[Unit], dieu_text: str) -> Grounding:
     """Chọn-đơn-vị → span. Không gọi LLM, không dò mờ.
 
@@ -311,6 +317,49 @@ def _guard(
     )
 
 
+def _suy_diem(
+    raw: dict, units: list[Unit], khoan: KhoanNode
+) -> tuple[str | None, list[str]]:
+    """`source_diem` suy TẤT ĐỊNH từ các đơn vị mô hình chọn — không tin lời khai.
+
+    Parser đã biết Khoản chẻ những Điểm nào (`parser.py` → `KhoanNode.diem`) và đã dán
+    nhãn đó lên từng đơn vị của menu (`segmenter.py`, `Unit.source_diem`). Hỏi lại LLM
+    "điều kiện này thuộc điểm nào" là hỏi một câu ta đã có đáp án — cùng loại sai với
+    việc hỏi `logic`, thứ `schema.py` đã ghi rõ là *"suy ra TẤT ĐỊNH từ parser, KHÔNG
+    hỏi LLM"*. Đo trên corpus: 13/49 bản ghi có mô hình khai điểm `a`/`b`/`c` cho những
+    Khoản **không chẻ điểm nào** — nó dùng chữ cái làm số thứ tự cho các ý trong một
+    đoạn liền. Suy từ `units` làm cả 13 ca đó biến mất mà không cần sửa prompt.
+
+    Lời khai vẫn được đọc, nhưng bị **giáng xuống làm phép đối chiếu**: nó không còn
+    quyết định giá trị nào cả. Giữ lại vì nó là một máy dò bịa miễn phí — khi lời khai
+    lệch khỏi nơi các đơn vị thật sự nằm, đó là tín hiệu về chất lượng neo.
+    """
+    by_uid = {u.uid: u for u in units}
+    uids = [u for u in (raw.get("units") or []) if isinstance(u, int)]
+    co = sorted({by_uid[u].source_diem for u in uids if u in by_uid} - {None})
+    khai = (raw.get("source_diem") or "").strip() or None
+
+    if len(co) == 1:
+        return co[0], []
+    if len(co) > 1:
+        # Không tự chọn một cái: span thật sự vắt qua nhiều Điểm thì KHÔNG có điểm nào
+        # đúng, và đoán bừa sẽ giấu mất chuyện điều kiện bị neo quá rộng.
+        return None, [
+            f"diem_vat_nhieu_diem: các đơn vị đã chọn thuộc {len(co)} điểm khác nhau "
+            f"({', '.join(co)}) — không quy được về một điểm"
+        ]
+    # Không đơn vị nào mang nhãn điểm ⇒ neo vào phần không chẻ điểm của Khoản.
+    if khai and khoan.diem:
+        # Khoản CÓ chẻ điểm mà mô hình lại neo ra ngoài mọi điểm: mâu thuẫn thật, đáng đọc.
+        return None, [
+            f"diem_khai_lech: mô hình khai điểm {khai!r} nhưng mọi đơn vị nó chọn nằm "
+            "ngoài các điểm của khoản"
+        ]
+    # Khoản không chẻ điểm: lời khai (nếu có) chỉ là số thứ tự mô hình tự đặt — bỏ im
+    # lặng, vì parser chắc chắn và người duyệt không có gì để quyết.
+    return None, []
+
+
 def _build_conditions(
     raw_conditions: list[dict],
     khoan: KhoanNode,
@@ -333,17 +382,21 @@ def _build_conditions(
     # duyệt không có cách nào biết mở cái nào — địa chỉ mơ hồ đúng loại lỗi im lặng mà
     # `suy_ra_duoc`/`co_tiet` đã phải sinh ra để chặn ở chỗ khác. Chỉ đánh số khi thật
     # sự trùng, để nhãn của các bản ghi còn lại không đổi.
-    src_total: Counter = Counter((r.get("source_diem") or None) for r in raw_conditions)
+    #
+    # Suy trước cả lượt: địa chỉ cảnh báo phải đánh số trên giá trị THẬT SỰ dùng, nếu
+    # đếm trên lời khai thì hai điều kiện suy ra cùng một điểm vẫn mang địa chỉ khác nhau.
+    suy = [_suy_diem(r, units, khoan) for r in raw_conditions]
+    src_total: Counter = Counter(s for s, _ in suy)
     src_seen: Counter = Counter()
-    for raw in raw_conditions:
-        src = raw.get("source_diem") or None
+    for raw, (src, suy_warn) in zip(raw_conditions, suy):
         src_seen[src] += 1
-        ten = src or "(không rõ điểm)"
+        ten = src or KHONG_RO_DIEM
         if src_total[src] > 1:
             ten = f"{ten}#{src_seen[src]}"
         where = f"điều kiện {ten}"
-        if src and src not in known_diem:
-            warnings.append(f"{where}: điểm không tồn tại trong khoản này")
+        # `src` do parser sinh ⇒ theo cấu trúc luôn thuộc `known_diem`; cảnh báo "điểm
+        # không tồn tại" của phiên bản cũ không còn phát sinh được nữa.
+        warnings += [f"{where}: {w}" for w in suy_warn]
         g = resolve(raw, units, dieu.text)
         text = dieu.text[g.char_span[0] : g.char_span[1]] if g.char_span else ""
         item_err: list[str] = []
