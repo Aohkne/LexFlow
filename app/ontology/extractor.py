@@ -394,10 +394,29 @@ def _build_conditions(
                     )
                 )
             if logic == "unknown":
-                item_warn.append(
-                    f"{where}: có {len(sub)} tiết nhưng chỉ ngăn bằng ';' — không "
-                    "xác định được là 'và' hay 'hoặc', cần người đọc chốt"
-                )
+                # Guard KHÔNG trả lời thay câu hỏi connector, và cố ý không tự nâng
+                # `unknown` lên `all`: guard chỉ làm connector vô hại khi các guard anh
+                # em **loại trừ nhau từng đôi** — mà điều đó máy không chứng minh được
+                # (`thuoc_tinh`/`gia_tri` là chuỗi tự do, hai guard tương lai có thể
+                # chồng lấn). Suy diễn hộ ở đây là phán định, không phải đánh dấu.
+                #
+                # Cái đổi được là CÂU HỎI bàn giao: từ *"và hay hoặc?"* — người đọc phải
+                # suy ra từ dấu ';' trần — sang *"các guard này có loại trừ nhau không?"*,
+                # câu mà người duyệt trả lời được chỉ bằng cách nhìn danh sách giá trị.
+                if all(s.ap_dung_khi for s in sub):
+                    ds = " | ".join(f"{s.ap_dung_khi.gia_tri!r}" for s in sub)
+                    item_warn.append(
+                        f"{where}: tiet_semicolon_guard_da_phu: {len(sub)} tiết đều có "
+                        f"điều kiện áp dụng riêng ({ds}). Xác nhận: các guard này có "
+                        "loại trừ nhau không? Nếu có thì 'và'/'hoặc' không còn ảnh "
+                        "hưởng — giữ connector 'unknown' là an toàn."
+                    )
+                else:
+                    item_warn.append(
+                        f"{where}: tiet_semicolon_mo_ho: có {len(sub)} tiết nhưng chỉ "
+                        "ngăn bằng ';' — không xác định được là 'và' hay 'hoặc', cần "
+                        "người đọc chốt"
+                    )
             if g.char_span and not (
                 g.char_span[0] <= sub[0].char_span[0] and sub[-1].char_span[1] <= g.char_span[1]
             ):

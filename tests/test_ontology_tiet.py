@@ -96,6 +96,14 @@ def test_build_cu_dien_sub_va_logic_tat_dinh(index):
 
 
 def test_canh_bao_khi_khong_ro_va_hay_hoac(index):
+    """Dấu ';' trần ⇒ `logic` phải là `unknown` VÀ phải có cảnh báo bàn giao cho người.
+
+    Nội dung cảnh báo đổi theo việc các tiết đã có `ap_dung_khi` hay chưa (xem
+    `docs/ONTOLOGY-POC.md` §14c), nhưng hai điều KHÔNG đổi và test này canh đúng chúng:
+    `logic` không bao giờ tự nhảy lên `all`, và không bao giờ im lặng. Ở TT17 Đ16 k1
+    điểm a mọi tiết đều có guard nên rơi vào mã `guard_da_phu`; ca không có guard nào
+    được canh riêng ở `test_ontology_guard.py`.
+    """
     dieu = _dieu(index, "TT17-2024-dieu16.txt")
     k1 = dieu.khoan[0]
     units = segment(dieu, k1)
@@ -108,7 +116,7 @@ def test_canh_bao_khi_khong_ro_va_hay_hoac(index):
     }
     cu = build_cu(data, k1, dieu, units)
     assert cu.conditions[0].logic == "unknown"
-    assert any("không xác định được là 'và' hay 'hoặc'" in w for w in cu.warnings)
+    assert any("tiet_semicolon_" in w for w in cu.warnings), cu.warnings
 
 
 def test_canh_bao_khi_span_khong_bao_het_tiet(index):

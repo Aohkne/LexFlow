@@ -11,7 +11,8 @@
 | T1 · máy đã tự quyết thay người | máy tự gộp span của mô hình | 1 | 5 |
 |  | máy tự hạ lỗi cứng xuống cảnh báo | 1 |  |
 |  | máy tự lùi về span đơn vị | 3 |  |
-| T2 · phép logic chưa xác định | chưa xác định 'và' hay 'hoặc' | 3 | 2 |
+| T2 · phép logic chưa xác định | chưa xác định 'và' hay 'hoặc' | 1 | 2 |
+|  | tiết đã có guard — xác nhận loại trừ nhau | 2 |  |
 | T3 · nghi bịa tình thái | nghi bịa: THÊM dấu hiệu tình thái | 9 | 2 |
 | T4 · neo sai phạm vi | cổng thời gian thiếu mốc ngày | 1 | 0 |
 |  | quote thu hẹp sai chỗ | 1 |  |
@@ -48,8 +49,8 @@ Mọi `source_diem` mô hình khai đều không tồn tại ⇒ **Khoản khôn
 - **máy tự hạ lỗi cứng xuống cảnh báo** — `điều kiện c.constraint_label`
   > hạ mức 'bịa ràng buộc nhóm nghia_vu': cụm này CÓ trong các đơn vị đã chọn, chỉ nằm ngoài đoạn mà 'quote' thu hẹp vào
   - chữ của luật: *Lưu trữ, bảo quản đầy đủ, chi tiết đối với các tài liệu, thông tin, dữ liệu nhận biết khách hàng trong quá trình mở, sử dụng tài khoản thanh toán bằng phương tiện điện tử*
-- **chưa xác định 'và' hay 'hoặc'** — `điều kiện b`
-  > có 2 tiết nhưng chỉ ngăn bằng ';' — không xác định được là 'và' hay 'hoặc', cần người đọc chốt
+- **tiết đã có guard — xác nhận loại trừ nhau** — `điều kiện b`
+  > tiet_semicolon_guard_da_phu: 2 tiết đều có điều kiện áp dụng riêng ('cá nhân' | 'tổ chức'). Xác nhận: các guard này có loại trừ nhau không? Nếu có thì 'và'/'hoặc' không còn ảnh hưởng — giữ connector 'unknown' là an toàn.
   - chữ của luật: *Xác nhận việc khách hàng chấp thuận với các nội dung tại thỏa thuận mở và sử dụng tài khoản thanh toán*
 - **nghi bịa: THÊM dấu hiệu tình thái** — `điều kiện c.constraint_label`
   > [cảnh báo] thêm dấu hiệu cho_phep: được
@@ -111,15 +112,15 @@ Mọi `source_diem` mô hình khai đều không tồn tại ⇒ **Khoản khôn
 
 ### [T2 · phép logic chưa xác định] `17/2024/TT-NHNN#than/dieu_16#khoan_1`  ·  actor_cu
 
-- **chưa xác định 'và' hay 'hoặc'** — `điều kiện a`
-  > có 2 tiết nhưng chỉ ngăn bằng ';' — không xác định được là 'và' hay 'hoặc', cần người đọc chốt
+- **tiết đã có guard — xác nhận loại trừ nhau** — `điều kiện a`
+  > tiet_semicolon_guard_da_phu: 2 tiết đều có điều kiện áp dụng riêng ('cá nhân' | 'tổ chức'). Xác nhận: các guard này có loại trừ nhau không? Nếu có thì 'và'/'hoặc' không còn ảnh hưởng — giữ connector 'unknown' là an toàn.
   - chữ của luật: *a) Thu thập các tài liệu, thông tin, dữ liệu để xác minh thông tin nhận biết khách hàng theo quy định tại khoản 2, 3 Điều 12 Thông tư này và: (i) Thông tin sinh trắc học của chủ tài khoản đối với khách hàng là cá nhân; (ii) Thông tin sinh trắc học của người đại diện hợp pháp đối *
 - _(ẩn 5 cờ mức T5)_
 
 ### [T2 · phép logic chưa xác định] `18/2024/TT-NHNN#than/dieu_9#khoan_3`  ·  actor_cu
 
 - **chưa xác định 'và' hay 'hoặc'** — `điều kiện c`
-  > có 2 tiết nhưng chỉ ngăn bằng ';' — không xác định được là 'và' hay 'hoặc', cần người đọc chốt
+  > tiet_semicolon_mo_ho: có 2 tiết nhưng chỉ ngăn bằng ';' — không xác định được là 'và' hay 'hoặc', cần người đọc chốt
   - chữ của luật: *c) Trường hợp các tài liệu, thông tin, dữ liệu nêu tại điểm a, điểm b khoản này bằng tiếng nước ngoài, TCPHT được thỏa thuận với khách hàng về việc dịch hoặc không dịch ra tiếng Việt nhưng phải đảm bảo các nguyên tắc sau: (i) TCPHT phải kiểm tra, kiểm soát và chịu trách nhiệm xác*
 - _(ẩn 1 cờ mức T5)_
 

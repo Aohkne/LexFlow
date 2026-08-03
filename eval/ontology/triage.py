@@ -37,6 +37,9 @@ _RULES: list[tuple[int, str, re.Pattern[str]]] = [
     (1, "máy tự hạ lỗi cứng xuống cảnh báo", re.compile(r"hạ mức '")),
     (1, "máy tự gộp span của mô hình", re.compile(r"đã gộp đơn vị")),
     (1, "máy tự lùi về span đơn vị", re.compile(r"lùi về span đơn vị")),
+    # Hai mã phải đếm ĐỘC LẬP: câu hỏi bàn giao cho người khác nhau, nên công sức duyệt
+    # cũng khác. Mã hẹp đứng trước mã rộng — cả hai đều chứa cụm "'và' hay 'hoặc'".
+    (2, "tiết đã có guard — xác nhận loại trừ nhau", re.compile(r"tiet_semicolon_guard_da_phu")),
     (2, "chưa xác định 'và' hay 'hoặc'", re.compile(r"'và' hay 'hoặc'")),
     (3, "nghi bịa: THÊM dấu hiệu tình thái", re.compile(r"thêm dấu hiệu")),
     (4, "quote thu hẹp sai chỗ", re.compile(r"thu hẹp sai chỗ")),

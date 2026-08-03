@@ -609,6 +609,27 @@ rác** — đã đo: `thuoc_tinh='các'`, `'phát'`, `'trường'`.
 Ngưỡng đó có lý do: toàn corpus có **48** ca khớp trigger. Cảnh báo cho cả 48 sẽ dìm chết hàng
 đợi duyệt (hiện 82 cảnh báo tổng cộng) — nên chỉ **16** ca đáng ngờ nhất được nêu.
 
+### Guard KHÔNG trả lời thay `connector` — nó chỉ đổi câu hỏi bàn giao
+
+Sau B22, hai Điểm (TT17 Đ16 k1 điểm a, k2 điểm b) có **mọi tiết đều mang guard**, nên câu hỏi
+*"và hay hoặc?"* nhìn qua thì đã moot. Vẫn **không** tự nâng `connector` từ `unknown` lên `all`.
+
+Lý do: guard chỉ làm `connector` vô hại khi các guard anh em **loại trừ nhau từng đôi** — mà
+máy **không chứng minh được** điều đó. `thuoc_tinh`/`gia_tri` cố ý là chuỗi tự do (xem trên),
+nên hai guard trong một văn bản tương lai hoàn toàn có thể chồng lấn. Suy ra hộ ở đây là
+**phán định**, không phải đánh dấu — trái nguyên tắc mà cả tầng này dựng lên để giữ.
+
+Cái đổi được là **câu hỏi bàn giao cho người**:
+
+| | câu hỏi | người duyệt trả lời bằng cách |
+|---|---|---|
+| trước | *"và hay hoặc?"* | tự suy từ một dấu `;` trần — không có căn cứ |
+| sau | *"các guard này có loại trừ nhau không?"* | **nhìn danh sách giá trị** (`'cá nhân' \| 'tổ chức'`) |
+
+Câu sau trả lời được; câu trước thì không. Cảnh báo **không bị xoá**, chỉ đổi nội dung, và mang
+**mã riêng** (`tiet_semicolon_guard_da_phu` so với `tiet_semicolon_mo_ho`) để hai loại đếm được
+độc lập trong hàng đợi duyệt — công sức duyệt của hai câu hỏi này khác nhau.
+
 ### Một lỗi đường ống chỉ lộ ra khi đối chiếu batch
 
 Lần chạy `--batch` đầu tiên ra **10 guard** nhưng **thiếu TT18 Đ13 k4** — đúng một trong bốn ca

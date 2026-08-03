@@ -205,6 +205,73 @@ def test_moi_guard_tren_corpus_deu_round_trip(index):
     assert n >= 10, f"chỉ tách được {n} guard — nghi mẫu hỏng"
 
 
+# --- 6b. Guard đổi CÂU HỎI bàn giao, không đổi câu TRẢ LỜI ---------------------
+
+
+def _cu_theo_diem(index, fixture: str, khoan_so: str, diem_so: str):
+    dieu = _dieu(index, fixture)
+    khoan = _khoan(dieu, khoan_so)
+    units = segment(dieu, khoan)
+    uid = next(u.uid for u in units if u.uid > 0)
+    return build_cu(
+        {
+            "subject": {"units": [uid]}, "action": {"units": [uid]}, "logic": "all",
+            "conditions": [{"source_diem": diem_so, "units": [uid],
+                            "object_label": "", "constraint_label": ""}],
+        },
+        khoan, dieu, units, role="actor_cu",
+    )
+
+
+def test_moi_tiet_deu_co_guard_thi_doi_ma_va_liet_ke_gia_tri(index):
+    cu = _cu_theo_diem(index, "TT17-2024-dieu16.txt", "1", "a")
+    w = " ".join(cu.warnings)
+    assert "tiet_semicolon_guard_da_phu" in w
+    assert "tiet_semicolon_mo_ho" not in w
+    # Liệt kê giá trị để người duyệt nhìn ra ngay hai nhánh có loại trừ nhau không.
+    assert "'cá nhân'" in w and "'tổ chức'" in w
+
+
+def test_tiet_thieu_guard_thi_giu_nguyen_ma_cu(index):
+    """TT18 Đ9 k3 điểm c — ca chapeau, không tiết nào có guard ⇒ câu hỏi cũ."""
+    cu = _cu_theo_diem(index, "TT18-2024-dieu9.txt", "3", "c")
+    w = " ".join(cu.warnings)
+    assert "tiet_semicolon_mo_ho" in w
+    assert "tiet_semicolon_guard_da_phu" not in w
+    assert "'và' hay 'hoặc'" in w
+
+
+@pytest.mark.parametrize(
+    ("fixture", "khoan_so", "diem_so"),
+    [("TT17-2024-dieu16.txt", "1", "a"), ("TT18-2024-dieu9.txt", "3", "c")],
+)
+def test_connector_van_la_unknown_du_guard_da_phu(index, fixture, khoan_so, diem_so):
+    """Guard KHÔNG được tự nâng `unknown` lên `all`.
+
+    Nó chỉ làm connector vô hại khi các guard anh em **loại trừ nhau từng đôi**, mà
+    máy không chứng minh được điều đó: `thuoc_tinh`/`gia_tri` là chuỗi tự do nên hai
+    guard tương lai có thể chồng lấn. Suy diễn hộ là phán định, không phải đánh dấu.
+    """
+    cu = _cu_theo_diem(index, fixture, khoan_so, diem_so)
+    c = next(x for x in cu.conditions if x.source_diem == diem_so)
+    assert c.logic == "unknown"
+
+
+def test_khong_co_duong_code_nao_ghi_all_tu_guard():
+    """Canh bằng chính mã nguồn: nhánh cảnh báo ';' không được GÁN `logic`.
+
+    Test hành vi ở trên chỉ chứng minh *hiện tại* không nâng cấp; test này chặn một
+    lần sửa tương lai lặng lẽ thêm `logic = "all"` vào đúng nhánh đã có guard.
+    """
+    import re as _re
+
+    src = Path("app/ontology/extractor.py").read_text(encoding="utf-8")
+    dau = src.index('if logic == "unknown":')
+    dam = src[dau : src.index("errors += item_err", dau)]
+    gan = _re.search(r"\blogic\s*=(?!=)", dam)
+    assert gan is None, f"nhánh cảnh báo ';' đang gán logic: {dam[gan.start():][:60]!r}"
+
+
 def test_run_eval_van_chay_voi_ban_ghi_KHONG_co_truong_moi():
     """Bộ nhãn/bản ghi sinh trước B22 không có `ap_dung_khi` — không được vỡ.
 
