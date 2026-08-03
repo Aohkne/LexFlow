@@ -15,6 +15,7 @@ mô hình nằm riêng ở `label`, và phải qua được modality guard.
 from __future__ import annotations
 
 import json
+from collections import Counter
 
 from app.core.llm import chat_json
 from app.ontology.citation import parse_citations, to_node_ids
@@ -300,9 +301,21 @@ def _build_conditions(
     warnings: list[str] = []
     known_diem = {d.so_hien_thi for d in khoan.diem}
     conditions: list[ConditionItem] = []
+    # Nhiều điều kiện CÙNG trỏ về một Điểm là chuyện thường: đo trên corpus có 3/49
+    # bản ghi như vậy, nặng nhất là ND52 Đ22 K2 với điểm `g` xuất hiện 5 lần. Nếu nhãn
+    # cảnh báo chỉ ghi "điều kiện g" thì 5 cảnh báo mang CHUNG một địa chỉ và người
+    # duyệt không có cách nào biết mở cái nào — địa chỉ mơ hồ đúng loại lỗi im lặng mà
+    # `suy_ra_duoc`/`co_tiet` đã phải sinh ra để chặn ở chỗ khác. Chỉ đánh số khi thật
+    # sự trùng, để nhãn của các bản ghi còn lại không đổi.
+    src_total: Counter = Counter((r.get("source_diem") or None) for r in raw_conditions)
+    src_seen: Counter = Counter()
     for raw in raw_conditions:
         src = raw.get("source_diem") or None
-        where = f"điều kiện {src or '(không rõ điểm)'}"
+        src_seen[src] += 1
+        ten = src or "(không rõ điểm)"
+        if src_total[src] > 1:
+            ten = f"{ten}#{src_seen[src]}"
+        where = f"điều kiện {ten}"
         if src and src not in known_diem:
             warnings.append(f"{where}: điểm không tồn tại trong khoản này")
         g = resolve(raw, units, dieu.text)
