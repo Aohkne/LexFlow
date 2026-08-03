@@ -25,6 +25,29 @@ def _span(field: dict | None) -> list | None:
 
 
 def to_seed(pred: dict) -> dict:
+    """Bản ghi máy trích → khung duyệt. Hai vai, hai bộ trường span.
+
+    Trước khi tách kiểu, khung này phẳng và meta-CU luôn có `subject_span=null` —
+    người duyệt không phân biệt được "không áp dụng" với "máy quên". Nay `subject_span`
+    **không tồn tại** ở khung meta-CU, còn actor-CU thì không có `menh_de_span`.
+    """
+    la_meta = pred.get("type") == "meta_cu"
+    rieng = (
+        {
+            "gates": pred.get("gates") or [],
+            # Mốc ngày do regex tách, KHÔNG do mô hình chọn — nhưng regex vẫn có thể
+            # sai, nên nó phải nằm trong tầm duyệt chứ không mặc nhiên coi là đúng.
+            "dieu_kien_cong": pred.get("dieu_kien_cong"),
+            "menh_de_span": _span(pred.get("menh_de")),
+        }
+        if la_meta
+        else {
+            "subject_span": _span(pred.get("subject")),
+            "subject_source": pred.get("subject_source"),
+            "action_span": _span(pred.get("action")),
+        }
+    )
+    chinh = pred.get("menh_de") if la_meta else pred.get("action")
     return {
         "id": pred["id"],
         "kind": "cu",
@@ -33,14 +56,8 @@ def to_seed(pred: dict) -> dict:
         # Vai do bước phân loại gán. Phải nằm trong bộ nhãn: người duyệt cần sửa
         # được cả VAI chứ không chỉ span — một actor-CU bị gán nhầm thành meta-CU
         # là bản ghi không bao giờ bị đem ra phán định vi phạm.
-        "role": pred.get("role", "actor_cu"),
-        "gates": pred.get("gates") or [],
-        # Mốc ngày do regex tách, KHÔNG do mô hình chọn — nhưng regex vẫn có thể sai,
-        # nên nó phải nằm trong tầm duyệt chứ không được mặc nhiên coi là đúng.
-        "dieu_kien_cong": pred.get("dieu_kien_cong"),
-        "subject_span": _span(pred.get("subject")),
-        "subject_source": pred.get("subject_source"),
-        "action_span": _span(pred.get("action")),
+        "type": pred.get("type", "actor_cu"),
+        **rieng,
         "logic": pred.get("logic"),
         "conditions": [
             {"source_diem": c.get("source_diem"), "span": _span(c)}
@@ -51,7 +68,7 @@ def to_seed(pred: dict) -> dict:
         # Máy đề xuất gì — giữ lại để người duyệt biết mình đang sửa cái gì.
         "_may_de_xuat": {
             "subject_text": (pred.get("subject") or {}).get("text", "")[:120],
-            "action_text": (pred.get("action") or {}).get("text", "")[:120],
+            "action_text": (chinh or {}).get("text", "")[:120],
             "errors": pred.get("errors") or [],
             # KHÔNG cắt bớt. Trước đây cắt `[:5]` cho gọn, và đúng chỗ đó làm rơi mất
             # cảnh báo quan trọng nhất của TT17 Điều 16 khoản 2: bản ghi không còn lỗi
@@ -120,7 +137,7 @@ def main(argv: list[str] | None = None) -> int:
     out = Path(args.out)
     _write(out, seeds)
     flagged = sum(1 for s in seeds if s["_may_de_xuat"]["errors"])
-    n_meta = sum(1 for s in seeds if s["role"] == "meta_cu")
+    n_meta = sum(1 for s in seeds if s["type"] == "meta_cu")
     print(f"Đã ghi {out} — {len(seeds)} khung ({n_meta} meta_cu), "
           f"{flagged} case máy đã tự gắn cờ lỗi cứng.")
 

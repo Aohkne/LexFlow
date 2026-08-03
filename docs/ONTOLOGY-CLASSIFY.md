@@ -460,6 +460,80 @@ là không còn gì để duyệt.
 
 ---
 
+### 4.6. Tách kiểu: `ActorCU` và `MetaCU` không còn dùng chung 4-tuple
+
+§4.5 để lại một câu hỏi: meta-CU cần **hai trường ngoài bài báo** để nói được điều nó
+muốn nói, trong khi hai ô ⟨S, A⟩ của nó rỗng — giữ chung schema còn đúng không?
+
+**Đã chốt: tách.** Bốn bằng chứng, không phải thẩm mỹ.
+
+**1. 9/9 meta-CU không có bên bị ràng buộc.** Tám cái khai `subject=None`. Cái thứ chín
+(TT40 Đ26 k2) *có* điền — nhưng điền *"Quy định tại khoản 1 Điều này"*, một **tập quy
+phạm**. Nó không tuân thủ, không vi phạm, không bị xử phạt được. ⟨S⟩ của
+GraphCompliance là *bên bị ràng buộc*, nên đó cũng không phải ⟨S⟩.
+
+**2. ⟨A⟩ không phải hành vi.** Tám cổng thời gian có `action` là *"có hiệu lực thi
+hành"* — **ba cái giống hệt nhau từng chữ**. Đó là **trạng thái của quy phạm**, không
+phải việc ai đó phải làm.
+
+**3. Bài báo KHÔNG công bố listing nào cho meta-CU** — chỉ một ví dụ actor-CU (Article
+37 GDPR). Nên lý lẽ *"giữ 4-tuple cho đúng bài báo"* đang bảo vệ một quy ước mà bài báo
+**không hề đặt ra**. Không có gì để mà trung thành.
+
+**4. Sự tách biệt VỐN ĐÃ TỒN TẠI** — chỉ là viết bằng **6 nhánh `if role ==`** trong
+`extractor.py` cộng 2 khối prompt riêng, thay vì bằng kiểu dữ liệu. Người đọc
+`pred.jsonl` không thấy nó; họ chỉ thấy một shape với vài ô `null`.
+
+Tiền lệ trong chính dự án: `PremiseRecord` đã tách khỏi CU, vì trộn chung khiến
+`run_eval` gặp bản ghi không có `subject_span` và **tính sai trong im lặng**. Lập luận
+đó áp cho meta-CU y hệt.
+
+#### Hình dạng mới
+
+```
+GroundedUnit          id · references · references_hep_hon · warnings · errors · ok
+  ├── ActorCU         type · subject (BẮT BUỘC) · subject_source · action · logic · conditions
+  └── MetaCU          type · gates · dieu_kien_cong · menh_de · logic · conditions
+```
+
+- `menh_de` **thay** `action` ở meta-CU. Để một ô mang hai nghĩa tuỳ vai là đúng loại
+  mơ hồ im lặng mà `suy_ra_duoc` đã phải sinh ra để cứu cho `targets`.
+- `conditions` **giữ nguyên tên ở cả hai**: với cổng `phu_dinh` đó là danh sách được
+  **miễn** (TT40 Đ26 k2), với cổng thời gian có Điểm đó là mốc riêng từng quy định
+  (TT40 Đ52 k6) — cả hai đều là *điều kiện của cổng*.
+- `subject` mô hình lỡ khai được **gộp vào `menh_de`**, không vứt: ở Đ26 k2 hai span
+  liền kề (`[346,375]` + `[376,397]`), ghép lại mới ra trọn mệnh đề. Span thực tế nới
+  từ `[376,397]` → **`[343,398]`**.
+
+#### Cái mất, ghi rõ
+
+Cổng `chu_the` trước đây **bắt buộc** có `subject`, lý lẽ là *"role qualification có
+một vai cần định danh"*. Nay không còn ô nào cho tên vai. Nhưng lý lẽ đó dựa trên một
+ví dụ **giả định**: cổng `chu_the` duy nhất trong corpus không nêu vai nào cả, nó nêu
+**quy định**. Đúng kỷ luật đã áp cho `lanh_tho` — **0 case thì không dựng trường**.
+Gặp case thật thì thêm một trường là xong. Có test canh đích danh chỗ này.
+
+#### Đo sau khi tách
+
+| | |
+|---|---|
+| 49 CU | **40 `ActorCU`** · **9 `MetaCU`** |
+| meta có `subject`/`subject_source`/`action` | **0** |
+| actor có `gates`/`dieu_kien_cong`/`menh_de` | **0** |
+| actor thiếu `subject` | **0** |
+| lỗi cứng | **0/49**, không đổi |
+| `--classify` | **không đổi một dòng** (94 · 45/9/40), `classify_testset` 9/9 |
+
+Truyền `gates` cho `build_cu(role="actor_cu")` nay **ném `ValueError`** thay vì âm thầm
+bỏ kèm cảnh báo — sai ở chỗ gọi thì phải nổ tại chỗ gọi.
+
+Khung duyệt và `run_eval` cũng tách theo: meta-CU có `menh_de_span`, actor-CU có
+`subject_span`/`action_span`, và **không bên nào mang ô của bên kia**. Trước đây mọi
+bản ghi xuất cùng một danh sách phẳng nên meta-CU luôn có `subject_span: null` — ô null
+đó không phân biệt được *"không áp dụng"* với *"người duyệt chưa gán"*.
+
+---
+
 ## 5. Kết quả trên bộ fixture (16 file, 11 văn bản gốc)
 
 94 đơn vị (Khoản; Điều không chẻ khoản tính là 1):

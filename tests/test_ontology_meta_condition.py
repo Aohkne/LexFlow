@@ -249,13 +249,16 @@ def test_cong_thoi_gian_khong_co_moc_thi_canh_bao(index):
 
 
 def test_actor_cu_khong_duoc_mang_dieu_kien_cong(index):
+    """Trước đây bị bỏ âm thầm kèm một cảnh báo; nay `ActorCU` KHÔNG CÓ ô đó.
+
+    Truyền vào là sai ở chỗ gọi, không phải dữ liệu bẩn cần dọn — nên nổ ngay.
+    """
     dieu = _dieu(index, "ND52-2024-dieu37.txt")
     k = dieu.khoan[0]
     units = segment(dieu, k)
-    cu = build_cu(_llm(units, []), k, dieu, units,
-                  dieu_kien_cong=DieuKienCong(kind="thoi_gian", ngay="2024-07-01"))
-    assert cu.dieu_kien_cong is None
-    assert any("không được mang điều kiện cổng" in w for w in cu.warnings)
+    with pytest.raises(ValueError, match="không được mang điều kiện cổng"):
+        build_cu(_llm(units, []), k, dieu, units,
+                 dieu_kien_cong=DieuKienCong(kind="thoi_gian", ngay="2024-07-01"))
 
 
 def test_bao_cao_neo_hien_moc_la_tat_dinh(index):

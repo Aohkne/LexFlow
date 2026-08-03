@@ -84,7 +84,15 @@ def evaluate(pred: dict[str, dict], gold: dict[str, dict]) -> dict:
             continue
         row: dict = {"id": cu_id}
 
-        for name, key in (("subject", "subject_span"), ("action", "action_span")):
+        # Hai vai, hai bộ trường span. Trước khi tách kiểu, meta-CU luôn có
+        # `subject_span=null` và bị `applicable=False` bỏ qua — đúng kết quả nhưng vì
+        # lý do sai: nó bị bỏ qua như một ô "chưa gán", trong khi ô đó KHÔNG TỒN TẠI.
+        cap = (
+            (("menh_de", "menh_de_span"),)
+            if g.get("type") == "meta_cu"
+            else (("subject", "subject_span"), ("action", "action_span"))
+        )
+        for name, key in cap:
             gs, ps = g.get(key), _span(p.get(name))
             applicable = gs is not None
             span_exact.add(applicable, ps is not None and list(ps) == list(gs or []))
@@ -101,11 +109,11 @@ def evaluate(pred: dict[str, dict], gold: dict[str, dict]) -> dict:
         # Vai do bước phân loại gán. Đo riêng vì nó là phán quyết ĐỘC LẬP với span:
         # một CU neo hoàn hảo nhưng gán nhầm meta_cu sẽ không bao giờ bị phán định
         # vi phạm — sai kiểu đó không hiện ra ở bất kỳ chỉ số span nào.
-        role.add(g.get("role") is not None,
-                 p.get("role", "actor_cu") == g.get("role"))
-        if g.get("role") is not None:
-            row["role"] = g["role"]
-            row["role_khop"] = p.get("role", "actor_cu") == g["role"]
+        role.add(g.get("type") is not None,
+                 p.get("type", "actor_cu") == g.get("type"))
+        if g.get("type") is not None:
+            row["type"] = g["type"]
+            row["type_khop"] = p.get("type", "actor_cu") == g["type"]
 
         # Điều kiện: khớp theo source_diem. Khoản không chẻ điểm → khoá theo thứ tự.
         gc = {(c.get("source_diem") or f"#{i}"): c for i, c in enumerate(g.get("conditions") or [])}

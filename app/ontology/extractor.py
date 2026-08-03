@@ -26,6 +26,7 @@ from app.ontology.modality import (
 )
 from app.ontology.parser import tiet_logic
 from app.ontology.schema import (
+    ActorCU,
     ComplianceUnit,
     ConditionItem,
     DieuKienCong,
@@ -35,6 +36,7 @@ from app.ontology.schema import (
     Grounding,
     KhaiNiem,
     KhoanNode,
+    MetaCU,
     PremiseRecord,
     SubCondition,
     Unit,
@@ -274,77 +276,29 @@ def _resolve_references(khoan: KhoanNode, dieu: DieuNode) -> tuple[list[str], bo
     return refs, hep_hon
 
 
-def build_cu(
-    data: dict,
+def _ctx(khoan: KhoanNode, dieu: DieuNode) -> tuple[int, int]:
+    """Ngữ cảnh giải viện dẫn tự trỏ (*"Điều này"* / *"khoản này"*).
+
+    Khoản 0 = Điều không chẻ khoản, khi đó "khoản này" không có số để mà khớp.
+    """
+    return (dieu.so_goc, khoan.so_goc if khoan.so_hien_thi else 0)
+
+
+def _build_conditions(
+    raw_conditions: list[dict],
     khoan: KhoanNode,
     dieu: DieuNode,
     units: list[Unit],
-    role: str = "actor_cu",
-    gates: list[Gate] | None = None,
-    dieu_kien_cong: DieuKienCong | None = None,
-) -> ComplianceUnit:
-    """Ghép JSON của LLM + neo + kiểm tình thái. Không gọi LLM (test được offline)."""
+    ctx: tuple[int, int],
+) -> tuple[list[ConditionItem], list[str], list[str]]:
+    """Phần dùng chung của cả hai vai: neo từng Điểm + kiểm nhãn + lấy tiết.
+
+    Với actor-CU đây là các điều kiện phải thoả; với meta-CU đây là các đơn vị được
+    liệt kê riêng trong mệnh đề cổng. Cơ chế neo giống hệt nhau nên dùng chung.
+    """
     errors: list[str] = []
     warnings: list[str] = []
-    raw_subject = data.get("subject") or {}
-    mien_subject = subject_khong_ap_dung(role, gates)
-
-    # Ngữ cảnh để giải viện dẫn tự trỏ ("Điều này" / "khoản này") — xem
-    # `modality.relax_dereference`. Khoản 0 = Điều không chẻ khoản, khi đó "khoản này"
-    # không có số để mà khớp.
-    ctx = (dieu.so_goc, khoan.so_goc if khoan.so_hien_thi else 0)
-
-    subject: GroundedField | None
-    subject_source: str | None
-    if mien_subject and not (raw_subject.get("units") or []):
-        # KHÔNG ÁP DỤNG, không phải trích hỏng. Cổng thời gian/lãnh thổ không có bên
-        # bị ràng buộc — bắt điền ô này chỉ tổ đẩy mô hình đi chọn bừa một đơn vị.
-        subject, subject_source = None, None
-    else:
-        subject, e, w = _field(raw_subject, units, dieu.text, "subject", ctx=ctx)
-        errors += e
-        warnings += w
-        subject_source = raw_subject.get("source")
-        if subject_source not in {"explicit", "inherited"}:
-            subject_source = "explicit"
-            warnings.append("subject.source thiếu/không hợp lệ — mặc định 'explicit'")
-        if subject_source == "explicit" and subject.grounding.units == [0]:
-            subject_source = "inherited"
-            warnings.append(
-                "subject khai 'explicit' nhưng neo vào tiêu đề Điều → hạ về 'inherited'"
-            )
-        if mien_subject:
-            # Được phép bỏ trống mà vẫn điền: giữ lại (vẫn phải qua guard) nhưng nêu
-            # ra, vì "Nghị định này" không phải bên bị ràng buộc.
-            warnings.append(
-                "cổng thời gian/lãnh thổ không có bên bị ràng buộc — subject này là "
-                "chủ ngữ ngữ pháp, cân nhắc để trống"
-            )
-
-    action, e, w = _field(data.get("action") or {}, units, dieu.text, "action", ctx=ctx)
-    errors += e
-    warnings += w
-
     known_diem = {d.so_hien_thi for d in khoan.diem}
-    raw_conditions = list(data.get("conditions") or [])
-    bo_dieu_kien = conditions_khong_ap_dung(role, gates, khoan)
-    if bo_dieu_kien and raw_conditions:
-        # KHÔNG âm thầm xoá: nêu ra đã bỏ cái gì. Đây là cảnh báo chứ không phải lỗi
-        # cứng — bản ghi vẫn dùng được vì mốc ngày đã được tách TẤT ĐỊNH ở bước phân
-        # loại, không phụ thuộc ô này. Cùng tiền lệ với `subject` được phép để trống.
-        nhan = "; ".join(
-            (
-                (r.get("constraint_label") or r.get("object_label")
-                 or f"điểm {r.get('source_diem')}").strip()[:60]
-            )
-            for r in raw_conditions
-        )
-        warnings.append(
-            f"mệnh đề hiệu lực ở khoản không chẻ Điểm — bỏ {len(raw_conditions)} "
-            f"'điều kiện' mô hình sinh ra: {nhan}"
-        )
-        raw_conditions = []
-
     conditions: list[ConditionItem] = []
     for raw in raw_conditions:
         src = raw.get("source_diem") or None
@@ -408,51 +362,163 @@ def build_cu(
     missing = known_diem - {c.source_diem for c in conditions}
     if missing:
         warnings.append(f"bỏ sót điểm: {', '.join(sorted(missing))}")
+    return conditions, errors, warnings
 
+
+def _logic(data: dict, ep_unknown: bool = False) -> str:
     logic = data.get("logic")
-    if logic not in {"all", "any", "unknown"} or bo_dieu_kien:
-        logic = "unknown"
+    return "unknown" if (logic not in {"all", "any", "unknown"} or ep_unknown) else logic
 
-    refs, hep_hon = _resolve_references(khoan, dieu)
 
-    gates = list(gates or [])
-    if role != "meta_cu" and gates:
-        warnings.append("actor_cu không được mang cổng — bỏ qua `gates`")
-        gates = []
-    if role != "meta_cu" and dieu_kien_cong is not None:
-        warnings.append("actor_cu không được mang điều kiện cổng — bỏ qua")
-        dieu_kien_cong = None
-    if role == "meta_cu" and not gates:
-        # Chặn im lặng: một meta-CU không nói được nó chặn cái gì thì downstream
-        # không dùng được, mà nhìn bản ghi lại tưởng đã đầy đủ.
-        warnings.append("meta_cu nhưng chưa xác định được phạm vi chặn cổng")
-    if (
-        role == "meta_cu"
-        and any(g.kind == "thoi_gian" for g in gates)
-        and dieu_kien_cong is None
-    ):
-        # Chỗ hổng cấu trúc phải HIỆN RA: một cổng thời gian không có mốc thời gian ở
-        # dạng máy đọc được thì downstream không gate được bằng gì.
+def build_actor_cu(
+    data: dict, khoan: KhoanNode, dieu: DieuNode, units: list[Unit]
+) -> ActorCU:
+    """JSON của LLM → `ActorCU`. Không gọi LLM (test được offline)."""
+    ctx = _ctx(khoan, dieu)
+    errors: list[str] = []
+    warnings: list[str] = []
+
+    # `subject` BẮT BUỘC ở đây. Không có nhánh "không áp dụng" nào: một nghĩa vụ mà
+    # không có bên bị ràng buộc thì không phán định tuân thủ được ⇒ luôn là trích hỏng.
+    subject, e, w = _field(data.get("subject") or {}, units, dieu.text, "subject", ctx=ctx)
+    errors += e
+    warnings += w
+    subject_source = (data.get("subject") or {}).get("source")
+    if subject_source not in {"explicit", "inherited"}:
+        subject_source = "explicit"
+        warnings.append("subject.source thiếu/không hợp lệ — mặc định 'explicit'")
+    if subject_source == "explicit" and subject.grounding.units == [0]:
+        subject_source = "inherited"
         warnings.append(
-            "cổng thời gian nhưng chưa tách được mốc ngày ở dạng cấu trúc — "
-            "mốc (nếu có) chỉ còn là chữ tự do trong `action`"
+            "subject khai 'explicit' nhưng neo vào tiêu đề Điều → hạ về 'inherited'"
         )
 
-    return ComplianceUnit(
+    action, e, w = _field(data.get("action") or {}, units, dieu.text, "action", ctx=ctx)
+    errors += e
+    warnings += w
+
+    conditions, e, w = _build_conditions(
+        list(data.get("conditions") or []), khoan, dieu, units, ctx
+    )
+    errors += e
+    warnings += w
+
+    refs, hep_hon = _resolve_references(khoan, dieu)
+    return ActorCU(
         id=khoan.id,
-        role=role,  # type: ignore[arg-type]
-        gates=gates,
-        dieu_kien_cong=dieu_kien_cong,
         subject=subject,
         subject_source=subject_source,  # type: ignore[arg-type]
         action=action,
-        logic=logic,  # type: ignore[arg-type]
+        logic=_logic(data),  # type: ignore[arg-type]
         conditions=conditions,
         references=refs,
         references_hep_hon=hep_hon,
         warnings=warnings,
         errors=errors,
     )
+
+
+def build_meta_cu(
+    data: dict,
+    khoan: KhoanNode,
+    dieu: DieuNode,
+    units: list[Unit],
+    gates: list[Gate] | None = None,
+    dieu_kien_cong: DieuKienCong | None = None,
+) -> MetaCU:
+    """JSON của LLM → `MetaCU`. Không có ô `subject`, và đó là điều muốn nói.
+
+    Nếu mô hình vẫn khai `subject`, các đơn vị đó được **gộp vào `menh_de`** chứ không
+    bị vứt: ở TT40 Đ26 k2 hai span liền kề nhau, ghép lại mới ra trọn mệnh đề. Vứt đi
+    là mất nửa câu; giữ thành một ô riêng là quay lại đúng chỗ sai đang muốn bỏ.
+    """
+    ctx = _ctx(khoan, dieu)
+    errors: list[str] = []
+    warnings: list[str] = []
+    gates = list(gates or [])
+
+    raw_menh_de = dict(data.get("action") or {})
+    raw_subject = data.get("subject") or {}
+    if raw_subject.get("units"):
+        raw_menh_de["units"] = sorted(
+            {*(raw_menh_de.get("units") or []), *raw_subject["units"]}
+        )
+        # `quote` của một trong hai vế không còn bao đúng bao lồi đã gộp ⇒ bỏ, để
+        # `resolve` lùi về span đơn vị thay vì thu hẹp sai chỗ.
+        raw_menh_de.pop("quote", None)
+        warnings.append(
+            "cổng không có bên bị ràng buộc — mô hình vẫn khai 'subject', đã gộp đơn "
+            f"vị {raw_subject['units']} vào `menh_de` để không mất nửa mệnh đề"
+        )
+
+    menh_de, e, w = _field(raw_menh_de, units, dieu.text, "menh_de", ctx=ctx)
+    errors += e
+    warnings += w
+
+    raw_conditions = list(data.get("conditions") or [])
+    bo_dieu_kien = conditions_khong_ap_dung("meta_cu", gates, khoan)
+    if bo_dieu_kien and raw_conditions:
+        # KHÔNG âm thầm xoá: nêu ra đã bỏ cái gì. Cảnh báo chứ không phải lỗi cứng —
+        # mốc ngày đã được tách TẤT ĐỊNH ở bước phân loại, không phụ thuộc ô này.
+        nhan = "; ".join(
+            (r.get("constraint_label") or r.get("object_label")
+             or f"điểm {r.get('source_diem')}").strip()[:60]
+            for r in raw_conditions
+        )
+        warnings.append(
+            f"mệnh đề hiệu lực ở khoản không chẻ Điểm — bỏ {len(raw_conditions)} "
+            f"'điều kiện' mô hình sinh ra: {nhan}"
+        )
+        raw_conditions = []
+
+    conditions, e, w = _build_conditions(raw_conditions, khoan, dieu, units, ctx)
+    errors += e
+    warnings += w
+
+    if not gates:
+        # Chặn im lặng: một meta-CU không nói được nó chặn cái gì thì downstream
+        # không dùng được, mà nhìn bản ghi lại tưởng đã đầy đủ.
+        warnings.append("meta_cu nhưng chưa xác định được phạm vi chặn cổng")
+    if any(g.kind == "thoi_gian" for g in gates) and dieu_kien_cong is None:
+        # Chỗ hổng cấu trúc phải HIỆN RA: một cổng thời gian không có mốc thời gian ở
+        # dạng máy đọc được thì downstream không gate được bằng gì.
+        warnings.append(
+            "cổng thời gian nhưng chưa tách được mốc ngày ở dạng cấu trúc — "
+            "mốc (nếu có) chỉ còn là chữ tự do trong `menh_de`"
+        )
+
+    refs, hep_hon = _resolve_references(khoan, dieu)
+    return MetaCU(
+        id=khoan.id,
+        gates=gates,
+        dieu_kien_cong=dieu_kien_cong,
+        menh_de=menh_de,
+        logic=_logic(data, ep_unknown=bo_dieu_kien),  # type: ignore[arg-type]
+        conditions=conditions,
+        references=refs,
+        references_hep_hon=hep_hon,
+        warnings=warnings,
+        errors=errors,
+    )
+
+
+def build_cu(
+    data: dict,
+    khoan: KhoanNode,
+    dieu: DieuNode,
+    units: list[Unit],
+    role: str = "actor_cu",
+    gates: list[Gate] | None = None,
+    dieu_kien_cong: DieuKienCong | None = None,
+) -> ComplianceUnit:
+    """Rẽ nhánh theo vai. Vai do bước phân loại quyết định, KHÔNG do mô hình khai."""
+    if role == "meta_cu":
+        return build_meta_cu(data, khoan, dieu, units, gates, dieu_kien_cong)
+    if gates:
+        raise ValueError(f"actor_cu không được mang cổng: {khoan.id}")
+    if dieu_kien_cong is not None:
+        raise ValueError(f"actor_cu không được mang điều kiện cổng: {khoan.id}")
+    return build_actor_cu(data, khoan, dieu, units)
 
 
 def extract_cu(
@@ -569,21 +635,26 @@ def extract_khai_niem(khoan: KhoanNode, dieu: DieuNode) -> KhaiNiem | None:
     return build_khai_niem(data, khoan, dieu, units)
 
 
+def _row(ten: str, f: GroundedField) -> dict:
+    return {"field": ten, "status": f.grounding.status,
+            "units": f.grounding.units, "char_span": f.grounding.char_span}
+
+
 def grounding_report(cu: ComplianceUnit) -> list[dict]:
-    """Bảng đối chiếu từng field. `subject` vắng mặt hợp lệ ⇒ báo "không áp dụng"."""
-    rows = [
-        {"field": "subject", "status": cu.subject.grounding.status,
-         "units": cu.subject.grounding.units, "char_span": cu.subject.grounding.char_span}
-        if cu.subject
-        else {"field": "subject", "status": "khong_ap_dung", "units": [], "char_span": None},
-        {"field": "action", "status": cu.action.grounding.status,
-         "units": cu.action.grounding.units, "char_span": cu.action.grounding.char_span},
-    ]
-    if cu.dieu_kien_cong:
-        # `status="tat_dinh"`: span này do REGEX của ta tính, không đi qua tay mô hình
-        # lần nào — nên nó không cùng thang đo với exact/unit/invalid của menu-span.
-        rows.append({"field": "dieu_kien_cong", "status": "tat_dinh",
-                     "units": [], "char_span": cu.dieu_kien_cong.char_span})
+    """Bảng đối chiếu từng field. Hai vai có bộ trường khác nhau nên rẽ nhánh rõ.
+
+    Không còn dòng `subject: khong_ap_dung` như bản trước: meta-CU giờ **không có**
+    ô đó để mà báo trống — kiểu dữ liệu đã nói điều ấy thay cho một dòng trạng thái.
+    """
+    if isinstance(cu, ActorCU):
+        rows = [_row("subject", cu.subject), _row("action", cu.action)]
+    else:
+        rows = [_row("menh_de", cu.menh_de)]
+        if cu.dieu_kien_cong:
+            # `status="tat_dinh"`: span này do REGEX của ta tính, không đi qua tay mô
+            # hình lần nào — không cùng thang đo với exact/unit/invalid của menu-span.
+            rows.append({"field": "dieu_kien_cong", "status": "tat_dinh",
+                         "units": [], "char_span": cu.dieu_kien_cong.char_span})
     rows += [
         {"field": f"condition[{c.source_diem or '-'}]", "status": c.grounding.status,
          "units": c.grounding.units, "char_span": c.grounding.char_span}

@@ -14,7 +14,9 @@ from pathlib import Path
 import pytest
 
 from eval.ontology.review_ui import (
-    EXPORT_FIELDS,
+    EXPORT_ACTOR,
+    EXPORT_CHUNG,
+    EXPORT_META,
     PREMISE_FIELDS,
     build_payload,
     render,
@@ -65,7 +67,7 @@ def test_don_vi_cat_dung_van_ban_goc(payload):  # noqa: D103 - xem docstring dư
 def test_span_may_de_xuat_nam_trong_van_ban(payload):
     for item in payload["items"]:
         n = len(payload["fixtures"][item["fixture_name"]]["text"])
-        for key in ("subject_span", "action_span", "raw_span"):
+        for key in ("subject_span", "action_span", "menh_de_span", "raw_span"):
             sp = item.get(key)
             if sp:
                 assert 0 <= sp[0] < sp[1] <= n, f"{item['id']}.{key}"
@@ -84,11 +86,11 @@ def test_moi_muc_deu_mang_vai(payload):
         if item.get("kind") == "premise":
             assert item["premise_kind"] in {"dinh_nghia", "vai_tro", "pham_vi"}
         else:
-            assert item["role"] in {"actor_cu", "meta_cu"}
+            assert item["type"] in {"actor_cu", "meta_cu"}
 
 
 def test_meta_cu_mang_theo_cong(cu_items):
-    metas = [i for i in cu_items if i["role"] == "meta_cu"]
+    metas = [i for i in cu_items if i["type"] == "meta_cu"]
     assert metas, "bộ khung không còn meta-CU nào — kiểm lại pred.jsonl"
     for m in metas:
         assert m["gates"], f"{m['id']}: meta_cu mà không có cổng"
@@ -153,12 +155,27 @@ def test_co_the_luu_bat_tat_theo_che_do(payload):
 
 
 def test_xuat_jsonl_dung_hop_dong_voi_run_eval(cu_items):
+    """Hai vai, hai bộ trường — và KHÔNG được chồng lấn.
+
+    Trước khi tách kiểu, mọi bản ghi xuất cùng một danh sách phẳng nên meta-CU luôn
+    mang `subject_span: null`. Ô null đó không phân biệt được "không áp dụng" với
+    "người duyệt chưa gán" — đúng thứ việc tách kiểu dọn đi, nên phải canh.
+    """
     out = to_jsonl(cu_items)
     rows = [json.loads(ln) for ln in out.splitlines()]
     assert len(rows) == len(cu_items)
+    n_meta = 0
     for r in rows:
-        assert set(r) == set(EXPORT_FIELDS)
+        rieng = EXPORT_META if r["type"] == "meta_cu" else EXPORT_ACTOR
+        assert set(r) == set(EXPORT_CHUNG) | set(rieng), r["id"]
         assert "_may_de_xuat" not in r  # ghi chú của máy không lọt vào bộ nhãn
+        if r["type"] == "meta_cu":
+            n_meta += 1
+            assert "subject_span" not in r and "subject_source" not in r
+            assert "action_span" not in r  # meta-CU dùng `menh_de_span`
+        else:
+            assert "gates" not in r and "menh_de_span" not in r
+    assert n_meta, "không còn meta-CU nào để canh — kiểm lại pred.jsonl"
     assert out.endswith("\n")
 
 

@@ -255,10 +255,11 @@ def main(argv: list[str] | None = None) -> None:
                 )
                 rows.append({"fixture": str(path).replace("\\", "/"), **cu.model_dump()})
                 flag = "LỖI" if cu.errors else "ok"
-                d = cu.dieu_kien_cong
+                d = getattr(cu, "dieu_kien_cong", None)
+                gates = getattr(cu, "gates", [])
                 print(f"  → {flag}, {len(cu.conditions)} điều kiện, "
                       f"{len(cu.references)} viện dẫn, {len(cu.warnings)} cảnh báo"
-                      + (f", cổng {cu.gates[0].pham_vi}" if cu.gates else "")
+                      + (f", cổng {gates[0].pham_vi}" if gates else "")
                       + (f", mốc {d.moc} {d.ngay or '(không có ngày)'}" if d else ""))
                 if html_dir:
                     (html_dir / f"{path.stem}-khoan{k.so_hien_thi}.html").write_text(
@@ -270,7 +271,7 @@ def main(argv: list[str] | None = None) -> None:
             "\n".join(json.dumps(r, ensure_ascii=False) for r in rows) + "\n", encoding="utf-8"
         )
         bad = sum(1 for r in rows if r["errors"])
-        meta = sum(1 for r in rows if r["role"] == "meta_cu")
+        meta = sum(1 for r in rows if r["type"] == "meta_cu")
         print(f"\n[ontology] Đã ghi {out} — {len(rows)} CU ({meta} meta_cu), {bad} có lỗi cứng")
         if pr_rows:
             pr_out = out.with_name("premise.jsonl")

@@ -14,7 +14,7 @@ from __future__ import annotations
 
 from html import escape
 
-from app.ontology.schema import ComplianceUnit, DieuNode
+from app.ontology.schema import ActorCU, ComplianceUnit, DieuNode, MetaCU
 
 _ROLE_COLOR = {
     "subject": ("#2563eb", "#dbeafe"),
@@ -60,14 +60,17 @@ td.warn { color: #b45309; }
 def _spans(cu: ComplianceUnit) -> list[tuple[int, int, str, str]]:
     """[(start, end, role, nhãn)] đã sắp, bỏ span không neo được."""
     out: list[tuple[int, int, str, str]] = []
-    for role, field, name in (
-        ("subject", cu.subject, "subject"),
-        ("action", cu.action, "action"),
-    ):
+    if isinstance(cu, ActorCU):
+        khung = (("subject", cu.subject, "subject"), ("action", cu.action, "action"))
+    else:
+        # meta-CU tô `menh_de` bằng màu của `action` — cùng vai trò thị giác (vị ngữ
+        # của mệnh đề), chỉ khác tên vì nó không phải hành vi.
+        khung = (("action", cu.menh_de, "mệnh đề hiệu lực/phạm vi"),)
+    for role, field, name in khung:
         if field and field.grounding.char_span:
             a, b = field.grounding.char_span
             out.append((a, b, role, name))
-    if cu.dieu_kien_cong and cu.dieu_kien_cong.char_span:
+    if isinstance(cu, MetaCU) and cu.dieu_kien_cong and cu.dieu_kien_cong.char_span:
         a, b = cu.dieu_kien_cong.char_span
         out.append((a, b, "dieu_kien_cong", "điều kiện cổng (tất định)"))
     for c in cu.conditions:
@@ -114,19 +117,22 @@ def _rows(cu: ComplianceUnit) -> str:
             f"<td>{'<br>'.join(escape(i) for i in issues)}</td></tr>"
         )
 
-    body = [
-        row("subject", cu.subject.text, cu.subject.label, cu.subject.grounding, cu.subject.issues)
-        if cu.subject
-        # Phải hiện thành một dòng, KHÔNG được biến mất: người đọc cần thấy ô này
-        # trống có chủ ý, chứ không phải bị bỏ quên.
-        else (
-            "<tr><td>subject</td><td><i>không áp dụng</i></td><td>—</td><td>—</td>"
-            "<td colspan='3'><i>cổng thời gian/lãnh thổ — không có bên bị ràng buộc</i>"
-            "</td></tr>"
-        ),
-        row("action", cu.action.text, cu.action.label, cu.action.grounding, cu.action.issues),
-    ]
-    if cu.dieu_kien_cong:
+    if isinstance(cu, ActorCU):
+        body = [
+            row("subject", cu.subject.text, cu.subject.label,
+                cu.subject.grounding, cu.subject.issues),
+            row("action", cu.action.text, cu.action.label,
+                cu.action.grounding, cu.action.issues),
+        ]
+    else:
+        # KHÔNG còn dòng "subject: không áp dụng". Bản trước phải in một dòng trống có
+        # chủ ý vì ô đó tồn tại trong kiểu; nay meta-CU không có ô ấy, nên nói bằng
+        # chính tên trường là đủ — thêm một dòng trống chỉ tổ gợi lại câu hỏi cũ.
+        body = [
+            row("menh_de", cu.menh_de.text, cu.menh_de.label,
+                cu.menh_de.grounding, cu.menh_de.issues),
+        ]
+    if isinstance(cu, MetaCU) and cu.dieu_kien_cong:
         d = cu.dieu_kien_cong
         moc = "bắt đầu" if d.moc == "bat_dau" else "KẾT THÚC"
         ngay = f"<b>{escape(d.ngay)}</b> ({moc})" if d.ngay else "<i>không có ngày</i>"
@@ -136,9 +142,10 @@ def _rows(cu: ComplianceUnit) -> str:
             f"<td>{escape(d.raw_text[:160])}</td><td>{ngay}</td>"
             f"<td>{escape(d.ghi_chu)}</td></tr>"
         )
-    if cu.role == "meta_cu" and cu.dieu_kien_cong and not cu.conditions:
-        # Ô trống có chủ ý phải THẤY ĐƯỢC, y như dòng `subject` ở trên — biến mất thì
-        # người đọc không phân biệt được "không áp dụng" với "quên trích".
+    if isinstance(cu, MetaCU) and cu.dieu_kien_cong and not cu.conditions:
+        # Ô trống có chủ ý phải THẤY ĐƯỢC — biến mất thì người đọc không phân biệt
+        # được "không áp dụng" với "quên trích". Đây vẫn cần dòng riêng vì `conditions`
+        # TỒN TẠI trong kiểu `MetaCU`, chỉ là rỗng ở khoản không chẻ Điểm.
         body.append(
             "<tr><td>conditions</td><td><i>không áp dụng</i></td><td>—</td><td>—</td>"
             "<td colspan='3'><i>mệnh đề hiệu lực ở khoản không chẻ Điểm — không có "
@@ -191,8 +198,13 @@ def render(cu: ComplianceUnit, dieu: DieuNode) -> str:
         f"<title>{escape(cu.id)}</title>\n<style>{_CSS}</style>\n</head>\n<body>\n"
         f"<h1>{escape(cu.id)}</h1>\n"
         f"<p class='meta'>Điều {escape(dieu.so_hien_thi)}. {escape(dieu.tieu_de)} — "
-        f"logic=<b>{escape(cu.logic)}</b>, vai=<b>{escape(cu.role)}</b>, "
-        f"subject_source=<b>{escape(cu.subject_source or 'không áp dụng')}</b></p>\n"
+        f"logic=<b>{escape(cu.logic)}</b>, vai=<b>{escape(cu.type)}</b>"
+        + (
+            f", subject_source=<b>{escape(cu.subject_source)}</b>"
+            if isinstance(cu, ActorCU)
+            else f", cổng=<b>{escape(cu.gates[0].kind if cu.gates else '—')}</b>"
+        )
+        + "</p>\n"
         f"<p class='legend'>{legend}</p>\n"
         f"{status}\n"
         f"<pre class='doc'>{_render_text(dieu.text, _spans(cu))}</pre>\n"

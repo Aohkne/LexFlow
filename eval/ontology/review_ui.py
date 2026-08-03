@@ -44,11 +44,14 @@ _GOLD = Path("eval/ontology/gold.jsonl")
 _GOLD_PREMISE = Path("eval/ontology/gold.premise.jsonl")
 _OUT = Path("eval/ontology/review.html")
 
-# Các trường được xuất ra gold.jsonl — đúng thứ `run_eval.py` đọc.
-EXPORT_FIELDS = [
-    "id", "fixture", "reviewed", "role", "subject_span", "subject_source",
-    "action_span", "logic", "conditions", "expect_hard_error", "note",
-]
+# Các trường được xuất ra gold.jsonl — đúng thứ `run_eval.py` đọc. Hai vai, hai bộ:
+# actor-CU có `subject_span`/`action_span`, meta-CU có `menh_de_span` và KHÔNG có ô
+# chủ thể nào. Xuất chung một danh sách phẳng sẽ đẻ lại `subject_span: null` cho
+# meta-CU — đúng thứ việc tách kiểu vừa dọn đi.
+EXPORT_CHUNG = ["id", "fixture", "reviewed", "type", "logic", "conditions",
+                "expect_hard_error", "note"]
+EXPORT_ACTOR = ["subject_span", "subject_source", "action_span"]
+EXPORT_META = ["menh_de_span", "gates", "dieu_kien_cong"]
 # Tầng premise xuất RIÊNG (`gold.premise.jsonl`): nó không có 4-tuple, trộn chung
 # một file sẽ phá hợp đồng mà `run_eval.py` đang đọc.
 PREMISE_FIELDS = ["id", "fixture", "reviewed", "premise_kind", "alias", "sai_loai", "note"]
@@ -87,7 +90,7 @@ def build_payload(
         khoan = next(k for k in khoan_de_trich(dieu) if k.so_hien_thi == so_khoan)
         item = {**s, **done.get(s["id"], {})}
         item.setdefault("kind", "cu")
-        item.setdefault("role", "actor_cu")
+        item.setdefault("type", "actor_cu")
         item["fixture_name"] = name
         item["khoan"] = so_khoan
         item["dieu_title"] = f"Điều {dieu.so_hien_thi}. {dieu.tieu_de}"
@@ -106,14 +109,30 @@ def render(payload: dict, *, can_save: bool) -> str:
     return (
         _HTML.replace("__DATA__", data)
         .replace("__CAN_SAVE__", "true" if can_save else "false")
-        .replace("__FIELDS__", json.dumps(EXPORT_FIELDS))
+        .replace(
+            "__FIELDS__",
+            json.dumps({"chung": EXPORT_CHUNG, "actor": EXPORT_ACTOR, "meta": EXPORT_META}),
+        )
         .replace("__PFIELDS__", json.dumps(PREMISE_FIELDS))
     )
 
 
+def cu_fields(row: dict) -> list[str]:
+    """Bộ trường xuất của một bản ghi CU — theo VAI, không phẳng.
+
+    Xuất chung một danh sách sẽ đẻ lại `subject_span: null` cho mọi meta-CU, đúng thứ
+    việc tách kiểu vừa dọn: một ô null không phân biệt được "không áp dụng" với
+    "người duyệt chưa gán".
+    """
+    rieng = EXPORT_META if row.get("type") == "meta_cu" else EXPORT_ACTOR
+    return EXPORT_CHUNG + rieng
+
+
 def to_jsonl(rows: list[dict], fields: list[str] | None = None) -> str:
-    fields = fields or EXPORT_FIELDS
-    out = [json.dumps({k: r.get(k) for k in fields}, ensure_ascii=False) for r in rows]
+    out = [
+        json.dumps({k: r.get(k) for k in (fields or cu_fields(r))}, ensure_ascii=False)
+        for r in rows
+    ]
     return "\n".join(out) + "\n"
 
 
@@ -176,7 +195,7 @@ def main(argv: list[str] | None = None) -> Path:
     # Tự ghi bằng encoding utf-8 — không bao giờ qua redirect của shell.
     out.write_text(html, encoding="utf-8")
     n = {k: sum(1 for i in payload["items"] if i.get("kind", "cu") == "cu"
-                and i.get("role") == k) for k in ("actor_cu", "meta_cu")}
+                and i.get("type") == k) for k in ("actor_cu", "meta_cu")}
     n_pr = sum(1 for i in payload["items"] if i.get("kind") == "premise")
     print(f"Đã ghi {out} — {n['actor_cu']} actor-CU · {n['meta_cu']} meta-CU · {n_pr} premise")
 
@@ -302,12 +321,17 @@ textarea{width:100%;min-height:44px}
 <div id="toast"></div>
 <script>
 const DATA = __DATA__, CAN_SAVE = __CAN_SAVE__, FIELDS = __FIELDS__, PFIELDS = __PFIELDS__;
-const KEY = "lexflow-gold-v2";   // v1 không có `role`/`kind` — đổi khoá để không trộn
+// v1 không có `role`/`kind`; v3 đổi `role` → `type` và tách bộ trường theo vai —
+// tiến độ lưu theo khoá cũ không còn đọc đúng, nên phải đổi khoá chứ không trộn.
+const KEY = "lexflow-gold-v3";
 let items = DATA.items, cur = 0, pendingCond = null, filt = "all";
 const NHAN = {actor_cu: "ACTOR", meta_cu: "META", premise: "PREMISE"};
-const loai = r => r.kind === "premise" ? "premise" : (r.role || "actor_cu");
+const loai = r => r.kind === "premise" ? "premise" : (r.type || "actor_cu");
 const isPre = r => r.kind === "premise";
-const flds = r => isPre(r) ? PFIELDS.concat(["kind"]) : FIELDS.concat(["kind"]);
+const isMeta = r => !isPre(r) && loai(r) === "meta_cu";
+// Bộ trường xuất khác nhau theo vai: meta-CU KHÔNG có ô chủ thể nào để mà xuất.
+const flds = r => isPre(r) ? PFIELDS.concat(["kind"])
+  : FIELDS.chung.concat(isMeta(r) ? FIELDS.meta : FIELDS.actor, ["kind"]);
 
 // Khôi phục tiến độ đã lưu trong trình duyệt (chống mất khi lỡ đóng tab).
 try {
@@ -348,8 +372,13 @@ function spans() {
     if (al) o.push([...al, "alias"]);
     return o;
   }
-  if (it().subject_span) o.push([...it().subject_span, "subject"]);
-  if (it().action_span) o.push([...it().action_span, "action"]);
+  if (isMeta(it())) {
+    // meta-CU tô `menh_de` bằng màu của action — cùng vai trò thị giác, khác tên.
+    if (it().menh_de_span) o.push([...it().menh_de_span, "action"]);
+  } else {
+    if (it().subject_span) o.push([...it().subject_span, "subject"]);
+    if (it().action_span) o.push([...it().action_span, "action"]);
+  }
   (it().conditions || []).forEach(c => { if (c.span) o.push([...c.span, "condition"]); });
   return o;
 }
@@ -407,6 +436,7 @@ function addCond() {
 }
 function pickUnit(a, z) {
   if (pendingCond !== null) { it().conditions[pendingCond].span = [a, z]; pendingCond = null; }
+  else if (isMeta(it())) it().menh_de_span = [a, z];
   else if (!it().subject_span) it().subject_span = [a, z];
   else it().action_span = [a, z];
   sync();
@@ -423,24 +453,20 @@ function condFromSel(i) { const s = need(); if (!s) return; it().conditions[i].s
 // `extractor._GATE_KHONG_CO_ACTOR`. `chu_the` KHÔNG nằm đây: role qualification có
 // một vai cần định danh nên subject vẫn bắt buộc.
 const GATE_KHONG_ACTOR = ["thoi_gian", "lanh_tho"];
-const subjMien = r => r.role === "meta_cu" && (r.gates || []).length > 0 &&
-  (r.gates || []).every(g => GATE_KHONG_ACTOR.includes(g.kind));
 // Giữ đồng bộ với `extractor.conditions_khong_ap_dung`: thêm vế "Khoản không chẻ
 // Điểm". TT40 Đ52 k6 cũng là cổng thời gian nhưng CÓ điểm a/b mang mốc thật.
-const condMien = () => subjMien(it()) && !(it().diem || []).length;
+const condMien = () => isMeta(it()) && (it().gates || []).length > 0 &&
+  (it().gates || []).every(g => GATE_KHONG_ACTOR.includes(g.kind)) &&
+  !(it().diem || []).length;
 
 function field(name, key, cls) {
   const sp = it()[key];
-  // Ô trống HỢP LỆ phải đọc ra là "không áp dụng", không phải "chưa gán" — hai thứ
-  // đó là hai trạng thái khác nhau, gộp lại thì trích hỏng núp được dưới vỏ hợp lệ.
-  const mien = key === "subject_span" && subjMien(it());
-  const rong = mien
-    ? `<i>không áp dụng — cổng thời gian/lãnh thổ không có bên bị ràng buộc</i>`
-    : "<i>—</i>";
+  // Không còn nhánh "subject: không áp dụng" như bản trước: meta-CU giờ KHÔNG có ô
+  // đó để mà bày ra, nên cũng không còn trạng thái trống-hợp-lệ nào ở đây cả.
   return `<div class="f"><h3 style="color:var(--${cls})">${name}</h3>
-    <div class="meta">${sp ? sp[0] + "–" + sp[1] : (mien ? "không áp dụng" : "chưa gán")}
+    <div class="meta">${sp ? sp[0] + "–" + sp[1] : "chưa gán"}
       ${sp ? `<button class="sm" onclick="clr('${key}')">xoá</button>` : ""}</div>
-    <div class="q">${sp ? esc(cut(sp)) : rong}</div></div>`;
+    <div class="q">${sp ? esc(cut(sp)) : "<i>—</i>"}</div></div>`;
 }
 
 // Θ của cổng ở dạng cấu trúc. Span này do REGEX tách, không do mô hình chọn — nhưng
@@ -458,7 +484,7 @@ function dkcBox() {
 
 function gateBox() {
   const gs = it().gates || [];
-  if (it().role !== "meta_cu") return "";
+  if (!isMeta(it())) return "";
   if (!gs.length) return `<div class="warn">meta-CU nhưng <b>không có cổng</b> —
     máy không xác định được nó chặn cái gì.</div>`;
   return `<div class="f"><h3 style="color:var(--act)">Cổng chặn (${gs.length})</h3>` +
@@ -477,13 +503,15 @@ function gateBox() {
 
 function roleBox() {
   return `<div class="f"><h3>Vai (bước phân loại)</h3>
-    <label>role
-      <select onchange="set('role',this.value)">
+    <label>type
+      <select onchange="set('type',this.value)">
         ${["actor_cu", "meta_cu"].map(v =>
-          `<option ${it().role === v ? "selected" : ""}>${v}</option>`).join("")}
+          `<option ${it().type === v ? "selected" : ""}>${v}</option>`).join("")}
       </select></label>
     <div class="hint" style="margin:2px 0 0">meta-CU được đánh giá <b>trước</b> và
-      không bao giờ tự bị báo vi phạm. Gán nhầm vai là bản ghi không bao giờ bị phán định.</div>
+      không bao giờ tự bị báo vi phạm. Gán nhầm vai là bản ghi không bao giờ bị phán định.
+      <b>Đổi vai ở đây cũng đổi luôn bộ ô bên dưới</b> — hai vai không dùng chung
+      trường: actor-CU có Subject/Action, meta-CU có Mệnh đề.</div>
   </div>${gateBox()}`;
 }
 
@@ -530,14 +558,14 @@ function side() {
     <label><input type="checkbox" ${it().reviewed ? "checked" : ""}
       onchange="set('reviewed',this.checked)"> <b>Đã duyệt</b></label>
     ${roleBox()}
-    ${field("Subject", "subject_span", "subj")}
+    ${isMeta(it()) ? "" : field("Subject", "subject_span", "subj")}
     <div class="f"><h3>Thuộc tính</h3>
-      <label>subject_source
+      ${isMeta(it()) ? "" : `<label>subject_source
         <select onchange="set('subject_source',this.value||null)">
-          ${[["", "(không áp dụng)"], ["explicit", "explicit"], ["inherited", "inherited"]]
+          ${[["explicit", "explicit"], ["inherited", "inherited"]]
             .map(([v, t]) => `<option value="${v}" ${
               (it().subject_source || "") === v ? "selected" : ""}>${t}</option>`).join("")}
-        </select></label>
+        </select></label>`}
       <label>logic
         <select onchange="set('logic',this.value)">
           ${["all", "any", "unknown"].map(v =>
@@ -546,7 +574,9 @@ function side() {
       <label><input type="checkbox" ${it().expect_hard_error ? "checked" : ""}
         onchange="set('expect_hard_error',this.checked)"> cố ý cài lỗi</label>
     </div>
-    ${field("Action", "action_span", "act")}
+    ${isMeta(it())
+      ? field("Mệnh đề hiệu lực/phạm vi", "menh_de_span", "act")
+      : field("Action", "action_span", "act")}
     <div class="f"><h3 style="color:var(--cond)">Điều kiện (${(it().conditions || []).length})</h3>
       ${condMien() ? `<div class="hint" style="margin:0 0 4px"><i>không áp dụng</i> —
         mệnh đề hiệu lực ở khoản không chẻ Điểm thì không có điều kiện theo nghĩa
@@ -628,7 +658,9 @@ function go(d) {
 function rows() { return items.map(r => Object.fromEntries(flds(r).map(f => [f, r[f]]))); }
 function chieu(r, fs) { return JSON.stringify(Object.fromEntries(fs.map(f => [f, r[f]]))); }
 function jsonl() {
-  return items.filter(r => !isPre(r)).map(r => chieu(r, FIELDS)).join("\n") + "\n";
+  // Mỗi bản ghi chiếu theo bộ trường CỦA VAI NÓ — actor và meta không cùng shape.
+  return items.filter(r => !isPre(r))
+    .map(r => chieu(r, flds(r).filter(f => f !== "kind"))).join("\n") + "\n";
 }
 
 function tai(ten, noi_dung) {

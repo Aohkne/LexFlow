@@ -242,52 +242,14 @@ class KhaiNiem(BaseModel):
     warnings: list[str] = Field(default_factory=list)
 
 
-class ComplianceUnit(BaseModel):
-    """Đơn vị trích xuất = 1 KHOẢN (không phải 1 Điểm).
+class GroundedUnit(BaseModel):
+    """Phần chung của mọi đơn vị đã neo — tầng BẰNG CHỨNG, không phải ngữ nghĩa tuân thủ.
 
-    Điểm thường lược bỏ chủ ngữ vì là mệnh đề tiếp nối câu bao trùm (chapeau)
-    của Khoản, nên trích Subject/Action riêng cho từng Điểm sẽ khiến LLM đoán
-    bừa chủ ngữ. Mỗi Điểm trở thành một phần tử trong `conditions`.
+    Cố ý tách khỏi 4-tuple: `references`/`warnings`/`errors` là sổ ghi *"chữ này lấy
+    ở đâu ra, có tin được không"*. Bài báo không đếm chúng vì không làm tầng này.
     """
 
     id: str  # 52/2024/NĐ-CP#than/dieu_22#khoan_2
-    # actor_cu = nghĩa vụ nhắm vào chủ thể; meta_cu = nêu phạm vi áp dụng, được
-    # đánh giá TRƯỚC và không bao giờ báo vi phạm độc lập. Điều `premise` không
-    # sinh ComplianceUnit — nó ra `KhaiNiem`.
-    role: Literal["actor_cu", "meta_cu"] = "actor_cu"
-    # Chỉ có nghĩa khi role == "meta_cu": cổng này phủ tới đâu. actor-CU luôn rỗng.
-    gates: list[Gate] = Field(default_factory=list)
-    # Θ của cổng ở dạng cấu trúc. Tên `dieu_kien_cong` chứ không phải `condition` vì
-    # model đã có `conditions` (số nhiều, mỗi Điểm một phần tử) — để hai cái tên chỉ
-    # khác một chữ 's' cạnh nhau là bẫy gõ nhầm im lặng, mà `run_eval.py`,
-    # `make_gold_seed.py`, `review_ui.py` đều đang đọc `conditions`.
-    #
-    # Đánh đổi đã biết: `gates` là LIST còn trường này là số ít. Mốc ngày đặt ở đây
-    # (thay vì trên `Gate`) đúng về ngữ nghĩa — `Gate` là *phạm vi*, đây là *phép thử*
-    # — nhưng downstream phải join hai trường để biết "chặn cái gì, từ bao giờ". Giảm
-    # nhẹ bằng cách dựng nó cùng chỗ với `Gate`, 1:1 với cổng nó thuộc về.
-    dieu_kien_cong: DieuKienCong | None = None
-    # `None` = **KHÔNG ÁP DỤNG**, không phải "chưa trích được".
-    #
-    # Cổng thời gian/lãnh thổ không có bên bị ràng buộc: *"Nghị định này có hiệu lực
-    # thi hành từ ngày 01/7/2024"* có chủ ngữ NGỮ PHÁP ("Nghị định này") nhưng không
-    # có **tác nhân** nào để mà tuân thủ hay vi phạm. ⟨S⟩ của GraphCompliance là bên
-    # bị ràng buộc, không phải chủ ngữ của câu.
-    #
-    # Tiền lệ ngay trong Listing 1 của bài báo: `"context": null` được chấp nhận là
-    # hợp lệ khi trường không áp dụng. Đây là cùng một loại vắng mặt — vắng mặt về
-    # CẤU TRÚC, khác hẳn vắng mặt do trích hỏng.
-    #
-    # Ranh giới: chỉ cổng `thoi_gian`/`lanh_tho` mới được null. Cổng `chu_the`
-    # (role qualification, vd. *"…chỉ áp dụng đối với tổ chức đã được cấp Giấy
-    # phép"*) CÓ một vai cần định danh ⇒ vẫn bắt buộc. Nới rộng hơn thế là để lọt
-    # trích hỏng dưới vỏ "không áp dụng".
-    subject: GroundedField | None = None
-    subject_source: Literal["explicit", "inherited"] | None = None
-    action: GroundedField
-    # Tương ứng condition {"all": [...]} / {"any": [...]} của GraphCompliance.
-    logic: Literal["all", "any", "unknown"]
-    conditions: list[ConditionItem] = Field(default_factory=list)
     # Khoá node đích của các viện dẫn trong Khoản này, giải bằng citation.py.
     references: list[str] = Field(default_factory=list)
     # Có viện dẫn đi tới cấp tiết `(i)` mà khoá node không tới được — tiết cố ý
@@ -301,3 +263,79 @@ class ComplianceUnit(BaseModel):
     @property
     def ok(self) -> bool:
         return not self.errors
+
+
+class ActorCU(GroundedUnit):
+    """Nghĩa vụ nhắm vào một chủ thể — đơn vị DUY NHẤT bị đem ra phán định tuân thủ.
+
+    Đơn vị trích xuất = 1 KHOẢN (không phải 1 Điểm). Điểm thường lược bỏ chủ ngữ vì
+    là mệnh đề tiếp nối câu bao trùm (chapeau) của Khoản, nên trích Subject/Action
+    riêng cho từng Điểm sẽ khiến LLM đoán bừa chủ ngữ. Mỗi Điểm thành một phần tử
+    trong `conditions`.
+
+    KHÔNG có `gates`/`dieu_kien_cong`: actor-CU không chặn cổng cho ai cả.
+    """
+
+    type: Literal["actor_cu"] = "actor_cu"
+    # BẮT BUỘC — khác hẳn meta-CU. Đo trên corpus: 40/40 actor-CU đều có. Một nghĩa
+    # vụ không có bên bị ràng buộc thì không phán định tuân thủ được, nên vắng mặt ở
+    # đây luôn là trích hỏng, không bao giờ là "không áp dụng".
+    subject: GroundedField
+    subject_source: Literal["explicit", "inherited"] = "explicit"
+    action: GroundedField
+    # Tương ứng condition {"all": [...]} / {"any": [...]} của GraphCompliance.
+    logic: Literal["all", "any", "unknown"] = "unknown"
+    conditions: list[ConditionItem] = Field(default_factory=list)
+
+
+class MetaCU(GroundedUnit):
+    """Mệnh đề chặn cổng — được đánh giá TRƯỚC, không bao giờ tự bị vi phạm.
+
+    **Vì sao tách khỏi `ActorCU` thay vì dùng chung 4-tuple.** Đo trên cả 9 meta-CU
+    của corpus:
+
+    - **9/9 không có bên bị ràng buộc.** 8 cái khai `subject=None`; cái thứ 9
+      (TT40 Đ26 k2) có điền, nhưng điền *"Quy định tại khoản 1 Điều này"* — một **tập
+      quy phạm**, không phải một bên có thể tuân thủ hay vi phạm. ⟨S⟩ của
+      GraphCompliance là *bên bị ràng buộc*, nên đó cũng không phải ⟨S⟩.
+    - **⟨A⟩ không phải hành vi.** Tám cổng thời gian có `action` là *"có hiệu lực thi
+      hành"* (ba cái giống hệt nhau từng chữ) — đó là **trạng thái của quy phạm**,
+      không phải việc ai đó phải làm. Vì thế trường ở đây tên `menh_de`, không phải
+      `action`: để một ô mang hai nghĩa khác nhau tuỳ vai là đúng loại mơ hồ im lặng
+      mà `suy_ra_duoc` đã phải sinh ra để cứu cho `targets`.
+    - **Bài báo KHÔNG công bố listing nào cho meta-CU** (chỉ có một ví dụ actor-CU,
+      Article 37 GDPR). Nên giữ chung 4-tuple ở đây không phải là trung thành với bài
+      báo — không có gì để mà trung thành.
+    - Sự tách biệt **vốn đã tồn tại**, chỉ là viết bằng 6 nhánh `if role ==` trong
+      `extractor.py` thay vì bằng kiểu dữ liệu. Người đọc `pred.jsonl` không thấy nó.
+
+    Tiền lệ trong chính dự án: `PremiseRecord` đã tách khỏi CU vì trộn chung khiến
+    `run_eval` gặp bản ghi không có `subject_span` và **tính sai trong im lặng**.
+    """
+
+    type: Literal["meta_cu"] = "meta_cu"
+    # Phạm vi chặn. Rỗng = chưa xác định được cổng ⇒ bản ghi chưa dùng được.
+    gates: list[Gate] = Field(default_factory=list)
+    # Θ của cổng ở dạng cấu trúc.
+    #
+    # Đánh đổi đã biết: `gates` là LIST còn trường này là số ít. Mốc ngày đặt ở đây
+    # (thay vì trên `Gate`) đúng về ngữ nghĩa — `Gate` là *phạm vi*, đây là *phép thử*
+    # — nhưng downstream phải join hai trường để biết "chặn cái gì, từ bao giờ". Giảm
+    # nhẹ bằng cách dựng nó cùng chỗ với `Gate`, 1:1 với cổng nó thuộc về.
+    dieu_kien_cong: DieuKienCong | None = None
+    # Mệnh đề nêu hiệu lực/phạm vi, đã neo. KHÔNG phải hành vi — xem docstring.
+    # Khi mô hình lỡ khai `subject`, đơn vị đó được GỘP vào đây: ở TT40 Đ26 k2 hai
+    # span liền kề nhau ([346,375] + [376,397]) và ghép lại mới thành trọn mệnh đề
+    # *"Quy định tại khoản 1 Điều này không áp dụng đối với"*.
+    menh_de: GroundedField
+    # Các đơn vị được liệt kê riêng trong mệnh đề. Với cổng `phu_dinh` đó là danh
+    # sách được MIỄN (TT40 Đ26 k2); với cổng thời gian có Điểm đó là các mốc riêng
+    # cho từng quy định (TT40 Đ52 k6). Cả hai đều là *điều kiện của cổng*, nên vẫn
+    # gọi là `conditions`.
+    logic: Literal["all", "any", "unknown"] = "unknown"
+    conditions: list[ConditionItem] = Field(default_factory=list)
+
+
+# Hợp nhất để chú kiểu ở chỗ nhận cả hai. `type` là trường phân biệt, cùng quy ước
+# với `PremiseRecord.type`.
+ComplianceUnit = ActorCU | MetaCU

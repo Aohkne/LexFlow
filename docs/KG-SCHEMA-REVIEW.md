@@ -44,6 +44,32 @@ Cố ý **không đẻ khái niệm mới**: mọi trường đều ánh xạ v�
 | `references[]` | cạnh tới `Dieu`/`Khoan` | `list[str]` | khoá node, giải tất định |
 | — | `KhaiNiem` | bản ghi riêng | 36 khái niệm, không đi qua CU |
 
+### 2.0. Hai kiểu, không phải một
+
+`ComplianceUnit` **đã được tách** thành hai kiểu riêng (`docs/ONTOLOGY-CLASSIFY.md` §4.6):
+
+```
+GroundedUnit      id · references · references_hep_hon · warnings · errors
+  ├── ActorCU     type · subject (BẮT BUỘC) · subject_source · action · logic · conditions
+  └── MetaCU      type · gates · dieu_kien_cong · menh_de · logic · conditions
+```
+
+Bốn bằng chứng dẫn tới quyết định này:
+
+1. **9/9 meta-CU không có bên bị ràng buộc.** Cái duy nhất có điền `subject` điền
+   *"Quy định tại khoản 1 Điều này"* — một **tập quy phạm**, không phải một bên.
+2. **⟨A⟩ không phải hành vi**: 8 cổng thời gian có `action` = *"có hiệu lực thi hành"*,
+   **3 cái giống hệt nhau từng chữ**. Đó là trạng thái của quy phạm.
+3. **Bài báo KHÔNG công bố listing nào cho meta-CU** — chỉ một ví dụ actor-CU
+   (Article 37 GDPR). Lý lẽ "trung thành với bài báo" ở đây bảo vệ một quy ước mà bài
+   báo không đặt ra.
+4. **Sự tách biệt vốn đã tồn tại** — viết bằng 6 nhánh `if role ==` trong `extractor.py`
+   thay vì bằng kiểu. Người đọc `pred.jsonl` chỉ thấy một shape với vài ô `null`.
+
+Cái mất, ghi rõ: cổng `chu_the` không còn ô nào cho **tên vai**. Lý lẽ cũ dựa trên ví
+dụ giả định; cổng `chu_the` duy nhất trong corpus không nêu vai. Đúng kỷ luật đã áp cho
+`lanh_tho` — 0 case thì không dựng trường, có test canh đích danh.
+
 ### 2.1. Ba trường tự thiết kế — chỗ cần soi kỹ nhất
 
 | Trường | Vì sao không dùng cái sẵn có | Đánh đổi đã biết |
@@ -113,7 +139,7 @@ nguyên văn đoạn luật; mỗi lần không in thì tốn một vòng sửa 
 | **Lỗi cứng** | **0/49** — nhưng đọc ghi chú ngay dưới | `pred.jsonl` |
 | Bản ghi **được nới**, phải đọc kỹ | **2/49** — mỗi cái kèm cảnh báo nêu đích danh | §5.1 |
 | Cảnh báo còn lại | **82 cảnh báo trên 28/49 bản ghi** | `pred.jsonl` |
-| Test | **283 pytest + ruff xanh** | `uv run pytest -q` |
+| Test | **284 pytest + ruff xanh** | `uv run pytest -q` |
 | **Bộ nhãn người gán** | **0/94 đã duyệt** ⚠️ | `gold.seed.jsonl` |
 
 ### 5.1. Hai con số dễ đọc nhầm
@@ -159,7 +185,7 @@ duyệt biết bản ghi sạch vì lý do nào:
 | # | Câu hỏi | Vì sao nó quan trọng |
 |---|---|---|
 | 1 | **Nguồn gold label độc lập cho tầng chuẩn tắc lấy ở đâu?** Bốn hướng ở §6 mục 2 — hướng nào đứng vững? | Đây là thứ duy nhất đang chặn cả tầng E. Không giải được thì PoC dừng ở "trích được", không lên được "kiểm tra tuân thủ được" |
-| 2 | **meta-CU có nên dùng chung schema 4-tuple không?** Chạy thật thì hai ô `subject`/`action` **không hợp** với mệnh đề hiệu lực: chủ thể của *"Quy định tại Điều 11, Điều 12… có hiệu lực từ ngày…"* là một **tập quy định**, không phải tác nhân. Thông tin thật của chúng nằm trọn trong `gates` | Giữ 4-tuple thì trung thành với bài báo nhưng có hai ô luôn phải "miễn"; tách schema riêng thì lệch khỏi bài báo |
+| 2 | ~~meta-CU có nên dùng chung schema 4-tuple không?~~ **ĐÃ CHỐT: tách** (`ActorCU` / `MetaCU`) | Quyết định dựa trên 4 bằng chứng, xem §2.2 |
 | 3 | **`char_span` có đủ tư cách làm nguồn kiểm chứng độc lập không**, hay vẫn bắt buộc phải có nhãn người gán? | Quyết định luôn việc mở khoá 7 node của §10.2 |
 | 4 | **Hai phép nới đã đủ hẹp chưa?** Cả hai chỉ chạy khi đã có lỗi cứng và luôn để lại cảnh báo, nhưng cả hai vẫn là nới — và cái nào cũng có thể tha nhầm khi corpus lớn hơn | Chúng là thứ duy nhất đứng giữa "0 lỗi cứng" và một bản ghi hỏng lọt xuống downstream |
 | 5 | **Đơn vị trích xuất là Khoản — có đúng không?** Điểm thường lược chủ ngữ vì là mệnh đề tiếp nối chapeau, nên trích riêng từng Điểm sẽ khiến mô hình **đoán bừa chủ ngữ** | Khớp sẵn hai quyết định đã chốt: chunk mức Khoản (`RAG-DESIGN.md` §2) và Điểm dựng theo nhu cầu (KG v0.5) |
@@ -170,7 +196,7 @@ duyệt biết bản ghi sạch vì lý do nào:
 ## 8. Cách kiểm lại số trong bảng này
 
 ```bash
-uv run pytest -q                                       # 283 xanh
+uv run pytest -q                                       # 284 xanh
 uv run ruff check .
 uv run python -m eval.ontology.classify_testset        # 9/9
 uv run python -m app.ontology --classify data/fixtures # 94 đơn vị: 45/40/9

@@ -8,6 +8,7 @@ import pytest
 
 from app.ontology.extractor import _resolve_references, build_cu, build_khai_niem
 from app.ontology.parser import parse_dieu
+from app.ontology.schema import ActorCU, MetaCU
 from app.ontology.segmenter import segment
 
 _DIR = Path("data/fixtures")
@@ -136,23 +137,33 @@ def test_references_vao_compliance_unit(index):
     units = segment(dieu, k2)
     cu = build_cu(_llm_toi_thieu(units), k2, dieu, units)
     assert cu.references
-    assert cu.role == "actor_cu"  # mặc định
+    assert cu.type == "actor_cu"  # mặc định
     assert cu.references_hep_hon is False
 
 
-def test_role_duoc_truyen_vao_cu(index):
+def test_vai_quyet_dinh_KIEU_DU_LIEU_chu_khong_chi_mot_nhan(index):
+    """Đây là điều `MetaCU`/`ActorCU` nói mà một trường `role` không nói được."""
     dieu = _dieu(index, "ND52-2024-dieu2.txt")
     k = dieu.khoan[0]
     units = segment(dieu, k)
-    cu = build_cu(_llm_toi_thieu(units), k, dieu, units, role="meta_cu")
-    assert cu.role == "meta_cu"
+    cu = build_cu(_llm_toi_thieu(units), k, dieu, units, role="meta_cu",
+                  gates=[_gate("thoi_gian")])
+    assert isinstance(cu, MetaCU) and cu.type == "meta_cu"
+    assert not hasattr(cu, "subject") and not hasattr(cu, "subject_source")
+
+    actor = build_cu(_llm_toi_thieu(units), k, dieu, units)
+    assert isinstance(actor, ActorCU) and actor.type == "actor_cu"
+    assert not hasattr(actor, "gates") and not hasattr(actor, "dieu_kien_cong")
 
 
-# --- subject = null khi cổng không có bên bị ràng buộc ----------------------
+# --- meta-CU KHÔNG CÓ ô chủ thể ---------------------------------------------
 #
-# Tiền lệ: Listing 1 của GraphCompliance chấp nhận `"context": null` khi trường không
-# áp dụng. Cổng thời gian/lãnh thổ cũng vậy — *"Nghị định này có hiệu lực thi hành từ
-# ngày…"* có chủ ngữ NGỮ PHÁP nhưng không có bên nào để tuân thủ hay vi phạm.
+# Bản trước cho `subject=None` với cổng thời gian/lãnh thổ, viện Listing 1 của
+# GraphCompliance (`"context": null` hợp lệ khi không áp dụng). Đo lại trên cả 9
+# meta-CU thật thì **9/9 không có bên bị ràng buộc** — kể cả cái duy nhất có điền
+# (TT40 Đ26 k2), vì nó điền *"Quy định tại khoản 1 Điều này"*, một **tập quy phạm**.
+# Nên ô đó không phải "trống hợp lệ", nó **không tồn tại**. Kiểu dữ liệu nói điều ấy
+# rõ hơn mọi giá trị `null`.
 
 
 def _llm_khong_subject(units) -> dict:
@@ -167,34 +178,58 @@ def _gate(kind: str):
     return Gate(kind=kind, pham_vi="van_ban", suy_ra_duoc=True)
 
 
-def test_cong_thoi_gian_duoc_bo_trong_subject(index):
-    from app.ontology.extractor import subject_khong_ap_dung
-
-    dieu, k = _dieu(index, "ND52-2024-dieu37.txt"), None
+def test_meta_cu_khong_co_o_chu_the_de_ma_trong(index):
+    dieu = _dieu(index, "ND52-2024-dieu37.txt")
     k = dieu.khoan[0]
     units = segment(dieu, k)
-    gates = [_gate("thoi_gian")]
-    assert subject_khong_ap_dung("meta_cu", gates)
-    cu = build_cu(_llm_khong_subject(units), k, dieu, units, role="meta_cu", gates=gates)
-    assert cu.subject is None
-    assert cu.subject_source is None
+    cu = build_cu(_llm_khong_subject(units), k, dieu, units,
+                  role="meta_cu", gates=[_gate("thoi_gian")])
+    assert isinstance(cu, MetaCU)
+    assert "subject" not in cu.model_dump()
     assert cu.ok, cu.errors  # KHÔNG phải lỗi mất provenance
-    assert cu.action.text  # vị ngữ thì vẫn bắt buộc — câu có hành vi "có hiệu lực"
+    assert cu.menh_de.text  # mệnh đề thì vẫn bắt buộc — "có hiệu lực thi hành"
 
 
-def test_cong_chu_the_van_bat_buoc_subject(index):
-    """Role qualification CÓ một vai cần định danh — không được nới cho nhóm này."""
-    from app.ontology.extractor import subject_khong_ap_dung
+def test_subject_mo_hinh_lo_khai_duoc_GOP_vao_menh_de_chu_khong_bi_vut(index):
+    """Case thật TT40 Đ26 k2: hai span **liền kề**, ghép lại mới ra trọn mệnh đề.
+
+    `subject` = *"Quy định tại khoản 1 Điều này"* [346,375], `action` = *"không áp
+    dụng đối với"* [376,397]. Vứt vế đầu là mất nửa câu — và đó chính là vế mang
+    viện dẫn mà `gates.targets` được suy ra từ đó.
+    """
     from app.ontology.schema import Gate
 
-    gates = [Gate(kind="chu_the", pham_vi="muc")]
-    assert not subject_khong_ap_dung("meta_cu", gates)
-    dieu, k = _dieu(index, "TT40-2024-dieu26.txt"), None
+    dieu = _dieu(index, "TT40-2024-dieu26.txt")
     k = dieu.khoan[1]
     units = segment(dieu, k)
-    cu = build_cu(_llm_khong_subject(units), k, dieu, units, role="meta_cu", gates=gates)
-    assert cu.subject is not None
-    assert any("mất provenance" in e for e in cu.errors)
+    uid = next(u.uid for u in units if u.uid > 0)
+    data = {"subject": {"units": [uid]}, "action": {"units": [uid]},
+            "logic": "any", "conditions": []}
+    cu = build_cu(data, k, dieu, units, role="meta_cu",
+                  gates=[Gate(kind="chu_the", pham_vi="khoan")])
+    assert "Quy định tại khoản 1 Điều này" in cu.menh_de.text
+    assert "không áp dụng" in cu.menh_de.text
+    assert any("gộp đơn vị" in w for w in cu.warnings)
+
+
+def test_cong_chu_the_neu_can_ten_vai_thi_CHUA_CO_CHO_LUU(index):
+    """Giới hạn đã biết, ghi ra để không ai tưởng là đã xử lý.
+
+    Lý lẽ cũ giữ `subject` cho cổng `chu_the` là *"role qualification có một vai cần
+    định danh"* — nhưng đó là ví dụ giả định. Cổng `chu_the` DUY NHẤT trong corpus
+    (TT40 Đ26 k2) không nêu vai nào cả, nó nêu **quy định**. Nên `MetaCU` không dựng
+    ô riêng cho tên vai: đúng kỷ luật đã áp cho `lanh_tho` — 0 case thì không dựng
+    trường. Gặp case thật thì thêm một trường là xong.
+    """
+    from app.ontology.schema import Gate
+
+    dieu = _dieu(index, "TT40-2024-dieu26.txt")
+    k = dieu.khoan[1]
+    units = segment(dieu, k)
+    cu = build_cu(_llm_khong_subject(units), k, dieu, units,
+                  role="meta_cu", gates=[Gate(kind="chu_the", pham_vi="khoan")])
+    assert isinstance(cu, MetaCU)
+    assert not any(f.startswith("chu_the") for f in cu.model_dump())
 
 
 def test_actor_cu_khong_bao_gio_duoc_bo_trong_subject(index):
@@ -216,26 +251,29 @@ def test_meta_cu_chua_xac_dinh_cong_thi_khong_duoc_mien(index):
     assert not subject_khong_ap_dung("meta_cu", None)
 
 
-def test_null_khac_voi_trich_hong(index):
-    """Phân biệt hai loại vắng mặt: uid SAI vẫn phải là lỗi, kể cả khi được miễn."""
+def test_uid_sai_van_la_mat_provenance_ke_ca_o_meta(index):
+    """Vắng mặt CẤU TRÚC khác vắng mặt do TRÍCH HỎNG — tách kiểu không xoá ranh giới đó."""
     dieu = _dieu(index, "ND52-2024-dieu37.txt")
     k = dieu.khoan[0]
     units = segment(dieu, k)
     data = _llm_khong_subject(units)
-    data["subject"] = {"units": [999]}  # khai có, nhưng đơn vị không tồn tại
+    data["action"] = {"units": [999]}  # khai có, nhưng đơn vị không tồn tại
     cu = build_cu(data, k, dieu, units, role="meta_cu", gates=[_gate("thoi_gian")])
-    assert cu.subject is not None
     assert any("mất provenance" in e for e in cu.errors)
+    assert not cu.ok
 
 
-def test_dien_subject_du_duoc_mien_thi_canh_bao(index):
-    dieu = _dieu(index, "ND52-2024-dieu37.txt")
-    k = dieu.khoan[0]
+def test_actor_cu_mang_cong_la_LOI_LAP_TRINH_chu_khong_phai_canh_bao(index):
+    """Trước đây `build_cu` âm thầm bỏ `gates` của actor-CU kèm một cảnh báo.
+
+    Nay `ActorCU` **không có** ô đó, nên truyền vào là sai ở chỗ gọi — phải nổ ngay
+    thay vì trôi xuống một bản ghi trông hợp lệ.
+    """
+    dieu = _dieu(index, "ND52-2024-dieu22.txt")
+    k = dieu.khoan[1]
     units = segment(dieu, k)
-    cu = build_cu(_llm_toi_thieu(units), k, dieu, units,
-                  role="meta_cu", gates=[_gate("thoi_gian")])
-    assert cu.subject is not None
-    assert any("chủ ngữ ngữ pháp" in w for w in cu.warnings)
+    with pytest.raises(ValueError, match="không được mang cổng"):
+        build_cu(_llm_toi_thieu(units), k, dieu, units, gates=[_gate("thoi_gian")])
 
 
 def test_prompt_bao_mo_hinh_bo_trong_subject(index):
@@ -250,7 +288,11 @@ def test_prompt_bao_mo_hinh_bo_trong_subject(index):
     assert '"units": []' not in p_thuong
 
 
-def test_bao_cao_neo_hien_khong_ap_dung(index):
+def test_bao_cao_neo_khong_con_dong_subject_gia(index):
+    """Bản trước phải in dòng `subject: khong_ap_dung` vì ô đó tồn tại trong kiểu.
+
+    Nay nó không tồn tại, nên in một dòng trống chỉ tổ gợi lại đúng câu hỏi vừa dọn.
+    """
     from app.ontology.extractor import grounding_report
 
     dieu = _dieu(index, "ND52-2024-dieu37.txt")
@@ -259,21 +301,28 @@ def test_bao_cao_neo_hien_khong_ap_dung(index):
     cu = build_cu(_llm_khong_subject(units), k, dieu, units,
                   role="meta_cu", gates=[_gate("thoi_gian")])
     rows = grounding_report(cu)
-    assert rows[0] == {"field": "subject", "status": "khong_ap_dung",
-                       "units": [], "char_span": None}
+    assert rows[0]["field"] == "menh_de"
+    assert not any(r["field"] == "subject" for r in rows)
 
 
-def test_trang_kiem_van_hien_dong_subject(index):
-    """Ô trống không được BIẾN MẤT khỏi bảng — người đọc phải thấy nó trống có chủ ý."""
+def test_trang_kiem_meta_hien_menh_de_khong_hien_subject(index):
     from app.ontology.report import render
 
     dieu = _dieu(index, "ND52-2024-dieu37.txt")
     k = dieu.khoan[0]
     units = segment(dieu, k)
-    cu = build_cu(_llm_khong_subject(units), k, dieu, units,
-                  role="meta_cu", gates=[_gate("thoi_gian")])
+    from app.ontology.schema import DieuKienCong
+
+    cu = build_cu(
+        _llm_khong_subject(units), k, dieu, units, role="meta_cu",
+        gates=[_gate("thoi_gian")],
+        dieu_kien_cong=DieuKienCong(kind="thoi_gian", ngay="2024-07-01"),
+    )
     html = render(cu, dieu)
-    assert "<td>subject</td>" in html
+    assert "<td>menh_de</td>" in html
+    assert "<td>subject</td>" not in html
+    # Nhưng `conditions` thì VẪN tồn tại trong `MetaCU`, nên ô rỗng của nó vẫn phải
+    # thấy được — hai loại "trống" khác nhau, không được gộp.
     assert "không áp dụng" in html
 
 
