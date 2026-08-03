@@ -14,13 +14,13 @@
 | T2 · phép logic chưa xác định | chưa xác định 'và' hay 'hoặc' | 1 | 2 |
 |  | tiết đã có guard — xác nhận loại trừ nhau | 2 |  |
 | T3 · nghi bịa tình thái | nghi bịa: THÊM dấu hiệu tình thái | 9 | 2 |
-| T4 · neo sai phạm vi | cổng thời gian thiếu mốc ngày | 1 | 0 |
+| T4 · neo sai phạm vi | cổng thời gian thiếu mốc ngày | 1 | 2 |
+|  | guard không tách được — phạm vi rộng hơn luật | 13 |  |
 |  | quote thu hẹp sai chỗ | 1 |  |
 |  | span không bao hết các tiết | 1 |  |
 |  | điểm không tồn tại trong khoản | 19 |  |
-| T5 · ít giá trị đọc | nhãn tóm lược: MẤT dấu hiệu | 25 | 11 |
+| T5 · ít giá trị đọc | nhãn tóm lược: MẤT dấu hiệu | 25 | 10 |
 |  | quote lệch marker/dấu câu | 18 |  |
-| T? · chưa phân loại | chưa phân loại | 13 | 1 |
 
 ---
 
@@ -31,6 +31,7 @@
 Mọi `source_diem` mô hình khai đều không tồn tại ⇒ **Khoản không chẻ Điểm nào**. Mô hình đang dùng `source_diem` như *số thứ tự* cho các ý trong một đoạn liền, không phải như *địa chỉ*. Một khuyết tật của prompt — **không cần đọc luật bản nào**:
 
 - `18/2024/TT-NHNN#than/dieu_13#khoan_4` — mô hình khai ['a', 'b'], Khoản không có Điểm
+- `52/2024/NĐ-CP#than/dieu_22#khoan_3` — mô hình khai ['a', 'b', 'c'], Khoản không có Điểm
 - `52/2024/NĐ-CP#than/dieu_26#khoan_2` — mô hình khai ['a', 'b'], Khoản không có Điểm
 - `52/2024/NĐ-CP#than/dieu_23#khoan_1` — mô hình khai ['a', 'b'], Khoản không có Điểm
 - `18/2024/TT-NHNN#than/dieu_9#khoan_1` — mô hình khai ['a', 'b'], Khoản không có Điểm
@@ -42,7 +43,6 @@ Mọi `source_diem` mô hình khai đều không tồn tại ⇒ **Khoản khôn
 - `18/2024/TT-NHNN#than/dieu_9#khoan_6` — mô hình khai ['a'], Khoản không có Điểm
 - `18/2024/TT-NHNN#than/dieu_9#khoan_7` — mô hình khai ['a'], Khoản không có Điểm
 - `18/2024/TT-NHNN#than/dieu_9#khoan_8` — mô hình khai ['a'], Khoản không có Điểm
-- `52/2024/NĐ-CP#than/dieu_22#khoan_3` — mô hình khai ['a', 'b', 'c'], Khoản không có Điểm
 
 ### [T1 · máy đã tự quyết thay người] `17/2024/TT-NHNN#than/dieu_16#khoan_2`  ·  actor_cu
 
@@ -115,7 +115,10 @@ Mọi `source_diem` mô hình khai đều không tồn tại ⇒ **Khoản khôn
 - **tiết đã có guard — xác nhận loại trừ nhau** — `điều kiện a`
   > tiet_semicolon_guard_da_phu: 2 tiết đều có điều kiện áp dụng riêng ('cá nhân' | 'tổ chức'). Xác nhận: các guard này có loại trừ nhau không? Nếu có thì 'và'/'hoặc' không còn ảnh hưởng — giữ connector 'unknown' là an toàn.
   - chữ của luật: *a) Thu thập các tài liệu, thông tin, dữ liệu để xác minh thông tin nhận biết khách hàng theo quy định tại khoản 2, 3 Điều 12 Thông tư này và: (i) Thông tin sinh trắc học của chủ tài khoản đối với khách hàng là cá nhân; (ii) Thông tin sinh trắc học của người đại diện hợp pháp đối *
-- _(ẩn 5 cờ mức T5)_
+- **guard không tách được — phạm vi rộng hơn luật** — `điều kiện b`
+  > guard_ngoai_mau: khớp 'đối với/trường hợp' nhưng không tách được (thuộc tính, giá trị): 'khách hàng là cá nhân)'; 'khách hàng là tổ chức) với'
+  - chữ của luật: *b) Kiểm tra tính hợp pháp, hợp lệ của các tài liệu, thông tin, dữ liệu xác minh thông tin nhận biết khách hàng và phải thực hiện đối chiếu khớp đúng thông tin sinh trắc học của chủ tài khoản thanh toán (đối với khách hàng là cá nhân), người đại diện hợp pháp (đối với khách hàng l*
+- _(ẩn 4 cờ mức T5)_
 
 ### [T2 · phép logic chưa xác định] `18/2024/TT-NHNN#than/dieu_9#khoan_3`  ·  actor_cu
 
@@ -132,10 +135,62 @@ Mọi `source_diem` mô hình khai đều không tồn tại ⇒ **Khoản khôn
 - **nghi bịa: THÊM dấu hiệu tình thái** — `điều kiện b#2.constraint_label`
   > [cảnh báo] thêm dấu hiệu dinh_luong: tối thiểu
   - chữ của luật: *300 tỷ đồng đối với dịch vụ chuyển mạch tài chính, dịch vụ chuyển mạch tài chính quốc tế, dịch vụ bù trừ điện tử*
-- _(ẩn 12 cờ mức T5)_
+- **guard không tách được — phạm vi rộng hơn luật** — `điều kiện b#1`
+  > guard_ngoai_mau: khớp 'đối với/trường hợp' nhưng không tách được (thuộc tính, giá trị): 'dịch vụ ví điện tử'; 'dịch vụ chuyển mạch tài chính'
+  - chữ của luật: *Có vốn điều lệ thực góp hoặc được cấp tối thiểu: 50 tỷ đồng đối với dịch vụ ví điện tử, dịch vụ hỗ trợ thu hộ, chi hộ và dịch vụ cổng thanh toán điện tử*
+- **guard không tách được — phạm vi rộng hơn luật** — `điều kiện b#2`
+  > guard_ngoai_mau: khớp 'đối với/trường hợp' nhưng không tách được (thuộc tính, giá trị): 'dịch vụ ví điện tử'; 'dịch vụ chuyển mạch tài chính'
+  - chữ của luật: *300 tỷ đồng đối với dịch vụ chuyển mạch tài chính, dịch vụ chuyển mạch tài chính quốc tế, dịch vụ bù trừ điện tử*
+- **guard không tách được — phạm vi rộng hơn luật** — `điều kiện b#3`
+  > guard_ngoai_mau: khớp 'đối với/trường hợp' nhưng không tách được (thuộc tính, giá trị): 'dịch vụ ví điện tử'; 'dịch vụ chuyển mạch tài chính'
+  - chữ của luật: *chịu hoàn toàn trách nhiệm về tính hợp pháp của nguồn vốn đã góp hoặc vốn được cấp*
+- **guard không tách được — phạm vi rộng hơn luật** — `điều kiện g#1`
+  > guard_ngoai_mau: khớp 'đối với/trường hợp' nhưng không tách được (thuộc tính, giá trị): 'dịch vụ chuyển mạch tài chính'
+  - chữ của luật: *Đối với dịch vụ chuyển mạch tài chính, dịch vụ bù trừ điện tử, ngoài các điều kiện quy định tại điểm a, điểm b, điểm c, điểm d và điểm đ khoản 2 Điều này, tổ chức cung ứng dịch vụ phải: được một tổ chức thực hiện quyết toán kết quả bù trừ giữa các bên liên quan*
+- **guard không tách được — phạm vi rộng hơn luật** — `điều kiện g#2`
+  > guard_ngoai_mau: khớp 'đối với/trường hợp' nhưng không tách được (thuộc tính, giá trị): 'dịch vụ chuyển mạch tài chính'
+  - chữ của luật: *có thỏa thuận kết nối với ít nhất 50 ngân hàng, chi nhánh ngân hàng nước ngoài có tổng vốn điều lệ trong năm liền kề trước năm nộp hồ sơ đề nghị cấp Giấy phép chiếm trên 65% tổng vốn điều lệ của các ngân hàng, chi nhánh ngân hàng nước ngoài trong hệ thống các tổ chức tín dụng và *
+- **guard không tách được — phạm vi rộng hơn luật** — `điều kiện g#3`
+  > guard_ngoai_mau: khớp 'đối với/trường hợp' nhưng không tách được (thuộc tính, giá trị): 'dịch vụ chuyển mạch tài chính'
+  - chữ của luật: *có cơ sở hạ tầng thông tin đáp ứng tối thiểu theo yêu cầu về bảo đảm an toàn hệ thống thông tin cấp độ 4 theo quy định của pháp luật, đảm bảo khả năng tích hợp, kết nối được với hệ thống kỹ thuật của tổ chức tham gia có thỏa thuận kết nối*
+- **guard không tách được — phạm vi rộng hơn luật** — `điều kiện g#4`
+  > guard_ngoai_mau: khớp 'đối với/trường hợp' nhưng không tách được (thuộc tính, giá trị): 'dịch vụ chuyển mạch tài chính'
+  - chữ của luật: *có hệ thống máy chủ thực hiện theo quy định pháp luật và đáp ứng năng lực xử lý tối thiểu 10 triệu giao dịch thanh toán/ngày*
+- **guard không tách được — phạm vi rộng hơn luật** — `điều kiện g#5`
+  > guard_ngoai_mau: khớp 'đối với/trường hợp' nhưng không tách được (thuộc tính, giá trị): 'dịch vụ chuyển mạch tài chính'
+  - chữ của luật: *Tổ chức tham gia không được kết nối quá 02 tổ chức cung ứng dịch vụ chuyển mạch tài chính, dịch vụ bù trừ điện tử*
+- _(ẩn 4 cờ mức T5)_
 
 ### [T3 · nghi bịa tình thái] `40/2024/TT-NHNN#than/dieu_25#khoan_5`  ·  actor_cu
 
 - **nghi bịa: THÊM dấu hiệu tình thái** — `action`
   > [cảnh báo] thêm dấu hiệu cam: không được
   - chữ của luật: *không được nhận tiền mặt từ khách hàng để nạp tiền vào ví điện tử; không được phép cấp tín dụng cho khách hàng sử dụng ví điện tử, trả lãi trên số dư ví điện tử*
+
+### [T4 · neo sai phạm vi] `52/2024/NĐ-CP#than/dieu_22#khoan_3`  ·  actor_cu
+
+- **điểm không tồn tại trong khoản** — `điều kiện a`
+  > điểm không tồn tại trong khoản này
+  - chữ của luật: *Trong thời hạn tối đa 06 tháng kể từ ngày được Ngân hàng Nhà nước cấp Giấy phép hoạt động cung ứng dịch vụ trung gian thanh toán*
+- **guard không tách được — phạm vi rộng hơn luật** — `điều kiện a`
+  > guard_ngoai_mau: khớp 'đối với/trường hợp' nhưng không tách được (thuộc tính, giá trị): 'dịch vụ chuyển mạch tài chính'
+  - chữ của luật: *Trong thời hạn tối đa 06 tháng kể từ ngày được Ngân hàng Nhà nước cấp Giấy phép hoạt động cung ứng dịch vụ trung gian thanh toán*
+- **điểm không tồn tại trong khoản** — `điều kiện b`
+  > điểm không tồn tại trong khoản này
+  - chữ của luật: *triển khai hệ thống kỹ thuật đáp ứng quy định tại điểm đ khoản 2 Điều này*
+- **guard không tách được — phạm vi rộng hơn luật** — `điều kiện b`
+  > guard_ngoai_mau: khớp 'đối với/trường hợp' nhưng không tách được (thuộc tính, giá trị): 'dịch vụ chuyển mạch tài chính'
+  - chữ của luật: *triển khai hệ thống kỹ thuật đáp ứng quy định tại điểm đ khoản 2 Điều này*
+- **điểm không tồn tại trong khoản** — `điều kiện c`
+  > điểm không tồn tại trong khoản này
+  - chữ của luật: *đáp ứng quy định tại điểm g, điểm h khoản 2 Điều này đối với dịch vụ chuyển mạch tài chính, dịch vụ bù trừ điện tử, dịch vụ chuyển mạch tài chính quốc tế*
+- **guard không tách được — phạm vi rộng hơn luật** — `điều kiện c`
+  > guard_ngoai_mau: khớp 'đối với/trường hợp' nhưng không tách được (thuộc tính, giá trị): 'dịch vụ chuyển mạch tài chính'
+  - chữ của luật: *đáp ứng quy định tại điểm g, điểm h khoản 2 Điều này đối với dịch vụ chuyển mạch tài chính, dịch vụ bù trừ điện tử, dịch vụ chuyển mạch tài chính quốc tế*
+
+### [T4 · neo sai phạm vi] `40/2024/TT-NHNN#than/dieu_25#khoan_6`  ·  actor_cu
+
+- **guard không tách được — phạm vi rộng hơn luật** — `điều kiện c`
+  > guard_ngoai_mau: khớp 'đối với/trường hợp' nhưng không tách được (thuộc tính, giá trị): 'khách hàng tổ chức) với'
+  - chữ của luật: *c) Chỉ được sử dụng ví điện tử để thực hiện các giao dịch theo quy định tại khoản 2 Điều 25 Thông tư này bằng phương tiện điện tử khi đã hoàn thành việc đối chiếu khớp đúng giấy tờ tùy thân và thông tin sinh trắc học của chủ ví điện tử hoặc người đại diện (đối với khách hàng cá n*
+- _(ẩn 4 cờ mức T5)_

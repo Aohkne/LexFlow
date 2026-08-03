@@ -42,6 +42,10 @@ _RULES: list[tuple[int, str, re.Pattern[str]]] = [
     (2, "tiết đã có guard — xác nhận loại trừ nhau", re.compile(r"tiet_semicolon_guard_da_phu")),
     (2, "chưa xác định 'và' hay 'hoặc'", re.compile(r"'và' hay 'hoặc'")),
     (3, "nghi bịa: THÊM dấu hiệu tình thái", re.compile(r"thêm dấu hiệu")),
+    # Guard không tách được ⇒ phần tử KHÔNG mang điều kiện áp dụng, tức phạm vi của nó
+    # RỘNG HƠN luật ("chỉ áp dụng cho thẻ trả trước" thành "áp dụng cho mọi thẻ"). Không
+    # sai dữ liệu, nhưng mất ràng buộc — cùng họ hậu quả với neo sai phạm vi.
+    (4, "guard không tách được — phạm vi rộng hơn luật", re.compile(r"guard_ngoai_mau")),
     (4, "quote thu hẹp sai chỗ", re.compile(r"thu hẹp sai chỗ")),
     (4, "điểm không tồn tại trong khoản", re.compile(r"điểm không tồn tại")),
     (4, "span không bao hết các tiết", re.compile(r"span không bao hết")),
