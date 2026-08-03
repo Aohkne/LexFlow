@@ -3,7 +3,10 @@
 Không gọi LLM: dựng lại ComplianceUnit từ JSON đã có. Dùng sau khi `--batch` xong,
 tránh phải chạy lại toàn bộ lượt Gemini chỉ để lấy HTML.
 
-Chạy:  uv run python eval/ontology/make_reports.py [--out-dir eval/ontology/reports]
+Chạy:  uv run python -m eval.ontology.make_reports [--out-dir eval/ontology/reports]
+
+Dạng `-m` là bắt buộc với mọi script ở đây có `import app.*` — gọi thẳng đường dẫn thì
+gốc `sys.path` là `eval/ontology/`, không phải thư mục dự án ⇒ không thấy gói `app`.
 """
 from __future__ import annotations
 

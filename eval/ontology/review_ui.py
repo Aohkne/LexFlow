@@ -19,9 +19,13 @@ Hai hợp đồng, hai file: `gold.jsonl` (CU, thứ `run_eval.py` đọc) và
 không phải tính năng cho người dùng cuối.
 
 Chạy:
-    uv run python eval/ontology/review_ui.py                 # sinh HTML rồi tự mở
-    uv run python eval/ontology/review_ui.py --serve         # kèm server lưu tại chỗ
-    uv run python eval/ontology/review_ui.py --no-open
+    uv run python -m eval.ontology.review_ui                 # sinh HTML rồi tự mở
+    uv run python -m eval.ontology.review_ui --serve         # kèm server lưu tại chỗ
+    uv run python -m eval.ontology.review_ui --no-open
+
+Phải chạy dạng `-m`: file này `import app.ontology.*`, mà gọi thẳng đường dẫn thì Python
+đặt `eval/ontology/` làm gốc `sys.path` chứ không phải thư mục dự án ⇒ `ModuleNotFoundError:
+No module named 'app'`. Dạng `-m` lấy thư mục hiện hành làm gốc nên import chạy.
 
 Không có `--serve` thì trang vẫn chạy offline: tự lưu vào localStorage, xuất bằng nút
 "Tải gold.jsonl". Có `--serve` thì nút "Lưu" ghi thẳng vào eval/ontology/.
