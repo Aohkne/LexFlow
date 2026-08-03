@@ -213,6 +213,114 @@ def tiet_logic(diem: DiemNode) -> str:
     return "unknown"
 
 
+# --- Guard "áp dụng khi" — tất định, không hỏi LLM (xem GuardApDung) ------------
+#
+# Ba dạng được nhận, rút ra từ ĐO trên 18 fixture chứ không từ suy đoán văn phạm:
+#
+#   A  "đối với khách hàng LÀ cá nhân"          → ("khách hàng", "cá nhân")      8 ca
+#   B  "Đối với tài khoản thanh toán CỦA cá nhân:" → ("tài khoản thanh toán", "cá nhân")  4 ca
+#   C  "Đối với thẻ trả trước,"  (danh ngữ trần)  → ("thẻ", "thẻ trả trước")     3 ca
+#
+# Dạng C **chỉ** được nhận khi cụm MỞ ĐẦU đơn vị (tức nó phủ cả đơn vị), ngắn, và
+# không mở đầu bằng từ cho biết đây không phải tên một loại. Nới lỏng vế đó ra thì
+# mẫu nền bắt 36 ca mà phần lớn là rác — đã đo: `thuoc_tinh='các'`, `'phát'`, `'trường'`.
+
+_GUARD_TRIGGER = re.compile(r"(?:^|[\s(;])(đối với|trường hợp)\s+", re.IGNORECASE)
+# Cụm chứa viện dẫn là ĐỊA CHỈ, không phải loại đối tượng: "đối với các trường hợp
+# quy định tại Điều 5" nói về phạm vi, không nói về thuộc tính của ai.
+_GUARD_VIEN_DAN = re.compile(
+    r"quy định tại|Điều\s+\d|khoản\s+\d|điểm\s+[a-zđ]\b|Thông tư|Nghị định|Mẫu số",
+    re.IGNORECASE,
+)
+# Mở đầu bằng những từ này thì cụm là một TÌNH HUỐNG hoặc một tập hợp chung, không
+# phải tên một loại đối tượng ("đối với CÁC tài liệu", "trường hợp PHÁT HIỆN…").
+_GUARD_KHONG_PHAI_LOAI = re.compile(
+    r"^(các|mọi|những|việc|từng|này|có|không|phát hiện|sử dụng|đề nghị|thay đổi"
+    r"|từ chối|đóng|cung ứng|được|thỏa thuận|hồ sơ|văn bản)\b",
+    re.IGNORECASE,
+)
+_GUARD_LA = re.compile(r"^(.{2,32}?)\s+là\s+(.{2,52}?)$", re.IGNORECASE)
+_GUARD_CUA = re.compile(r"^(.{2,32}?)\s+của\s+(.{2,32}?)$", re.IGNORECASE)
+# Cụm chứa những thứ này thì đã sang mệnh đề khác, tách ra là cắt nhầm câu.
+_GUARD_XAU = re.compile(r"\bhoặc\b|\bvà\b|\bđối với\b|[()]", re.IGNORECASE)
+_GUARD_CUM = re.compile(r"(.+?)([;:,.]|$)", re.DOTALL)
+_SO_THU_TU = re.compile(rf"^\s*(\d{{1,3}}[{_LC}]?\s*\.|[{_LC}]\s*\)|\(\s*({_ROMAN_ALT})\s*\))\s*", re.I)
+
+
+def tach_guard(text: str, base: int = 0) -> tuple[tuple[str, str, str, int, int] | None, str]:
+    """Text của MỘT đơn vị → (guard, cảnh báo).
+
+    `guard` = `(thuoc_tinh, gia_tri, raw_text, start, end)` với offset đã cộng `base`
+    để neo về `dieu.text`; `None` khi không có guard.
+    `cảnh báo` = chuỗi rỗng, hoặc `"guard_ngoai_mau: …"` khi cụm TRÔNG như một guard mà
+    không tách sạch được — cố ý **không đoán**, nhưng cũng không im lặng.
+
+    Trả về guard ĐẦU TIÊN tách được. Guard tại mỗi nút cố ý PHẲNG, MỘT CẤP: không guard
+    lồng guard, không `else`, không thứ tự ưu tiên. Muốn biết hiệu lực đầy đủ của một
+    tiết thì hợp dọc đường đi bằng `hop_guard()`.
+    """
+    m0 = _SO_THU_TU.match(text)
+    moc = m0.end() if m0 else 0
+    ngoai_mau: list[str] = []
+
+    for m in _GUARD_TRIGGER.finditer(text):
+        mc = _GUARD_CUM.match(text[m.end() :])
+        if not mc:
+            continue
+        cum, ket = mc.group(1).strip(), mc.group(2)
+        raw = text[m.start(1) : m.end() + len(mc.group(1).rstrip())]
+        span = (base + m.start(1), base + m.end() + len(mc.group(1).rstrip()))
+
+        if not cum or _GUARD_VIEN_DAN.search(cum):
+            continue  # địa chỉ, không phải loại — bỏ hẳn, không cảnh báo
+
+        la = _GUARD_LA.match(cum)
+        if (
+            la
+            and not _GUARD_XAU.search(la.group(1))
+            and not _GUARD_XAU.search(la.group(2))
+            and la.group(1).strip().lower() not in {"trường hợp", "đối với"}
+        ):
+            return (la.group(1).strip(), la.group(2).strip(), raw, *span), ""
+
+        cua = _GUARD_CUA.match(cum)
+        if cua and ket == ":" and not _GUARD_XAU.search(cum):
+            return (cua.group(1).strip(), cua.group(2).strip(), raw, *span), ""
+
+        if (
+            m.start(1) <= moc + 1
+            and len(cum.split()) <= 4
+            and not _GUARD_KHONG_PHAI_LOAI.match(cum)
+            and not _GUARD_XAU.search(cum)
+        ):
+            return (cum.split()[0], cum, raw, *span), ""
+
+        # Trông như tên một loại mà không tách được ⇒ nói ra. Cụm dài hoặc mở đầu bằng
+        # từ chỉ tình huống thì bỏ im lặng: cảnh báo cho cả 48 ca khớp trigger sẽ dìm
+        # chết hàng đợi duyệt (hiện toàn corpus có 82 cảnh báo).
+        if len(cum.split()) <= 6 and not _GUARD_KHONG_PHAI_LOAI.match(cum):
+            ngoai_mau.append(cum[:60])
+
+    return None, (
+        f"guard_ngoai_mau: khớp 'đối với/trường hợp' nhưng không tách được "
+        f"(thuộc tính, giá trị): {'; '.join(repr(x) for x in ngoai_mau[:3])}"
+        if ngoai_mau
+        else ""
+    )
+
+
+def hop_guard(*guards) -> list:
+    """Guard hiệu lực của một nút = AND của mọi guard dọc đường đi Điểm → tiết.
+
+    Điểm *"đối với khách hàng là cá nhân"* chứa tiết *"trường hợp mở bằng eKYC"* ⇒ tiết
+    áp dụng khi **cá nhân ∧ eKYC**. Phép hợp là AND thuần: không có `else`, không thứ tự
+    ưu tiên, không guard lồng guard — mỗi nút một guard phẳng.
+
+    Trả danh sách guard đã bỏ `None`, giữ nguyên thứ tự từ ngoài vào trong.
+    """
+    return [g for g in guards if g is not None]
+
+
 def parse_dieu(dieu_text: str, so_hieu: str) -> DieuNode:
     """Parse text của MỘT Điều thành cây, offset tính từ 0 trong `dieu_text`.
 

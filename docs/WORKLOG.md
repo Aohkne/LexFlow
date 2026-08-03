@@ -8,7 +8,23 @@
 
 ## 2026-08-03 (T2)
 
-**Giai đoạn:** đối chiếu code đang có với đặc tả **KG v0.5** — không viết thêm code, chỉ đo.
+**Giai đoạn:** đối chiếu code với **KG v0.5**, dựng hàng đợi duyệt cờ, và **B22 — guard `ap_dung_khi`**.
+
+- **Done (B22 — guard "vế này áp dụng khi nào", `docs/ONTOLOGY-POC.md` §14c):**
+  - **Vấn đề:** TT17 Đ16 k1 điểm a — *"(i) … **đối với khách hàng là cá nhân**; (ii) … **đối với khách hàng là tổ chức**"*. Hai tiết loại trừ nhau theo loại chủ thể. Ghi `any` là **nói sai luật** (cho phép lấy sinh trắc học người đại diện của một khách hàng cá nhân mà vẫn "đạt"); ghi `all` cũng sai (không ai đòi cả hai). Bộ tách chỉ thấy `;` trần nên trả `unknown`.
+  - **`connector` GIỮ NGUYÊN `all|any|unknown`.** Hai câu hỏi khác nhau: `connector` = *các vế **kết hợp** thế nào*, `ap_dung_khi` = *vế này **khi nào** áp dụng*. Nhét cả hai vào một enum là đúng loại mơ hồ im lặng mà `menh_de` đã phải tách khỏi `action`.
+  - **`GuardApDung` ở CẢ HAI tầng** (`ConditionItem` + `SubCondition`) vì đo được ở cả hai: **4/71 Điểm** và **5/12 tiết** — gần một nửa số tiết trong corpus.
+  - **Parser sinh 100%, LLM không có đường nào chạm tới**: prompt không có ô nào, `build_cu` không đọc `ap_dung_khi` từ JSON mô hình ⇒ *"0 ca do LLM sinh"* là bất biến **theo thiết kế**, không phải theo số đo. Cùng kỷ luật `DieuKienCong` và `tiet_logic`.
+  - **Ba chỗ chệch khỏi đề bài, đều vì đo được.** (1) Mẫu nền `(đối với|trường hợp)…(là|:)…` bắt **36 ca mà phần lớn là rác** (`thuoc_tinh='các'`, `'phát'`, `'trường'`) ⇒ siết thành ba dạng: `X là Y` · `X của Y:` · danh ngữ trần **mở đầu đơn vị** ≤4 từ. (2) Cảnh báo cho mọi ca ngoài mẫu = **+48** lên nền 82 cảnh báo, dìm chết hàng đợi duyệt ⇒ cụm chứa viện dẫn bỏ **hẳn** (đó là địa chỉ, không phải loại), chỉ **13** ca đáng ngờ được nêu. (3) Ca *"Đối với thẻ trả trước"* không có `là`/`của` ⇒ tách bằng head-word `("thẻ", "thẻ trả trước")`, `raw_text` vẫn giữ sự thật.
+  - **`thuoc_tinh`/`gia_tri` là chuỗi tự do, KHÔNG enum**: 18 fixture đã có ba họ (`khách hàng` · `tài khoản thanh toán` · `thẻ`). Chuẩn hoá là việc của **bước nạp KG** qua `KhaiNiem`.
+  - **Lỗi đường ống chỉ batch mới lộ.** Lần chạy đầu ra **10 guard, thiếu TT18 Đ13 k4** — một trong bốn ca thử bắt buộc — dù test parser cho ca đó **xanh**. Regex không sai; sai ở chỗ **đọc trên text nào**: Khoản không chẻ Điểm thì bản đầu đọc trên *đoạn đã neo của điều kiện* thay vì *cả Khoản*. Mô hình neo vào nửa sau câu ⇒ cụm guard rơi ra ngoài ⇒ **một tầng tất định lại phụ thuộc đầu ra của LLM**. Test đơn vị không bắt được vì nó gọi thẳng `tach_guard(khoan.text, khoan.start)` — tự cho mình đúng đầu vào. Đã thêm test đi qua `build_cu` và cố ý neo vào **đơn vị cuối**, xa cụm guard nhất.
+  - **Đo lại sau khi sửa: 13 guard** (9 tầng điều kiện · 4 tầng tiết), **đủ cả 4 ca thử bắt buộc**, lỗi cứng **0/49**. Cảnh báo 82 → 95 (13 cái thêm đều là `guard_ngoai_mau`). Phát hiện thêm nhánh thứ tư ngoài đề bài: TT18 Đ9 k2 **điểm d** *"Trường hợp khách hàng tổ chức"* ⇒ chuỗi phân nhánh ở đó là **4 nhánh**, không phải 3.
+  - **Ranh giới guard ↔ chapeau**: TT18 Đ9 k3 điểm c *"phải đảm bảo **các nguyên tắc sau**"* là `all`, giải bằng luật chapeau, **không sinh guard**. Hai cơ chế bù nhau, không chồng nhau.
+- **Done (hàng đợi duyệt cờ):** `eval/ontology/triage.py` + `eval/ontology/flag_ui.py` — xếp 82 cảnh báo theo **hậu quả nếu bỏ qua** (T1…T6) thay vì theo tần suất ⇒ **94 đơn vị → 20 cờ cần quyết**. Nhóm cờ đông nhất (19 cờ *"điểm không tồn tại"*) hoá ra là **MỘT** khuyết tật prompt: cả 13 bản ghi đều có `khoan.diem == []`, mô hình dùng `source_diem` như **số thứ tự** chứ không phải **địa chỉ** ⇒ gom thành một dòng, không bắt đọc luật 13 lần.
+  - Tìm ra khi dựng hàng đợi: **9 cảnh báo mang địa chỉ không phân biệt được** (`điều kiện g` khi điểm `g` xuất hiện **5 lần** ở ND52 Đ22 k2). Đã đánh số **chỉ khi thật sự trùng** để 46 bản ghi còn lại không đổi nhãn.
+  - **Mọi script `eval/ontology` có `import app.*` đều chạy sai theo lệnh trong docstring của chính nó** (`ModuleNotFoundError: No module named 'app'`) — tức trang duyệt nhãn cũ chưa từng mở được theo hướng dẫn. Đã sửa sang dạng `-m`.
+  - Nút Lưu dùng `alert()` — hộp thoại chặn cả event loop của tab. Đổi sang dòng trạng thái.
+- **Done (đối chiếu v0.5):** `docs/KG-CONFORMANCE-v05.md` — xem mục dưới.
 
 - **Done:** `docs/KG-CONFORMANCE-v05.md` — đối chiếu từng mục của `research/schema-kg-v05.html`.
   - **Phát hiện đầu tiên, quan trọng hơn mọi ô đạt/chưa: repo có HAI schema văn bản, v0.5 mô tả MỘT.** Tầng app đang chạy khoá bằng `TT40-2024` (chuỗi viết tắt do LLM sinh, `extract.py:35`); tầng PoC ontology khoá bằng `40/2024/TT-NHNN#than/dieu_41#khoan_2`. **Không có bảng map.** Cùng một Điều 41 tồn tại dưới hai khoá không quy về nhau được — trái §9 quyết định #10, và `docs/RAG-DESIGN.md §1.1` đã hứa *"id row **trùng** id node KG ⇒ không cần bảng map"*, lời hứa đó hiện **không đúng** với tầng app.

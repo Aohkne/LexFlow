@@ -4,7 +4,7 @@
 > Xếp theo **hậu quả nếu bỏ qua**, không theo tần suất. T5 được đếm nhưng
 > không vào hàng đợi — xem `eval/ontology/triage.py` để biết vì sao.
 
-28/49 bản ghi có cờ · 82 cờ tổng cộng
+28/49 bản ghi có cờ · 95 cờ tổng cộng
 
 | mức | loại cờ | số cờ | số bản ghi ở mức này |
 |---|---|---|---|
@@ -19,6 +19,7 @@
 |  | điểm không tồn tại trong khoản | 19 |  |
 | T5 · ít giá trị đọc | nhãn tóm lược: MẤT dấu hiệu | 25 | 11 |
 |  | quote lệch marker/dấu câu | 18 |  |
+| T? · chưa phân loại | chưa phân loại | 13 | 1 |
 
 ---
 
@@ -33,7 +34,6 @@ Mọi `source_diem` mô hình khai đều không tồn tại ⇒ **Khoản khôn
 - `52/2024/NĐ-CP#than/dieu_23#khoan_1` — mô hình khai ['a', 'b'], Khoản không có Điểm
 - `18/2024/TT-NHNN#than/dieu_9#khoan_1` — mô hình khai ['a', 'b'], Khoản không có Điểm
 - `18/2024/TT-NHNN#than/dieu_9#khoan_9` — mô hình khai ['a'], Khoản không có Điểm
-- `52/2024/NĐ-CP#than/dieu_22#khoan_3` — mô hình khai ['a', 'b', 'c'], Khoản không có Điểm
 - `18/2024/TT-NHNN#than/dieu_13#khoan_1` — mô hình khai ['a'], Khoản không có Điểm
 - `18/2024/TT-NHNN#than/dieu_13#khoan_2` — mô hình khai ['a'], Khoản không có Điểm
 - `18/2024/TT-NHNN#than/dieu_9#khoan_4` — mô hình khai ['a'], Khoản không có Điểm
@@ -41,6 +41,7 @@ Mọi `source_diem` mô hình khai đều không tồn tại ⇒ **Khoản khôn
 - `18/2024/TT-NHNN#than/dieu_9#khoan_6` — mô hình khai ['a'], Khoản không có Điểm
 - `18/2024/TT-NHNN#than/dieu_9#khoan_7` — mô hình khai ['a'], Khoản không có Điểm
 - `18/2024/TT-NHNN#than/dieu_9#khoan_8` — mô hình khai ['a'], Khoản không có Điểm
+- `52/2024/NĐ-CP#than/dieu_22#khoan_3` — mô hình khai ['a', 'b', 'c'], Khoản không có Điểm
 
 ### [T1 · máy đã tự quyết thay người] `17/2024/TT-NHNN#than/dieu_16#khoan_2`  ·  actor_cu
 
@@ -75,15 +76,11 @@ Mọi `source_diem` mô hình khai đều không tồn tại ⇒ **Khoản khôn
 - **nghi bịa: THÊM dấu hiệu tình thái** — `subject`
   > [cảnh báo] thêm dấu hiệu dieu_kien: khi
   - chữ của luật: *Trường hợp thay đổi một trong các nội dung quy định trong Giấy phép hoạt động cung ứng dịch vụ trung gian thanh toán sau: tên tổ chức, địa điểm đặt trụ sở chính, ngừng cung cấp một hoặc một số dịch vụ trung gian thanh toán đã được cấp phép, kết nối thêm hệ thống thanh toán quốc t*
-- **nghi bịa: THÊM dấu hiệu tình thái** — `điều kiện a.constraint_label`
+- **nghi bịa: THÊM dấu hiệu tình thái** — `điều kiện a#2.constraint_label`
   > [cảnh báo] thêm dấu hiệu dieu_kien: khi
-  - ⚠️ địa chỉ mơ hồ: 2 điều kiện cùng mang nhãn này (bản ghi sinh trước khi `extractor.py` đánh số) — phải đọc cả:
-  - chữ của luật: *a) Tổ chức cung ứng dịch vụ trung gian thanh toán gửi 01 bộ hồ sơ đề nghị sửa đổi, bổ sung Giấy phép gồm: đơn đề nghị sửa đổi, bổ sung Giấy phép hoạt động cung ứng dịch vụ trung gian thanh toán theo Mẫu số 12 ban hành kèm theo Nghị định này; bản sao Giấy phép hoạt động cung ứng d*
   - chữ của luật: *Trường hợp đề nghị kết nối thêm hệ thống thanh toán quốc tế, tổ chức cung ứng dịch vụ chuyển mạch tài chính quốc tế bổ sung thêm các tài liệu quy định tại điểm i khoản 2 Điều 24 Nghị định này;*
-- **nghi bịa: THÊM dấu hiệu tình thái** — `điều kiện b.constraint_label`
+- **nghi bịa: THÊM dấu hiệu tình thái** — `điều kiện b#2.constraint_label`
   > [cảnh báo] thêm dấu hiệu dieu_kien: khi
-  - ⚠️ địa chỉ mơ hồ: 2 điều kiện cùng mang nhãn này (bản ghi sinh trước khi `extractor.py` đánh số) — phải đọc cả:
-  - chữ của luật: *Ngân hàng Nhà nước tiếp nhận và xét tính hợp lệ của hồ sơ đề nghị sửa đổi, bổ sung Giấy phép trong thời hạn 05 ngày làm việc kể từ ngày nhận được hồ sơ và quyết định sửa đổi, bổ sung Giấy phép hoạt động cung ứng dịch vụ trung gian thanh toán trong thời hạn 30 ngày làm việc kể từ *
   - chữ của luật: *Trường hợp từ chối sửa đổi, bổ sung Giấy phép, Ngân hàng Nhà nước có văn bản trả lời tổ chức trong đó nêu rõ lý do*
 - _(ẩn 5 cờ mức T5)_
 
@@ -117,7 +114,7 @@ Mọi `source_diem` mô hình khai đều không tồn tại ⇒ **Khoản khôn
 - **chưa xác định 'và' hay 'hoặc'** — `điều kiện a`
   > có 2 tiết nhưng chỉ ngăn bằng ';' — không xác định được là 'và' hay 'hoặc', cần người đọc chốt
   - chữ của luật: *a) Thu thập các tài liệu, thông tin, dữ liệu để xác minh thông tin nhận biết khách hàng theo quy định tại khoản 2, 3 Điều 12 Thông tư này và: (i) Thông tin sinh trắc học của chủ tài khoản đối với khách hàng là cá nhân; (ii) Thông tin sinh trắc học của người đại diện hợp pháp đối *
-- _(ẩn 4 cờ mức T5)_
+- _(ẩn 5 cờ mức T5)_
 
 ### [T2 · phép logic chưa xác định] `18/2024/TT-NHNN#than/dieu_9#khoan_3`  ·  actor_cu
 
@@ -128,19 +125,13 @@ Mọi `source_diem` mô hình khai đều không tồn tại ⇒ **Khoản khôn
 
 ### [T3 · nghi bịa tình thái] `52/2024/NĐ-CP#than/dieu_22#khoan_2`  ·  actor_cu
 
-- **nghi bịa: THÊM dấu hiệu tình thái** — `điều kiện b.object_label`
+- **nghi bịa: THÊM dấu hiệu tình thái** — `điều kiện b#2.object_label`
   > [cảnh báo] thêm dấu hiệu cho_phep: được
-  - ⚠️ địa chỉ mơ hồ: 3 điều kiện cùng mang nhãn này (bản ghi sinh trước khi `extractor.py` đánh số) — phải đọc cả:
-  - chữ của luật: *Có vốn điều lệ thực góp hoặc được cấp tối thiểu: 50 tỷ đồng đối với dịch vụ ví điện tử, dịch vụ hỗ trợ thu hộ, chi hộ và dịch vụ cổng thanh toán điện tử*
   - chữ của luật: *300 tỷ đồng đối với dịch vụ chuyển mạch tài chính, dịch vụ chuyển mạch tài chính quốc tế, dịch vụ bù trừ điện tử*
-  - chữ của luật: *chịu hoàn toàn trách nhiệm về tính hợp pháp của nguồn vốn đã góp hoặc vốn được cấp*
-- **nghi bịa: THÊM dấu hiệu tình thái** — `điều kiện b.constraint_label`
+- **nghi bịa: THÊM dấu hiệu tình thái** — `điều kiện b#2.constraint_label`
   > [cảnh báo] thêm dấu hiệu dinh_luong: tối thiểu
-  - ⚠️ địa chỉ mơ hồ: 3 điều kiện cùng mang nhãn này (bản ghi sinh trước khi `extractor.py` đánh số) — phải đọc cả:
-  - chữ của luật: *Có vốn điều lệ thực góp hoặc được cấp tối thiểu: 50 tỷ đồng đối với dịch vụ ví điện tử, dịch vụ hỗ trợ thu hộ, chi hộ và dịch vụ cổng thanh toán điện tử*
   - chữ của luật: *300 tỷ đồng đối với dịch vụ chuyển mạch tài chính, dịch vụ chuyển mạch tài chính quốc tế, dịch vụ bù trừ điện tử*
-  - chữ của luật: *chịu hoàn toàn trách nhiệm về tính hợp pháp của nguồn vốn đã góp hoặc vốn được cấp*
-- _(ẩn 4 cờ mức T5)_
+- _(ẩn 12 cờ mức T5)_
 
 ### [T3 · nghi bịa tình thái] `40/2024/TT-NHNN#than/dieu_25#khoan_5`  ·  actor_cu
 

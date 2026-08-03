@@ -111,12 +111,44 @@ class GroundedField(BaseModel):
     issues: list[str] = Field(default_factory=list)
 
 
+class GuardApDung(BaseModel):
+    """Điều kiện áp dụng của MỘT phần tử — *"vế này áp dụng khi nào"*.
+
+    Khác `connector` (`all`/`any`) vốn trả lời *"các vế **kết hợp** thế nào"*. Trộn hai
+    câu hỏi vào một enum là đúng loại mơ hồ im lặng mà `menh_de` đã phải tách khỏi
+    `action`: *"(i) … đối với khách hàng là **cá nhân**; (ii) … đối với khách hàng là
+    **tổ chức**"* không phải `any` (không được chọn bừa một vế) mà cũng không phải
+    `all` — hai vế **loại trừ nhau theo loại chủ thể**.
+
+    Khác `Gate` ở **đối tượng bị chặn**: `Gate` chặn theo *bên bị ràng buộc* (mức
+    meta-CU, ai phải tuân thủ), guard chặn theo *thuộc tính của đối tượng hành vi*
+    (mức phần tử, quy tắc này nói về loại gì). Hai nghĩa ⇒ hai kiểu, không tái dùng.
+
+    **Do PARSER sinh 100%, không hỏi LLM** — cùng kỷ luật với `DieuKienCong` (mốc ngày)
+    và `tiet_logic` (và/hoặc): thứ gì regex bắt được thì không đưa cho mô hình, vì mỗi
+    ô hỏi thêm là một ô có thể bị lấp bừa.
+
+    `thuoc_tinh`/`gia_tri` cố ý là **chuỗi tự do, không chuẩn hoá**: đo trên 18 fixture
+    đã thấy ít nhất ba họ (`khách hàng` · `tài khoản thanh toán` · `thẻ`), enum sẽ phải
+    nới liên tục. Chuẩn hoá về từ vựng có kiểm soát là việc của bước **nạp KG** qua
+    `KhaiNiem`, không phải của tầng trích.
+    """
+
+    thuoc_tinh: str  # "khách hàng", "tài khoản thanh toán", "thẻ"
+    gia_tri: str  # "cá nhân", "tổ chức", "thẻ trả trước"
+    raw_text: str  # nguyên văn cụm guard; PHẢI round-trip đúng char_span
+    char_span: tuple[int, int]  # neo vào `dieu.text` như mọi span
+
+
 class SubCondition(BaseModel):
     """Một tiết bên trong điều kiện. `char_span` neo vào `dieu.text` như mọi span."""
 
     marker: str  # "i", "ii"
     text: str
     char_span: tuple[int, int]
+    # None = vô điều kiện (đa số). Guard hiệu lực của tiết = AND của guard tại tiết và
+    # guard tại Điểm chứa nó — xem `hop_guard()` trong parser.py.
+    ap_dung_khi: GuardApDung | None = None
 
 
 class ConditionItem(BaseModel):
@@ -131,6 +163,8 @@ class ConditionItem(BaseModel):
     # parser (dấu "hoặc"/"và" ở đuôi câu), KHÔNG hỏi LLM.
     logic: Literal["all", "any", "unknown"] = "unknown"
     sub: list[SubCondition] = Field(default_factory=list)
+    # None = vô điều kiện. Guard ở tầng này phủ mọi tiết bên trong (AND dọc đường đi).
+    ap_dung_khi: GuardApDung | None = None
     issues: list[str] = Field(default_factory=list)
 
 

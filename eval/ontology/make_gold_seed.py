@@ -60,7 +60,18 @@ def to_seed(pred: dict) -> dict:
         **rieng,
         "logic": pred.get("logic"),
         "conditions": [
-            {"source_diem": c.get("source_diem"), "span": _span(c)}
+            {
+                "source_diem": c.get("source_diem"),
+                "span": _span(c),
+                # Guard do REGEX tách, không do mô hình chọn — nhưng regex vẫn sai
+                # được, nên nó phải nằm trong tầm duyệt chứ không mặc nhiên coi là
+                # đúng. Cùng lý do đã áp cho `dieu_kien_cong`.
+                "ap_dung_khi": c.get("ap_dung_khi"),
+                "sub": [
+                    {"marker": s.get("marker"), "ap_dung_khi": s.get("ap_dung_khi")}
+                    for s in c.get("sub") or []
+                ],
+            }
             for c in pred.get("conditions") or []
         ],
         # Đặt true cho case CỐ Ý cài lỗi để đo khả năng bắt lỗi cứng.

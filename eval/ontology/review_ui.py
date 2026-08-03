@@ -593,12 +593,27 @@ function side() {
           <button class="sm" onclick="condFromSel(${i})">từ bôi đen</button>
           <button class="sm" onclick="aimCond(${i})">từ đơn vị</button>
           <button class="sm" onclick="delCond(${i})">xoá</button></div>
+        ${guardBadge(c.ap_dung_khi)}
+        ${(c.sub || []).filter(s => s.ap_dung_khi).map(s =>
+            `<div style="margin-left:14px">tiết (${esc(s.marker)}) ${guardBadge(s.ap_dung_khi)}</div>`
+          ).join("")}
         <div class="q">${c.span ? esc(cut(c.span)) : "<i>—</i>"}</div></div>`).join("")}
     </div>
     ${w.length ? `<div class="warn"><b>Máy tự gắn cờ:</b><br>${
       w.map(x => esc(x)).join("<br>")}</div>` : ""}
     <div class="f"><h3>Ghi chú</h3>
       <textarea onchange="set('note',this.value)">${esc(it().note || "")}</textarea></div>`;
+}
+
+// Guard "áp dụng khi" — do REGEX sinh, không do mô hình. Vẫn phải bày ra để duyệt:
+// regex sai thì sinh guard sai, và một guard sai làm hẹp phạm vi một quy phạm mà
+// không ai thấy. Rỗng = vô điều kiện, KHÔNG hiện gì (đa số phần tử là vô điều kiện,
+// hiện "—" cho tất cả sẽ làm nhiễu đúng thứ cần chú ý).
+function guardBadge(g) {
+  if (!g) return "";
+  return `<div class="meta" style="color:var(--act)">áp dụng khi
+    <b>${esc(g.thuoc_tinh)}</b> = <b>${esc(g.gia_tri)}</b>
+    <i>“${esc(g.raw_text)}”</i> [${g.char_span[0]}–${g.char_span[1]}]</div>`;
 }
 
 const hien = i => filt === "all" || loai(items[i]) === filt;

@@ -25,7 +25,7 @@ from app.ontology.modality import (
     relax_absence,
     relax_dereference,
 )
-from app.ontology.parser import tiet_logic
+from app.ontology.parser import tach_guard, tiet_logic
 from app.ontology.schema import (
     ActorCU,
     ComplianceUnit,
@@ -35,6 +35,7 @@ from app.ontology.schema import (
     Gate,
     GroundedField,
     Grounding,
+    GuardApDung,
     KhaiNiem,
     KhoanNode,
     MetaCU,
@@ -285,6 +286,31 @@ def _ctx(khoan: KhoanNode, dieu: DieuNode) -> tuple[int, int]:
     return (dieu.so_goc, khoan.so_goc if khoan.so_hien_thi else 0)
 
 
+def _guard(
+    src: str, base: int, dieu: DieuNode, where: str, warn: list[str]
+) -> GuardApDung | None:
+    """Tách guard trên text một nút + KIỂM round-trip trước khi nhận.
+
+    Kiểm round-trip là bắt buộc, không phải cho đẹp: `raw_text` phải bằng đúng
+    `dieu.text[char_span]`. Regex chạy trên text tương đối rồi cộng `base`; sai một
+    nhịp `base` thì span vẫn hợp lệ về kiểu và vẫn hiện ra một đoạn luật **trông có
+    lý** — đúng loại lệch âm thầm mà kỷ luật span của cả pipeline này sinh ra để chặn.
+    Cùng phép kiểm đã áp cho `DieuKienCong`.
+    """
+    hit, canh_bao = tach_guard(src, base)
+    if canh_bao:
+        warn.append(f"{where}: {canh_bao}")
+    if hit is None:
+        return None
+    thuoc_tinh, gia_tri, raw, a, b = hit
+    if dieu.text[a:b] != raw:
+        warn.append(f"{where}: guard neo lệch (raw_text ≠ dieu.text[span]) — đã bỏ guard")
+        return None
+    return GuardApDung(
+        thuoc_tinh=thuoc_tinh, gia_tri=gia_tri, raw_text=raw, char_span=(a, b)
+    )
+
+
 def _build_conditions(
     raw_conditions: list[dict],
     khoan: KhoanNode,
@@ -339,14 +365,34 @@ def _build_conditions(
         # hỏi LLM: "(i) …; hoặc (ii) …" là phép TUYỂN bên trong một điểm, bỏ đi là
         # mất nghĩa pháp lý. Xem TietSpan về lý do tiết không được cấp địa chỉ.
         diem_node = next((d for d in khoan.diem if d.so_hien_thi == src), None)
+
+        # Guard "áp dụng khi" — TẤT ĐỊNH, không có ô nào cho mô hình điền. Đọc trên
+        # text của chính nút: Điểm nếu giải được, không thì đoạn đã neo của điều kiện
+        # (Khoản không chẻ Điểm vẫn có guard thật — "Đối với thẻ trả trước", TT18 Đ13 k4).
+        # Khoản KHÔNG chẻ Điểm thì guard đọc trên CẢ KHOẢN, không trên đoạn hẹp mà mô
+        # hình neo: "4. Đối với thẻ trả trước, TCPHT quy định…" (TT18 Đ13 k4) là guard
+        # phủ trọn khoản, nên mọi điều kiện trong khoản đều thừa hưởng. Đọc trên đoạn
+        # hẹp thì guard biến mất tuỳ mô hình neo tới đâu — tức một tầng TẤT ĐỊNH lại
+        # phụ thuộc đầu ra của LLM, đúng thứ thiết kế này sinh ra để tránh.
+        if diem_node is not None:
+            g_src, g_base = diem_node.text, diem_node.start
+        else:
+            g_src, g_base = khoan.text, khoan.start
+        guard = _guard(g_src, g_base, dieu, where, item_warn)
+
         sub: list[SubCondition] = []
         logic = "unknown"
         if diem_node and diem_node.tiet:
             logic = tiet_logic(diem_node)
-            sub = [
-                SubCondition(marker=t.marker, text=t.text, char_span=(t.start, t.end))
-                for t in diem_node.tiet
-            ]
+            sub = []
+            for t in diem_node.tiet:
+                tg = _guard(t.text, t.start, dieu, f"{where} tiết ({t.marker})", item_warn)
+                sub.append(
+                    SubCondition(
+                        marker=t.marker, text=t.text, char_span=(t.start, t.end),
+                        ap_dung_khi=tg,
+                    )
+                )
             if logic == "unknown":
                 item_warn.append(
                     f"{where}: có {len(sub)} tiết nhưng chỉ ngăn bằng ';' — không "
@@ -368,6 +414,7 @@ def _build_conditions(
                 grounding=g,
                 logic=logic,  # type: ignore[arg-type]
                 sub=sub,
+                ap_dung_khi=guard,
                 issues=item_err + item_warn,
             )
         )

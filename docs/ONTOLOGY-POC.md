@@ -526,6 +526,104 @@ Kèm theo: `Gate` (phạm vi · đích · **cực phủ định** · ngoại tr�
 `premise.jsonl` có bí danh trích tất định, và một lỗi văn phạm viện dẫn đã sửa
 (`Điều 35, khoản 4 Điều 47` từng bị đọc thành `Điều 4`).
 
+## 14c. B22 — guard `ap_dung_khi`: "vế này áp dụng khi nào"
+
+### Vấn đề
+
+TT17 Đ16 k1 điểm a: *"…theo quy định tại khoản 2, 3 Điều 12 Thông tư này **và**:
+(i) Thông tin sinh trắc học của chủ tài khoản **đối với khách hàng là cá nhân**;
+(ii) Thông tin sinh trắc học của người đại diện hợp pháp **đối với khách hàng là tổ chức**;"*
+
+Hai tiết **loại trừ nhau theo loại chủ thể**. Với một khách hàng cụ thể, đúng một tiết áp
+dụng — nhưng đó **không phải** `any` (không được chọn bừa một vế: ghi `any` là cho phép lấy
+sinh trắc học người đại diện của một khách hàng **cá nhân** mà vẫn "đạt"), cũng **không phải**
+`all` (không ai đòi cả hai). Bộ phân tách chỉ thấy dấu `;` trần nên trả `unknown`.
+
+### Quyết định
+
+**Không thêm giá trị vào `connector`.** Nó giữ nguyên `all|any|unknown`. Đây là **hai câu hỏi
+khác nhau**, và nhét cả hai vào một enum là đúng loại mơ hồ im lặng mà `menh_de` đã phải tách
+khỏi `action`:
+
+| trường | trả lời |
+|---|---|
+| `connector` | các vế **kết hợp** thế nào |
+| `ap_dung_khi` | vế này **khi nào** áp dụng |
+
+Thêm `GuardApDung {thuoc_tinh, gia_tri, raw_text, char_span}` ở **cả hai tầng** —
+`ConditionItem` **và** `SubCondition` — vì đo được mô thức này ở cả hai:
+**4/71 Điểm** và **5/12 tiết** (gần một nửa số tiết).
+
+### Bốn tính chất phải giữ
+
+1. **Do parser sinh 100%, LLM không tham gia.** Không có ô nào trong prompt, `build_cu` không
+   đọc `ap_dung_khi` từ JSON của mô hình. Bất biến **theo thiết kế**, không theo số đo. Cùng
+   kỷ luật với `DieuKienCong` (mốc ngày) và `tiet_logic` (và/hoặc): *thứ gì regex bắt được thì
+   đừng đưa cho mô hình* — mỗi ô hỏi thêm là một ô có thể bị lấp bừa.
+2. **`thuoc_tinh`/`gia_tri` là chuỗi tự do, KHÔNG chuẩn hoá.** 18 fixture đã có ba họ:
+   `khách hàng` · `tài khoản thanh toán` · `thẻ`. Enum sẽ phải nới mỗi lần thêm văn bản.
+   Chuẩn hoá về từ vựng có kiểm soát là việc của **bước nạp KG** qua `KhaiNiem`, không phải
+   của tầng trích.
+3. **`raw_text` round-trip đúng `char_span`.** Kiểm bắt buộc trước khi nhận guard: sai một
+   nhịp `base` thì span vẫn hợp lệ về kiểu và vẫn hiện ra một đoạn luật **trông có lý**.
+4. **KHÔNG tái dùng `Gate`.** `Gate` chặn theo *bên bị ràng buộc* (mức meta-CU, ai phải tuân
+   thủ); guard chặn theo *thuộc tính của đối tượng hành vi* (mức phần tử, quy tắc này nói về
+   loại gì). Hai nghĩa ⇒ hai kiểu.
+
+### Ngữ nghĩa
+
+**Hợp dọc cấu trúc — AND.** Guard hiệu lực của một nút = AND của mọi `ap_dung_khi` dọc đường
+đi Điểm → tiết. Điểm *"đối với khách hàng là cá nhân"* chứa tiết *"trường hợp mở bằng eKYC"*
+⇒ tiết áp dụng khi **cá nhân ∧ eKYC**. Guard tại **mỗi nút** vẫn PHẲNG, MỘT CẤP: không guard
+lồng guard, không `else`, không thứ tự ưu tiên (`hop_guard()` trong `parser.py`).
+
+**Đánh giá** (ngữ nghĩa đã chốt, chưa cần runtime): guard không khớp case ⇒ phần tử
+`khong_ap_dung` — *miễn trừ chân không*, không phải "đạt". `connector` chạy trên phần còn lại.
+
+### Ranh giới guard ↔ chapeau — hai cơ chế bù nhau
+
+TT18 Đ9 k3 điểm c viết *"phải đảm bảo **các nguyên tắc sau**"* — đó là `all`, **không** phải
+phân nhánh, và giải bằng **luật chapeau** (`"các … sau"`), **không sinh guard**. Hai cơ chế
+phủ hai hình thái khác nhau, không chồng lên nhau. Sau khi có cả hai, `connector = unknown`
+còn **0** trên bộ fixture hiện tại — nhưng đó là *kết quả đo*, không phải bất biến: `unknown`
+vẫn là giá trị hợp lệ cho ca mơ hồ thật về sau.
+
+### Ba dạng được nhận — rút từ ĐO, không từ suy đoán văn phạm
+
+| | mẫu | ví dụ | ra |
+|---|---|---|---|
+| **A** | `… LÀ …` | *"đối với khách hàng là cá nhân"* | `(khách hàng, cá nhân)` |
+| **B** | `… CỦA …:` | *"Đối với tài khoản thanh toán của cá nhân:"* | `(tài khoản thanh toán, cá nhân)` |
+| **C** | danh ngữ trần **mở đầu đơn vị** | *"Đối với thẻ trả trước,"* | `(thẻ, thẻ trả trước)` |
+
+Dạng C **chỉ** nhận khi cụm mở đầu đơn vị (tức phủ cả đơn vị), ≤ 4 từ, và không mở đầu bằng
+từ cho biết đây không phải tên một loại. Nới vế đó ra thì mẫu nền bắt **36 ca mà phần lớn là
+rác** — đã đo: `thuoc_tinh='các'`, `'phát'`, `'trường'`.
+
+**Không đoán, nhưng cũng không im lặng.** Cụm khớp `đối với/trường hợp` mà không tách sạch:
+- chứa viện dẫn (*"đối với các trường hợp quy định tại Điều 5"*) ⇒ bỏ hẳn, **không** cảnh báo —
+  đó là địa chỉ, không phải loại;
+- trông như tên một loại (≤ 6 từ) mà vẫn không tách được ⇒ `ap_dung_khi=None` + cảnh báo
+  `guard_ngoai_mau` **kèm cụm bắt được**.
+
+Ngưỡng đó có lý do: toàn corpus có **48** ca khớp trigger. Cảnh báo cho cả 48 sẽ dìm chết hàng
+đợi duyệt (hiện 82 cảnh báo tổng cộng) — nên chỉ **16** ca đáng ngờ nhất được nêu.
+
+### Một lỗi đường ống chỉ lộ ra khi đối chiếu batch
+
+Lần chạy `--batch` đầu tiên ra **10 guard** nhưng **thiếu TT18 Đ13 k4** — đúng một trong bốn ca
+thử bắt buộc — dù test đơn vị của parser cho ca đó **xanh**.
+
+Nguyên nhân không nằm ở regex mà ở chỗ **đọc guard trên text nào**. Với Khoản không chẻ Điểm,
+bản đầu đọc trên *đoạn đã neo của điều kiện* thay vì trên *cả Khoản*. Mà *"4. **Đối với thẻ trả
+trước**, TCPHT quy định…"* là guard phủ trọn khoản: mô hình neo điều kiện vào nửa sau câu thì
+cụm guard rơi ra ngoài và guard **biến mất**.
+
+Hệ quả đáng ghi hơn bản thân cái bug: **một tầng TẤT ĐỊNH lại phụ thuộc đầu ra của LLM** — đúng
+thứ mà cả thiết kế "parser sinh 100%" sinh ra để tránh. Test đơn vị không bắt được vì nó gọi
+thẳng `tach_guard(khoan.text, khoan.start)`, tức đã tự cho mình đúng đầu vào. Nay có thêm một
+test đi qua `build_cu` và cố ý neo vào **đơn vị cuối cùng**, xa cụm guard nhất.
+
 ## 15. Câu hỏi mở cho mentor
 
 1. Ba tầng tất định ở §4 có đủ để coi là **kiểm soát tính trung thành** cho tầng chuẩn tắc, hay vẫn cần
