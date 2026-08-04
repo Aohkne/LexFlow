@@ -58,8 +58,14 @@ docs: update DESIGN-GAP with Lexi section
 
 ## Push rules
 
-1. **Push directly to `main`** (solo dev). When a teammate joins, switch to branch + PR — update this file then.
-2. Before pushing, everything must be green locally: `uv run pytest -q` + `uv run ruff check .` (backend), and `npm run lint` + `npm run build` in `web/` (if web is touched).
-3. After pushing, GitHub Actions CI must be green; if it goes red, fix it immediately with a new commit (highest priority).
-4. **Never**: `push --force` to `main` · amend/rebase already-pushed commits · `--no-verify` to skip hooks.
-5. Never commit secrets — credentials live only in `.env` (gitignored).
+1. **Ontology / KG work goes directly to `main`** (solo dev, trunk-based).
+2. **Software work goes on `feat/software`**, developed in a parallel git worktree so the two tracks do not fight over the same checkout:
+   ```bash
+   git worktree add -b <branch> ../LexFlow-sw main   # first time only
+   ```
+   The worktree only carries tracked files — copy `.env` and `web/.env.local` over, then `uv sync` and `npm install --prefix web`.
+   Merge back into `main` with a PR when the branch is green. Rebase on `main` before opening the PR; never rebase after pushing the PR.
+3. Before pushing, everything must be green locally: `uv run pytest -q` + `uv run ruff check .` (backend), and `npm run lint` + `npm run build` in `web/` (if web is touched).
+4. After pushing, GitHub Actions CI must be green; if it goes red, fix it immediately with a new commit (highest priority).
+5. **Never**: `push --force` to `main` · amend/rebase already-pushed commits · `--no-verify` to skip hooks.
+6. Never commit secrets — credentials live only in `.env` (gitignored).
