@@ -14,6 +14,7 @@ from pathlib import Path
 import pytest
 
 from app.core.schemas import REL_TYPES
+from app.ingestion.vbpl_corpus import tho_theo_so_hieu
 from app.ingestion.vbpl_luoc_do import (
     MA_THEO_NHAN,
     chuan_hoa_nhan,
@@ -21,13 +22,19 @@ from app.ingestion.vbpl_luoc_do import (
     so_hieu_tu_tieu_de,
 )
 
-_SAMPLE = Path("data/raw/vbpl/sample.json")
-pytestmark = pytest.mark.skipif(not _SAMPLE.exists(), reason="chưa có mẫu vbpl")
+#: Tra theo **số hiệu nằm trong file**, không theo đường dẫn cứng. Đường dẫn đã đổi hai lần
+#: (`sample.json` → `<slug>.json` → `raw/<slug>.json`) và lần nào `skipif` cũng lặng lẽ tắt cả
+#: file test này — 42 test biến mất khỏi kết quả mà suite vẫn báo xanh.
+_GOC = Path("data/raw/vbpl")
+_ND52 = "52/2024/NĐ-CP"
+pytestmark = pytest.mark.skipif(
+    _ND52 not in tho_theo_so_hieu(_GOC), reason=f"chưa crawl bản ghi vbpl của {_ND52}"
+)
 
 
 @pytest.fixture(scope="module")
 def mau():
-    return json.loads(_SAMPLE.read_text(encoding="utf-8"))
+    return json.loads(tho_theo_so_hieu(_GOC)[_ND52].read_text(encoding="utf-8"))
 
 
 @pytest.fixture(scope="module")
@@ -212,6 +219,40 @@ def test_bo_qua_file_khong_phai_ban_ghi_vbpl():
     assert not la_ban_ghi_vbpl({"nguon": "x", "da_cao": [], "bo_qua": [], "hong": []})
     assert not la_ban_ghi_vbpl({"doc_id": "16-2019-NĐ-CP", "so_hieu": "16/2019/NĐ-CP", "articles": []})
     assert not la_ban_ghi_vbpl([])
+
+
+def test_doi_bo_cuc_thu_muc_thi_KEU_chu_khong_bao_da_xong():
+    """Bộ crawl đổi từ bố cục phẳng sang `raw/` + `corpus/`, bộ đọc còn quét phẳng ⇒ 0 cạnh.
+
+    Công cụ khi đó in ra *"0 văn bản cần crawl"* — đọc như **đã xong hết**, tức đúng nghĩa
+    ngược lại. Rỗng-vì-không-tìm-thấy và rỗng-vì-không-còn-gì phải in ra KHÁC nhau.
+    """
+    from app.ingestion.can_crawl import _doc_vbpl
+
+    canh, _, cb = _doc_vbpl(_GOC)
+    assert canh, "bố cục hiện tại phải đọc ra cạnh"
+    assert not any("KHÔNG nhận ra bản ghi vbpl nào" in c for c in cb)
+
+
+def test_thu_muc_toan_file_la_thi_bao_ra(tmp_path):
+    from app.ingestion.can_crawl import _doc_vbpl
+
+    (tmp_path / "crawl-report.json").write_text('{"da_cao": []}', encoding="utf-8")
+    (tmp_path / "x.corpus.json").write_text('{"doc_id": "A", "articles": []}', encoding="utf-8")
+    canh, _, cb = _doc_vbpl(tmp_path)
+    assert canh == []
+    assert any("KHÔNG nhận ra bản ghi vbpl nào" in c for c in cb)
+    # Thư mục rỗng thật thì KHÔNG kêu — không có gì để đọc khác với đọc không ra.
+    assert _doc_vbpl(tmp_path / "chua-ton-tai")[2] == []
+
+
+def test_tra_ban_ghi_theo_SO_HIEU_khong_theo_ten_file():
+    """Tên file đã đổi hai lần; số hiệu nằm trong file nên không đổi theo cách xếp file."""
+    bang = tho_theo_so_hieu(_GOC)
+    assert _ND52 in bang
+    assert bang[_ND52].exists()
+    # Không nhận nhầm bản đã chuyển khuôn (không có `luoc_do`) làm bản ghi thô.
+    assert all("luoc_do" in json.loads(p.read_text(encoding="utf-8")) for p in bang.values())
 
 
 def test_moi_canh_deu_dung_ma_trong_tap_dong(ket_qua):

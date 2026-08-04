@@ -14,23 +14,34 @@ from pathlib import Path
 import pytest
 
 from app.ingestion.vbpl_corpus import (
+    dieu_tu_ban_ghi,
     dieu_tu_toan_van,
-    doc_id_theo_corpus,
     doc_file,
+    doc_id_theo_corpus,
     duong_dan_toan_van,
+    file_da_chuyen_khuon,
     phan_cap_tu_cay,
 )
 from app.ontology.parser import parse_dieu
 
-_TT15 = Path(
-    "data/raw/vbpl/thong-tu-so-15-2024-tt-nhnn-quy-dinh-ve-cung-ung-dich-vu-thanh-toan-"
-    "khong-dung-t.corpus.json"
-)
-_VBHN = Path(
-    "data/raw/vbpl/van-ban-hop-nhat-so-29-vbhn-nhnn-quy-dinh-ve-hoat-dong-cung-ung-dich-vu-"
-    "trung-gi.corpus.json"
-)
-pytestmark = pytest.mark.skipif(not _TT15.exists(), reason="chưa crawl TT15/2024")
+_GOC = Path("data/raw/vbpl")
+
+
+def _tim(so_hieu: str) -> Path | None:
+    """Tra file đã chuyển khuôn theo **số hiệu bên trong**, không theo đường dẫn cứng.
+
+    Bố cục đã đổi hai lần (`<slug>.corpus.json` → `corpus/<slug>.json`) và lần nào đường dẫn
+    cứng cũng lặng lẽ chuyển cả file test này sang skip — suite vẫn xanh, chỉ là không kiểm gì.
+    """
+    for p in file_da_chuyen_khuon(_GOC):
+        if json.loads(p.read_text(encoding="utf-8")).get("so_hieu") == so_hieu:
+            return p
+    return None
+
+
+_TT15 = _tim("15/2024/TT-NHNN")
+_VBHN = _tim("29/VBHN-NHNN")
+pytestmark = pytest.mark.skipif(_TT15 is None, reason="chưa crawl TT15/2024")
 
 
 def _dem(arts, so_hieu="15/2024/TT-NHNN") -> tuple[int, int]:
@@ -42,40 +53,67 @@ def _dem(arts, so_hieu="15/2024/TT-NHNN") -> tuple[int, int]:
     return kh, di
 
 
-# --- 1. Ca đã hỏng: articles[] sẵn có mất sạch đánh số ------------------------
+# --- 1. articles[] đã được sửa, và ĐÓ là thứ phải kiểm ------------------------
 
 
-def test_articles_san_co_MAT_danh_so_nen_khong_duoc_dung():
-    """Đây là lý do tồn tại của cả module. Nếu ngày nào bộ crawl sửa được, test này sẽ đỏ —
-    và đỏ ở đây là **tin tốt**, đọc docstring rồi bỏ module đi.
+def test_articles_giu_du_danh_so():
+    """Lượt crawl đầu cho **0 khoản / 0 điểm** ở đây — làm phẳng cây làm mất đánh số.
+
+    Test cũ khoá con số 0 đó lại và ghi *"ngày nào bộ crawl sửa được thì test này sẽ đỏ, và đỏ
+    ở đây là tin tốt"*. Ngày đó đã tới; con số nghiệm thu 23/97/57 nay là hợp đồng với nguồn.
     """
-    raw = json.loads(_TT15.read_text(encoding="utf-8"))
-
-    class _A:  # đủ dùng cho `_dem`, không cần dựng `Article`
-        def __init__(self, d):
-            self.article, self.text = d["article"], d["text"]
-
-    assert _dem([_A(a) for a in raw["articles"]]) == (0, 0)
-
-
-def test_toan_van_tho_LAY_LAI_du_danh_so():
     kq = doc_file(_TT15)
     assert kq.van_ban is not None
-    assert _dem(kq.van_ban.articles) == (102, 57)
+    assert (len(kq.van_ban.articles), *_dem(kq.van_ban.articles)) == (23, 97, 57)
 
 
-def test_toan_van_tho_la_TAP_CHA_cua_corpus_hien_co():
-    """Không chỉ "nhiều hơn": mọi điều của corpus đều có mặt, và có thêm `Điều 19` corpus thiếu."""
-    from app.ingestion.pipeline import load_corpus
+def test_char_span_la_thu_lam_articles_DANG_TIN():
+    """Không tin suông: `noi_dung[char_start:char_end] == text` kiểm được ngay tại đây.
 
-    docs, _ = load_corpus("data/corpus.real.json")
-    cu = next(d for d in docs if d.doc_id == "TT15-2024")
-    moi = doc_file(_TT15).van_ban
-    ten_cu = {a.article for a in cu.articles}
-    ten_moi = {a.article for a in moi.articles}
-    assert ten_cu < ten_moi
-    assert ten_moi - ten_cu == {"Điều 19"}
-    assert _dem(moi.articles) >= _dem(cu.articles)
+    Đây đúng là bất biến xuất xứ mà cả tầng ontology dựa vào, nên nguồn tự bảo đảm được nó là
+    lý do duy nhất đủ mạnh để lấy `articles[]` làm nguồn thay vì tự dựng lại.
+    """
+    raw = json.loads(_TT15.read_text(encoding="utf-8"))
+    nd = json.loads(duong_dan_toan_van(_TT15).read_text(encoding="utf-8"))["noi_dung"]
+    assert raw["articles"], "bản ghi phải có articles"
+    for a in raw["articles"]:
+        assert nd[a["char_start"] : a["char_end"]] == a["text"], a["article"]
+
+
+def test_char_span_sai_thi_TU_CHOI_ca_van_ban():
+    """Nạp một xuất xứ không kiểm được còn tệ hơn không nạp: mọi `char_span` sau đó đều trỏ sai."""
+    raw = {
+        "so_hieu": "1/2020/TT-NHNN",
+        "articles": [{"article": "Điều 1", "text": "Nội dung.", "char_start": 0, "char_end": 9}],
+    }
+    dieu, cb = dieu_tu_ban_ghi(raw, "Nội dung.")
+    assert len(dieu) == 1 and cb == []
+
+    dieu, cb = dieu_tu_ban_ghi(raw, "NỘI DUNG KHÁC HẲN.")
+    assert dieu == [], "lệch char_span thì không được nạp phần nào"
+    assert any("TỪ CHỐI" in c for c in cb)
+
+
+def test_doi_chung_bat_lai_dung_khuyet_tat_cu():
+    """Phép dựng lại từ `noi_dung` ở lại làm đối chứng — cái đã hỏng một lần thì hỏng lại được.
+
+    Dựng bản ghi mang đúng chữ ký của khuyết tật cũ: `text` mất hết `1.`/`a)`, `char_span` vẫn
+    khớp. Chỉ `char_span` thôi **không** bắt được ca này, nên cần lớp thứ hai.
+    """
+    nd = "Điều 1. Phạm vi\n1. Khoản một.\na) Điểm a.\nĐiều 2. Đối tượng\n1. Khoản một."
+    mat_so = "Phạm vi\nKhoản một.\nĐiểm a."
+    raw = {
+        "so_hieu": "1/2020/TT-NHNN",
+        "articles": [
+            {"article": "Điều 1", "text": mat_so,
+             "char_start": len(nd) + 1, "char_end": len(nd) + 1 + len(mat_so)},
+            {"article": "Điều 2", "text": "Đối tượng",
+             "char_start": len(nd) + 2 + len(mat_so), "char_end": len(nd) + 11 + len(mat_so)},
+        ],
+    }
+    dieu, cb = dieu_tu_ban_ghi(raw, nd + "\n" + mat_so + "\nĐối tượng")
+    assert len(dieu) == 2, "char_span vẫn khớp nên lớp 1 cho qua"
+    assert any("0 khoản" in c for c in cb), "lớp 2 phải bắt được"
 
 
 # --- 2. Chương/Mục: việc duy nhất cây provisions làm được ---------------------
@@ -111,14 +149,21 @@ def test_doc_id_theo_quy_uoc_corpus(so_hieu, cho):
     assert doc_id_theo_corpus(so_hieu) == cho
 
 
-def test_doc_id_trong_file_LECH_thi_bao_ra_va_theo_corpus():
-    """Bộ crawl đặt `15-2024-TT-NHNN`, corpus dùng `TT15-2024`. Theo bộ crawl ⇒ **hai node cho
-    một văn bản**, đúng kiểu hỏng mà cả lớp bắc cầu sinh ra để chặn.
+def test_bo_crawl_nay_da_theo_quy_uoc_corpus():
+    """Lượt đầu bộ crawl đặt `15-2024-TT-NHNN` — theo nó ⇒ **hai node cho một văn bản**. Lượt
+    này nó đã theo `TT15-2024`, nên không còn cảnh báo nào để bắn.
     """
     kq = doc_file(_TT15)
-    assert kq.doc_id_trong_file == "15-2024-TT-NHNN"
+    assert kq.doc_id_trong_file == "TT15-2024"
     assert kq.van_ban.doc_id == "TT15-2024"
-    assert any("quy ước corpus" in c for c in kq.canh_bao)
+    assert not any("quy ước corpus" in c for c in kq.canh_bao)
+
+
+def test_neu_nguon_lech_quy_uoc_lan_nua_thi_van_bao_ra():
+    """Chốt chặn phải còn sống kể cả khi hiện không ca nào chạm tới — nguồn đổi lại được."""
+    from app.ingestion.vbpl_corpus import doc_id_theo_corpus
+
+    assert doc_id_theo_corpus("15/2024/TT-NHNN") == "TT15-2024" != "15-2024-TT-NHNN"
 
 
 # --- 4. Không có toàn văn thì KHÔNG giả vờ là có -----------------------------
@@ -132,7 +177,19 @@ def test_van_ban_khong_co_toan_van_thi_giu_lam_node_rong():
     assert any("0 điều" in c for c in kq.canh_bao)
 
 
-def test_thieu_ban_ghi_tho_thi_TU_CHOI_chu_khong_lui_ve_articles_san_co():
-    """Lùi về `articles` sẵn có là lặng lẽ nạp một văn bản mất sạch khoản/điểm."""
-    assert duong_dan_toan_van(_TT15).name.endswith("-t.json")
-    assert not duong_dan_toan_van(_TT15).name.endswith(".corpus.json")
+def test_thieu_ban_ghi_tho_thi_TU_CHOI_chu_khong_bo_qua_kiem_tra():
+    """Không có `noi_dung` thì không kiểm được `char_span` — mà đó là điều kiện để tin `articles[]`."""
+    assert duong_dan_toan_van(_TT15).exists()
+    assert "noi_dung" in json.loads(duong_dan_toan_van(_TT15).read_text(encoding="utf-8"))
+
+
+@pytest.mark.parametrize(
+    ("duong_dan", "cho"),
+    [
+        ("data/raw/vbpl/corpus/x.json", "data/raw/vbpl/raw/x.json"),   # bố cục thư mục
+        ("data/raw/vbpl/x.corpus.json", "data/raw/vbpl/x.json"),       # bố cục phẳng, lượt đầu
+    ],
+)
+def test_hai_bo_cuc_thu_muc_deu_tim_duoc_ban_ghi_tho(duong_dan, cho):
+    """Bộ đọc chỉ hiểu một bố cục thì lần đổi sau nó đọc ra **0 văn bản mà không kêu**."""
+    assert duong_dan_toan_van(Path(duong_dan)).as_posix() == cho

@@ -23,9 +23,22 @@ from app.ingestion.bac_cau import (
     thieu_toan_van,
 )
 from app.ingestion.pipeline import load_corpus
+from app.ingestion.vbpl_corpus import tho_theo_so_hieu
 from app.ingestion.vbpl_luoc_do import doc_luoc_do, tieu_de_theo_so_hieu
 
-_SAMPLE = Path("data/raw/vbpl/sample.json")
+#: Tra theo số hiệu, KHÔNG theo đường dẫn cứng — xem `tho_theo_so_hieu`. Đường dẫn cứng đã ba
+#: lần đổi và mỗi lần lại lặng lẽ chuyển cả nhóm test này sang skip.
+_GOC = Path("data/raw/vbpl")
+_ND52, _TT40 = "52/2024/NĐ-CP", "40/2024/TT-NHNN"
+
+
+def _tho(so_hieu: str) -> dict:
+    return json.loads(tho_theo_so_hieu(_GOC)[so_hieu].read_text(encoding="utf-8"))
+
+
+def _thieu(*so_hieu: str) -> bool:
+    bang = tho_theo_so_hieu(_GOC)
+    return any(s not in bang for s in so_hieu)
 
 
 def _vb(doc_id: str, so_hieu: str | None = None) -> DocumentMeta:
@@ -151,12 +164,12 @@ def test_ghi_ro_vai_cua_van_ban_con_thieu():
 # --- 4. Trên dữ liệu THẬT -----------------------------------------------------
 
 
-@pytest.mark.skipif(not _SAMPLE.exists(), reason="chưa có mẫu vbpl")
+@pytest.mark.skipif(_thieu(_ND52), reason="chưa crawl bản ghi vbpl của ND52")
 def test_corpus_that_cong_luoc_do_that():
     """Con số đóng lại toàn bộ việc này: 48 cạnh vào, 18 nối hai văn bản có toàn văn,
     30 nối vào node rỗng, **0 cạnh bị mất**."""
     docs, rels_corpus = load_corpus("data/corpus.real.json")
-    mau = json.loads(_SAMPLE.read_text(encoding="utf-8"))
+    mau = _tho(_ND52)
     canh_vbpl, _ = doc_luoc_do(mau)
     rels = rels_corpus + canh_vbpl
     canh, rong, cb = quy_ve_doc_id(rels, docs, tieu_de_theo_so_hieu(mau))
@@ -169,31 +182,29 @@ def test_corpus_that_cong_luoc_do_that():
     assert sum(1 for c in canh if c.source_doc in co and c.target_doc in co) == 18
 
 
-@pytest.mark.skipif(not _SAMPLE.exists(), reason="chưa có mẫu vbpl")
 def test_moi_van_ban_corpus_deu_khai_so_hieu():
     """Thiếu `so_hieu` là văn bản đó đứng ngoài cầu — cạnh trỏ tới nó thành node rỗng TRÙNG."""
     docs, _ = load_corpus("data/corpus.real.json")
     assert [d.doc_id for d in docs if not d.so_hieu] == []
 
 
-@pytest.mark.skipif(not _SAMPLE.exists(), reason="chưa có mẫu vbpl")
+@pytest.mark.skipif(_thieu(_ND52), reason="chưa crawl bản ghi vbpl của ND52")
 def test_ca_BAI_BO_that_dung_dau_danh_sach_crawl():
-    """`16/2019/NĐ-CP` là instance `BAI_BO` DUY NHẤT có thật, và nó chưa có toàn văn —
-    tức ca kiểm chứng §6.2 (*khoảng trống lập pháp*) đang chờ đúng một văn bản này."""
+    """`16/2019/NĐ-CP` là instance `BAI_BO` DUY NHẤT có thật, và **corpus** chưa có toàn văn —
+    tức ca kiểm chứng §6.2 (*khoảng trống lập pháp*) đang chờ đúng một văn bản này.
+
+    Chỉ tính corpus, cố ý: `data/raw/vbpl/` nay ĐÃ có bản crawl của ND16/2019, nhưng chừng nào
+    nó chưa được nạp vào corpus thì truy vấn §6.2 vẫn trả rỗng. Test canh cái chặn thật.
+    """
     docs, rels_corpus = load_corpus("data/corpus.real.json")
-    mau = json.loads(_SAMPLE.read_text(encoding="utf-8"))
+    mau = _tho(_ND52)
     canh_vbpl, _ = doc_luoc_do(mau)
     ds = thieu_toan_van(rels_corpus + canh_vbpl, docs, tieu_de_theo_so_hieu(mau))
     assert ds[0].so_hieu == "16/2019/NĐ-CP"
     assert ds[0].uu_tien == 0
 
 
-_SAMPLE_V2 = Path("data/raw/vbpl/sample_v2.json")
-
-
-@pytest.mark.skipif(
-    not (_SAMPLE.exists() and _SAMPLE_V2.exists()), reason="cần cả hai bản ghi vbpl"
-)
+@pytest.mark.skipif(_thieu(_ND52, _TT40), reason="cần bản ghi vbpl của cả ND52 và TT40")
 def test_mot_luoc_do_KHONG_du_de_biet_van_ban_da_bi_sua_chua():
     """Lược đồ của một văn bản chỉ chứa quan hệ **với chính nó** — và điều đó che mất sự thật.
 
@@ -205,10 +216,10 @@ def test_mot_luoc_do_KHONG_du_de_biet_van_ban_da_bi_sua_chua():
     """
     docs, rels_corpus = load_corpus("data/corpus.real.json")
 
-    # Neo vào ĐÚNG hai file, không phải cả thư mục: thư mục lớn dần theo mỗi đợt crawl, và một
-    # test đổi kết quả theo số file thì không còn kiểm được điều nó định kiểm.
-    chi_nd52, _ = doc_luoc_do(json.loads(_SAMPLE.read_text(encoding="utf-8")))
-    tt40, _ = doc_luoc_do(json.loads(_SAMPLE_V2.read_text(encoding="utf-8")))
+    # Neo vào ĐÚNG hai văn bản, không phải cả thư mục: thư mục lớn dần theo mỗi đợt crawl, và
+    # một test đổi kết quả theo số file thì không còn kiểm được điều nó định kiểm.
+    chi_nd52, _ = doc_luoc_do(_tho(_ND52))
+    tt40, _ = doc_luoc_do(_tho(_TT40))
 
     ds1 = {d.so_hieu: d for d in thieu_toan_van(rels_corpus + chi_nd52, docs)}
     assert [m for m, _ in ds1["41/2025/TT-NHNN"].quan_he] == ["CAN_CU"]
@@ -219,10 +230,9 @@ def test_mot_luoc_do_KHONG_du_de_biet_van_ban_da_bi_sua_chua():
     assert ds2["41/2025/TT-NHNN"].uu_tien == 1, "hai lược đồ ⇒ hoá ra nó SỬA ĐỔI corpus"
 
 
-@pytest.mark.skipif(not _SAMPLE.exists(), reason="chưa có mẫu vbpl")
+@pytest.mark.skipif(_thieu(_ND52), reason="chưa crawl bản ghi vbpl của ND52")
 def test_homoglyph_duoc_sua_o_KHOA_nhung_giu_nguyen_o_TIEU_DE():
     """Khoá phải sạch để join đúng; tiêu đề là **bản gốc**, sửa nó là sửa dữ liệu nguồn."""
-    mau = json.loads(_SAMPLE.read_text(encoding="utf-8"))
-    td = tieu_de_theo_so_hieu(mau)
+    td = tieu_de_theo_so_hieu(_tho(_ND52))
     assert "51/2025/TT-BTC" in td
     assert "TT-BTС" in td["51/2025/TT-BTC"], "С Cyrillic (U+0421) còn nguyên trong tiêu đề"

@@ -6,6 +6,21 @@
 
 ---
 
+## 2026-08-04 (T3) — đợt 2: nhận dữ liệu crawl lại
+
+- **Done (kiểm độc lập báo cáo của crawler).** Không lấy báo cáo làm bằng, đếm lại khoản/điểm từ `articles[]` **và** từ `noi_dung` cho cả 9 văn bản: **8/9 khớp bảng nghiệm thu**. Ca lệch duy nhất là TT40 — **216 điểm, không phải 218 như tôi đưa**. Truy bằng chính file cũ trong git: bản cũ có điểm `đ` và `i` **lặp** ở cuối Điều 37 khoản 1, bản mới bỏ đúng hai cái đó. ⇒ **số của tôi sai**, vì phép khử trùng lúc tôi đo chỉ xử lý dòng khoản `^\d+\.` mà bỏ sót dòng điểm.
+- **Done (`articles[]` đảo vai từ "không được dùng" thành NGUỒN).** Đo được ba điều: `char_span` khớp `noi_dung` **8/8 văn bản, 100% số điều**; số khoản/điểm khớp bảng; `chapter`/`section` đầy đủ ở mọi văn bản **có** Chương (ND52 38/38 · TT40 54/54 · TT15 23/23 — các văn bản còn 0 đều là văn bản sửa đổi ngắn, cây cũng không có Chương nào).
+  - Lý do đủ mạnh để tin là **nguồn tự bảo đảm đúng bất biến xuất xứ mà tầng ontology dựa vào**, và nó **kiểm được ngay tại chỗ nạp** — không phải tin suông.
+  - Phép dựng lại từ `noi_dung` **ở lại làm đối chứng**, không xoá: cái đã hỏng một lần thì hỏng lại được, và kiểu hỏng của nó là im lặng (0 khoản trông y hệt một điều không chẻ khoản). `dieu_tu_ban_ghi` kiểm **hai lớp** — `char_span` sai ⇒ **từ chối cả văn bản**; số khoản/điểm lệch ⇒ cảnh báo. Có test dựng bản ghi mang đúng chữ ký khuyết tật cũ (mất đánh số nhưng `char_span` vẫn khớp) để chứng minh lớp 1 **không** đủ.
+- **Done (sửa lỗi của chính tôi — đổi bố cục thư mục làm hai bộ đọc câm).** Bộ crawl chuyển sang `raw/` + `corpus/`, cả `_doc_vbpl` lẫn `doc_thu_muc` còn quét phẳng ⇒ đọc ra **0 cạnh**, và công cụ in *"0 văn bản cần crawl"* — **đọc như đã xong hết, tức đúng nghĩa ngược lại**. Cùng lúc **42 test lặng lẽ chuyển sang skip** vì `skipif` trỏ đường dẫn cứng: suite vẫn báo xanh trong khi không kiểm gì.
+  - Sửa tận gốc chứ không vá đường dẫn: `tho_theo_so_hieu()` tra bản ghi theo **số hiệu nằm trong file**. Tên file đã đổi ba lần (`sample.json` → `<slug>.json` → `raw/<slug>.json`), số hiệu thì không đổi theo cách xếp file.
+  - Thêm chốt: thư mục **có file mà không nhận ra bản ghi nào** thì kêu. *Rỗng-vì-không-tìm-thấy* và *rỗng-vì-không-còn-gì* không được in ra giống nhau.
+  - **495 test, 0 skip** (trước đợt này: 446 pass + 42 skip).
+- **Decision:** chưa nạp 7 văn bản vào corpus. Không phải vì dữ liệu xấu — mà vì TT15 crawl lại **khác corpus ở 9/22 điều** và corpus đang **sai** ở đó (Điều 18 nuốt trọn Điều 19). Nạp đè là việc riêng, cần đo trước từng điều.
+- **Next:** nạp 7 văn bản (đầu tiên là `16/2019/NĐ-CP` — mở khoá ca §6.2); crawl tiếp theo `docs/CAN-CRAWL.md` (**68 văn bản**, `30/2016/TT-NHNN` và `58/2021/NĐ-CP` đứng mức GẤP vì mang `BAI_BO`); dựng lại instance Neo4j.
+
+---
+
 ## 2026-08-04 (T3)
 
 **Giai đoạn:** chuẩn hoá **số hiệu văn bản**, bắc cầu `so_hieu` ↔ `doc_id`, **node rỗng**, và soát tồn đọng schema cũ.

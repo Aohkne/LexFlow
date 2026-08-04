@@ -3,7 +3,11 @@
  "title": "Văn bản hợp nhất 29/VBHN-NHNN của Ngân hàng Nhà nước Việt Nam",
  "trang_thai": null,
  "ngay_hieu_luc": "2025-12-08",
- "noi_dung": "Văn bản hợp nhất số 29/VBHN-NHNN Quy định về hoạt động cung ứng dịch vụ trung gian thanh toán\nSố hiệu\n29/VBHN-NHNN\nLoại văn bản\nVăn bản hợp nhất\nNgành\n--\nNgày ký xác thực\n08/12/2025\nLĩnh vực\n--\nNgày có hiệu lực\n08/12/2025\nNgày hết hiệu lực\n--\nCơ quan ban hành\nNgân hàng Nhà nước Việt Nam\nChức danh\nPhó Thống đốc\nNgười ký\nĐoàn Thái Sơn",
+ "co_toan_van": false,
+ "canh_bao": [
+  "nguồn không đăng toàn văn (chỉ có thuộc tính/lược đồ) — toàn văn nhiều khả năng chỉ nằm trong tệp đính kèm, cần tìm nguồn khác nếu muốn thân văn bản"
+ ],
+ "noi_dung": "",
  "noi_dung_html": "",
  "cay_dieu_khoan": [],
  "thuoc_tinh": {
@@ -17,6 +21,23 @@
   "chuc_danh": "Phó Thống đốc",
   "nguoi_ky": "Đoàn Thái Sơn"
  },
+ "tep_dinh_kem": [
+  {
+   "ten": "29.2025.VBHN.NHNN.pdf",
+   "kich_thuoc": "9.01MB",
+   "url": "https://vbpl-bientap-gateway.moj.gov.vn/api/qtdc/public/doc/minio/buckets/vbpl/186078/29.2025.VBHN.NHNN.pdf/download"
+  },
+  {
+   "ten": "tvHienThiToanVan_29.2025.VBHN.NHNN.pdf",
+   "kich_thuoc": "9.01MB",
+   "url": "https://vbpl-bientap-gateway.moj.gov.vn/api/qtdc/public/doc/minio/buckets/vbpl/186078/tvHienThiToanVan_29.2025.VBHN.NHNN.pdf/download"
+  },
+  {
+   "ten": "tvVanBanGoc_29.2025.VBHN.NHNN.pdf",
+   "kich_thuoc": "9.01MB",
+   "url": "https://vbpl-bientap-gateway.moj.gov.vn/api/qtdc/public/doc/minio/buckets/vbpl/186078/tvVanBanGoc_29.2025.VBHN.NHNN.pdf/download"
+  }
+ ],
  "luoc_do": {
   "outgoing": {
    "Văn bản được hợp nhất": [

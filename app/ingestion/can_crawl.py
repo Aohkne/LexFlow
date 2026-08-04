@@ -27,7 +27,7 @@ from app.core.schemas import DocumentMeta, Relationship
 from app.core.so_hieu import phan_tich
 from app.ingestion.bac_cau import CanCrawl, thieu_toan_van
 from app.ingestion.pipeline import load_corpus
-from app.ingestion.vbpl_corpus import doc_thu_muc
+from app.ingestion.vbpl_corpus import doc_thu_muc, file_tho
 from app.ingestion.vbpl_luoc_do import UNG_VIEN_RE, doc_luoc_do, tieu_de_theo_so_hieu
 
 MUC_TEN = {0: "GẤP", 1: "cao", 2: "vừa", 3: "thấp"}
@@ -57,6 +57,11 @@ def _doc_vbpl(thu_muc: Path) -> tuple[list[Relationship], dict[str, str], list[s
     **Khử trùng theo số hiệu.** Một văn bản có thể nằm ở hai file (bản crawl theo slug và bản
     chép tay để làm mẫu test). Không khử thì mỗi cạnh của nó **đếm hai lần** — và đây là lỗi
     đọc thầm lặng nhất trong cả luồng, vì kết quả vẫn "chạy được", chỉ là sai số.
+
+    **Thư mục có file mà không nhận ra bản ghi nào thì phải KÊU.** Đã xảy ra thật: bộ crawl đổi
+    bố cục sang `raw/` + `corpus/`, hàm này còn quét phẳng nên đọc ra 0 cạnh, và công cụ in ra
+    *"0 văn bản cần crawl"* — đọc như **đã xong hết**, tức đúng nghĩa ngược lại. Rỗng-vì-không-
+    tìm-thấy và rỗng-vì-không-còn-gì là hai chuyện khác nhau, không được để chúng in ra giống nhau.
     """
     canh: list[Relationship] = []
     tieu_de: dict[str, str] = {}
@@ -64,8 +69,9 @@ def _doc_vbpl(thu_muc: Path) -> tuple[list[Relationship], dict[str, str], list[s
     #: số hiệu → (số mục lược đồ, tên file, cạnh, tiêu đề). Giữ bản ghi NHIỀU lược đồ hơn:
     #: hai bản của cùng một văn bản chỉ khác nhau vì crawl khác thời điểm.
     theo_sh: dict[str, tuple[int, str, list[Relationship], dict[str, str]]] = {}
+    ds_file = file_tho(thu_muc)
 
-    for p in sorted(thu_muc.glob("*.json")) if thu_muc.exists() else []:
+    for p in ds_file:
         mau = json.loads(p.read_text(encoding="utf-8"))
         if not la_ban_ghi_vbpl(mau):
             continue
@@ -81,6 +87,11 @@ def _doc_vbpl(thu_muc: Path) -> tuple[list[Relationship], dict[str, str], list[s
         elif n < cu[0] or p.name != cu[1]:
             canh_bao.append(f"{goc}: bỏ qua {p.name!r} ({n} mục) vì đã có {cu[1]!r} ({cu[0]} mục)")
 
+    if ds_file and not theo_sh:
+        canh_bao.append(
+            f"KHÔNG nhận ra bản ghi vbpl nào trong {len(ds_file)} file ở {thu_muc}/ — bố cục thư "
+            f"mục có thể đã đổi. Đây KHÔNG phải 'không còn gì để crawl'"
+        )
     for _, _, c, td in theo_sh.values():
         canh += c
         for k, v in td.items():
