@@ -202,6 +202,13 @@ export type DocumentSummary = {
   status: "con_hieu_luc" | "het_hieu_luc";
 };
 
+export type SourceFile = {
+  ten: string;
+  kich_thuoc: string | null;
+  // null = biết là có file nhưng chưa lấy được link tải
+  url: string | null;
+};
+
 export type DocumentDetail = {
   doc_id: string;
   title: string;
@@ -209,11 +216,47 @@ export type DocumentDetail = {
   source: string;
   valid_from: string | null;
   valid_to: string | null;
+  // Thuộc tính — corpus duyệt từ trước không có, nên đều có thể null
+  so_hieu: string | null;
+  co_quan_ban_hanh: string | null;
+  nguoi_ky: string | null;
+  chuc_danh: string | null;
+  nganh: string | null;
+  linh_vuc: string | null;
+  ngay_ban_hanh: string | null;
+  tinh_trang_hieu_luc: string | null;
+  source_url: string | null;
+  source_files: SourceFile[];
   articles: Article[];
   relationships_out: Relationship[];
   relationships_in: Relationship[];
   doc_titles: Record<string, string>;
 };
+
+/**
+ * Tải file gốc về máy.
+ *
+ * Không dùng thẻ <a download> trực tiếp được: endpoint tải nằm sau xác thực Bearer mà thẻ
+ * <a> không gửi được header. Nên fetch kèm header rồi lưu qua blob URL.
+ * Link tuyệt đối (bản gốc trên vbpl.vn) thì mở thẳng, không cần đi qua API.
+ */
+export async function downloadSourceFile(file: SourceFile): Promise<void> {
+  if (!file.url) throw new Error("File này chưa có link tải");
+  if (file.url.startsWith("http")) {
+    window.open(file.url, "_blank", "noopener");
+    return;
+  }
+  const res = await fetch(`${API_BASE}${file.url}`, { headers: await authHeaders() });
+  if (!res.ok) {
+    throw new Error((await res.json().catch(() => null))?.detail ?? res.statusText);
+  }
+  const blobUrl = URL.createObjectURL(await res.blob());
+  const a = document.createElement("a");
+  a.href = blobUrl;
+  a.download = file.ten;
+  a.click();
+  URL.revokeObjectURL(blobUrl);
+}
 
 export async function listDocuments(): Promise<DocumentSummary[]> {
   const res = await fetch(`${API_BASE}/documents`, { headers: await authHeaders() });

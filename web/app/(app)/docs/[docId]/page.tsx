@@ -4,7 +4,12 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import PageShell from "@/components/page-shell";
-import { getDocument, type DocumentDetail } from "@/lib/api";
+import {
+  downloadSourceFile,
+  getDocument,
+  type DocumentDetail,
+  type SourceFile,
+} from "@/lib/api";
 import {
   articleAnchor,
   buildAmendmentMap,
@@ -17,7 +22,7 @@ export default function DocViewerPage() {
   const docId = decodeURIComponent(params.docId);
   const [doc, setDoc] = useState<DocumentDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [tab, setTab] = useState<"content" | "schema">("content");
+  const [tab, setTab] = useState<"content" | "properties" | "schema">("content");
 
   useEffect(() => {
     getDocument(docId)
@@ -94,6 +99,7 @@ export default function DocViewerPage() {
         {(
           [
             ["content", "Nội dung"],
+            ["properties", "Thuộc tính"],
             ["schema", "Lược đồ"],
           ] as const
         ).map(([key, label]) => (
@@ -109,11 +115,9 @@ export default function DocViewerPage() {
         ))}
       </div>
 
-      {tab === "content" ? (
-        <ContentTab doc={doc} amendments={amendments} />
-      ) : (
-        <SchemaTab doc={doc} />
-      )}
+      {tab === "content" && <ContentTab doc={doc} amendments={amendments} />}
+      {tab === "properties" && <PropertiesTab doc={doc} />}
+      {tab === "schema" && <SchemaTab doc={doc} />}
     </div>
     </PageShell>
   );
@@ -207,6 +211,126 @@ function ContentTab({
         );
       })}
     </div>
+  );
+}
+
+// Thứ tự hiển thị bám theo bảng Thuộc tính của vbpl.vn để người dùng đối chiếu được.
+const PROPERTY_ROWS: [label: string, key: keyof DocumentDetail][] = [
+  ["Số hiệu", "so_hieu"],
+  ["Loại văn bản", "doc_type"],
+  ["Ngành", "nganh"],
+  ["Ngày ban hành", "ngay_ban_hanh"],
+  ["Lĩnh vực", "linh_vuc"],
+  ["Ngày có hiệu lực", "valid_from"],
+  ["Tình trạng hiệu lực", "tinh_trang_hieu_luc"],
+  ["Ngày hết hiệu lực", "valid_to"],
+  ["Cơ quan ban hành", "co_quan_ban_hanh"],
+  ["Chức danh", "chuc_danh"],
+  ["Người ký", "nguoi_ky"],
+];
+
+function PropertiesTab({ doc }: { doc: DocumentDetail }) {
+  const rows = PROPERTY_ROWS.map(([label, key]) => {
+    const raw = doc[key];
+    return { label, value: typeof raw === "string" && raw.trim() ? raw : null };
+  });
+  const known = rows.filter((r) => r.value !== null).length;
+
+  return (
+    <div className="mt-4 space-y-4">
+      {known === 0 && (
+        <p className="rounded-lg border border-border bg-panel px-4 py-3 text-sm text-dim">
+          Văn bản này chưa có thuộc tính chi tiết — bản ghi được duyệt trước khi hệ thống lưu
+          nhóm trường này. Nội dung và lược đồ vẫn đầy đủ.
+        </p>
+      )}
+      <section className="overflow-hidden rounded-xl border border-border bg-panel">
+        <h2 className="border-b border-border px-4 py-2 text-xs font-semibold uppercase tracking-wide text-dim">
+          Thuộc tính
+        </h2>
+        <dl className="grid grid-cols-1 sm:grid-cols-2">
+          {rows.map(({ label, value }) => (
+            <div
+              key={label}
+              className="flex gap-3 border-b border-border px-4 py-2.5 last:border-b-0 sm:odd:border-r"
+            >
+              <dt className="w-40 shrink-0 text-xs text-dim">{label}</dt>
+              <dd className={`text-sm ${value ? "" : "text-faint"}`}>{value ?? "—"}</dd>
+            </div>
+          ))}
+        </dl>
+      </section>
+
+      <SourceFiles doc={doc} />
+    </div>
+  );
+}
+
+function SourceFiles({ doc }: { doc: DocumentDetail }) {
+  const [busy, setBusy] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  async function onDownload(file: SourceFile) {
+    setError(null);
+    setBusy(file.ten);
+    try {
+      await downloadSourceFile(file);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Tải file thất bại");
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  return (
+    <section className="rounded-xl border border-border bg-panel p-4">
+      <h2 className="text-xs font-semibold uppercase tracking-wide text-dim">Văn bản gốc</h2>
+
+      {doc.source_url && (
+        <a
+          href={doc.source_url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-2 inline-block text-sm text-accent-dim underline decoration-dotted hover:text-accent"
+        >
+          Xem bản gốc tại nguồn ↗
+        </a>
+      )}
+
+      {doc.source_files.length === 0 ? (
+        <p className="mt-2 text-sm text-faint">Chưa có file gốc đính kèm văn bản này.</p>
+      ) : (
+        <ul className="mt-2 space-y-2">
+          {doc.source_files.map((f) => (
+            <li
+              key={f.ten}
+              className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-background px-3 py-2"
+            >
+              <span className="min-w-0 flex-1 truncate text-sm">{f.ten}</span>
+              {f.kich_thuoc && <span className="mono text-xs text-faint">{f.kich_thuoc}</span>}
+              {f.url ? (
+                <button
+                  onClick={() => onDownload(f)}
+                  disabled={busy === f.ten}
+                  className="rounded-md border border-accent px-3 py-1 text-xs text-accent-dim transition-colors hover:bg-accent hover:text-white disabled:opacity-50"
+                >
+                  {busy === f.ten ? "Đang tải…" : "Tải về"}
+                </button>
+              ) : (
+                // Biết là có file nhưng nguồn không cho link — nói rõ thay vì nút bấm không chạy
+                <span className="text-xs text-faint">chưa có link tải</span>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {error && (
+        <div className="mt-2 rounded-lg border border-red-bd bg-red-bg px-3 py-2 text-xs text-red">
+          {error}
+        </div>
+      )}
+    </section>
   );
 }
 

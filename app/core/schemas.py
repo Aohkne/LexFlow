@@ -27,8 +27,20 @@ class Relationship(BaseModel):
     anchors: list[RelAnchor] = Field(default_factory=list)
 
 
+class SourceFile(BaseModel):
+    """Một file bản gốc kèm theo văn bản (PDF scan, .doc, phụ lục...)."""
+
+    ten: str  # tên file hiển thị
+    kich_thuoc: str | None = None  # "10.79MB" — giữ chuỗi vì nguồn cho sẵn dạng này
+    url: str | None = None  # None = biết có file nhưng chưa lấy được link tải
+
+
 class DocumentMeta(BaseModel):
-    """Metadata một văn bản pháp lý (hoặc tài liệu nội bộ)."""
+    """Metadata một văn bản pháp lý (hoặc tài liệu nội bộ).
+
+    Nhóm thuộc tính và bản gốc bên dưới đều optional: corpus đã duyệt từ trước không có
+    các trường này, thêm vào không được làm hỏng bản ghi cũ.
+    """
 
     doc_id: str
     title: str
@@ -36,6 +48,20 @@ class DocumentMeta(BaseModel):
     source: str = "external"  # external (luật) | internal (nội bộ ngân hàng)
     valid_from: str | None = None  # ISO date ngày hiệu lực
     valid_to: str | None = None  # ISO date ngày hết hiệu lực; None = còn hiệu lực
+
+    # --- Thuộc tính (khớp bảng Thuộc tính của vbpl.vn) ---
+    so_hieu: str | None = None  # "15/2024/TT-NHNN"
+    co_quan_ban_hanh: str | None = None
+    nguoi_ky: str | None = None
+    chuc_danh: str | None = None
+    nganh: str | None = None
+    linh_vuc: str | None = None
+    ngay_ban_hanh: str | None = None  # ISO date
+    tinh_trang_hieu_luc: str | None = None  # "Còn hiệu lực" | "Hết hiệu lực một phần" | ...
+
+    # --- Bản gốc ---
+    source_url: str | None = None  # trang gốc (vbpl.vn) để đối chiếu
+    source_files: list[SourceFile] = Field(default_factory=list)  # file gốc đính kèm
 
 
 class Article(BaseModel):
