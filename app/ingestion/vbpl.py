@@ -274,6 +274,79 @@ _JS_AMENDMENTS = r"""() => {
   return out;
 }"""
 
+# HTML vùng nội dung, giữ nguyên định dạng hiển thị (đậm/nghiêng/căn lề/ngắt dòng) và cấu
+# trúc prov-* + id/parent-id. Chỉ bỏ thứ không phải văn bản: script, style, svg, nút bấm.
+# Giữ luôn các phần tử display:none (bản trước khi sửa đổi) — render ra vẫn ẩn đúng như
+# web, mà ai cần đối chiếu bản cũ thì vẫn còn dữ liệu.
+_JS_CONTENT_HTML = r"""() => {
+  const main = document.querySelector('main');
+  if (!main) return '';
+  const provs = [...main.querySelectorAll('[class*="prov-"]')];
+  if (!provs.length) return '';
+  let root = provs[0];
+  while (root && root !== main && !provs.every(p => root.contains(p))) root = root.parentElement;
+  const clone = root.cloneNode(true);
+  // ghi nhãn sửa đổi thành attribute TRƯỚC khi xoá nút
+  for (const el of clone.querySelectorAll('[type]')) {
+    const t = el.getAttribute('type') || '';
+    if (!/^\d+:/.test(t)) continue;
+    const badges = [...new Set(
+      [...el.querySelectorAll('button')].map(b => b.innerText.trim()).filter(Boolean)
+    )];
+    if (badges.length) el.setAttribute('data-amend-label', badges.join('|'));
+    el.setAttribute('data-amend-type', t);
+    el.removeAttribute('type');
+  }
+  for (const el of clone.querySelectorAll('script,style,svg,button,nav,noscript,input'))
+    el.remove();
+  return clone.innerHTML;
+}"""
+
+# Danh sách PHẲNG các nút điều khoản, đúng thứ tự tài liệu. Ghép thành cây ở phía Python
+# để phần logic đó test được mà không cần trình duyệt.
+_JS_PROVISION_NODES = r"""() => {
+  const main = document.querySelector('main');
+  if (!main) return [];
+  const badgesOf = (el) => [...new Set(
+    [...el.querySelectorAll('button')].map(b => b.innerText.trim()).filter(Boolean)
+  )];
+  const out = [];
+  // Lấy cả phần tử prov-* LẪN khối sửa đổi, theo đúng thứ tự tài liệu. Khi văn bản sửa đổi
+  // thay nguyên một Điều, tiêu đề Điều mới nằm trong khối và KHÔNG mang class prov-article
+  // (trang chỉ có 20 prov-article cho 23 Điều) — phải sinh nút thay cho nó, nếu không mọi
+  // khoản phía sau bị treo nhầm vào Điều liền trước.
+  for (const el of main.querySelectorAll('[class*="prov-"], [type]')) {
+    const t = el.getAttribute('type') || '';
+    if (/^\d+:/.test(t)) {
+      const stripped = (el.innerText || '').trim().replace(/^(Điều khoản [^\n]*\n)+/, '');
+      const first = stripped.split('\n')[0].trim();
+      if (/^Điều\s+\d+\s*\./.test(first)) {
+        out.push({
+          id: null, cls: 'prov-article', parent_id: null, tu_sinh: true,
+          hidden: getComputedStyle(el).display === 'none',
+          amend_type: t, amend_badges: badgesOf(el), text: first,
+        });
+      }
+      continue;
+    }
+    const cls = [...el.classList].find(c => c.startsWith('prov-'));
+    if (!cls) continue;
+    const block = el.closest('[type]');
+    const bt = block?.getAttribute('type') || '';
+    const inBlock = /^\d+:/.test(bt);
+    out.push({
+      id: el.id || null,
+      cls,
+      parent_id: el.getAttribute('parent-id'),
+      hidden: getComputedStyle(el).display === 'none',
+      amend_type: inBlock ? bt : null,
+      amend_badges: inBlock ? badgesOf(block) : [],
+      text: (el.innerText || '').trim().replace(/\s*\n\s*/g, ' '),
+    });
+  }
+  return out;
+}"""
+
 _JS_PROP_ROWS = r"""() => [...document.querySelectorAll('main table tr')]
     .map(tr => [...tr.querySelectorAll('td,th')].map(td => td.innerText.trim()))
     .filter(cells => cells.some(c => c))"""
@@ -369,6 +442,124 @@ def parse_relations(luoc_do_text: str) -> dict[str, dict[str, list[str]]]:
     return out
 
 
+# class trên trang → (tên cấp, độ sâu). Độ sâu quyết định ai là con của ai.
+_PROV_LEVELS = {
+    "prov-chapter": ("chuong", 1),
+    "prov-section": ("muc", 2),
+    "prov-article": ("dieu", 3),
+    "prov-clause": ("khoan", 4),
+    "prov-item": ("diem", 5),
+}
+
+# Trang viết tiêu đề lúc thường lúc HOA ("Chương IV" vs "CHƯƠNG IV") → khớp không phân biệt
+# hoa thường, nếu không số chương rơi về None.
+_HEADING_RES = {
+    "chuong": re.compile(r"^Chương\s+([IVXLCDM]+)\b\.?\s*(.*)$", re.S | re.I),
+    "muc": re.compile(r"^Mục\s+(\d+)\b\.?\s*(.*)$", re.S | re.I),
+    "dieu": re.compile(r"^Điều\s+(\d+)\s*\.?\s*(.*)$", re.S | re.I),
+    "khoan": re.compile(r"^(\d+)\s*\.\s*(.*)$", re.S),
+    "diem": re.compile(r"^([a-zđ])\s*\)\s*(.*)$", re.S | re.I),
+}
+
+
+def split_heading(cap: str, text: str) -> tuple[str | None, str]:
+    """Tách "Điều 7. Dịch vụ..." → ("7", "Dịch vụ..."). Không khớp thì trả (None, text)."""
+    m = _HEADING_RES[cap].match(text.strip())
+    if not m:
+        return None, text.strip()
+    return m.group(1), m.group(2).strip()
+
+
+def build_provision_tree(nodes: list[dict]) -> list[dict]:
+    """Danh sách phẳng prov-* (đúng thứ tự tài liệu) → cây Chương/Mục/Điều/Khoản/Điểm.
+
+    Bốn loại phần tử cần xử lý riêng:
+      - `prov-content`: đoạn nội dung nối vào nút đã có, trỏ bằng `parent-id`.
+      - phần tử cùng cấp mang `parent-id` trỏ về nút liền trước: trang tách tiêu đề làm 2
+        thẻ ("Chương I" rồi "QUY ĐỊNH CHUNG"), phải gộp lại chứ không tạo nút mới.
+      - phần tử ẩn (`display:none`): bản TRƯỚC khi sửa đổi, trang giữ lại để đối chiếu và
+        lặp y hệt bản đang hiệu lực. Bỏ khỏi cây, nếu không mỗi khoản bị sửa đếm 2 lần.
+        Bản cũ vẫn còn nguyên trong `noi_dung_html`.
+      - Điều tự sinh trùng số với Điều đang mở: khối sửa đổi xuất hiện 2 lần trong DOM nên
+        cùng một tiêu đề Điều có thể tới 2 lượt — giữ lượt đầu.
+    """
+    roots: list[dict] = []
+    stack: list[tuple[int, dict]] = []
+    by_id: dict[str, dict] = {}
+    last: dict | None = None
+
+    for raw in nodes:
+        cls, text = raw.get("cls"), (raw.get("text") or "").strip()
+        parent_id = raw.get("parent_id")
+
+        if raw.get("hidden"):
+            continue
+
+        if cls == "prov-content":
+            target = by_id.get(parent_id or "") or last
+            if target is not None and text:
+                target["text"] = f"{target['text']}\n{text}".strip()
+            continue
+
+        level_info = _PROV_LEVELS.get(cls or "")
+        if level_info is None:
+            continue
+        cap, depth = level_info
+
+        # tiêu đề bị tách làm nhiều thẻ cùng class, thẻ sau trỏ parent-id về thẻ đầu
+        merge_into = by_id.get(parent_id or "")
+        if merge_into is not None and merge_into["cap"] == cap:
+            if text:
+                merge_into["tieu_de"] = f"{merge_into['tieu_de']} {text}".strip()
+            continue
+
+        so, rest = split_heading(cap, text)
+        # cùng một Điều tới 2 lượt (bản có nhãn + bản chưa nhãn của cùng khối) → giữ lượt đầu
+        if cap == "dieu" and so is not None:
+            open_dieu = next((n for d, n in reversed(stack) if d == 3), None)
+            if open_dieu is not None and open_dieu["so"] == so:
+                if raw.get("amend_badges") and not open_dieu["bi_tac_dong"]:
+                    open_dieu["bi_tac_dong"] = sorted(
+                        {classify_badge(b) for b in raw["amend_badges"]}
+                    )
+                while stack and stack[-1][0] > 3:
+                    stack.pop()
+                last = open_dieu
+                continue
+
+        node = {
+            "id": raw.get("id"),
+            "cap": cap,
+            "so": so,
+            "tieu_de": rest if cap in ("chuong", "muc", "dieu") else "",
+            "text": "" if cap in ("chuong", "muc", "dieu") else rest,
+            "bi_tac_dong": sorted({classify_badge(b) for b in raw.get("amend_badges") or []})
+            or None,
+            "an": bool(raw.get("hidden")),
+            "con": [],
+        }
+        while stack and stack[-1][0] >= depth:
+            stack.pop()
+        (stack[-1][1]["con"] if stack else roots).append(node)
+        stack.append((depth, node))
+        if node["id"]:
+            by_id[node["id"]] = node
+        last = node
+
+    return roots
+
+
+def count_provisions(tree: list[dict]) -> dict[str, int]:
+    """Đếm số nút theo cấp — dùng để kiểm tra nhanh cây có đủ không."""
+    out: dict[str, int] = {}
+    stack = list(tree)
+    while stack:
+        n = stack.pop()
+        out[n["cap"]] = out.get(n["cap"], 0) + 1
+        stack.extend(n["con"])
+    return out
+
+
 def group_relations(items: list[dict]) -> dict[str, dict[str, list[dict]]]:
     """Danh sách phẳng các mục Lược đồ → {chiều: {nhóm: [{title, url}]}}.
 
@@ -461,6 +652,8 @@ def fetch_document(url: str) -> dict:
             _wait_for_content(page)
             title = page.title().split(" | CSDL")[0].strip()
             main_text = page.evaluate(_JS_MAIN_TEXT)
+            content_html = page.evaluate(_JS_CONTENT_HTML)
+            prov_nodes = page.evaluate(_JS_PROVISION_NODES)
             amendments = _dedupe_amendments(page.evaluate(_JS_AMENDMENTS))
 
             _open_tab(page, url, _TAB_THUOC_TINH_URL, "Số hiệu")
@@ -484,7 +677,11 @@ def fetch_document(url: str) -> dict:
         "title": title,
         "trang_thai": status,
         "ngay_hieu_luc": _iso_date(valid_from),
+        # 3 dạng của cùng một nội dung: text thuần cho pipeline extract hiện có, HTML giữ
+        # đúng định dạng web để hiển thị lại, và cây có cấu trúc cho KG.
         "noi_dung": body,
+        "noi_dung_html": content_html,
+        "cay_dieu_khoan": build_provision_tree(prov_nodes),
         "thuoc_tinh": properties,
         # DOM cho cả URL đích; chỉ khi không bóc được mục nào mới lùi về đọc text thuần
         # (giữ được tiêu đề, mất URL).
@@ -611,6 +808,9 @@ def main(argv: list[str] | None = None) -> None:
         n_amend = len(doc["dieu_khoan_bi_tac_dong"])
         kinds = Counter(k for a in doc["dieu_khoan_bi_tac_dong"] for k in a["phan_loai"])
         print(f"[vbpl] Đã lưu {out_path}")
+        print(f"[vbpl] Nội dung   : {len(doc['noi_dung'])} ký tự text | "
+              f"{len(doc['noi_dung_html'])} ký tự HTML")
+        print(f"[vbpl] Cây điều khoản: {count_provisions(doc['cay_dieu_khoan'])}")
         print(f"[vbpl] Thuộc tính : {len(doc['thuoc_tinh'])} trường")
         print(f"[vbpl] Điều khoản bị tác động: {n_amend} — {dict(kinds)}")
         print("[vbpl] Lược đồ:")

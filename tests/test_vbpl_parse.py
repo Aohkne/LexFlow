@@ -4,12 +4,39 @@ Dữ liệu vào là bản chụp thật từ Thông tư 15/2024/TT-NHNN (tab Th
 """
 from app.ingestion.vbpl import (
     _dedupe_amendments,
+    build_provision_tree,
     classify_badge,
     clean_body,
+    count_provisions,
     group_relations,
     parse_property_rows,
     parse_relations,
+    split_heading,
 )
+
+
+def _n(cls, text, **kw):
+    return {"cls": cls, "text": text, "id": kw.get("id"), "parent_id": kw.get("parent_id"),
+            "hidden": kw.get("hidden", False), "amend_type": kw.get("amend_type"),
+            "amend_badges": kw.get("amend_badges", [])}
+
+
+# Bản chụp thu nhỏ theo đúng cách vbpl.vn dựng DOM: tiêu đề Chương bị tách làm 2 thẻ
+# cùng class, thẻ sau trỏ parent-id về thẻ đầu; nội dung Điều nằm ở prov-content riêng.
+PROV_NODES = [
+    _n("prov-chapter", "Chương I", id="c1"),
+    _n("prov-chapter", "QUY ĐỊNH CHUNG", id="c1_1", parent_id="c1"),
+    _n("prov-article", "Điều 1. Phạm vi điều chỉnh", id="a1"),
+    _n("prov-content", "Thông tư này quy định về cung ứng dịch vụ thanh toán.", parent_id="a1"),
+    _n("prov-article", "Điều 2. Đối tượng áp dụng", id="a2"),
+    _n("prov-clause", "1. Tổ chức cung ứng dịch vụ thanh toán.", id="k1"),
+    _n("prov-clause", "2. Ngân hàng, chi nhánh ngân hàng nước ngoài.", id="k2",
+       amend_type="10:x", amend_badges=["Điều khoản được sửa đổi, bổ sung"]),
+    _n("prov-item", "a) Ngân hàng thương mại.", id="d1"),
+    _n("prov-item", "b) Chi nhánh ngân hàng nước ngoài.", id="d2"),
+    _n("prov-chapter", "Chương II", id="c2"),
+    _n("prov-article", "Điều 3. Giải thích từ ngữ", id="a3"),
+]
 
 # Bảng Thuộc tính có 2 ô mỗi hàng, mỗi ô là "<nhãn>\n<giá trị>".
 PROP_ROWS = [
@@ -128,6 +155,112 @@ def test_group_relations_keeps_title_when_url_is_missing():
 
 def test_group_relations_on_empty_input_has_both_directions():
     assert group_relations([]) == {"outgoing": {}, "incoming": {}}
+
+
+def test_split_heading_pulls_the_number_out():
+    assert split_heading("dieu", "Điều 7. Dịch vụ thanh toán") == ("7", "Dịch vụ thanh toán")
+    assert split_heading("chuong", "Chương III") == ("III", "")
+    assert split_heading("muc", "Mục 2") == ("2", "")
+    assert split_heading("khoan", "1. Tổ chức cung ứng dịch vụ.") == (
+        "1", "Tổ chức cung ứng dịch vụ.")
+    assert split_heading("diem", "a) Ngân hàng thương mại.") == ("a", "Ngân hàng thương mại.")
+
+
+def test_split_heading_leaves_unrecognised_text_alone():
+    assert split_heading("dieu", "Không phải tiêu đề") == (None, "Không phải tiêu đề")
+
+
+def test_build_provision_tree_nests_by_level():
+    tree = build_provision_tree(PROV_NODES)
+    assert [c["so"] for c in tree] == ["I", "II"]
+    ch1 = tree[0]
+    assert ch1["tieu_de"] == "QUY ĐỊNH CHUNG"          # 2 thẻ tiêu đề đã gộp lại
+    assert [a["so"] for a in ch1["con"]] == ["1", "2"]
+    dieu2 = ch1["con"][1]
+    assert [k["so"] for k in dieu2["con"]] == ["1", "2"]
+    # Điểm nằm dưới Khoản, không phải dưới Điều
+    assert [d["so"] for d in dieu2["con"][1]["con"]] == ["a", "b"]
+
+
+def test_build_provision_tree_attaches_content_to_its_article():
+    tree = build_provision_tree(PROV_NODES)
+    dieu1 = tree[0]["con"][0]
+    assert dieu1["tieu_de"] == "Phạm vi điều chỉnh"
+    assert "cung ứng dịch vụ thanh toán" in dieu1["text"]
+
+
+def test_build_provision_tree_marks_amended_nodes():
+    tree = build_provision_tree(PROV_NODES)
+    khoan1, khoan2 = tree[0]["con"][1]["con"]
+    assert khoan1["bi_tac_dong"] is None
+    assert khoan2["bi_tac_dong"] == ["sua_doi_bo_sung"]
+
+
+def test_build_provision_tree_starts_a_new_chapter_cleanly():
+    tree = build_provision_tree(PROV_NODES)
+    assert [a["so"] for a in tree[1]["con"]] == ["3"]
+
+
+def test_split_heading_accepts_uppercase_headings():
+    # trang viết cả "Chương IV" lẫn "CHƯƠNG IV" — cả hai phải ra số chương
+    assert split_heading("chuong", "CHƯƠNG IV ĐIỀU KHOẢN THI HÀNH") == (
+        "IV", "ĐIỀU KHOẢN THI HÀNH")
+    assert split_heading("dieu", "ĐIỀU 5. Tên điều") == ("5", "Tên điều")
+
+
+def test_build_provision_tree_drops_the_pre_amendment_copy():
+    # ban cu (display:none) lap lai y het khoan dang hieu luc -> khong duoc dem 2 lan
+    nodes = [
+        _n("prov-article", "Điều 18. Quyền của tổ chức", id="a18"),
+        _n("prov-clause", "4. Bản đang hiệu lực.", id="k4",
+           amend_badges=["Điều khoản được sửa đổi, bổ sung"]),
+        _n("prov-clause", "4. Bản trước khi sửa đổi.", id="k4old", hidden=True),
+    ]
+    dieu = build_provision_tree(nodes)[0]
+    assert len(dieu["con"]) == 1
+    assert dieu["con"][0]["text"] == "Bản đang hiệu lực."
+
+
+def test_build_provision_tree_creates_articles_that_live_inside_amendment_blocks():
+    # Điều 19 không có thẻ prov-article: tiêu đề nằm trong khối sửa đổi (tu_sinh)
+    nodes = [
+        _n("prov-article", "Điều 18. Quyền của tổ chức", id="a18"),
+        _n("prov-clause", "1. Khoản của Điều 18.", id="k18"),
+        _n("prov-article", "Điều 19. Trách nhiệm của tổ chức",
+           amend_badges=["Điều khoản được sửa đổi, bổ sung"]),
+        _n("prov-clause", "1. Khoản của Điều 19.", id="k19"),
+    ]
+    tree = build_provision_tree(nodes)
+    assert [d["so"] for d in tree] == ["18", "19"]
+    # khoản sau tiêu đề mới phải thuộc Điều 19, không treo vào Điều 18
+    assert tree[1]["con"][0]["text"] == "Khoản của Điều 19."
+    assert len(tree[0]["con"]) == 1
+
+
+def test_build_provision_tree_merges_a_repeated_article_heading():
+    # cùng khối sửa đổi xuất hiện 2 lượt trong DOM -> chỉ một nút Điều
+    nodes = [
+        _n("prov-article", "Điều 15. Quy trình chấp thuận"),
+        _n("prov-clause", "1. Quy trình chấp thuận.", id="k1"),
+        _n("prov-article", "Điều 15. Quy trình chấp thuận",
+           amend_badges=["Điều khoản được sửa đổi, bổ sung"]),
+        _n("prov-clause", "2. Quy trình gia hạn.", id="k2"),
+    ]
+    tree = build_provision_tree(nodes)
+    assert len(tree) == 1
+    assert [k["so"] for k in tree[0]["con"]] == ["1", "2"]
+    # nhãn từ lượt sau vẫn được giữ lại
+    assert tree[0]["bi_tac_dong"] == ["sua_doi_bo_sung"]
+
+
+def test_count_provisions_counts_every_level():
+    assert count_provisions(build_provision_tree(PROV_NODES)) == {
+        "chuong": 2, "dieu": 3, "khoan": 2, "diem": 2,
+    }
+
+
+def test_build_provision_tree_on_empty_input():
+    assert build_provision_tree([]) == []
 
 
 def test_classify_badge_known_and_unknown():
