@@ -26,10 +26,12 @@ nhiều văn bản, tự thêm delay vài giây giữa các lần gọi.
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import sys
 import time
 import unicodedata
+from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -172,6 +174,225 @@ def fetch_rendered_main_text(url: str) -> tuple[str, str]:
     return title, main_text
 
 
+# --- Bóc 3 tab: Nội dung / Thuộc tính / Lược đồ ------------------------------
+#
+# Trang chi tiết là tab bar antd (div[role=tab], không phải link) nên phải click; cả 3 tab
+# dùng chung 1 URL. Riêng tab Nội dung mang markup ngữ nghĩa mà innerText vứt đi:
+#
+#   <p id="id_<uuid>" class="prov-chapter|prov-section|prov-article|prov-clause|prov-item">
+#   <p class="prov-content" parent-id="id_<uuid>">      → nối tiếp phần tử cha
+#
+# Mỗi đoạn bị sửa nằm trong 1 div bọc có attribute `type="<mã>:<uuid>"` kèm nút nhãn
+# ("Điều khoản được sửa đổi, bổ sung" / "được thay thế" / "được bổ sung"). Mã số đầu quan
+# sát được: 10 = sửa đổi bổ sung, 12 = thay thế, 13 = bổ sung — NHƯNG chỉ suy ra từ một văn
+# bản, nên nhãn chữ mới là nguồn phân loại chính, mã số chỉ lưu kèm để đối chiếu.
+
+_TAB_NOI_DUNG = "Nội dung"
+_TAB_THUOC_TINH = "Thuộc tính"
+_TAB_LUOC_DO = "Lược đồ"
+
+_JS_AMENDMENTS = r"""() => {
+  const main = document.querySelector('main');
+  if (!main) return [];
+  // Duyệt theo ĐÚNG thứ tự tài liệu, vừa đi vừa nhớ "Điều hiện hành". Không thể chỉ tìm
+  // .prov-article gần nhất phía trên: khi văn bản sửa đổi thay nguyên một Điều thì tiêu đề
+  // Điều mới nằm BÊN TRONG khối sửa đổi và không mang class prov-article (vì vậy trang chỉ
+  // có 20 .prov-article cho 23 Điều). Bỏ qua điều đó thì mọi khoản đứng sau bị gán nhầm về
+  // Điều cũ liền trước.
+  const stripBadges = (t) => t.replace(/^(Điều khoản [^\n]*\n)+/, '');
+  const nodes = [...main.querySelectorAll('.prov-article, [type]')];
+  let current = null;
+  const out = [];
+  for (const el of nodes) {
+    const typeAttr = el.getAttribute('type');
+    const isBlock = typeAttr && /^\d+:/.test(typeAttr);
+    if (!isBlock) {
+      if (el.classList.contains('prov-article')) {
+        current = (el.innerText || '').trim().split('\n')[0].trim();
+      }
+      continue;
+    }
+    const text = (el.innerText || '').trim();
+    const inner = stripBadges(text).split('\n')[0].trim();
+    if (/^Điều\s+\d+\./.test(inner)) current = inner;   // khối mang tiêu đề Điều mới
+    out.push({
+      type_code: typeAttr,
+      new_types: el.getAttribute('new-types'),
+      badges: [...new Set(
+        [...el.querySelectorAll('button')].map(b => b.innerText.trim()).filter(Boolean)
+      )],
+      article: current,
+      hidden: getComputedStyle(el).display === 'none',
+      text,
+    });
+  }
+  return out;
+}"""
+
+_JS_PROP_ROWS = r"""() => [...document.querySelectorAll('main table tr')]
+    .map(tr => [...tr.querySelectorAll('td,th')].map(td => td.innerText.trim()))
+    .filter(cells => cells.some(c => c))"""
+
+_JS_MAIN_TEXT = "document.querySelector('main')?.innerText ?? ''"
+
+# Nhãn trên trang → khoá ổn định dùng trong KG.
+_BADGE_KINDS = {
+    "Điều khoản được sửa đổi, bổ sung": "sua_doi_bo_sung",
+    "Điều khoản được thay thế": "thay_the",
+    "Điều khoản được bổ sung": "bo_sung",
+    "Điều khoản được bãi bỏ": "bai_bo",
+    "Điều khoản bị bãi bỏ": "bai_bo",
+    "Điều khoản hết hiệu lực": "het_hieu_luc",
+}
+
+# Nhãn thuộc tính trên trang → khoá.
+_PROP_KEYS = {
+    "Số hiệu": "so_hieu",
+    "Loại văn bản": "loai_van_ban",
+    "Ngành": "nganh",
+    "Ngày ban hành": "ngay_ban_hanh",
+    "Lĩnh vực": "linh_vuc",
+    "Ngày có hiệu lực": "ngay_co_hieu_luc",
+    "Tình trạng hiệu lực": "tinh_trang_hieu_luc",
+    "Ngày hết hiệu lực": "ngay_het_hieu_luc",
+    "Cơ quan ban hành": "co_quan_ban_hanh",
+    "Chức danh": "chuc_danh",
+    "Người ký": "nguoi_ky",
+}
+
+_CATEGORY_RE = re.compile(r"^(.+?)\s*\((\d+)\)$")
+
+
+def classify_badge(badge: str) -> str:
+    """Nhãn tiếng Việt trên trang → khoá phân loại; nhãn lạ giữ nguyên dạng slug thô."""
+    if badge in _BADGE_KINDS:
+        return _BADGE_KINDS[badge]
+    return "khac:" + badge
+
+
+def parse_property_rows(rows: list[list[str]]) -> dict[str, str]:
+    """Bảng Thuộc tính → dict. Mỗi ô là "<nhãn>\\n<giá trị>", một hàng có thể có 2 ô."""
+    props: dict[str, str] = {}
+    for row in rows:
+        for cell in row:
+            label, _, value = cell.partition("\n")
+            key = _PROP_KEYS.get(label.strip())
+            if not key:
+                continue
+            value = value.strip()
+            props[key] = "" if value == "--" else value
+    return props
+
+
+def parse_relations(luoc_do_text: str) -> dict[str, dict[str, list[str]]]:
+    """Text tab Lược đồ → {"outgoing": {...}, "incoming": {...}}.
+
+    Trang chia 2 nửa quanh mốc "VĂN BẢN ĐANG XEM": nửa trên là việc văn bản NÀY làm với văn
+    bản khác (thay thế/bãi bỏ cái gì, căn cứ ban hành là gì), nửa dưới là việc văn bản khác
+    làm với NÓ (ai sửa đổi/hợp nhất nó). Mỗi mục có sẵn số đếm "(n)" nên dùng n để cắt đúng
+    n dòng tiếp theo thay vì đoán bằng dòng trống — "--" nghĩa là rỗng.
+    """
+    lines = [ln.strip() for ln in luoc_do_text.split("\n")]
+    split_at = next(
+        (i for i, ln in enumerate(lines) if ln.startswith("VĂN BẢN ĐANG XEM")), len(lines)
+    )
+    out: dict[str, dict[str, list[str]]] = {"outgoing": {}, "incoming": {}}
+    for direction, chunk in (
+        ("outgoing", lines[:split_at]),
+        ("incoming", lines[split_at:]),
+    ):
+        i = 0
+        while i < len(chunk):
+            m = _CATEGORY_RE.match(chunk[i])
+            if not m:
+                i += 1
+                continue
+            name, want = m.group(1).strip(), int(m.group(2))
+            items: list[str] = []
+            j = i + 1
+            while j < len(chunk) and len(items) < want:
+                ln = chunk[j]
+                if not ln or ln == "--":
+                    j += 1
+                    continue
+                if _CATEGORY_RE.match(ln):  # sang mục kế tiếp trước khi đủ n → dừng
+                    break
+                items.append(ln)
+                j += 1
+            out[direction][name] = items
+            i = j
+    return out
+
+
+def _wait_for_content(page) -> None:
+    try:
+        page.wait_for_function(
+            "document.querySelector('main')?.innerText.length > 3000", timeout=20_000
+        )
+    except Exception:
+        # Văn bản ngắn (Quyết định/Công văn...) có thể không bao giờ vượt 3000 ký tự
+        page.wait_for_timeout(3000)
+
+
+def _dedupe_amendments(raw: list[dict]) -> list[dict]:
+    """Mỗi khối sửa đổi xuất hiện 2 lần trong DOM (bản chưa gắn nhãn + bản có nhãn) — giữ
+    bản có nhãn, cùng khoá `type`."""
+    best: dict[str, dict] = {}
+    for blk in raw:
+        key = blk["type_code"]
+        prev = best.get(key)
+        if prev is None or (not prev["badges"] and blk["badges"]):
+            best[key] = blk
+    return [b for b in best.values() if b["badges"]]
+
+
+def fetch_document(url: str) -> dict:
+    """Mở 1 văn bản, bóc cả 3 tab Nội dung / Thuộc tính / Lược đồ trong MỘT phiên trình duyệt."""
+    from playwright.sync_api import sync_playwright
+
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        try:
+            page = browser.new_page(user_agent=_UA)
+            page.goto(url, wait_until="domcontentloaded", timeout=45_000)
+            _wait_for_content(page)
+
+            title = page.title().split(" | CSDL")[0].strip()
+            main_text = page.evaluate(_JS_MAIN_TEXT)
+            amendments = _dedupe_amendments(page.evaluate(_JS_AMENDMENTS))
+
+            page.get_by_role("tab", name=_TAB_THUOC_TINH, exact=True).click(timeout=15_000)
+            page.wait_for_timeout(3000)
+            properties = parse_property_rows(page.evaluate(_JS_PROP_ROWS))
+
+            page.get_by_role("tab", name=_TAB_LUOC_DO, exact=True).click(timeout=15_000)
+            page.wait_for_timeout(3000)
+            luoc_do_text = page.evaluate(_JS_MAIN_TEXT)
+        finally:
+            browser.close()
+
+    body, status, valid_from = clean_body(main_text)
+    return {
+        "url": url,
+        "title": title,
+        "trang_thai": status,
+        "ngay_hieu_luc": _iso_date(valid_from),
+        "noi_dung": body,
+        "thuoc_tinh": properties,
+        "luoc_do": parse_relations(luoc_do_text),
+        "dieu_khoan_bi_tac_dong": [
+            {
+                "dieu": a["article"],
+                "phan_loai": sorted({classify_badge(b) for b in a["badges"]}),
+                "nhan": a["badges"],
+                "ma_type": a["type_code"],
+                "trich": " ".join(a["text"].split())[:400],
+            }
+            for a in amendments
+        ],
+    }
+
+
 def _iso_date(vn_date: str | None) -> str | None:
     if not vn_date or not re.match(r"^\d{2}/\d{2}/\d{4}$", vn_date):
         return None
@@ -240,6 +461,12 @@ def main(argv: list[str] | None = None) -> None:
     p_fetch.add_argument("url")
     p_fetch.add_argument("--out", default="data/raw/vbpl")
 
+    p_dump = sub.add_parser(
+        "dump", help="Tải cả 3 tab (Nội dung + Thuộc tính + Lược đồ) → JSON có cấu trúc"
+    )
+    p_dump.add_argument("url")
+    p_dump.add_argument("--out", default="data/raw/vbpl")
+
     args = parser.parse_args(argv)
 
     if args.cmd == "search":
@@ -261,6 +488,27 @@ def main(argv: list[str] | None = None) -> None:
         print(
             f"[vbpl] Bước tiếp: uv run python -m app.ingestion.extract {out_path} --source external"
         )
+
+    elif args.cmd == "dump":
+        print(f"[vbpl] Đang tải 3 tab của {args.url} ...")
+        doc = fetch_document(args.url)
+        out_dir = Path(args.out)
+        out_dir.mkdir(parents=True, exist_ok=True)
+        slug = _UUID_SUFFIX_RE.sub("", args.url.rstrip("/").rsplit("/", 1)[-1])[:80]
+        out_path = out_dir / f"{slug}.json"
+        out_path.write_text(
+            json.dumps(doc, ensure_ascii=False, indent=1), encoding="utf-8"
+        )
+        n_amend = len(doc["dieu_khoan_bi_tac_dong"])
+        kinds = Counter(k for a in doc["dieu_khoan_bi_tac_dong"] for k in a["phan_loai"])
+        rel = {
+            d: {k: len(v) for k, v in cats.items() if v}
+            for d, cats in doc["luoc_do"].items()
+        }
+        print(f"[vbpl] Đã lưu {out_path}")
+        print(f"[vbpl] Thuộc tính : {len(doc['thuoc_tinh'])} trường")
+        print(f"[vbpl] Điều khoản bị tác động: {n_amend} — {dict(kinds)}")
+        print(f"[vbpl] Lược đồ    : {rel}")
 
 
 if __name__ == "__main__":
