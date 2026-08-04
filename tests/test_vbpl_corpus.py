@@ -7,6 +7,8 @@ markup, văn bản không có toàn văn) đều là thứ chỉ lộ ra trên d
   tt15-2024.raw.json        Thông tư 15/2024/TT-NHNN — bản cào TRƯỚC khi lọc nhiễu
   tt15-2024.prov-nodes.json danh sách phẳng prov-* đọc từ DOM của cùng văn bản đó
   vbhn29-nhnn.raw.json      Văn bản hợp nhất 29/VBHN-NHNN — vbpl không đăng toàn văn
+  nd80-2016.raw.json        Nghị định 80/2016/NĐ-CP — văn bản SỬA ĐỔI, có khối trích dẫn
+  nd52-2024.noi-dung.txt    trường `noi_dung` nguyên vẹn của 52/2024/NĐ-CP (không có ngoặc)
 """
 import json
 from pathlib import Path
@@ -24,6 +26,7 @@ from app.ingestion.vbpl import (
     file_download_url,
     has_full_text,
     parse_file_leaves,
+    quote_spans,
     split_articles,
     strip_amend_noise,
     to_corpus_document,
@@ -123,6 +126,67 @@ def test_phu_luc_khong_phai_than_van_ban():
     body = "Điều 1. Phạm vi\n1. Nội dung.\nPHỤ LỤC\nĐiều 1. Cấp đổi Giấy phép\n1. Tên."
     assert count_units(body) == {"dieu": 1, "khoan": 1, "diem": 0}
     assert len(split_articles(body)) == 1
+
+
+# --- Khối trích dẫn của văn bản sửa đổi ---
+
+@pytest.fixture(scope="module")
+def nd80() -> dict:
+    return _load("nd80-2016.raw.json")
+
+
+@pytest.fixture(scope="module")
+def nd52_noi_dung() -> str:
+    return (FIXTURES / "nd52-2024.noi-dung.txt").read_text(encoding="utf-8")
+
+
+def test_khoan_trung_so_voi_doan_trich_thi_khong_canh_bao(nd80):
+    """ND80 Điều 1: khoản 5,6,7,8 xuất hiện 2 lần, nhưng là HAI VĂN BẢN.
+
+    Bản trong ngoặc là khoản của 101/2012/NĐ-CP được chép vào, bản ngoài ngoặc là khoản của
+    chính ND80. Không có gì để người đọc quyết — cảnh báo ở đây là việc rà soát giả, và vài
+    lần như thế là người ta ngừng đọc cảnh báo thật.
+    """
+    _, _, warnings = strip_amend_noise(nd80["noi_dung"])
+    assert not [w for w in warnings if "xuất hiện 2 lần" in w]
+
+
+def test_doan_trich_khong_bi_cat_khoi_toan_van(nd80):
+    """Ngoặc là của chính đạo luật: giữ nguyên từng ký tự, chỉ dùng để BIẾT, không để cắt."""
+    body, _, _ = strip_amend_noise(nd80["noi_dung"])
+    assert body == nd80["noi_dung"]
+    assert "5. Chủ tài khoản thanh toán" in body       # bản được chép — còn
+    assert "5. Sửa đổi điểm b khoản 2 Điều 12" in body  # khoản của ND80 — còn
+
+
+def test_moc_doi_chieu_bo_dong_trong_ngoac_con_so_bao_ra_thi_khong(nd80):
+    body = nd80["noi_dung"]
+    assert count_units(body)["khoan"] == 14                        # số báo ra: giữ nguyên
+    assert count_units(body, ngoai_trich_dan=True)["khoan"] == 10  # mốc đối chiếu với cây
+
+
+def test_cay_nd80_khong_con_bi_bao_la_thieu(nd80):
+    """Trước sửa: "cây thiếu 4 Khoản (10/14)" — nói ngược, 10 mới là số đúng."""
+    tree = nd80["cay_dieu_khoan"]
+    assert count_provisions(tree)["khoan"] == 10
+    assert not [w for w in check_tree_coverage(tree, nd80["noi_dung"]) if "Khoản" in w]
+
+
+def test_van_ban_khong_co_ngoac_thi_khong_doi_gi(nd52_noi_dung):
+    """52/2024/NĐ-CP không có dấu ngoặc kép nào — hai phép đếm phải trùng khít."""
+    assert quote_spans(nd52_noi_dung) == []
+    assert count_units(nd52_noi_dung) == count_units(nd52_noi_dung, ngoai_trich_dan=True)
+    assert count_units(nd52_noi_dung) == {"dieu": 38, "khoan": 153, "diem": 102}
+
+
+def test_quote_spans_la_lat_cat_that_cua_toan_van(nd80):
+    body = nd80["noi_dung"]
+    spans = quote_spans(body)
+    assert spans, "ND80 là văn bản sửa đổi, phải có khối trích dẫn"
+    for sp in spans:
+        doan = body[sp["char_start"] : sp["char_end"]]
+        assert doan[0] in '"“' and doan[-1] in '"”'
+    assert any("5. Chủ tài khoản thanh toán" in body[s["char_start"] : s["char_end"]] for s in spans)
 
 
 # --- Khuyết tật 2: cây provisions thiếu nút ---

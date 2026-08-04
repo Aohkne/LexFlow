@@ -102,11 +102,24 @@ class Provision(BaseModel):
     con: list[Provision] = Field(default_factory=list)
 
 
+class QuoteSpan(BaseModel):
+    """Một khối trích dẫn trong `noi_dung`: `noi_dung[char_start:char_end]`, kể cả dấu ngoặc.
+
+    Văn bản sửa đổi chép nguyên văn nội dung mới vào giữa hai dấu ngoặc kép, và phần chép mang
+    ĐÁNH SỐ CỦA VĂN BẢN BỊ SỬA. Ai đọc `articles[].text` mà muốn tách đâu là điều khoản của
+    văn bản này, đâu là đoạn trích, thì neo vào đây.
+    """
+
+    char_start: int
+    char_end: int
+
+
 class CorpusDocument(DocumentMeta):
     """Văn bản kèm danh sách điều khoản — đầu vào của ingest."""
 
     articles: list[Article] = Field(default_factory=list)
     provisions: list[Provision] = Field(default_factory=list)
+    trich_dan: list[QuoteSpan] = Field(default_factory=list)
     # Nguồn có đăng toàn văn hay không. `False` = chỉ có thuộc tính/lược đồ (hay gặp ở văn
     # bản hợp nhất): `articles` rỗng vì KHÔNG CÓ, chứ không phải vì bóc hỏng.
     co_toan_van: bool = True

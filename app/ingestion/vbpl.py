@@ -32,6 +32,7 @@ import sys
 import time
 import unicodedata
 from collections import Counter
+from collections.abc import Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass
 from html import escape
@@ -693,6 +694,75 @@ _TEXT_DIEM_RE = re.compile(r"^([a-zđ])\)\s")
 _PHU_LUC_RE = re.compile(r"^PHỤ LỤC\b")
 
 
+# Khối trích dẫn của văn bản sửa đổi. Văn bản sửa đổi luôn CHÉP NGUYÊN VĂN nội dung mới vào
+# giữa hai dấu ngoặc kép, và phần chép mang đánh số của văn bản BỊ SỬA chứ không phải của văn
+# bản đang đọc. 80/2016/NĐ-CP Điều 1 là ca rõ nhất:
+#
+#     1. Sửa đổi, bổ sung khoản 4, 5, 6, 7, 8 Điều 4 như sau:   ← khoản 1 của ND80
+#     "4. Tổ chức cung ứng dịch vụ trung gian thanh toán là ...
+#      5. Chủ tài khoản thanh toán ...                          ← khoản 5 của ND101
+#     ...
+#     5. Sửa đổi điểm b khoản 2 Điều 12 như sau:                ← khoản 5 của ND80
+#
+# nên số 5 xuất hiện hai lần mà KHÔNG phải hai phiên bản của một khoản — là hai văn bản.
+#
+# Dấu ngoặc là của chính văn bản: bỏ nó đi là sửa nguồn và làm mất nghĩa "đoạn này là trích".
+# Ở đây chỉ dùng nó để biết dòng nào mang đánh số của văn bản khác. Đo trên cả 9 văn bản của
+# lô này thì ngoặc CÂN 100% (`"` luôn chẵn, số `“` bằng số `”`) nên máy trạng thái là đủ.
+_QUOTE_TOGGLE = '"'
+_QUOTE_OPEN = "“"
+_QUOTE_CLOSE = "”"
+
+
+def _quote_step(line: str, straight: bool, depth: int) -> tuple[bool, int]:
+    """Trạng thái ngoặc sau khi đi hết một dòng."""
+    for c in line:
+        if c == _QUOTE_TOGGLE:
+            straight = not straight
+        elif c == _QUOTE_OPEN:
+            depth += 1
+        elif c == _QUOTE_CLOSE:
+            depth = max(0, depth - 1)
+    return straight, depth
+
+
+def iter_lines_trich_dan(body: str) -> Iterator[tuple[str, bool]]:
+    """Duyệt từng dòng kèm cờ "dòng này nằm trong khối trích dẫn".
+
+    Cờ tính theo trạng thái ngoặc ở ĐẦU dòng. Thế là đủ: mọi dòng mang đánh số đều bắt đầu
+    bằng chữ số hoặc chữ cái, còn dòng mở ngoặc (`"4. Tổ chức ...`) bắt đầu bằng chính dấu
+    ngoặc nên vốn đã không khớp regex đơn vị nào.
+    """
+    straight, depth = False, 0
+    for line in body.split("\n"):
+        yield line, (straight or depth > 0)
+        straight, depth = _quote_step(line, straight, depth)
+
+
+def quote_spans(body: str) -> list[dict]:
+    """Vị trí các khối trích dẫn trong toàn văn: [{char_start, char_end}], kể cả dấu ngoặc.
+
+    Xuất ra để phía sau khỏi phải suy lại. KHÔNG dùng để cắt gọt `noi_dung`.
+    """
+    out: list[dict] = []
+    straight, depth = False, 0
+    start: int | None = None
+    for i, c in enumerate(body):
+        if c not in (_QUOTE_TOGGLE, _QUOTE_OPEN, _QUOTE_CLOSE):
+            continue
+        truoc = straight or depth > 0
+        straight, depth = _quote_step(c, straight, depth)
+        sau = straight or depth > 0
+        if not truoc and sau:
+            start = i
+        elif truoc and not sau and start is not None:
+            out.append({"char_start": start, "char_end": i + 1})
+            start = None
+    if start is not None:  # ngoặc không đóng — coi như trích tới hết văn bản
+        out.append({"char_start": start, "char_end": len(body)})
+    return out
+
+
 def _body_end(lines: list[str]) -> int:
     """Chỉ số dòng bắt đầu phần Phụ lục, hoặc hết văn bản nếu không có."""
     for i, ln in enumerate(lines):
@@ -849,7 +919,7 @@ def strip_amend_noise(body: str) -> tuple[str, list[dict], list[str]]:
             labels.append({"dieu": dieu, "cap": cap, "so": so, "nhan": nhan})
         pending.clear()
 
-    for line in body.split("\n"):
+    for line, trong_trich_dan in iter_lines_trich_dan(body):
         s = line.strip()
         if _BADGE_LINE_RE.match(s):
             pending.append(s)
@@ -866,6 +936,14 @@ def strip_amend_noise(body: str) -> tuple[str, list[dict], list[str]]:
         m = _TEXT_KHOAN_RE.match(s)
         if m and dieu is not None:
             so = m.group(1)
+            if trong_trich_dan:
+                # Đánh số của văn bản BỊ SỬA. Không so trùng và không ghi nhớ: khoản 5 được
+                # chép vào mà đụng khoản 5 của chính văn bản này thì sinh ra cảnh báo giả,
+                # và người đọc mở ra sẽ không thấy có gì để quyết. `khoan` giữ nguyên vì đoạn
+                # trích nằm bên trong khoản hiện tại.
+                note("khoan", so)
+                out.append(line)
+                continue
             truoc = seen_khoan.get(so)
             if truoc == s:  # lặp y hệt → bản sao vbpl chèn vào
                 note("khoan", so)
@@ -883,6 +961,10 @@ def strip_amend_noise(body: str) -> tuple[str, list[dict], list[str]]:
 
         m = _TEXT_DIEM_RE.match(s)
         if m and dieu is not None:
+            if trong_trich_dan:  # cùng lý do như Khoản ở trên
+                note("diem", m.group(1))
+                out.append(line)
+                continue
             # Điểm chỉ khử lặp TRONG cùng một khoản: "a)" ở khoản 1 và "a)" ở khoản 2 là hai
             # điểm khác nhau, dù nội dung có thể ngắn và giống nhau.
             key = (f"{dieu}#{khoan}", s)
@@ -905,18 +987,27 @@ def strip_amend_noise(body: str) -> tuple[str, list[dict], list[str]]:
     return "\n".join(out), labels, warnings
 
 
-def count_units(noi_dung: str) -> dict[str, int]:
-    """Đếm Điều/Khoản/Điểm trong THÂN văn bản — mốc đối chiếu cho cây điều khoản.
+def count_units(noi_dung: str, *, ngoai_trich_dan: bool = False) -> dict[str, int]:
+    """Đếm Điều/Khoản/Điểm trong THÂN văn bản.
 
     Điểm chỉ tính khi có Khoản cha: khoá định danh phía sau là `dieu_{n}#khoan_{m}#diem_{x}`,
-    một Điểm không có Khoản cha thì không có khoá nào để mang. Ca này xảy ra thật — khi khoản
-    cha nằm trong ngoặc kép (đoạn trích của văn bản sửa đổi) nên không nhận ra được.
+    một Điểm không có Khoản cha thì không có khoá nào để mang.
+
+    `ngoai_trich_dan=True` bỏ qua các dòng nằm trong khối trích dẫn — dùng khi ĐỐI CHIẾU với
+    cây điều khoản (xem `check_tree_coverage`). Mặc định là False vì số đếm được dùng làm số
+    Điều/Khoản/Điểm báo ra ngoài, mà ở đó đoạn trích vẫn là chữ nằm trong văn bản này.
     """
     out = {"dieu": 0, "khoan": 0, "diem": 0}
     in_dieu = False
     in_khoan = False
-    lines = noi_dung.split("\n")
-    for ln in lines[: _body_end(lines)]:
+    het_than = _body_end(noi_dung.split("\n"))
+    for i, (ln, trong_trich_dan) in enumerate(iter_lines_trich_dan(noi_dung)):
+        if i >= het_than:
+            break
+        if ngoai_trich_dan and trong_trich_dan:
+            # Không đụng in_dieu/in_khoan: đoạn trích nằm BÊN TRONG một khoản của văn bản
+            # này, nên điểm đứng sau nó vẫn thuộc khoản đó.
+            continue
         s = ln.strip()
         if _TEXT_DIEU_RE.match(s):
             out["dieu"] += 1
@@ -944,9 +1035,14 @@ def check_tree_coverage(tree: list[dict], noi_dung: str) -> list[str]:
 
     Cây dựng từ DOM nên chỉ thấy phần có class `prov-*`; phần nằm trong khối sửa đổi thường
     không có markup đó. Lệch là chuyện âm thầm — không có exception nào — nên phải đo.
+
+    Mốc đối chiếu BỎ các dòng trong khối trích dẫn, nếu không sẽ báo ngược hẳn: ở 80/2016 cây
+    có 10 Khoản và 10 mới là số đúng, còn đếm phẳng ra 14 vì tính cả 4 khoản của văn bản bị
+    sửa được chép vào. Cây đọc theo cấu trúc HTML nên biết đoạn trích là con của khoản; ở văn
+    bản sửa đổi cây ĐÚNG HƠN toàn văn đếm phẳng, ngược với 15/2024 (cây thiếu nút thật).
     """
     have = count_provisions(tree)
-    want = count_units(noi_dung)
+    want = count_units(noi_dung, ngoai_trich_dan=True)
     out = []
     for cap, ten in (("dieu", "Điều"), ("khoan", "Khoản"), ("diem", "Điểm")):
         got, exp = have.get(cap, 0), want[cap]
@@ -1027,6 +1123,7 @@ def to_corpus_document(doc: dict) -> dict:
         "canh_bao": list(doc.get("canh_bao") or []),
         "articles": split_articles(noi_dung),
         "provisions": tree,
+        "trich_dan": quote_spans(noi_dung),
     }
 
 
