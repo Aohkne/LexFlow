@@ -76,11 +76,12 @@ def get_document_detail(doc_id: str, user: AuthUser = Depends(get_current_user))
     titles = {i: docs[i].get("title", i) for i in related_ids if i in docs}
 
     doc = CorpusDocument.model_validate(raw)
-    meta = doc.model_dump(exclude={"articles", "source_files"})
+    meta = doc.model_dump(exclude={"articles", "provisions", "source_files"})
     return DocumentDetail(
         **meta,
         source_files=doc.source_files + _uploaded_original(user, doc_id),
         articles=doc.articles,
+        provisions=doc.provisions,
         relationships_out=rels_out,
         relationships_in=rels_in,
         doc_titles=titles,

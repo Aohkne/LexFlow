@@ -8,8 +8,10 @@ import {
   downloadSourceFile,
   getDocument,
   type DocumentDetail,
+  type Provision,
   type SourceFile,
 } from "@/lib/api";
+import { renderInline } from "@/lib/inline-html";
 import {
   articleAnchor,
   buildAmendmentMap,
@@ -136,6 +138,106 @@ function withHeadings(articles: DocumentDetail["articles"]) {
   });
 }
 
+const AMEND_LABELS: Record<string, string> = {
+  sua_doi_bo_sung: "Sửa đổi, bổ sung",
+  thay_the: "Thay thế",
+  bo_sung: "Bổ sung",
+  bai_bo: "Bãi bỏ",
+  het_hieu_luc: "Hết hiệu lực",
+};
+
+function AmendBadge({ kind }: { kind: string }) {
+  const danger = kind === "thay_the" || kind === "bai_bo" || kind === "het_hieu_luc";
+  return (
+    <span
+      className={`rounded px-1.5 py-0.5 text-[11px] ${
+        danger ? "border border-red text-red" : "border border-accent text-accent-dim"
+      }`}
+    >
+      {/* nhãn lạ từ nguồn (khac:...) vẫn hiện nguyên văn thay vì bị nuốt */}
+      {AMEND_LABELS[kind] ?? kind.replace(/^khac:/, "")}
+    </span>
+  );
+}
+
+/** Toàn văn dựng lại từ cây Chương → Mục → Điều → Khoản → Điểm. */
+function ProvisionNodes({ nodes, depth = 0 }: { nodes: Provision[]; depth?: number }) {
+  return (
+    <>
+      {nodes.map((n, i) => {
+        const marks = n.bi_tac_dong ?? [];
+        if (n.cap === "chuong" || n.cap === "muc" || n.cap === "dieu") {
+          const prefix =
+            n.cap === "chuong" ? "Chương" : n.cap === "muc" ? "Mục" : "Điều";
+          const heading = [`${prefix} ${n.so ?? ""}`.trim(), n.tieu_de]
+            .filter(Boolean)
+            .join(". ");
+          const anchor = n.cap === "dieu" && n.so ? `dieu-${n.so}` : undefined;
+          return (
+            <section
+              key={n.id ?? `${n.cap}-${n.so}-${i}`}
+              id={anchor}
+              className={
+                n.cap === "dieu"
+                  ? "scroll-mt-20 rounded-lg border border-border bg-panel p-4"
+                  : "mt-6"
+              }
+            >
+              <div className="flex flex-wrap items-center gap-2">
+                <h2
+                  className={
+                    n.cap === "chuong"
+                      ? "text-sm font-semibold uppercase tracking-wide text-accent-dim"
+                      : n.cap === "muc"
+                        ? "text-sm font-semibold text-dim"
+                        : "text-sm font-semibold"
+                  }
+                >
+                  {heading}
+                </h2>
+                {marks.map((k) => (
+                  <AmendBadge key={k} kind={k} />
+                ))}
+              </div>
+              {n.html && (
+                <p className="mt-2 text-sm leading-relaxed">{renderInline(n.html)}</p>
+              )}
+              {n.con.length > 0 && (
+                <div className={n.cap === "dieu" ? "mt-2 space-y-2" : "space-y-3"}>
+                  <ProvisionNodes nodes={n.con} depth={depth + 1} />
+                </div>
+              )}
+            </section>
+          );
+        }
+        // Khoản / Điểm: thụt lề theo cấp, giữ tiền tố số như bản gốc
+        return (
+          <div
+            key={n.id ?? `${n.cap}-${n.so}-${i}`}
+            className={`${n.cap === "diem" ? "ml-5" : ""} ${
+              marks.length ? "border-l-2 border-accent pl-3" : ""
+            }`}
+          >
+            <p className="text-sm leading-relaxed">
+              {n.html ? renderInline(n.html) : n.text}
+              {marks.map((k) => (
+                <span key={k} className="ml-2 align-middle">
+                  <AmendBadge kind={k} />
+                </span>
+              ))}
+            </p>
+            {n.con.length > 0 && (
+              <div className="mt-1 space-y-1">
+                <ProvisionNodes nodes={n.con} depth={depth + 1} />
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </>
+  );
+}
+
 function ContentTab({
   doc,
   amendments,
@@ -143,6 +245,15 @@ function ContentTab({
   doc: DocumentDetail;
   amendments: Map<string, AmendmentInfo[]>;
 }) {
+  // Có cây thì dựng toàn văn đúng phân cấp như bản gốc; chưa crawl lại thì vẫn dùng
+  // danh sách Điều phẳng cũ, không để trang trống.
+  if (doc.provisions && doc.provisions.length > 0) {
+    return (
+      <div className="mt-4 space-y-3">
+        <ProvisionNodes nodes={doc.provisions} />
+      </div>
+    );
+  }
   return (
     <div className="mt-4 space-y-3">
       {withHeadings(doc.articles).map(({ a, chapterHeading, sectionHeading }) => {
@@ -269,6 +380,8 @@ function PropertiesTab({ doc }: { doc: DocumentDetail }) {
 function SourceFiles({ doc }: { doc: DocumentDetail }) {
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // Backend cũ chưa trả khoá này -> undefined, không phải mảng rỗng.
+  const files = doc.source_files ?? [];
 
   async function onDownload(file: SourceFile) {
     setError(null);
@@ -297,11 +410,11 @@ function SourceFiles({ doc }: { doc: DocumentDetail }) {
         </a>
       )}
 
-      {doc.source_files.length === 0 ? (
+      {files.length === 0 ? (
         <p className="mt-2 text-sm text-faint">Chưa có file gốc đính kèm văn bản này.</p>
       ) : (
         <ul className="mt-2 space-y-2">
-          {doc.source_files.map((f) => (
+          {files.map((f) => (
             <li
               key={f.ten}
               className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-background px-3 py-2"

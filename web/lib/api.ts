@@ -202,6 +202,19 @@ export type DocumentSummary = {
   status: "con_hieu_luc" | "het_hieu_luc";
 };
 
+export type Provision = {
+  id: string | null;
+  cap: "chuong" | "muc" | "dieu" | "khoan" | "diem";
+  so: string | null;
+  tieu_de: string;
+  text: string;
+  // HTML inline ĐÃ lọc whitelist ở backend — render qua renderInline, không đổ thẳng vào DOM
+  html: string;
+  bi_tac_dong: string[] | null;
+  an: boolean;
+  con: Provision[];
+};
+
 export type SourceFile = {
   ten: string;
   kich_thuoc: string | null;
@@ -226,8 +239,11 @@ export type DocumentDetail = {
   ngay_ban_hanh: string | null;
   tinh_trang_hieu_luc: string | null;
   source_url: string | null;
-  source_files: SourceFile[];
+  // Backend chưa deploy bản mới sẽ không trả khoá này -> phải chịu được undefined
+  source_files?: SourceFile[];
   articles: Article[];
+  // Cây điều khoản đầy đủ; backend cũ / văn bản chưa crawl lại sẽ không có
+  provisions?: Provision[];
   relationships_out: Relationship[];
   relationships_in: Relationship[];
   doc_titles: Record<string, string>;

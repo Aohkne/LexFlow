@@ -232,6 +232,41 @@ def test_get_document_kem_file_goc_da_upload(client, fake_store):
     assert files[0]["url"] == "/documents/TT99-2026/download"
 
 
+def test_get_document_tra_ve_cay_dieu_khoan(client, fake_store):
+    import json
+
+    doc = {
+        **_DOC,
+        "provisions": [{
+            "id": "c1", "cap": "chuong", "so": "I", "tieu_de": "QUY ĐỊNH CHUNG",
+            "con": [{
+                "id": "a1", "cap": "dieu", "so": "1", "tieu_de": "Phạm vi",
+                "html": "<strong>Thông tư</strong> này quy định.",
+                "bi_tac_dong": ["sua_doi_bo_sung"],
+                "con": [],
+            }],
+        }],
+    }
+    fake_store["storage"]["corpus.json"] = json.dumps(
+        {"documents": [doc], "relationships": []}, ensure_ascii=False
+    ).encode("utf-8")
+
+    r = client.get("/documents/TT99-2026", headers={"Authorization": f"Bearer {_token('staff')}"})
+    assert r.status_code == 200, r.text
+    tree = r.json()["provisions"]
+    assert tree[0]["cap"] == "chuong" and tree[0]["so"] == "I"
+    dieu = tree[0]["con"][0]
+    assert dieu["html"] == "<strong>Thông tư</strong> này quy định."
+    assert dieu["bi_tac_dong"] == ["sua_doi_bo_sung"]
+
+
+def test_get_document_chua_co_cay_thi_provisions_rong(client, fake_store):
+    _seed_canonical(fake_store)
+    r = client.get("/documents/TT99-2026", headers={"Authorization": f"Bearer {_token('staff')}"})
+    assert r.status_code == 200
+    assert r.json()["provisions"] == []   # trang xem lùi về danh sách Điều phẳng
+
+
 def test_download_file_goc(client, fake_store):
     fake_store["rows"]["TT99-2026"] = {
         "doc_id": "TT99-2026", "storage_path": "uploads/Thông tư 99.pdf",

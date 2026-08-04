@@ -78,10 +78,31 @@ class Article(BaseModel):
     section: str | None = None  # ví dụ "Mục 1. Mở tài khoản"
 
 
+class Provision(BaseModel):
+    """Một nút trong cây điều khoản (Chương → Mục → Điều → Khoản → Điểm).
+
+    Song song với `articles` chứ không thay thế: `articles` vẫn là đơn vị chunk cho RAG,
+    còn cây này để trình xem dựng lại đúng phân cấp và định dạng như nguồn.
+    """
+
+    id: str | None = None  # id gốc bên nguồn, giữ để đối chiếu khi crawl lại
+    cap: str  # chuong | muc | dieu | khoan | diem
+    so: str | None = None  # "I", "1", "a"
+    tieu_de: str = ""  # tiêu đề Chương/Mục/Điều
+    text: str = ""  # text thuần của Khoản/Điểm
+    # HTML inline ĐÃ lọc whitelist (chỉ b/strong/i/em/u/sup/sub/br, không attribute).
+    # Không bao giờ nhận HTML thô từ nguồn vào đây.
+    html: str = ""
+    bi_tac_dong: list[str] | None = None  # sua_doi_bo_sung | thay_the | bo_sung | ...
+    an: bool = False
+    con: list[Provision] = Field(default_factory=list)
+
+
 class CorpusDocument(DocumentMeta):
     """Văn bản kèm danh sách điều khoản — đầu vào của ingest."""
 
     articles: list[Article] = Field(default_factory=list)
+    provisions: list[Provision] = Field(default_factory=list)
 
 
 # --- API models ---
@@ -102,6 +123,7 @@ class DocumentDetail(DocumentMeta):
     """Toàn văn + quan hệ hai chiều của một văn bản (GET /documents/{doc_id})."""
 
     articles: list[Article] = Field(default_factory=list)
+    provisions: list[Provision] = Field(default_factory=list)  # [] = chưa crawl được cây
     relationships_out: list[Relationship] = Field(default_factory=list)  # doc là source
     relationships_in: list[Relationship] = Field(default_factory=list)  # doc là target
     doc_titles: dict[str, str] = Field(default_factory=dict)  # doc_id -> title các doc liên quan

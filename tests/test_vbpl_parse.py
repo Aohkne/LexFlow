@@ -10,8 +10,11 @@ from app.ingestion.vbpl import (
     count_provisions,
     group_relations,
     parse_property_rows,
+    flatten_articles,
     parse_relations,
+    sanitize_inline,
     split_heading,
+    to_corpus_document,
 )
 
 
@@ -157,6 +160,47 @@ def test_group_relations_on_empty_input_has_both_directions():
     assert group_relations([]) == {"outgoing": {}, "incoming": {}}
 
 
+# --- sanitize_inline: HTML tu site ngoai, whitelist phai hep ---
+
+def test_sanitize_inline_keeps_emphasis():
+    assert sanitize_inline("<strong>Điều 1</strong>. Phạm vi") == "<strong>Điều 1</strong>. Phạm vi"
+    assert sanitize_inline("<em>a</em> và <b>b</b>") == "<em>a</em> và <b>b</b>"
+    assert sanitize_inline("dòng 1<br/>dòng 2") == "dòng 1<br>dòng 2"
+
+
+def test_sanitize_inline_strips_every_attribute():
+    # style/class/id của vbpl phải rụng hết, nếu không sẽ chọi với theme
+    got = sanitize_inline('<strong style="color:red" class="x" id="y">Điều 1</strong>')
+    assert got == "<strong>Điều 1</strong>"
+
+
+def test_sanitize_inline_unwraps_unknown_tags_but_keeps_their_text():
+    assert sanitize_inline('<span style="font-size:14px">Nội dung</span>') == "Nội dung"
+    assert sanitize_inline("<div><p>Một</p><p>Hai</p></div>") == "MộtHai"
+
+
+def test_sanitize_inline_removes_script_and_event_handlers():
+    assert "script" not in sanitize_inline("<script>alert(1)</script>Chữ")
+    assert sanitize_inline('<b onclick="alert(1)">Chữ</b>') == "<b>Chữ</b>"
+    assert sanitize_inline('<a href="javascript:alert(1)">Bấm</a>') == "Bấm"
+
+
+def test_sanitize_inline_escapes_raw_angle_brackets():
+    # chữ "<" trong văn bản luật phải thành &lt;, không được biến thành thẻ
+    assert sanitize_inline("số tiền &lt; 5 triệu") == "số tiền &lt; 5 triệu"
+    assert "<b>" not in sanitize_inline("dùng ký hiệu &lt;b&gt; trong hợp đồng")
+
+
+def test_sanitize_inline_closes_unbalanced_tags():
+    assert sanitize_inline("<strong>chưa đóng") == "<strong>chưa đóng</strong>"
+
+
+def test_sanitize_inline_on_empty_or_markup_only():
+    assert sanitize_inline("") == ""
+    assert sanitize_inline("<span></span>") == ""
+    assert sanitize_inline("<b>   </b>") == ""
+
+
 def test_split_heading_pulls_the_number_out():
     assert split_heading("dieu", "Điều 7. Dịch vụ thanh toán") == ("7", "Dịch vụ thanh toán")
     assert split_heading("chuong", "Chương III") == ("III", "")
@@ -261,6 +305,57 @@ def test_count_provisions_counts_every_level():
 
 def test_build_provision_tree_on_empty_input():
     assert build_provision_tree([]) == []
+
+
+# --- cay -> Article phang + CorpusDocument ---
+
+def test_flatten_articles_gan_nhan_chuong_muc():
+    arts = flatten_articles(build_provision_tree(PROV_NODES))
+    assert [a["article"] for a in arts] == ["Điều 1", "Điều 2", "Điều 3"]
+    assert arts[0]["chapter"] == "Chương I. QUY ĐỊNH CHUNG"
+    assert arts[0]["section"] is None
+    assert arts[2]["chapter"] == "Chương II"          # chương không có tiêu đề
+
+
+def test_flatten_articles_gop_ca_khoan_va_diem_vao_text():
+    arts = flatten_articles(build_provision_tree(PROV_NODES))
+    dieu2 = arts[1]["text"]
+    assert "Tổ chức cung ứng dịch vụ thanh toán." in dieu2       # khoản 1
+    assert "Ngân hàng thương mại." in dieu2                       # điểm a nằm dưới khoản 2
+    assert dieu2.index("Ngân hàng, chi nhánh") < dieu2.index("Ngân hàng thương mại.")
+
+
+def test_to_corpus_document_lay_doc_id_tu_so_hieu():
+    doc = to_corpus_document({
+        "url": "https://vbpl.vn/van-ban/chi-tiet/tt-15--168089",
+        "title": "Thông tư 15/2024/TT-NHNN của Ngân hàng Nhà nước",
+        "trang_thai": "Hết hiệu lực một phần",
+        "ngay_hieu_luc": "2024-07-01",
+        "thuoc_tinh": {
+            "so_hieu": "15/2024/TT-NHNN", "loai_van_ban": "Thông tư",
+            "nganh": "Ngân hàng", "linh_vuc": "Thanh tra",
+            "ngay_ban_hanh": "28/06/2024", "ngay_het_hieu_luc": "",
+            "co_quan_ban_hanh": "Ngân hàng Nhà nước Việt Nam",
+            "chuc_danh": "Phó Thống đốc", "nguoi_ky": "Phạm Tiến Dũng",
+            "tinh_trang_hieu_luc": "Hết hiệu lực một phần",
+        },
+        "cay_dieu_khoan": build_provision_tree(PROV_NODES),
+    })
+    assert doc["doc_id"] == "15-2024-TT-NHNN"       # "/" không dùng được trong URL path
+    assert doc["doc_type"] == "Thông tư"
+    assert doc["ngay_ban_hanh"] == "2024-06-28"     # dd/mm/yyyy -> ISO
+    assert doc["valid_to"] is None                  # "" nghĩa là chưa hết hiệu lực
+    assert doc["source_url"].startswith("https://vbpl.vn/")
+    assert len(doc["articles"]) == 3 and len(doc["provisions"]) == 2
+
+
+def test_to_corpus_document_thieu_so_hieu_thi_lui_ve_slug():
+    doc = to_corpus_document({
+        "url": "https://vbpl.vn/van-ban/chi-tiet/quyet-dinh-la--999",
+        "title": "Quyết định lạ", "thuoc_tinh": {}, "cay_dieu_khoan": [],
+    })
+    assert doc["doc_id"] == "quyet-dinh-la--999"    # không bao giờ được rỗng
+    assert doc["so_hieu"] is None
 
 
 def test_classify_badge_known_and_unknown():

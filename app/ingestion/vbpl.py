@@ -33,6 +33,8 @@ import time
 import unicodedata
 from collections import Counter
 from dataclasses import dataclass
+from html import escape
+from html.parser import HTMLParser
 from pathlib import Path
 
 import httpx
@@ -342,6 +344,7 @@ _JS_PROVISION_NODES = r"""() => {
       amend_type: inBlock ? bt : null,
       amend_badges: inBlock ? badgesOf(block) : [],
       text: (el.innerText || '').trim().replace(/\s*\n\s*/g, ' '),
+      html: el.innerHTML,   // giữ đậm/nghiêng; lọc bằng whitelist ở phía Python
     });
   }
   return out;
@@ -462,6 +465,67 @@ _HEADING_RES = {
 }
 
 
+# Chỉ những thẻ này được đi tiếp vào hệ thống. Mọi thẻ khác bị bóc bỏ (giữ lại chữ bên
+# trong), mọi attribute bị vứt — kể cả style, class, id, on*. Trang nguồn là site ngoài;
+# nội dung của nó cuối cùng sẽ được render trong app, nên whitelist phải hẹp và cố định,
+# không phải blacklist "bỏ những thứ nguy hiểm đã biết".
+_INLINE_TAGS = {"b", "strong", "i", "em", "u", "sup", "sub", "br"}
+_VOID_TAGS = {"br"}
+
+
+class _InlineSanitizer(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.parts: list[str] = []
+        self._open: list[str] = []
+
+    def handle_starttag(self, tag: str, attrs) -> None:  # noqa: ANN001
+        if tag not in _INLINE_TAGS:
+            return
+        if tag in _VOID_TAGS:
+            self.parts.append(f"<{tag}>")
+            return
+        self.parts.append(f"<{tag}>")
+        self._open.append(tag)
+
+    def handle_startendtag(self, tag: str, attrs) -> None:  # noqa: ANN001
+        if tag in _VOID_TAGS:
+            self.parts.append(f"<{tag}>")
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag not in _INLINE_TAGS or tag in _VOID_TAGS:
+            return
+        if tag in self._open:
+            # đóng cả những thẻ lồng chưa đóng, giữ HTML luôn cân
+            while self._open:
+                t = self._open.pop()
+                self.parts.append(f"</{t}>")
+                if t == tag:
+                    break
+
+    def handle_data(self, data: str) -> None:
+        self.parts.append(escape(data, quote=False))
+
+    def result(self) -> str:
+        while self._open:
+            self.parts.append(f"</{self._open.pop()}>")
+        return "".join(self.parts)
+
+
+def sanitize_inline(html: str) -> str:
+    """HTML thô của một đoạn → chỉ còn thẻ nhấn mạnh inline, không attribute nào.
+
+    Trả chuỗi rỗng nếu sau khi lọc không còn chữ nào.
+    """
+    if not html:
+        return ""
+    p = _InlineSanitizer()
+    p.feed(html)
+    p.close()
+    out = re.sub(r"\s+", " ", p.result()).strip()
+    return "" if not re.sub(r"<[^>]+>", "", out).strip() else out
+
+
 def split_heading(cap: str, text: str) -> tuple[str | None, str]:
     """Tách "Điều 7. Dịch vụ..." → ("7", "Dịch vụ..."). Không khớp thì trả (None, text)."""
     m = _HEADING_RES[cap].match(text.strip())
@@ -495,10 +559,13 @@ def build_provision_tree(nodes: list[dict]) -> list[dict]:
         if raw.get("hidden"):
             continue
 
+        html = sanitize_inline(raw.get("html") or "")
+
         if cls == "prov-content":
             target = by_id.get(parent_id or "") or last
             if target is not None and text:
                 target["text"] = f"{target['text']}\n{text}".strip()
+                target["html"] = f"{target['html']}<br>{html}" if target["html"] else html
             continue
 
         level_info = _PROV_LEVELS.get(cls or "")
@@ -533,6 +600,10 @@ def build_provision_tree(nodes: list[dict]) -> list[dict]:
             "so": so,
             "tieu_de": rest if cap in ("chuong", "muc", "dieu") else "",
             "text": "" if cap in ("chuong", "muc", "dieu") else rest,
+            # HTML inline đã lọc, GIỮ cả tiền tố số ("1. ", "a) ") vì đó là cách đọc tự
+            # nhiên của điều khoản; tiêu đề Chương/Mục/Điều thì app tự dựng từ so + tieu_de
+            # nên không cần HTML.
+            "html": "" if cap in ("chuong", "muc", "dieu") else html,
             "bi_tac_dong": sorted({classify_badge(b) for b in raw.get("amend_badges") or []})
             or None,
             "an": bool(raw.get("hidden")),
@@ -547,6 +618,94 @@ def build_provision_tree(nodes: list[dict]) -> list[dict]:
         last = node
 
     return roots
+
+
+def flatten_articles(tree: list[dict]) -> list[dict]:
+    """Cây → danh sách Điều phẳng đúng dạng `Article` (đơn vị chunk cho RAG).
+
+    Text của một Điều = phần thân của nó cộng toàn bộ Khoản/Điểm bên dưới, giữ nguyên thứ
+    tự đọc. Nhãn Chương/Mục lấy từ tổ tiên để trình xem hiện heading.
+    """
+    out: list[dict] = []
+
+    def label(cap: str, node: dict) -> str:
+        ten = {"chuong": "Chương", "muc": "Mục", "dieu": "Điều"}[cap]
+        head = f"{ten} {node['so']}" if node["so"] else ten
+        return f"{head}. {node['tieu_de']}".rstrip(". ") if node["tieu_de"] else head
+
+    def body(node: dict, depth: int = 0) -> list[str]:
+        lines = [node["text"]] if node["text"] else []
+        for kid in node["con"]:
+            lines += body(kid, depth + 1)
+        return lines
+
+    def walk(nodes: list[dict], chuong: str | None, muc: str | None) -> None:
+        for n in nodes:
+            if n["cap"] == "chuong":
+                walk(n["con"], label("chuong", n), None)
+            elif n["cap"] == "muc":
+                walk(n["con"], chuong, label("muc", n))
+            elif n["cap"] == "dieu":
+                out.append(
+                    {
+                        "article": f"Điều {n['so']}" if n["so"] else "Điều",
+                        "text": "\n".join(body(n)).strip(),
+                        "chapter": chuong,
+                        "section": muc,
+                        "superseded": False,
+                    }
+                )
+            else:
+                walk(n["con"], chuong, muc)
+
+    walk(tree, None, None)
+    return out
+
+
+_DOC_TYPE_RE = re.compile(
+    r"^(Thông tư liên tịch|Thông tư|Nghị định|Nghị quyết|Quyết định|Luật|Pháp lệnh|"
+    r"Chỉ thị|Công văn|Văn bản hợp nhất)",
+    re.I,
+)
+
+
+def to_corpus_document(doc: dict) -> dict:
+    """Kết quả `dump` → JSON đúng dạng `CorpusDocument` để đưa vào luồng duyệt.
+
+    doc_id lấy từ Số hiệu (đã bỏ dấu "/"), vì đó là định danh người dùng tra cứu; thiếu
+    Số hiệu thì lùi về slug URL để không bao giờ sinh doc_id rỗng.
+    """
+    props = doc.get("thuoc_tinh") or {}
+    so_hieu = (props.get("so_hieu") or "").strip()
+    doc_id = so_hieu.replace("/", "-") or _UUID_SUFFIX_RE.sub(
+        "", doc["url"].rstrip("/").rsplit("/", 1)[-1]
+    )[:60]
+    title = doc.get("title") or doc_id
+    m = _DOC_TYPE_RE.match(props.get("loai_van_ban") or title)
+    tree = doc.get("cay_dieu_khoan") or []
+
+    return {
+        "doc_id": doc_id,
+        "title": title,
+        "doc_type": (props.get("loai_van_ban") or (m.group(1) if m else "")).strip(),
+        "source": "external",
+        "valid_from": doc.get("ngay_hieu_luc") or _iso_date(props.get("ngay_co_hieu_luc")),
+        "valid_to": _iso_date(props.get("ngay_het_hieu_luc")),
+        "so_hieu": so_hieu or None,
+        "co_quan_ban_hanh": props.get("co_quan_ban_hanh") or None,
+        "nguoi_ky": props.get("nguoi_ky") or None,
+        "chuc_danh": props.get("chuc_danh") or None,
+        "nganh": props.get("nganh") or None,
+        "linh_vuc": props.get("linh_vuc") or None,
+        "ngay_ban_hanh": _iso_date(props.get("ngay_ban_hanh")),
+        "tinh_trang_hieu_luc": props.get("tinh_trang_hieu_luc")
+        or doc.get("trang_thai")
+        or None,
+        "source_url": doc.get("url"),
+        "source_files": [],
+        "articles": flatten_articles(tree),
+        "provisions": tree,
+    }
 
 
 def count_provisions(tree: list[dict]) -> dict[str, int]:
@@ -772,6 +931,11 @@ def main(argv: list[str] | None = None) -> None:
     )
     p_dump.add_argument("url")
     p_dump.add_argument("--out", default="data/raw/vbpl")
+    p_dump.add_argument(
+        "--corpus",
+        action="store_true",
+        help="Ghi thêm bản .corpus.json đúng dạng CorpusDocument để đưa vào luồng duyệt",
+    )
 
     args = parser.parse_args(argv)
 
@@ -828,6 +992,18 @@ def main(argv: list[str] | None = None) -> None:
                     if link:
                         print(f"         {link}")
         print(f"[vbpl] Lấy được URL cho {n_url} văn bản liên quan")
+
+        if args.corpus:
+            cdoc = to_corpus_document(doc)
+            cpath = out_dir / f"{slug}.corpus.json"
+            cpath.write_text(
+                json.dumps(cdoc, ensure_ascii=False, indent=1), encoding="utf-8"
+            )
+            print(
+                f"[vbpl] Đã lưu {cpath} — doc_id={cdoc['doc_id']!r}, "
+                f"{len(cdoc['articles'])} Điều, {count_provisions(cdoc['provisions'])}"
+            )
+            print("[vbpl] Bước tiếp: đưa file này vào luồng duyệt (POST /documents/{id}/approve)")
 
 
 if __name__ == "__main__":
