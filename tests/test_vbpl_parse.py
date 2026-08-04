@@ -6,6 +6,7 @@ from app.ingestion.vbpl import (
     _dedupe_amendments,
     classify_badge,
     clean_body,
+    group_relations,
     parse_property_rows,
     parse_relations,
 )
@@ -86,6 +87,47 @@ def test_parse_relations_does_not_bleed_past_the_count():
     # "Văn bản hợp nhất (1)" chỉ được lấy đúng 1 dòng, không nuốt mục kế tiếp
     rel = parse_relations(LUOC_DO)
     assert len(rel["incoming"]["Văn bản hợp nhất"]) == 1
+
+
+RELATION_ITEMS = [
+    {"idx": 0, "title": "Thông tư số 38/2019/TT-NHNN", "category": "Văn bản được thay thế",
+     "direction": "outgoing", "url": "https://vbpl.vn/van-ban/chi-tiet/tt-38-2019--140177"},
+    {"idx": 1, "title": "Thông tư số 46/2014/TT-NHNN", "category": "Văn bản được thay thế",
+     "direction": "outgoing", "url": "https://vbpl.vn/van-ban/chi-tiet/tt-46-2014--46835"},
+    {"idx": 2, "title": "Thông tư số 30/2016/TT-NHNN", "category": "Văn bản bị bãi bỏ",
+     "direction": "outgoing", "url": "https://vbpl.vn/van-ban/chi-tiet/tt-30-2016--123"},
+    {"idx": 3, "title": "Thông tư 21/2026/TT-NHNN", "category": "Văn bản sửa đổi bổ sung",
+     "direction": "incoming", "url": "https://vbpl.vn/van-ban/chi-tiet/tt-21-2026--456"},
+]
+
+
+def test_group_relations_keeps_direction_category_and_url():
+    rel = group_relations(RELATION_ITEMS)
+    thay_the = rel["outgoing"]["Văn bản được thay thế"]
+    assert [x["title"] for x in thay_the] == [
+        "Thông tư số 38/2019/TT-NHNN",
+        "Thông tư số 46/2014/TT-NHNN",
+    ]
+    assert thay_the[0]["url"].endswith("140177")
+    assert rel["outgoing"]["Văn bản bị bãi bỏ"][0]["title"] == "Thông tư số 30/2016/TT-NHNN"
+    assert rel["incoming"]["Văn bản sửa đổi bổ sung"][0]["url"].endswith("456")
+
+
+def test_group_relations_surfaces_items_with_no_category():
+    rel = group_relations([{"idx": 0, "title": "Văn bản lạ", "category": None,
+                           "direction": "outgoing", "url": None}])
+    # không được nuốt im lặng — phải lộ ra dưới nhóm riêng
+    assert rel["outgoing"]["(không rõ nhóm)"] == [{"title": "Văn bản lạ", "url": None}]
+
+
+def test_group_relations_keeps_title_when_url_is_missing():
+    rel = group_relations([{"idx": 0, "title": "Không mở được", "category": "Căn cứ ban hành",
+                            "direction": "outgoing", "url": None}])
+    assert rel["outgoing"]["Căn cứ ban hành"] == [{"title": "Không mở được", "url": None}]
+
+
+def test_group_relations_on_empty_input_has_both_directions():
+    assert group_relations([]) == {"outgoing": {}, "incoming": {}}
 
 
 def test_classify_badge_known_and_unknown():

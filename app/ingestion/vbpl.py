@@ -187,9 +187,54 @@ def fetch_rendered_main_text(url: str) -> tuple[str, str]:
 # sát được: 10 = sửa đổi bổ sung, 12 = thay thế, 13 = bổ sung — NHƯNG chỉ suy ra từ một văn
 # bản, nên nhãn chữ mới là nguồn phân loại chính, mã số chỉ lưu kèm để đối chiếu.
 
-_TAB_NOI_DUNG = "Nội dung"
-_TAB_THUOC_TINH = "Thuộc tính"
-_TAB_LUOC_DO = "Lược đồ"
+# Ba tab dùng chung URL nhưng CÓ tham số `?tabs=` — mở thẳng bằng URL thay vì click tab
+# antd rồi ngủ vài giây. Cách click + sleep cố định là một cuộc đua: máy chậm hoặc mạng
+# chậm thì đọc DOM trước khi tab render xong và lặng lẽ trả về 0 trường.
+_TAB_THUOC_TINH_URL = "thuoc-tinh"
+_TAB_LUOC_DO_URL = "luoc-do"
+
+# Mục trong Lược đồ không phải <a href> — điều hướng bằng window.open trong handler React.
+# Ghi đè window.open để LẤY được URL đích mà không thật sự tải trang đó (13 mục = 13 lượt
+# tải vô ích cho server).
+_OPEN_HOOK_JS = """
+  window.__lfOpened = [];
+  window.open = function (u) { window.__lfOpened.push(String(u)); return null; };
+"""
+
+# Đánh dấu từng mục quan hệ để Python click đúng thứ tự, kèm nhóm và chiều.
+_JS_TAG_RELATIONS = r"""() => {
+  const main = document.querySelector('main');
+  if (!main) return [];
+  const CAT = /^(.+?)\s*\((\d+)\)$/;
+  const marker = [...main.querySelectorAll('*')].find(
+    el => !el.children.length && (el.innerText || '').trim().startsWith('VĂN BẢN ĐANG XEM')
+  );
+  const items = [];
+  let idx = 0;
+  for (const li of main.querySelectorAll('li')) {
+    const link = li.querySelector('a');
+    const opener = li.querySelector('span.cursor-pointer');
+    const title = (link?.innerText || '').trim().replace(/\s+/g, ' ');
+    if (!title || title === '--' || !opener) continue;   // mục rỗng không có nút mở
+    // Tên nhóm nằm ở phần tử anh em ĐỨNG TRƯỚC một tổ tiên nào đó của <li>
+    let category = null;
+    for (let a = li.parentElement; a && a !== main && !category; a = a.parentElement) {
+      let sib = a.previousElementSibling;
+      while (sib && !category) {
+        const m = CAT.exec((sib.innerText || '').trim());
+        if (m) category = m[1].trim();
+        sib = sib.previousElementSibling;
+      }
+    }
+    const after = marker
+      ? !!(marker.compareDocumentPosition(li) & Node.DOCUMENT_POSITION_FOLLOWING)
+      : false;
+    li.setAttribute('data-lf-idx', String(idx));
+    items.push({ idx, title, category, direction: after ? 'incoming' : 'outgoing' });
+    idx += 1;
+  }
+  return items;
+}"""
 
 _JS_AMENDMENTS = r"""() => {
   const main = document.querySelector('main');
@@ -324,6 +369,22 @@ def parse_relations(luoc_do_text: str) -> dict[str, dict[str, list[str]]]:
     return out
 
 
+def group_relations(items: list[dict]) -> dict[str, dict[str, list[dict]]]:
+    """Danh sách phẳng các mục Lược đồ → {chiều: {nhóm: [{title, url}]}}.
+
+    Giữ nguyên thứ tự trang. Mục không xác định được nhóm gom vào "(không rõ nhóm)" thay vì
+    bị bỏ đi — thà lộ ra để sửa còn hơn mất dữ liệu âm thầm.
+    """
+    out: dict[str, dict[str, list[dict]]] = {"outgoing": {}, "incoming": {}}
+    for it in items:
+        direction = it.get("direction") or "outgoing"
+        category = it.get("category") or "(không rõ nhóm)"
+        out.setdefault(direction, {}).setdefault(category, []).append(
+            {"title": it["title"], "url": it.get("url")}
+        )
+    return out
+
+
 def _wait_for_content(page) -> None:
     try:
         page.wait_for_function(
@@ -332,6 +393,46 @@ def _wait_for_content(page) -> None:
     except Exception:
         # Văn bản ngắn (Quyết định/Công văn...) có thể không bao giờ vượt 3000 ký tự
         page.wait_for_timeout(3000)
+
+
+def _open_tab(page, url: str, tab_slug: str, needle: str) -> None:
+    """Mở 1 tab qua tham số URL và đợi đúng nội dung của nó xuất hiện.
+
+    `needle` là chuỗi chỉ có trên tab đó — đợi nó thay vì ngủ một khoảng cố định. Hết giờ
+    thì báo lỗi to, KHÔNG trả về dữ liệu rỗng như thể trang không có gì.
+    """
+    sep = "&" if "?" in url else "?"
+    page.goto(f"{url}{sep}tabs={tab_slug}", wait_until="domcontentloaded", timeout=45_000)
+    try:
+        page.wait_for_function(
+            "n => (document.querySelector('main')?.innerText ?? '').includes(n)",
+            arg=needle,
+            timeout=30_000,
+        )
+    except Exception as exc:
+        raise RuntimeError(
+            f"Tab '{tab_slug}' không hiện nội dung mong đợi ({needle!r}) sau 30s. "
+            "Mạng chậm, hoặc vbpl.vn đã đổi cấu trúc trang."
+        ) from exc
+
+
+def _resolve_relation_urls(page, items: list[dict]) -> list[dict]:
+    """Bấm nút mở của từng mục để lấy URL đích qua window.open đã bị chặn."""
+    out = []
+    for it in items:
+        opener = page.locator(f"main li[data-lf-idx='{it['idx']}'] span.cursor-pointer").first
+        url = None
+        try:
+            before = page.evaluate("(window.__lfOpened || []).length")
+            opener.click(timeout=8_000)
+            page.wait_for_function(
+                "n => (window.__lfOpened || []).length > n", arg=before, timeout=5_000
+            )
+            url = page.evaluate("window.__lfOpened[window.__lfOpened.length - 1]")
+        except Exception:
+            url = None  # mục không mở được — giữ tiêu đề, để URL trống
+        out.append({**it, "url": url})
+    return out
 
 
 def _dedupe_amendments(raw: list[dict]) -> list[dict]:
@@ -354,22 +455,28 @@ def fetch_document(url: str) -> dict:
         browser = p.chromium.launch()
         try:
             page = browser.new_page(user_agent=_UA)
+            page.add_init_script(_OPEN_HOOK_JS)
+
             page.goto(url, wait_until="domcontentloaded", timeout=45_000)
             _wait_for_content(page)
-
             title = page.title().split(" | CSDL")[0].strip()
             main_text = page.evaluate(_JS_MAIN_TEXT)
             amendments = _dedupe_amendments(page.evaluate(_JS_AMENDMENTS))
 
-            page.get_by_role("tab", name=_TAB_THUOC_TINH, exact=True).click(timeout=15_000)
-            page.wait_for_timeout(3000)
+            _open_tab(page, url, _TAB_THUOC_TINH_URL, "Số hiệu")
             properties = parse_property_rows(page.evaluate(_JS_PROP_ROWS))
 
-            page.get_by_role("tab", name=_TAB_LUOC_DO, exact=True).click(timeout=15_000)
-            page.wait_for_timeout(3000)
+            _open_tab(page, url, _TAB_LUOC_DO_URL, "VĂN BẢN ĐANG XEM")
             luoc_do_text = page.evaluate(_JS_MAIN_TEXT)
+            relations = _resolve_relation_urls(page, page.evaluate(_JS_TAG_RELATIONS))
         finally:
             browser.close()
+
+    if not properties:
+        raise RuntimeError(
+            "Tab Thuộc tính render xong nhưng không đọc được trường nào — bảng đã đổi cấu "
+            "trúc. Kiểm tra _PROP_KEYS trước khi dùng kết quả."
+        )
 
     body, status, valid_from = clean_body(main_text)
     return {
@@ -379,7 +486,9 @@ def fetch_document(url: str) -> dict:
         "ngay_hieu_luc": _iso_date(valid_from),
         "noi_dung": body,
         "thuoc_tinh": properties,
-        "luoc_do": parse_relations(luoc_do_text),
+        # DOM cho cả URL đích; chỉ khi không bóc được mục nào mới lùi về đọc text thuần
+        # (giữ được tiêu đề, mất URL).
+        "luoc_do": group_relations(relations) if relations else parse_relations(luoc_do_text),
         "dieu_khoan_bi_tac_dong": [
             {
                 "dieu": a["article"],
@@ -501,14 +610,24 @@ def main(argv: list[str] | None = None) -> None:
         )
         n_amend = len(doc["dieu_khoan_bi_tac_dong"])
         kinds = Counter(k for a in doc["dieu_khoan_bi_tac_dong"] for k in a["phan_loai"])
-        rel = {
-            d: {k: len(v) for k, v in cats.items() if v}
-            for d, cats in doc["luoc_do"].items()
-        }
         print(f"[vbpl] Đã lưu {out_path}")
         print(f"[vbpl] Thuộc tính : {len(doc['thuoc_tinh'])} trường")
         print(f"[vbpl] Điều khoản bị tác động: {n_amend} — {dict(kinds)}")
-        print(f"[vbpl] Lược đồ    : {rel}")
+        print("[vbpl] Lược đồ:")
+        n_url = 0
+        for direction, cats in doc["luoc_do"].items():
+            for name, items in cats.items():
+                if not items:
+                    continue
+                print(f"    [{direction}] {name} ({len(items)})")
+                for it in items:
+                    link = it.get("url") if isinstance(it, dict) else None
+                    n_url += bool(link)
+                    label = it["title"] if isinstance(it, dict) else it
+                    print(f"       - {label[:88]}")
+                    if link:
+                        print(f"         {link}")
+        print(f"[vbpl] Lấy được URL cho {n_url} văn bản liên quan")
 
 
 if __name__ == "__main__":
