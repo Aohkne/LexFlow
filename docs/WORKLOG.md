@@ -89,6 +89,42 @@
     `tiet_semicolon_mo_ho`. Nhánh vẫn phải chạy đúng nên test của nó chuyển sang **Điểm dựng tay**
     và nói rõ là dựng tay — sửa fixture cho vừa test thì rẻ hơn, nhưng fixture là **chữ luật thật**,
     sửa nó là làm hỏng thứ đắt nhất trong repo.
+- **Done (đối chiếu lại v0.5 + G1 tầng CU — `docs/KG-CONFORMANCE-v05.md`, `ONTOLOGY-POC.md` §14g–h).**
+  - **Đo lại conformance: điểm KHÔNG đổi một ô nào.** Ba đợt việc 04/08 đều ở tầng CU, không chạm
+    tầng văn bản. Ghi lại thay vì làm tròn lên — một báo cáo đối chiếu mà tự cải thiện điểm sau
+    mỗi lần chạm code thì hết là thước đo. Cái lớn lên: §4 "PoC đi trước v0.5" **4 → 7 mục**.
+  - **Một ô sửa XUỐNG: §6 từ 4/13 còn 2/13.** Bản cũ đếm 4 vì dữ liệu có 4 `rel_type`. Đối chiếu
+    từng tên: chỉ `THAY_THE`, `DAN_CHIEU` trùng; `SUA_DOI` phải thành `SUA_DOI_BO_SUNG`; 4 cạnh
+    `HUONG_DAN` **không ánh xạ được** — §6.3 tách nó làm hai quan hệ mà Điều 53 k2 đối xử khác nhau.
+  - **Bốn phát hiện mới, mỗi cái truy tới một dòng:** (a) `Chương` có thật trong HTML gốc — **47
+    Chương + 15 Mục** trên 9 file — nhưng `extract.py:90` vứt đi, nên `Article.chapter` là trường
+    chết **0/278**; (b) tên quan hệ lệch; (c) **`BAI_BO` = 0 instance** ⇒ truy vấn *legislative
+    void* §6.2 sẽ **chạy nhưng rỗng**, đừng nhầm "dựng xong 13 cạnh" với "có demo"; (d)
+    `_SO_HIEU_RE` chạy đúng, `so_hieu` **đã trích rồi vứt** ⇒ bắc cầu ID rẻ hơn §3.3 tưởng.
+    Hai cái (a)(d) làm **đổi thứ tự phụ thuộc**: `Chuong`/`Muc` không cần chờ thống nhất ID.
+  - **LỖI ĐANG SỐNG tìm ra khi đối chiếu hai tầng guard.** TT17 Đ16 k1 điểm a: guard tại Điểm là
+    `('khách hàng','cá nhân')` trong khi tiết (ii) là `('khách hàng','tổ chức')`. `hop_guard` là
+    AND dọc đường đi ⇒ tiết (ii) nhận **`cá nhân ∧ tổ chức`, guard bất khả thi** — vế đó vĩnh viễn
+    không áp dụng cho ai. **2/2** ca có guard ở cả hai tầng đều hỏng. Test cũ không bắt vì không
+    test nào canh **quan hệ giữa hai tầng**.
+  - **Hai nguyên nhân độc lập, sửa cả hai:** (1) `tach_guard` trả cụm **đầu tiên** ⇒ đổi sang chỉ
+    nhận khi có **đúng một** cặp `(thuoc_tinh, gia_tri)`; từ hai trở lên báo `guard_nhieu_cum` và
+    **không chọn hộ**. (2) `extractor` đưa toàn văn Điểm vào ⇒ Điểm **có tiết** thì đọc trên **câu
+    bao trùm**, đúng ranh giới §14e. Chỉ sửa (2) thì chưa đủ: điểm b có **hai cụm ngoặc ngay trong
+    chapeau**. Kèm một sửa lỗi cắt câu: `_GUARD_CUM` nay dừng ở `)` — an toàn một chiều vì mọi cụm
+    chứa ngoặc **đang** bị loại.
+  - **Đo: guard 13 → 11 · guard bất khả thi 2 → 0** · cảnh báo 76 → 76 · lỗi cứng 0/49 ·
+    `guard_ngoai_mau` 13 → 12, `guard_nhieu_cum` 0 → 1 · `--classify` **94 đơn vị 45/9/40** ·
+    `classify_testset` **9/9** · pytest **365**.
+  - **Hai đề xuất của tôi bị ĐO bác bỏ** (lần thứ ba trong ngày): nới dạng C ra 6 từ cho
+    `thuoc_tinh = 'dịch'`, `'khách'` — **sai tiếng Việt**, vì danh ngữ Việt có head hai âm tiết;
+    bỏ điều kiện `ket==':'` của dạng B chỉ mua **1 ca** và đó là một khoản **định nghĩa**, nơi
+    guard vô nghĩa. Kế hoạch ghi "T4 16 → ~6" là **sai**, thực tế 16 → 16.
+  - **T3 "nghi bịa tình thái" bỏ trống**, 9 cờ xuống T5. Người duyệt chấm 8/9 báo động giả, và
+    `modality.py:65-68` đã viết trước: thêm dấu hiệu của nhóm **nguồn đã có** là *phân phối lệnh
+    cấm ra từng vế* hoặc *thay từ đồng nghĩa*, không phải bịa. Bịa thật là `invented_groups` → lỗi
+    cứng, 0/49. **Không** đụng `modality.py`. Số hiệu T3 giữ trống, không đánh số lại T4→T3 vì
+    `flag_verdicts.jsonl` đã duyệt có ghi `tier`. **Hàng đợi 31 → 22.**
 - **Done (bảng phân hoạch — `docs/ONTOLOGY-POC.md` §14f).** Chốt vế còn thiếu của câu hỏi T2.
   - **Câu hỏi ở §14c thiếu một vế.** Người duyệt trả lời *"loại trừ nhau về đối tượng áp dụng"*,
     nhưng loại trừ nhau **chưa đủ**: `(g₁→c₁)∧(g₂→c₂)` vs `(g₁∧c₁)∨(g₂∧c₂)` chỉ trùng nhau ở

@@ -428,8 +428,14 @@ def _build_conditions(
         # phủ trọn khoản, nên mọi điều kiện trong khoản đều thừa hưởng. Đọc trên đoạn
         # hẹp thì guard biến mất tuỳ mô hình neo tới đâu — tức một tầng TẤT ĐỊNH lại
         # phụ thuộc đầu ra của LLM, đúng thứ thiết kế này sinh ra để tránh.
+        # Điểm CÓ tiết thì guard của Điểm chỉ đọc trên CÂU BAO TRÙM, không trên toàn văn:
+        # cụm "đối với …" nằm bên trong một tiết thuộc về **tiết đó**, không phủ cả Điểm.
+        # Đọc toàn văn thì guard của tiết (i) bị nâng lên thành guard của Điểm, rồi
+        # `hop_guard` (AND dọc đường đi) cấp cho tiết (ii) một guard bất khả thi
+        # `cá nhân ∧ tổ chức`. Cùng ranh giới mà `chapeau_logic` đã dựng cho phép nối.
         if diem_node is not None:
-            g_src, g_base = diem_node.text, diem_node.start
+            g_src = chapeau_cua_diem(diem_node) if diem_node.tiet else diem_node.text
+            g_base = diem_node.start
         else:
             g_src, g_base = khoan.text, khoan.start
         guard = _guard(g_src, g_base, dieu, where, item_warn)

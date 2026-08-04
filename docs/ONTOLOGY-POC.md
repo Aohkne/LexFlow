@@ -863,6 +863,79 @@ Guard **anh em ở tầng Điểm** (TT18 Đ9 k2 có 4 nhánh) chưa xử lý: n
 ba giá trị quốc tịch dưới `khách hàng cá nhân`, cộng một `khách hàng tổ chức` — nên không phải
 một phân hoạch đơn miền. Cảnh báo hiện chỉ sinh ở tầng tiết, nên phạm vi giữ đúng theo đó.
 
+## 14g. Guard của một nút phải DUY NHẤT — một lỗi im lặng đã sống trong dữ liệu
+
+### Lỗi
+
+Đối chiếu guard tầng Điểm với guard tầng tiết trên `pred.jsonl`:
+
+```
+TT17 Đ16 k1 điểm a   guard tại ĐIỂM : ('khách hàng', 'cá nhân')
+                     tiết (i)       : ('khách hàng', 'cá nhân')
+                     tiết (ii)      : ('khách hàng', 'tổ chức')
+```
+
+`hop_guard` là **AND dọc đường đi** (§14c), nên tiết (ii) nhận `cá nhân ∧ tổ chức` — một guard
+**không đối tượng nào thoả**. Vế đó vĩnh viễn không áp dụng cho ai. **2/2** điều kiện có guard ở
+cả hai tầng đều hỏng như vậy; test cũ không bắt được vì không test nào canh quan hệ giữa hai tầng.
+
+### Hai nguyên nhân độc lập, phải sửa cả hai
+
+**(1) `tach_guard` trả cụm ĐẦU TIÊN.** Đọc trên toàn văn Điểm thì cụm của tiết (i) thắng. Sửa:
+gom mọi guard sạch, **chỉ nhận khi có đúng một cặp `(thuoc_tinh, gia_tri)` khác nhau**; từ hai
+trở lên thì báo `guard_nhieu_cum` và **không chọn hộ** — nhiều cụm nghĩa là chúng gắn vào những
+danh ngữ khác nhau, không phải một guard phủ cả nút. Cùng một guard lặp lại thì vẫn nhận.
+
+**(2) `extractor` đưa `diem_node.text` vào.** Sửa: Điểm **có tiết** thì guard đọc trên **câu bao
+trùm** (`chapeau_cua_diem`) — đúng ranh giới §14e đã dựng cho phép nối. Điểm **không** có tiết thì
+vẫn đọc toàn văn, và Khoản không chẻ Điểm vẫn đọc cả Khoản (ca TT18 Đ13 k4 của §14c giữ nguyên).
+
+Chỉ sửa (2) thì chưa đủ: điểm b của cùng Khoản có **hai cụm ngoặc trong chính chapeau** (*"…của
+chủ tài khoản **(đối với khách hàng là cá nhân)**, người đại diện hợp pháp **(đối với khách hàng
+là tổ chức)** với:"*), nên vẫn nhận nhầm một guard trong im lặng.
+
+### Một sửa lỗi cắt câu đi kèm
+
+`_GUARD_CUM` không dừng ở `)`, nên cụm nuốt luôn dấu đóng ngoặc, `_GUARD_XAU` thấy `[()]` và loại.
+Ba ca thật bị đẩy sang `guard_ngoai_mau` **dù mẫu A khớp hoàn hảo sau khi cắt đúng**. Thêm `)` vào
+tập dấu kết. An toàn một chiều: mọi cụm chứa ngoặc đều **đang** bị loại, nên phép này chỉ có thể
+làm cụm ngắn lại, không thể nhận thêm rác.
+
+### Hai đề xuất bị ĐO bác bỏ
+
+Kế hoạch ban đầu là *"thêm dạng `đối với + danh ngữ`, T4 16 → ~6"*. Đo trên 8 ca thật thì cả hai
+cách nới đều hỏng:
+
+| phép nới | ca mua được | vì sao KHÔNG làm |
+|---|---|---|
+| dạng C lên 6 từ, bỏ điều kiện "mở đầu đơn vị" | `'dịch vụ ví điện tử'` · `'dịch vụ chuyển mạch tài chính'` | `thuoc_tinh = cum.split()[0]` cho ra `'dịch'`, `'khách'` — **sai tiếng Việt**. Danh ngữ Việt có head hai âm tiết (`dịch vụ`, `tài khoản`), tách bằng từ đầu là hỏng |
+| dạng B bỏ điều kiện `ket == ':'` | đúng **1** ca trên toàn corpus | ca đó là ND52 Đ3 k9 *"…đứng tên mở tài khoản đối với tài khoản của tổ chức."* — một khoản **ĐỊNH NGHĨA**, nơi guard vô nghĩa vì không có nghĩa vụ nào để chặn. Điều kiện `:` đang **làm việc thật**: nó chọn hình dạng `X của Y:` mở đầu một danh sách yêu cầu |
+
+Ghi lại vì đây là lần thứ ba trong ngày phép đo bác một đề xuất, và cả ba lần cái đo được đều
+đáng giá hơn cái định làm.
+
+## 14h. T3 "nghi bịa tình thái" bỏ trống — mức đặt sai từ đầu
+
+Người duyệt chấm **8/9** cờ T3 là **báo động giả**. Không phải mô hình bỗng tốt lên: chính
+`modality.py:65-68` đã viết trước điều đó —
+
+> *"thêm số lần xuất hiện của một nhóm **đã có sẵn** thì không [phải bịa] — đó thường chỉ là
+> **phân phối lệnh cấm ra từng vế**, hoặc **thay từ đồng nghĩa**."*
+
+Đối chiếu chữ luật, cả 9 cờ đúng hai dạng đó:
+
+- **TT40 Đ25 k5** — luật: *"**không được** nhận tiền mặt…; **không được phép** cấp tín dụng, trả
+  lãi"*. Lệnh cấm ở vế ba bị **tỉnh lược**; mô hình viết rõ ra thành `không được` ×3.
+- **4 ca "khi"** — luật viết *"(trong) trường hợp"*, nhãn viết *"khi"*: **cùng nhóm `dieu_kien`**
+  trong từ điển `modality.py:26`. Bộ dò so **chuỗi**, không so **nhóm**.
+
+Tín hiệu bịa THẬT là `invented_groups` — *nguồn không có dấu hiệu nào thuộc nhóm này* — và nó đã
+là **lỗi cứng** chứ không phải cảnh báo, hiện **0/49**. Nên `added` chuyển xuống **T5**: vẫn đếm,
+không chiếm chỗ trong hàng đợi. **Không** đụng `modality.py`: luật dò không sai, chỗ xếp hạng sai.
+
+Số hiệu **T3 giữ trống**, không đánh số lại T4 → T3: mọi `flag_verdicts.jsonl` đã duyệt đều ghi
+`tier`, đánh số lại làm nhãn cũ trỏ sai mức **trong im lặng** — đúng loại lỗi cả tầng này chặn.
+
 ## 15. Câu hỏi mở cho mentor
 
 1. Ba tầng tất định ở §4 có đủ để coi là **kiểm soát tính trung thành** cho tầng chuẩn tắc, hay vẫn cần

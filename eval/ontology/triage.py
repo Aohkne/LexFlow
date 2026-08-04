@@ -10,12 +10,29 @@ Nên ở đây cờ được xếp thành 5 mức theo **hậu quả nếu bỏ 
 
     T1  máy đã tự quyết thay người  — nới lỏng lỗi cứng, tự gộp span, tự lùi span
     T2  phép logic chưa xác định    — 'và' hay 'hoặc'; đọc sai là đảo nghĩa pháp lý
-    T3  nghi bịa tình thái          — nhãn THÊM dấu hiệu nghĩa vụ/cấm mà nguồn không có
+    T3  (bỏ trống — xem dưới)
     T4  neo sai phạm vi             — quote thu hẹp sai chỗ, span vắt qua nhiều điểm
-    T5  ít giá trị đọc              — nhãn tóm lược (MẤT dấu hiệu), quote mất marker
+    T5  ít giá trị đọc              — nhãn tóm lược, quote mất marker, THÊM dấu hiệu của
+                                      một nhóm nguồn ĐÃ CÓ
 
 T5 cố ý vẫn được đếm và in số, không bị xoá: một loại cờ bị ẩn đi thì lần sau không ai
 biết nó còn tồn tại. Nhưng nó không vào hàng đợi duyệt.
+
+**T3 "nghi bịa tình thái" bỏ trống từ 04/08.** Nó từng gom 9 cờ `thêm dấu hiệu …`, và người
+duyệt chấm **8/9 là báo động giả**. Không phải mô hình bỗng tốt lên — mà mức T3 **đặt sai từ
+đầu**, và chính `app/ontology/modality.py:65-68` đã viết trước điều đó:
+
+> *"thêm số lần xuất hiện của một nhóm **đã có sẵn** thì không [phải bịa] — đó thường chỉ là
+> **phân phối lệnh cấm ra từng vế**, hoặc **thay từ đồng nghĩa**."*
+
+Đối chiếu chữ luật thì cả 9 cờ đúng hai dạng đó: TT40 Đ25 k5 luật viết *"không được…; không
+được phép…"* rồi tỉnh lược vế ba, mô hình viết rõ ra; bốn ca *"khi"* là luật viết *"(trong)
+trường hợp"* — **cùng nhóm `dieu_kien`** trong từ điển. Tín hiệu bịa THẬT là `invented_groups`
+(nguồn **không có** dấu hiệu nào thuộc nhóm) và nó đã là **lỗi cứng**, không phải cảnh báo —
+hiện **0/49**. Nên `added` chuyển xuống T5: vẫn đếm, không chiếm chỗ trong hàng đợi.
+
+Giữ số hiệu T3 trống thay vì đánh số lại T4→T3: mọi bản `flag_verdicts.jsonl` đã duyệt đều
+ghi `tier`, đánh số lại sẽ làm nhãn cũ trỏ sai mức trong im lặng.
 
 Từng có mức **T6 · khuyết tật hệ thống** gom 19 cờ "điểm không tồn tại" (13 bản ghi) thành
 một dòng, để người duyệt khỏi quyết 19 lần cho cùng một lỗi. Nay bỏ: cờ đó đã bị xoá **tận
@@ -55,11 +72,17 @@ _RULES: list[tuple[int, str, re.Pattern[str]]] = [
     (2, "guard chưa phủ hết miền — hỏi phần bỏ sót", re.compile(r"tiet_guard_thieu_gia_tri")),
     (2, "tiết đã có guard — xác nhận loại trừ nhau", re.compile(r"tiet_semicolon_guard_da_phu")),
     (2, "chưa xác định 'và' hay 'hoặc'", re.compile(r"'và' hay 'hoặc'")),
-    (3, "nghi bịa: THÊM dấu hiệu tình thái", re.compile(r"thêm dấu hiệu")),
+    # T5 chứ không phải T3 — xem docstring. Nhóm ràng buộc nguồn ĐÃ CÓ, chỉ khác số lần
+    # xuất hiện hoặc khác từ đồng nghĩa; bịa thật thì `invented_groups` bắt thành LỖI CỨNG.
+    (5, "THÊM dấu hiệu của nhóm nguồn đã có", re.compile(r"thêm dấu hiệu")),
     # Guard không tách được ⇒ phần tử KHÔNG mang điều kiện áp dụng, tức phạm vi của nó
     # RỘNG HƠN luật ("chỉ áp dụng cho thẻ trả trước" thành "áp dụng cho mọi thẻ"). Không
     # sai dữ liệu, nhưng mất ràng buộc — cùng họ hậu quả với neo sai phạm vi.
     (4, "guard không tách được — phạm vi rộng hơn luật", re.compile(r"guard_ngoai_mau")),
+    # Nhiều guard khác nhau trong một đơn vị ⇒ chúng gắn vào những danh ngữ khác nhau.
+    # Máy KHÔNG chọn hộ: bản đầu chọn cụm đầu tiên và sinh ra guard bất khả thi
+    # `cá nhân ∧ tổ chức` cho tiết (ii) — lỗi im lặng, 2/2 ca có guard ở cả hai tầng.
+    (4, "nhiều guard trong một đơn vị — không chọn hộ", re.compile(r"guard_nhieu_cum")),
     (4, "quote thu hẹp sai chỗ", re.compile(r"thu hẹp sai chỗ")),
     # Hai mã thay cho "điểm không tồn tại". Cờ cũ hỏi người một câu mà **parser đã biết
     # đáp án** (Khoản có chẻ Điểm hay không) nên nó bị xoá tận gốc: `source_diem` nay suy
@@ -83,10 +106,12 @@ _RULES: list[tuple[int, str, re.Pattern[str]]] = [
 TIER_NAME = {
     1: "T1 · máy đã tự quyết thay người",
     2: "T2 · phép logic chưa xác định",
-    3: "T3 · nghi bịa tình thái",
+    # T3 giữ trống: `flag_verdicts.jsonl` đã duyệt có ghi `tier`, đánh số lại sẽ làm nhãn
+    # cũ trỏ sai mức trong im lặng. Xem docstring về lý do nhóm này xuống T5.
+    3: "T3 · (bỏ trống — 'nghi bịa tình thái' đã chuyển xuống T5)",
     4: "T4 · neo sai phạm vi",
     5: "T5 · ít giá trị đọc",
-    6: "T6 · khuyết tật hệ thống — sửa prompt, không đọc luật",
+    6: "T6 · (bỏ trống — khuyết tật hệ thống đã xoá tận gốc)",
     9: "T? · chưa phân loại",
 }
 

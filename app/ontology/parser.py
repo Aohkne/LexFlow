@@ -301,7 +301,12 @@ _GUARD_LA = re.compile(r"^(.{2,32}?)\s+là\s+(.{2,52}?)$", re.IGNORECASE)
 _GUARD_CUA = re.compile(r"^(.{2,32}?)\s+của\s+(.{2,32}?)$", re.IGNORECASE)
 # Cụm chứa những thứ này thì đã sang mệnh đề khác, tách ra là cắt nhầm câu.
 _GUARD_XAU = re.compile(r"\bhoặc\b|\bvà\b|\bđối với\b|[()]", re.IGNORECASE)
-_GUARD_CUM = re.compile(r"(.+?)([;:,.]|$)", re.DOTALL)
+# `)` là dấu KẾT của cụm, ngang hàng `;:,.` — guard hay nằm trong ngoặc đơn gắn vào một
+# danh ngữ: *"…của chủ tài khoản thanh toán (đối với khách hàng là cá nhân), người đại
+# diện hợp pháp (đối với khách hàng là tổ chức)…"*. Không dừng ở `)` thì cụm nuốt luôn
+# dấu đóng ngoặc, `_GUARD_XAU` thấy `[()]` và loại — ba ca thật bị đẩy sang `guard_ngoai_mau`
+# dù mẫu A khớp hoàn hảo sau khi cắt đúng.
+_GUARD_CUM = re.compile(r"(.+?)([;:,.)]|$)", re.DOTALL)
 _SO_THU_TU = re.compile(rf"^\s*(\d{{1,3}}[{_LC}]?\s*\.|[{_LC}]\s*\)|\(\s*({_ROMAN_ALT})\s*\))\s*", re.I)
 
 
@@ -313,13 +318,23 @@ def tach_guard(text: str, base: int = 0) -> tuple[tuple[str, str, str, int, int]
     `cảnh báo` = chuỗi rỗng, hoặc `"guard_ngoai_mau: …"` khi cụm TRÔNG như một guard mà
     không tách sạch được — cố ý **không đoán**, nhưng cũng không im lặng.
 
-    Trả về guard ĐẦU TIÊN tách được. Guard tại mỗi nút cố ý PHẲNG, MỘT CẤP: không guard
-    lồng guard, không `else`, không thứ tự ưu tiên. Muốn biết hiệu lực đầy đủ của một
-    tiết thì hợp dọc đường đi bằng `hop_guard()`.
+    Guard tại mỗi nút cố ý PHẲNG, MỘT CẤP: không guard lồng guard, không `else`, không
+    thứ tự ưu tiên. Muốn biết hiệu lực đầy đủ của một tiết thì hợp dọc đường đi bằng
+    `hop_guard()`.
+
+    Chỉ nhận khi đơn vị có **ĐÚNG MỘT** guard sạch. Bản đầu trả cụm *đầu tiên*, và đó là
+    một lỗi im lặng đã sống trong dữ liệu: TT17 Đ16 k1 điểm a có tiết (i) *"đối với khách
+    hàng là cá nhân"* và tiết (ii) *"đối với khách hàng là tổ chức"*; đọc trên toàn văn
+    Điểm thì cụm đầu thắng, Điểm nhận guard `cá nhân`, rồi `hop_guard` (AND dọc đường đi)
+    cho tiết (ii) một guard **`cá nhân ∧ tổ chức` — bất khả thi**, không đối tượng nào
+    thoả. Hai trên hai ca có guard ở cả hai tầng đều hỏng như vậy. Nhiều cụm khác nhau
+    trong một đơn vị nghĩa là chúng gắn vào những danh ngữ khác nhau, không phải một guard
+    phủ cả nút — chọn hộ là phán định.
     """
     m0 = _SO_THU_TU.match(text)
     moc = m0.end() if m0 else 0
     ngoai_mau: list[str] = []
+    sach: list[tuple[str, str, str, int, int]] = []
 
     for m in _GUARD_TRIGGER.finditer(text):
         mc = _GUARD_CUM.match(text[m.end() :])
@@ -339,11 +354,17 @@ def tach_guard(text: str, base: int = 0) -> tuple[tuple[str, str, str, int, int]
             and not _GUARD_XAU.search(la.group(2))
             and la.group(1).strip().lower() not in {"trường hợp", "đối với"}
         ):
-            return (la.group(1).strip(), la.group(2).strip(), raw, *span), ""
+            sach.append((la.group(1).strip(), la.group(2).strip(), raw, *span))
+            continue
 
         cua = _GUARD_CUA.match(cum)
+        # Giữ `ket == ":"`: hình dạng `X của Y:` mở đầu một DANH SÁCH yêu cầu, tức đúng vị
+        # trí một guard. Bỏ điều kiện này chỉ mua thêm đúng một ca trên toàn corpus —
+        # ND52 Đ3 k9 *"…đứng tên mở tài khoản đối với tài khoản của tổ chức."* — mà đó là
+        # một khoản ĐỊNH NGHĨA, nơi guard vô nghĩa vì không có nghĩa vụ nào để chặn.
         if cua and ket == ":" and not _GUARD_XAU.search(cum):
-            return (cua.group(1).strip(), cua.group(2).strip(), raw, *span), ""
+            sach.append((cua.group(1).strip(), cua.group(2).strip(), raw, *span))
+            continue
 
         if (
             m.start(1) <= moc + 1
@@ -351,7 +372,8 @@ def tach_guard(text: str, base: int = 0) -> tuple[tuple[str, str, str, int, int]
             and not _GUARD_KHONG_PHAI_LOAI.match(cum)
             and not _GUARD_XAU.search(cum)
         ):
-            return (cum.split()[0], cum, raw, *span), ""
+            sach.append((cum.split()[0], cum, raw, *span))
+            continue
 
         # Trông như tên một loại mà không tách được ⇒ nói ra. Cụm dài hoặc mở đầu bằng
         # từ chỉ tình huống thì bỏ im lặng: cảnh báo cho cả 48 ca khớp trigger sẽ dìm
@@ -359,6 +381,21 @@ def tach_guard(text: str, base: int = 0) -> tuple[tuple[str, str, str, int, int]
         if len(cum.split()) <= 6 and not _GUARD_KHONG_PHAI_LOAI.match(cum):
             ngoai_mau.append(cum[:60])
 
+    # Cùng một guard lặp lại không phải mâu thuẫn — chỉ đếm các cặp KHÁC nhau.
+    khac: list[tuple[str, str, str, int, int]] = []
+    for g in sach:
+        if (g[0], g[1]) not in [(x[0], x[1]) for x in khac]:
+            khac.append(g)
+
+    if len(khac) == 1:
+        return khac[0], ""
+    if len(khac) >= 2:
+        ds = "; ".join(f"({a!r}, {b!r})" for a, b, *_ in khac[:3])
+        return None, (
+            f"guard_nhieu_cum: đơn vị này có {len(khac)} guard KHÁC nhau {ds} — chúng gắn "
+            "vào những danh ngữ khác nhau chứ không phải một guard phủ cả nút, nên máy "
+            "không chọn hộ. Nếu đây là chỗ phân nhánh thì guard thuộc về từng tiết/điểm con."
+        )
     return None, (
         f"guard_ngoai_mau: khớp 'đối với/trường hợp' nhưng không tách được "
         f"(thuộc tính, giá trị): {'; '.join(repr(x) for x in ngoai_mau[:3])}"
