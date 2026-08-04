@@ -23,6 +23,8 @@ from pathlib import Path
 from app.core.config import settings
 from app.core.llm import chat_json
 from app.core.schemas import Article, CorpusDocument
+from app.core.so_hieu import phan_tich
+from app.ingestion.vbpl_luoc_do import UNG_VIEN_RE
 
 # Điều thật: "Điều 12. Tiêu đề" (tham chiếu chéo kiểu "Điều 3 Luật..." không có dấu chấm)
 _DIEU_RE = re.compile(r"^Điều\s+(\d+)\s*\.\s*(.+)$")
@@ -94,8 +96,24 @@ def split_articles(text: str) -> list[Article]:
     return articles
 
 
-# Số hiệu văn bản: "52/2024/NĐ-CP", "40/2024/TT-NHNN"...
-_SO_HIEU_RE = re.compile(r"\b\d+/\d{4}/[A-ZĐ]+(?:-[A-ZĐ]+)+\b")
+# Số hiệu: bắt ỨNG VIÊN tới dấu phân cách rồi để `so_hieu.phan_tich` quyết. Khuôn cũ ở đây
+# mô tả hình dạng mã bằng `[A-ZĐ]+(?:-[A-ZĐ]+)+`, và đó đúng là khuôn đã **im lặng cắt cụt**
+# `51/2025/TT-BTС` (С Cyrillic) thành `51/2025/TT` — một khoá cụt vẫn join được, vào nhầm
+# văn bản. Nó cũng đòi có năm, nên bỏ sót cả nhóm hành chính (`123/QĐ-NHNN`).
+
+
+def so_hieu_trong(text: str) -> str | None:
+    """Số hiệu của CHÍNH văn bản: ứng viên đầu tiên phân tích được, ở phần đầu văn bản.
+
+    Trước đây `_head_text` trích số hiệu rồi **vứt** — chỉ nhét vào prompt cho Gemini đọc làm
+    ngữ cảnh. Nay trả ra để điền `DocumentMeta.so_hieu`, tức cây cầu nối cạnh khoá-số-hiệu
+    (lược đồ vbpl) với corpus khoá-`doc_id`.
+    """
+    for m in UNG_VIEN_RE.finditer(text or ""):
+        sh = phan_tich(m.group(0))
+        if sh:
+            return sh.chuan
+    return None
 
 
 def _head_text(text: str, articles: list[Article]) -> str:
@@ -108,7 +126,7 @@ def _head_text(text: str, articles: list[Article]) -> str:
             end = i
             break
     parts = ["\n".join(lines[:end])[:5000]]
-    so_hieu = [ln for ln in lines if _SO_HIEU_RE.search(ln)]
+    so_hieu = [ln for ln in lines if UNG_VIEN_RE.search(ln)]
     if so_hieu:
         parts.append("Các dòng chứa số hiệu:\n" + "\n".join(so_hieu[:5]))
     for a in articles:
@@ -125,6 +143,10 @@ def extract_metadata(text: str, articles: list[Article]) -> dict:
         "title": data.get("title") or "UNKNOWN",
         "doc_type": data.get("doc_type") or "Thông tư",
         "valid_from": data.get("valid_from"),
+        # Số hiệu lấy từ PARSER, không hỏi mô hình: nó nằm nguyên văn trong văn bản, và một
+        # khoá bịa ra thì vẫn join được — vào nhầm văn bản, không ai biết. Cùng lý do đã dùng
+        # cho `source_diem` ở tầng CU.
+        "so_hieu": so_hieu_trong(text),
     }
 
 

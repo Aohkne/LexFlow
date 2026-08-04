@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import PageShell from "@/components/page-shell";
 import { createClient } from "@/lib/supabase/client";
+import { REL_BAT_LOI, REL_DOI_NOI_DUNG, nhanNgan } from "@/lib/quan-he";
 
 type ChangeEvent = {
   id: number;
@@ -14,12 +15,14 @@ type ChangeEvent = {
   created_at: string;
 };
 
-const REL_BADGE: Record<string, { cls: string; label: string }> = {
-  THAY_THE: { cls: "border-red text-red", label: "Thay thế" },
-  SUA_DOI: { cls: "border-accent text-accent-dim", label: "Sửa đổi" },
-  HUONG_DAN: { cls: "border-blue text-blue", label: "Hướng dẫn" },
-  DAN_CHIEU: { cls: "border-border text-dim", label: "Dẫn chiếu" },
-};
+// Màu theo MỨC CAN THIỆP, không theo từng mã: 13 mã mà gõ tay 13 dòng thì thêm quan hệ mới là
+// lại quên một chỗ. Đỏ = can thiệp bất lợi (huỷ/treo hiệu lực) — nghĩa vụ có thể biến mất.
+function relBadge(relType: string): { cls: string; label: string } {
+  const label = nhanNgan(relType);
+  if (REL_BAT_LOI.has(relType)) return { cls: "border-red text-red", label };
+  if (REL_DOI_NOI_DUNG.has(relType)) return { cls: "border-accent text-accent-dim", label };
+  return { cls: "border-border text-dim", label };
+}
 
 export default function AlertsPage() {
   const [events, setEvents] = useState<ChangeEvent[]>([]);
@@ -125,7 +128,7 @@ export default function AlertsPage() {
 
       <div className="mt-6 space-y-2">
         {events.map((ev) => {
-          const badge = REL_BADGE[ev.rel_type] ?? REL_BADGE.DAN_CHIEU;
+          const badge = relBadge(ev.rel_type);
           return (
             <div key={ev.id} className={`rounded-lg border-l-4 bg-panel px-4 py-3 ${badge.cls}`}>
               <div className="flex flex-wrap items-center gap-2 text-xs">

@@ -1,19 +1,23 @@
 // Logic thuần cho trình xem văn bản: slug anchor điều + gom nhóm lược đồ.
 import type { DocumentDetail, RelAnchor, Relationship } from "@/lib/api";
+import { REL_DOI_NOI_DUNG, nhanNhom } from "@/lib/quan-he";
 
-// "Điều 26 Khoản 1-3" → "dieu-26"; "Điều 9a" → "dieu-9a". Null nếu không nhận ra.
+// Bảng 23 chữ dùng đánh số trong văn bản QPPL Việt Nam — phải khớp
+// app/ontology/parser.py::VI_LETTERS. `đ` là chữ duy nhất thêm so với ASCII;
+// không có f/j/w/z; sau `e` là `g`.
+const VI_LETTERS = "abcdđeghiklmnopqrstuvxy";
+
+// "Điều 26 Khoản 1-3" → "dieu-26"; "Điều 9a" → "dieu-9a"; "Điều 15đ" → "dieu-15đ".
+// Null nếu không nhận ra.
+// Lớp ký tự dựng TỪ bảng trên: `[a-zA-Z]` không khớp `đ`, nên "Điều 15đ" từng bị
+// cắt thành "dieu-15" và đụng slug với "Điều 15" — hai điều khác nhau cùng một
+// anchor, deep-link nhảy sai chỗ mà không báo lỗi.
+const ARTICLE_RE = new RegExp(`Điều\\s+(\\d+[${VI_LETTERS}]?)`);
+
 export function articleAnchor(article: string): string | null {
-  const m = article.match(/Điều\s+(\d+[a-zA-Z]?)/);
+  const m = article.match(ARTICLE_RE);
   return m ? `dieu-${m[1].toLowerCase()}` : null;
 }
-
-// Nhãn nhóm lược đồ theo quy ước thuvienphapluat: loại quan hệ × chiều so với văn bản đang mở.
-const GROUP_LABEL: Record<string, { out: string; in: string }> = {
-  THAY_THE: { out: "Văn bản bị thay thế", in: "Văn bản thay thế" },
-  SUA_DOI: { out: "Văn bản bị sửa đổi, bổ sung", in: "Văn bản sửa đổi, bổ sung" },
-  HUONG_DAN: { out: "Văn bản được hướng dẫn", in: "Văn bản hướng dẫn" },
-  DAN_CHIEU: { out: "Văn bản được dẫn chiếu", in: "Văn bản dẫn chiếu" },
-};
 
 export type SchemaEntry = {
   docId: string; // văn bản phía bên kia của quan hệ
@@ -29,7 +33,7 @@ export type SchemaGroup = { label: string; entries: SchemaEntry[] };
 export function groupRelationships(detail: DocumentDetail): SchemaGroup[] {
   const groups = new Map<string, SchemaEntry[]>();
   const add = (rel: Relationship, direction: "out" | "in") => {
-    const label = GROUP_LABEL[rel.rel_type]?.[direction] ?? rel.rel_type;
+    const label = nhanNhom(rel.rel_type, direction);
     const other = direction === "out" ? rel.target_doc : rel.source_doc;
     const list = groups.get(label) ?? [];
     list.push({
@@ -50,7 +54,7 @@ export type AmendmentInfo = {
   sourceDoc: string;
   sourceTitle: string;
   sourceArticle: string | null;
-  relType: string; // SUA_DOI | THAY_THE
+  relType: string; // một mã trong REL_DOI_NOI_DUNG
   detail: string | null;
   validFrom: string | null;
 };
@@ -59,7 +63,9 @@ export type AmendmentInfo = {
 export function buildAmendmentMap(detail: DocumentDetail): Map<string, AmendmentInfo[]> {
   const map = new Map<string, AmendmentInfo[]>();
   for (const rel of detail.relationships_in) {
-    if (rel.rel_type !== "SUA_DOI" && rel.rel_type !== "THAY_THE") continue;
+    // Lọc theo TẬP, không theo hai tên gõ thẳng: `SUA_DOI` đã đổi thành `SUA_DOI_BO_SUNG` ở
+    // backend, và dòng cũ khiến bản đồ sửa đổi lặng lẽ bỏ qua đúng những cạnh nó cần.
+    if (!REL_DOI_NOI_DUNG.has(rel.rel_type)) continue;
     for (const a of rel.anchors) {
       const key = a.target_article ? articleAnchor(a.target_article) : null;
       if (!key) continue;

@@ -130,3 +130,25 @@ def doc_luoc_do(sample: dict) -> tuple[list[Relationship], list[str]]:
                     )
                 )
     return canh, canh_bao
+
+
+def tieu_de_theo_so_hieu(sample: dict) -> dict[str, str]:
+    """`{số hiệu: tiêu đề}` cho MỌI văn bản xuất hiện trong lược đồ, kể cả chưa có toàn văn.
+
+    Tách khỏi `doc_luoc_do` thay vì thêm giá trị trả về thứ ba: đây là dữ liệu **phụ trợ hiển
+    thị**, còn cạnh là dữ liệu chính, và trộn hai thứ vào một chữ ký hàm thì mọi nơi gọi đều
+    phải biết về cái nó không dùng. Node rỗng (`app.ingestion.bac_cau`) lấy tiêu đề từ đây —
+    nếu không thì trên đồ thị nó chỉ hiện lên một dãy số hiệu, không ai biết đó là văn bản gì.
+    """
+    ra: dict[str, str] = {}
+    goc, _ = so_hieu_tu_tieu_de(sample.get("thuoc_tinh", {}).get("so_hieu", ""))
+    if goc and (sample.get("title") or "").strip():
+        ra[goc] = sample["title"].strip()
+    for chieu in ("outgoing", "incoming"):
+        for ds in (sample.get("luoc_do", {}).get(chieu) or {}).values():
+            for x in ds:
+                tieu_de = (x.get("title", "") if isinstance(x, dict) else str(x)).strip()
+                sh, _ = so_hieu_tu_tieu_de(tieu_de)
+                if sh and tieu_de:
+                    ra.setdefault(sh, tieu_de)
+    return ra

@@ -96,6 +96,11 @@ class DocumentMeta(BaseModel):
     source: str = "external"  # external (luật) | internal (nội bộ ngân hàng)
     valid_from: str | None = None  # ISO date ngày hiệu lực
     valid_to: str | None = None  # ISO date ngày hết hiệu lực; None = còn hiệu lực
+    #: Số hiệu công bố (`52/2024/NĐ-CP`) — trường **bắc cầu**, không phải danh tính.
+    #: `doc_id` vẫn là khoá; đổi nó chạm hàng trăm chỗ và cả lịch sử Supabase. Nhưng nguồn
+    #: chính thống (lược đồ vbpl, dẫn chiếu trong chính văn bản) khoá bằng SỐ HIỆU, nên không
+    #: có trường này thì mọi cạnh đọc từ nguồn đều không quy về được node nào.
+    so_hieu: str | None = None
 
 
 class Article(BaseModel):
@@ -116,6 +121,22 @@ class CorpusDocument(DocumentMeta):
     """Văn bản kèm danh sách điều khoản — đầu vào của ingest."""
 
     articles: list[Article] = Field(default_factory=list)
+
+
+class VanBanRong(BaseModel):
+    """Văn bản **biết là có** nhưng CHƯA có toàn văn — chỉ có số hiệu và chỗ nó nối vào.
+
+    Cố ý KHÔNG kế thừa `DocumentMeta`: một `CorpusDocument` rỗng ruột trông y hệt một văn bản
+    thật mà quên nhập điều khoản, nên sớm muộn cũng có chỗ đem nó đi trích dẫn. Kiểu riêng
+    khiến mọi chỗ nhận nhầm hỏng **lúc dịch**, chứ không hỏng lúc người dùng đọc câu trả lời.
+
+    `so_hieu` cũng là `doc_id` của node — xem `app.ingestion.bac_cau`: bịa một `doc_id` cho
+    văn bản chưa đọc thì đến lúc crawl thật rất dễ thành hai node cho một văn bản.
+    """
+
+    so_hieu: str
+    title: str | None = None
+    doc_type: str | None = None
 
 
 # --- API models ---
@@ -221,6 +242,10 @@ class GraphNode(BaseModel):
     doc_type: str
     valid_from: str | None = None
     valid_to: str | None = None
+    #: `False` = **node rỗng**: biết văn bản này tồn tại và biết nó nối vào đâu, nhưng CHƯA có
+    #: toàn văn. Phải phân biệt được ở tầng hiển thị lẫn tầng truy hồi — trích dẫn một node
+    #: rỗng là trích dẫn thứ chưa đọc.
+    co_toan_van: bool = True
 
 
 class GraphEdge(BaseModel):

@@ -44,6 +44,10 @@ export type GraphNode = {
   doc_type: string;
   valid_from: string | null;
   valid_to: string | null;
+  // `false` = node RỖNG: biết văn bản tồn tại và biết nó nối vào đâu, nhưng CHƯA có toàn văn.
+  // Xem app/ingestion/bac_cau.py. Node nạp trước khi có trường này thì thiếu — và chúng đều
+  // CÓ toàn văn, nên mọi chỗ đọc phải so với `false`, không phải so với falsy.
+  co_toan_van?: boolean;
 };
 
 export type GraphEdge = { source: string; target: string; rel_type: string };

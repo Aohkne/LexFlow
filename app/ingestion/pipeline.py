@@ -157,10 +157,19 @@ def ingest_docs(docs: list[CorpusDocument], rels: list[Relationship]) -> int:
     print(f"[ingest] Đã ghi {n} chunk vào LanceDB ({target}), dim={EMBED_DIM}.")
 
     if settings.neo4j_enabled:
+        from app.ingestion.bac_cau import quy_ve_doc_id
         from app.knowledge.graph import push_corpus
 
-        push_corpus(docs, rels)
-        print(f"[ingest] Đã nạp {len(docs)} node + {len(rels)} cạnh vào Neo4j Aura.")
+        # Quy cạnh về `doc_id` NGAY TRƯỚC khi nạp, không phải lúc đọc nguồn: cạnh đọc từ vbpl
+        # khoá bằng số hiệu, và Cypher `MATCH` không khớp thì bỏ qua câu lệnh **trong im lặng**.
+        canh, rong, cb = quy_ve_doc_id(rels, docs)
+        for c in cb:
+            print(f"[ingest] cảnh báo: {c}")
+        push_corpus(docs, canh, rong)
+        print(
+            f"[ingest] Đã nạp {len(docs)} node + {len(rong)} node RỖNG (chưa có toàn văn) "
+            f"+ {len(canh)} cạnh vào Neo4j Aura."
+        )
     else:
         print("[ingest] Bỏ qua Neo4j (chưa cấu hình NEO4J_URI/PASSWORD).")
     return n

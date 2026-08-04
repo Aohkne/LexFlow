@@ -339,6 +339,73 @@ vào prompt làm ngữ cảnh**, `extract_metadata` không trả về. Thêm `so
 **không chạm lịch sử Supabase** — khác hẳn phương án đổi `doc_id` ở §3.3.
 
 > Mức: **trung bình** · Không thay §3.3, nhưng hạ cấp nó từ "chặn đường" xuống "dọn sau".
+>
+> **✅ Đã làm 04/08.** `DocumentMeta.so_hieu` + `app/ingestion/bac_cau.py`. Bổ chính một chi
+> tiết ở đoạn trên: `_SO_HIEU_RE` **không** "chạy đúng trên cả ba dạng thử" — ba dạng ấy chọn
+> chưa đủ khó. Khuôn `[A-ZĐ]+(?:-[A-ZĐ]+)+` gặp `С` Cyrillic thì lùi lại khớp ngắn hơn, **im
+> lặng cắt cụt** `51/2025/TT-BTС` → `51/2025/TT`; và nó đòi có năm nên bỏ sót trọn nhóm hành
+> chính (`123/QĐ-NHNN`). Nay dùng `app.core.so_hieu.phan_tich`, và một **khoá cụt tệ hơn không
+> có khoá** vì nó vẫn join được — vào nhầm văn bản.
+
+### 3.6 · Soát tồn đọng schema cũ (04/08) — ba chỗ, mức nghiêm trọng rất khác nhau
+
+Câu hỏi: bốn tên tự đặt (`THAY_THE`/`SUA_DOI`/`HUONG_DAN`/`DAN_CHIEU`) còn sống ở đâu trong một
+hệ thống **đang chạy**, chứ không chỉ trong code?
+
+**(a) Neo4j — không tồn đọng được, nhưng vì một lý do đáng lo hơn.** Instance Aura
+`fd63789d.databases.neo4j.io` **không phân giải DNS nữa** (`databases.neo4j.io` và `google.com`
+đều phân giải bình thường ⇒ không phải lỗi mạng). Tức đồ thị hiện **không có dữ liệu để tồn
+đọng** — và cũng không có dữ liệu để chạy. Ngoài ra `push_corpus` mở đầu bằng
+`MATCH (d:Document) DETACH DELETE d`, nên kể cả còn sống thì lần nạp sau cũng xoá sạch.
+
+**(b) Web — còn sống ở BA file, và hỏng theo kiểu không ai thấy.** ✅ đã sửa.
+
+| chỗ | hỏng ra sao |
+|---|---|
+| `web/lib/anchors.ts:73` | lọc `rel_type !== "SUA_DOI"` ⇒ sau khi đổi tên, **bản đồ sửa đổi theo điều rỗng đi**, đúng 2 cạnh `SUA_DOI_BO_SUNG` của corpus bị bỏ qua |
+| `web/lib/anchors.ts:22` · `graph/page.tsx:19` · `alerts/page.tsx:17` | bảng nhãn 4 dòng ⇒ 11 mã còn lại rơi xuống nhánh dự phòng, người dùng đọc thấy chữ `SUA_DOI_BO_SUNG` thay cho "Văn bản sửa đổi, bổ sung" — **không lỗi nào trong console** |
+
+Gom về `web/lib/quan-he.ts` (một bảng), và `tests/test_quan_he_web.py` đọc thẳng file `.ts` để
+canh 13 mã + 26 nhãn khớp `REL_TYPES` — kể cả cặp bất quy tắc #8 (`căn cứ ban hành` ⟷ `áp dụng`),
+chỗ dễ tự suy ra sai nhất.
+
+**(c) Supabase — chỗ DUY NHẤT schema cũ còn sống trong dữ liệu thật.** Migration `0003` **seed
+thẳng** hai dòng `HUONG_DAN` và `SUA_DOI` vào `change_events`, và nó đã chạy. Nặng hơn tên xấu:
+khoá chống trùng là `unique (doc_id, source_doc_id, rel_type)` — **có `rel_type` trong khoá** —
+nên lần ingest sau, cùng một thay đổi mang tên mới bị coi là **sự kiện khác** và chèn thêm dòng.
+Người dùng thấy một thay đổi hiện hai lần với hai động từ, không gì nói đó là một.
+⇒ `supabase/migrations/0006_quan_he_v05.sql` (đổi tên + `check` chặn ở biên). **Chưa chạy** —
+cần bạn dán vào SQL Editor.
+
+### 3.7 · Node rỗng: 32 đầu mút chưa có toàn văn
+
+**57 cạnh** (13 corpus + 44 từ hai bản ghi vbpl) quy hết về `doc_id`, **0 cạnh rơi, 0 cảnh báo**:
+21 nối hai văn bản có toàn văn, 36 chạm ít nhất một đầu mút chưa có. Ba lối cho 32 đầu mút ấy:
+bỏ cạnh · để tồn đọng · dựng **node rỗng**. Chọn lối thứ ba — bỏ đi thì mất luôn instance
+`BAI_BO` duy nhất có thật (NĐ52 → NĐ16/2019), tức mất đúng ca kiểm chứng bắt buộc §6.2.
+
+**Một lược đồ không đủ, và đây là bằng chứng chứ không phải suy đoán.** Lược đồ của một văn bản
+chỉ chứa quan hệ **với chính nó**. Trong lược đồ NĐ52, `41/2025/TT-NHNN` và `22/2026/TT-NHNN` chỉ
+hiện ra là `CAN_CU` (mức *thấp*); thêm lược đồ của **chính TT40/2024** thì cả hai lộ ra ở nhóm
+`incoming / "Văn bản sửa đổi bổ sung"` — chúng **sửa đổi TT40/2024**, và mức nhảy lên *cao*. Tức
+corpus đang ghi TT40/2024 là *còn hiệu lực, chưa sửa đổi* — và điều đó **sai**. Cùng lượt còn lộ
+`29/VBHN-NHNN` (`HOP_NHAT`), mã thứ 7 có instance.
+
+⇒ **Phải crawl lược đồ của TỪNG văn bản corpus**, không chỉ của các đầu mút.
+
+**Cơ chế cập nhật là SUY RA, không vá.** Node rỗng không ai soạn — điều kiện tồn tại của nó là
+"chưa văn bản nào trong corpus nhận số hiệu này". Crawl xong, đưa toàn văn vào corpus kèm
+`so_hieu` ⇒ lần nạp sau cạnh tự quy về `doc_id` thật, node rỗng không được sinh lại. Không có
+bước di trú, không có trạng thái phải đồng bộ tay. Đường nạp bổ sung dùng
+`don_node_rong_da_co_toan_van()` cho cùng kết quả.
+
+Hai chỗ **cố ý không làm**: node rỗng lấy chính số hiệu làm `doc_id` (bịa `ND16-2019` thì đến
+lúc crawl thật rất dễ thành hai node cho một văn bản), và `related_docs()` **loại** node rỗng
+khỏi truy hồi (trích dẫn một node rỗng là trích dẫn thứ chưa đọc) trong khi `related_edges()`
+vẫn giữ — ở đó chính **cạnh** mới là thông tin.
+
+Danh sách cần crawl: `docs/CAN-CRAWL.md`, sinh bằng
+`uv run python -m app.ingestion.can_crawl --md docs/CAN-CRAWL.md`.
 
 ---
 
@@ -380,7 +447,7 @@ chưa có chỗ nào ghi *"câu luật này nói về mốc bắt đầu hay m�
 | §4 · Khoá ba nhánh | **1/3** |
 | §5 · Đánh số Điều/Khoản | **5/6** |
 | §3 · Node meta-schema | **4/15** |
-| §6 · 13 quan hệ | **13/13 trong schema · 4/13 có instance** (04/08) · cạnh đã CÓ KIỂU ⇒ Cypher của spec chạy được |
+| §6 · 13 quan hệ | **13/13 trong schema · 4/13 có instance trong corpus · 7/13 khi hợp nhất 2 lược đồ vbpl** (04/08) — thêm `BAI_BO` · `QUY_DINH_CHI_TIET_HUONG_DAN` · `HOP_NHAT`; cạnh đã CÓ KIỂU ⇒ Cypher của spec chạy được; 57 cạnh quy hết về `doc_id`, 32 đầu mút thành node rỗng (§3.7) |
 | §7 · Tầng thời gian | **0/5** |
 | §8 · Độ tin cậy | **0/2** |
 | §9 · Mười quyết định | 3 đạt · 2 không đạt · 1 một phần · 4 chưa áp dụng được |
@@ -410,9 +477,11 @@ code**, và ba chỗ mâu thuẫn ở §3 là thứ phải xử lý trước khi
 | 8 | `PhienBanDieu`, `Chuong`/`Muc`, `VanBanKemTheo`, `PhuLuc` | — | ~~phụ thuộc #4~~ → **xem #10**: `Chuong`/`Muc` KHÔNG phụ thuộc #4 |
 | 9 | Sửa changelog v0.5 §2 cho khớp bảng §5 (`so_goc` chứ không `so_khoan_goc`) | thấp | sửa spec, không sửa code |
 | **10** | **Giữ dòng Chương/Mục ở `extract.py:90`** (§3.5a) — điền `Article.chapter`/`.section` | trung bình | **rất nhỏ**; 47 Chương + 15 Mục có sẵn trong HTML gốc, **0 dữ liệu tay** |
-| **11** | **Bắc cầu `so_hieu` trên `DocumentMeta`** (§3.5d) — giữ nguyên `doc_id` | trung bình | nhỏ; regex đã chạy đúng, chỉ chưa trả về. **Không chạm lịch sử Supabase** |
+| ~~11~~ | ~~Bắc cầu `so_hieu` trên `DocumentMeta`~~ — ✅ **xong 04/08**: 15/15 văn bản có `so_hieu`, `doc_id` không đổi một dòng | — | `app/ingestion/bac_cau.py` · 16 test |
 | ~~12~~ | ~~Chuẩn hoá 4 tên quan hệ~~ — ✅ **xong 04/08**: `SUA_DOI`→`SUA_DOI_BO_SUNG`, `HUONG_DAN`→`CAN_CU` | — | `kiem_quan_he` báo **0 cạnh sai** |
-| **13** | **Nạp lược đồ vbpl thành cạnh** — `vbpl_luoc_do.py` đã đọc được 35 cạnh/0 cảnh báo từ một trang; còn thiếu bước quy `so_hieu` → `doc_id` (phụ thuộc #11) | cao | vừa; đây là đường để §6 đi từ 4/13 lên gần đủ |
+| ~~13~~ | ~~Nạp lược đồ vbpl thành cạnh~~ — ✅ **xong 04/08**: 48 cạnh quy được về `doc_id`, **0 cạnh rơi**; 30 đầu mút thành **node rỗng** | — | xem §3.6 |
+| **14** | **Crawl 30 văn bản trong `docs/CAN-CRAWL.md`** — node rỗng thành node thật, không cần bước di trú nào | cao | phụ thuộc dữ liệu, không phụ thuộc code |
+| **15** | **Chạy `supabase/migrations/0006_quan_he_v05.sql`** — 2 dòng seed `HUONG_DAN`/`SUA_DOI` **vẫn đang nằm trong Supabase thật** | cao | dán vào SQL Editor; xem §3.6c |
 
 > **Hai mục 10–11 làm đổi thứ tự phụ thuộc của #8.** Bản 03/08 xếp `Chuong`/`Muc` sau #4 (thống
 > nhất ID) vì tưởng phải có `VanBan` node trước. Đo lại: `Article.chapter` là **trường phẳng trên
@@ -482,11 +551,16 @@ print('KHÔNG khớp    :', sorted(co - V))        # HUONG_DAN, SUA_DOI
 print('BAI_BO        :', sum(1 for x in r if x['rel_type'] == 'BAI_BO'))   # 0
 "@
 
-# --- (d) _SO_HIEU_RE chạy đúng — giá trị có, chỉ chưa trả về ---
+# --- (d) so_hieu: đọc được, và KHÔNG cắt cụt khi gặp homoglyph ---
 $env:PYTHONPATH="."; uv run python -c @"
-from app.ingestion.extract import _SO_HIEU_RE
-print(_SO_HIEU_RE.findall('Thông tư số 17/2024/TT-NHNN và 52/2024/NĐ-CP'))
+from app.ingestion.extract import so_hieu_trong
+for s in ['Số: 52/2024/NĐ-CP', 'Số: 51/2025/TT-BTС', 'Số: 123/QĐ-NHNN', 'ngày 15/5/2024']:
+    print(f'{s:28} -> {so_hieu_trong(s)}')   # ...TT-BTC (đã khử С Cyrillic) · ... · None
 "@
+
+# --- §3.6/§3.7: cầu số hiệu → doc_id, node rỗng, danh sách cần crawl ---
+uv run pytest -q tests\test_bac_cau.py tests\test_quan_he_web.py   # 16 + 4
+uv run python -m app.ingestion.can_crawl                            # 30 văn bản cần crawl
 
 # --- §4: 13 guard · 5 Điểm có tiết · 2 nhóm guard anh em ---
 $env:PYTHONPATH="."; uv run pytest -q tests\test_ontology_guard.py tests\test_ontology_phan_hoach.py tests\test_ontology_chapeau_tiet.py

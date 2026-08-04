@@ -21,7 +21,7 @@ import json
 import sys
 from pathlib import Path
 
-from app.ingestion.extract import _SO_HIEU_RE, read_text
+from app.ingestion.extract import read_text, so_hieu_trong
 from app.ontology.classify import classify_dieu_unit, classify_khoan
 from app.ontology.extractor import (
     build_premise_record,
@@ -91,8 +91,7 @@ def _gen_fixtures(html: Path, dieu_list: list[int], so_hieu: str) -> list[Path]:
     clean = clean_text(raw)
     # Dò trên TOÀN VĂN BẢN GỐC: số hiệu của chính văn bản nằm ở header, đứng trước
     # mọi trích dẫn văn bản khác. Đây là chỗ duy nhất được phép dò.
-    found = _SO_HIEU_RE.search(raw)
-    resolved = found.group() if found else so_hieu
+    resolved = so_hieu_trong(raw) or so_hieu
     _FIXTURE_DIR.mkdir(parents=True, exist_ok=True)
     index = _read_index()
     out: list[Path] = []

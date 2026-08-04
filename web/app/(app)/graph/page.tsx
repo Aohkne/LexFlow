@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { useEffect, useMemo, useState } from "react";
 import PageShell from "@/components/page-shell";
 import { getGraph, type GraphData } from "@/lib/api";
+import { nhanNgan } from "@/lib/quan-he";
 
 // Cytoscape đụng tới `window` → chỉ render phía client.
 const CytoscapeComponent = dynamic(() => import("react-cytoscapejs"), { ssr: false });
@@ -16,12 +17,6 @@ const TYPE_COLOR: Record<string, string> = {
   "Nội bộ": "#4c7a4f",
 };
 
-const REL_LABEL: Record<string, string> = {
-  THAY_THE: "thay thế",
-  SUA_DOI: "sửa đổi",
-  HUONG_DAN: "hướng dẫn",
-  DAN_CHIEU: "dẫn chiếu",
-};
 
 export default function GraphPage() {
   const [data, setData] = useState<GraphData | null>(null);
@@ -36,14 +31,22 @@ export default function GraphPage() {
   const elements = useMemo(() => {
     if (!data) return [];
     const nodes = data.nodes.map((n) => ({
-      data: { id: n.id, label: n.label, color: TYPE_COLOR[n.doc_type] ?? "#6b675c" },
+      // Node RỖNG (`co_toan_van === false`): biết văn bản này tồn tại và biết nó nối vào đâu,
+      // nhưng chưa có toàn văn. Phải nhìn ra được — nếu không thì nó trông y hệt một văn bản
+      // đã đọc, và người dùng click vào chỉ thấy trang trống mà không hiểu vì sao.
+      data: {
+        id: n.id,
+        label: n.co_toan_van === false ? `${n.label} (chưa có toàn văn)` : n.label,
+        color: n.co_toan_van === false ? "#c9c4b5" : (TYPE_COLOR[n.doc_type] ?? "#6b675c"),
+        rong: n.co_toan_van === false ? 1 : 0,
+      },
     }));
     const edges = data.edges.map((e, i) => ({
       data: {
         id: `e${i}`,
         source: e.source,
         target: e.target,
-        label: REL_LABEL[e.rel_type] ?? e.rel_type,
+        label: nhanNgan(e.rel_type),
       },
     }));
     return [...nodes, ...edges];
@@ -63,6 +66,16 @@ export default function GraphPage() {
         "text-margin-y": 6,
         width: 40,
         height: 40,
+      },
+    },
+    {
+      // Viền đứt = chưa có toàn văn. Khác biệt phải thấy được mà không cần đọc nhãn.
+      selector: "node[rong = 1]",
+      style: {
+        "border-width": 2,
+        "border-style": "dashed",
+        "border-color": "#8f8a7c",
+        "background-opacity": 0.45,
       },
     },
     {

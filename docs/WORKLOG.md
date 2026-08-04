@@ -6,6 +6,37 @@
 
 ---
 
+## 2026-08-04 (T3)
+
+**Giai đoạn:** chuẩn hoá **số hiệu văn bản**, bắc cầu `so_hieu` ↔ `doc_id`, **node rỗng**, và soát tồn đọng schema cũ.
+
+- **Done (số hiệu — `app/core/so_hieu.py`, `data/ky_hieu_van_ban.json`).** Nghiên cứu ký hiệu của bạn (`research/vb-phap-luat-ky-hieu.html`) đổi ba thứ tôi chưa tính: ký hiệu **hợp thành** `<loại>-<cơ quan>` ⇒ từ vựng là O(loại)+O(cơ quan) chứ không phải tích, tổ hợp chưa gặp (`TT-BNNMT`) tự hợp lệ; **năm tuỳ chọn** ⇒ khuôn cũ đòi năm nên bỏ sót **trọn nhóm hành chính** (`123/QĐ-NHNN`) trong im lặng; `TT-BT` là placeholder, văn bản đó về thuế XNK nên mã thật là `TT-BTC` — trùng đúng ca Cyrillic.
+  - **Chỉ lưu MỘT dạng: dạng công bố.** Bản nháp trước định thêm "dạng so khớp" (bỏ số 0 đầu, `Đ→D`) + id kỹ thuật từ URL vbpl — ba danh tính, và bạn nói thẳng là thừa. Đo lại chốt: **0 xung đột số 0 đầu** trên mọi nguồn ⇒ bỏ số 0 là giải bài toán không tồn tại mà lại làm dạng lưu lệch dạng công bố. Chuẩn hoá là **hàm ở biên**, không phải trường thứ hai; id trong URL vbpl là *provenance của bản ghi thô*.
+  - **Khử homoglyph là quy tắc CẤU TRÚC, không phải tra danh sách**: mã chỉ gồm chữ cái ⇒ bắt được cả mã cơ quan **chưa có trong bảng**. Cảnh báo nêu đích danh codepoint vì người sửa nguồn cần biết ký tự nào.
+  - `loai` **đóng** (luật liệt kê đủ hình thức) ⇒ mã lạ là lỗi. `co_quan` **không đóng được** (63 UBND tỉnh, doanh nghiệp) ⇒ mã lạ là cảnh báo. `QĐ` trả `qppl=None` **cố ý**: từ 2015 Quyết định của Bộ trưởng không còn là VBQPPL nhưng của Thủ tướng/UBND tỉnh thì vẫn — riêng ký hiệu không đủ chốt.
+  - **Test bắt một lỗi của chính tôi:** `TTg` (Thủ tướng) và `TTr` (Tờ trình) là chính tả chuẩn hoa-thường lẫn lộn, `.upper()` mù biến `QĐ-TTg` thành `QĐ-TTG` trong im lặng. Sửa theo nguyên tắc đang dùng — **từ vựng chốt chính tả**, không phải phép biến đổi chuỗi.
+- **Done (cầu `so_hieu` → `doc_id` + node rỗng — `app/ingestion/bac_cau.py`).**
+  - **Vì sao là chuyện im lặng, không phải chuyện bất tiện:** `push_corpus` viết `MATCH (a:Document {doc_id}), (b:Document {doc_id})` rồi mới `MERGE`, mà Cypher `MATCH` không khớp thì **cả câu không chạy**. Đổ 35 cạnh khoá-số-hiệu vào hôm nay ⇒ **0 cạnh, 0 lỗi**.
+  - `DocumentMeta.so_hieu` nullable, **`doc_id` vẫn là danh tính** (đổi nó chạm 243 chỗ + lịch sử Supabase). Điền **không gõ tay dòng nào**: 15/15 văn bản đọc được số hiệu từ chính `title`, kể cả 4 văn bản nội bộ SHB.
+  - **57 cạnh** (13 corpus + 44 từ hai bản ghi vbpl) quy hết về `doc_id`, **0 cạnh rơi, 0 cảnh báo**; 21 nối hai văn bản có toàn văn, **32 đầu mút thành node rỗng**. Mã có instance: **4/13 trong corpus → 7/13** khi hợp nhất lược đồ (thêm `BAI_BO`, `QUY_DINH_CHI_TIET_HUONG_DAN`, `HOP_NHAT`).
+  - **Cơ chế cập nhật là SUY RA, không vá.** Node rỗng không ai soạn — điều kiện tồn tại là "chưa văn bản nào nhận số hiệu này". Crawl xong, đưa vào corpus kèm `so_hieu` ⇒ lần nạp sau tự thành node thật, **không có bước di trú**. Đường nạp bổ sung có `don_node_rong_da_co_toan_van()` để cơ chế đó là thứ **gọi được và kiểm được**, không phải hệ quả phụ của việc xoá sạch.
+  - Hai chỗ **cố ý không làm**: node rỗng lấy chính số hiệu làm `doc_id` (bịa `ND16-2019` thì lúc crawl thật dễ thành hai node cho một văn bản); `related_docs()` **loại** node rỗng khỏi truy hồi (trích dẫn node rỗng là trích dẫn thứ chưa đọc) trong khi `related_edges()` giữ — ở đó chính **cạnh** mới là thông tin.
+  - **Xếp ưu tiên crawl theo *hỏng cái gì*, không theo số cạnh**: đo được 30/30 đầu mút treo đều đúng **1 cạnh** ⇒ xếp theo số cạnh là xếp theo một cột hằng số.
+- **Done (soát tồn đọng schema cũ — `docs/KG-CONFORMANCE-v05.md` §3.6).** Ba chỗ, mức rất khác nhau:
+  - **Neo4j: không tồn đọng, nhưng vì lý do đáng lo hơn** — instance Aura `fd63789d.databases.neo4j.io` **không phân giải DNS nữa** (`databases.neo4j.io` và `google.com` phân giải bình thường ⇒ không phải lỗi mạng). Đồ thị hiện không có dữ liệu để tồn đọng, và cũng không có để chạy.
+  - **Web: còn sống ở BA file và hỏng theo kiểu không ai thấy.** `anchors.ts:73` lọc `rel_type !== "SUA_DOI"` ⇒ sau khi đổi tên, **bản đồ sửa đổi theo điều rỗng đi**, bỏ đúng 2 cạnh `SUA_DOI_BO_SUNG` của corpus. Ba bảng nhãn 4 dòng ⇒ 11 mã còn lại rơi xuống nhánh dự phòng, người dùng đọc chữ `SUA_DOI_BO_SUNG` thay cho "Văn bản sửa đổi, bổ sung", **không lỗi nào trong console**. Gom về `web/lib/quan-he.ts`; `tests/test_quan_he_web.py` đọc thẳng file `.ts` canh 13 mã + 26 nhãn khớp `REL_TYPES`, kể cả cặp bất quy tắc #8.
+  - **Supabase: chỗ DUY NHẤT schema cũ còn sống trong dữ liệu thật.** Migration `0003` **seed thẳng** `HUONG_DAN` và `SUA_DOI` vào `change_events`, và đã chạy. Nặng hơn tên xấu: khoá chống trùng `unique (doc_id, source_doc_id, rel_type)` **có `rel_type` trong khoá** ⇒ lần ingest sau, cùng một thay đổi mang tên mới bị coi là **sự kiện khác** và chèn thêm dòng. `0006_quan_he_v05.sql` sửa + thêm `check` chặn ở biên — **chưa chạy**, cần dán vào SQL Editor.
+- **Done (`docs/CAN-CRAWL.md` — `app/ingestion/can_crawl.py`).** 32 văn bản, mỗi dòng truy được về một cạnh có thật. Danh sách gõ tay đúng vào ngày gõ rồi lệch dần mà không ai biết; cái này sinh lại được.
+  - **Một chỗ danh sách tự nó giấu — và bản ghi thứ hai của bạn chứng minh ngay trong ngày.** Lược đồ của một văn bản chỉ chứa quan hệ **với chính nó**. Lược đồ ND52 xếp 20 Thông tư vào `CAN_CU`, nhưng tiêu đề của 6 trong số đó nói chúng **sửa đổi** văn bản corpus — dấu hiệu, chưa phải kết luận. Thêm `sample_v2.json` (lược đồ **của chính TT40/2024**): `41/2025/TT-NHNN` và `22/2026/TT-NHNN` lộ ra ở `incoming / "Văn bản sửa đổi bổ sung"`, mức nhảy **thấp → cao**, và cùng lượt lộ `29/VBHN-NHNN` (`HOP_NHAT`). ⇒ corpus đang ghi TT40/2024 là *còn hiệu lực, chưa sửa đổi* — **sai**. Phải crawl lược đồ của **từng văn bản corpus**, không chỉ của các đầu mút.
+  - Một cảnh báo còn lại, và nó **đúng**: mục thứ hai trong nhóm *Văn bản hợp nhất* của TT40 chỉ có trích yếu *"Quy định về hoạt động cung ứng dịch vụ trung gian thanh toán"*, **không kèm số hiệu**. Rất có thể là chính `29/VBHN-NHNN` ở dòng trên, nhưng "rất có thể" không phải "biết" — báo ra, không đoán.
+- **Ship:** chưa deploy (chưa chạm đường chạy). `npm run lint` + `tsc --noEmit` + `next build` xanh; **466 test** + `ruff` xanh; `--classify` giữ **94 đơn vị 45/9/40**, `classify_testset` **9/9**.
+- **Decision:**
+  - Đầu mút chưa có toàn văn ⇒ **node rỗng**, không bỏ cạnh. Bỏ thì mất luôn instance `BAI_BO` duy nhất có thật (NĐ52 → NĐ16/2019), tức mất đúng ca kiểm chứng bắt buộc §6.2.
+  - `doc_id` **không đổi**; `so_hieu` là trường bắc cầu. §3.3 (hai không gian ID) từ "chặn đường" xuống "dọn sau".
+- **Next:** crawl theo `docs/CAN-CRAWL.md` (ưu tiên `16/2019/NĐ-CP`), crawl lược đồ **từng văn bản corpus** để lộ các quan hệ sửa đổi đang bị che; chạy migration `0006`; dựng lại instance Neo4j; G2 phần còn lại (giữ dòng Chương/Mục ở `extract.py:90` — 47 Chương + 15 Mục đang bị vứt).
+
+---
+
 ## 2026-08-03 (T2)
 
 **Giai đoạn:** đối chiếu code với **KG v0.5**, dựng hàng đợi duyệt cờ, và **B22 — guard `ap_dung_khi`**.

@@ -32,6 +32,7 @@ from app.core.schemas import (
     GraphEdge,
     GraphNode,
     Relationship,
+    VanBanRong,
 )
 
 #: Khớp mọi cạnh quan hệ. Liệt kê tường minh thay vì `[e]` trần: một cạnh không thuộc 13
@@ -72,7 +73,18 @@ def ensure_constraints() -> None:
         )
 
 
-def push_corpus(docs: list[CorpusDocument], rels: list[Relationship]) -> None:
+def push_corpus(
+    docs: list[CorpusDocument],
+    rels: list[Relationship],
+    rong: list[VanBanRong] | None = None,
+) -> None:
+    """Nạp lại toàn bộ đồ thị. `rong` = node rỗng — xem `app.ingestion.bac_cau`.
+
+    Node rỗng được **suy ra** từ đầu mút của cạnh, không ai soạn tay, nên nạp lại là cơ chế
+    cập nhật đầy đủ: crawl xong một văn bản rồi đưa vào `docs` thì lần nạp sau nó ra node
+    thật, node rỗng cũ không được sinh lại nữa. Đường nạp không xoá-sạch thì gọi
+    `don_node_rong_da_co_toan_van()`.
+    """
     ensure_constraints()
     with session() as s:
         # Xoá sạch để nạp lại (MVP)
@@ -82,10 +94,25 @@ def push_corpus(docs: list[CorpusDocument], rels: list[Relationship]) -> None:
                 """
                 MERGE (n:Document {doc_id: $doc_id})
                 SET n.title=$title, n.doc_type=$doc_type, n.source=$source,
-                    n.valid_from=$valid_from, n.valid_to=$valid_to
+                    n.valid_from=$valid_from, n.valid_to=$valid_to,
+                    n.so_hieu=$so_hieu, n.co_toan_van=true
                 """,
                 doc_id=d.doc_id, title=d.title, doc_type=d.doc_type,
                 source=d.source, valid_from=d.valid_from, valid_to=d.valid_to,
+                so_hieu=d.so_hieu,
+            )
+        for v in rong or []:
+            # `co_toan_van=false` là thứ phân biệt DUY NHẤT, và nó phải nằm trên node chứ
+            # không suy từ "không có chunk": tầng truy hồi và tầng hiển thị đọc từ hai chỗ khác
+            # nhau, mà cả hai đều không được trích dẫn một văn bản chưa đọc.
+            s.run(
+                """
+                MERGE (n:Document {doc_id: $doc_id})
+                SET n.title=$title, n.doc_type=$doc_type, n.source='external',
+                    n.so_hieu=$doc_id, n.co_toan_van=false
+                """,
+                doc_id=v.so_hieu, title=v.title or v.so_hieu,
+                doc_type=v.doc_type or "Chưa rõ",
             )
         for r in rels:
             # Neo4j chỉ nhận property nguyên thủy → anchors mức điều lưu dạng JSON string
@@ -112,12 +139,16 @@ def get_graph() -> GraphData:
     with session() as s:
         for rec in s.run(
             "MATCH (d:Document) RETURN d.doc_id AS id, d.title AS title, "
-            "d.doc_type AS doc_type, d.valid_from AS vf, d.valid_to AS vt"
+            "d.doc_type AS doc_type, d.valid_from AS vf, d.valid_to AS vt, "
+            "d.co_toan_van AS ctv"
         ):
             nodes.append(
                 GraphNode(
                     id=rec["id"], label=rec["title"], doc_type=rec["doc_type"],
                     valid_from=rec["vf"], valid_to=rec["vt"],
+                    # `IS NOT false` chứ không phải `= true`: node nạp từ trước khi có trường
+                    # này thì `co_toan_van` là null, và chúng đều CÓ toàn văn.
+                    co_toan_van=rec["ctv"] is not False,
                 )
             )
         for rec in s.run(
@@ -170,14 +201,84 @@ def related_edges(doc_ids: list[str]) -> list[dict]:
         ]
 
 
-def related_docs(doc_ids: list[str]) -> list[str]:
-    """Mở rộng cross-reference: các văn bản liên quan trực tiếp tới doc_ids."""
+def related_docs(doc_ids: list[str], ke_ca_rong: bool = False) -> list[str]:
+    """Mở rộng cross-reference: các văn bản liên quan trực tiếp tới doc_ids.
+
+    **Mặc định loại node rỗng.** Hàm này cấp `doc_id` cho bước truy hồi đi lấy chunk, mà node
+    rỗng không có chunk nào — để lọt thì hoặc lãng phí một lượt tìm, hoặc tệ hơn là có chỗ
+    đem nó ra trích dẫn như một nguồn đã đọc. `related_edges` thì vẫn giữ, vì ở đó **chính
+    cạnh** là thông tin: "văn bản này bị bãi bỏ bởi một văn bản ta chưa tải" vẫn đáng nói.
+    """
     if not doc_ids:
         return []
+    loc = "" if ke_ca_rong else "AND b.co_toan_van IS NOT false "
     with session() as s:
         rec = s.run(
             f"MATCH (a:Document)-[{_MOI_CANH}]-(b:Document) "
-            "WHERE a.doc_id IN $ids RETURN collect(DISTINCT b.doc_id) AS ids",
+            f"WHERE a.doc_id IN $ids {loc}"
+            "RETURN collect(DISTINCT b.doc_id) AS ids",
             ids=doc_ids,
         ).single()
         return rec["ids"] if rec else []
+
+
+CYPHER_THIEU_TOAN_VAN = """
+MATCH (r:Document) WHERE r.co_toan_van = false
+OPTIONAL MATCH (r)-[e]-(:Document)
+RETURN r.doc_id AS so_hieu, r.title AS title, r.doc_type AS doc_type,
+       count(e) AS so_canh
+ORDER BY so_canh DESC, so_hieu
+"""
+
+
+def thieu_toan_van() -> list[dict]:
+    """Node rỗng, xếp theo số cạnh chạm tới — **danh sách cần crawl, sinh từ đồ thị**.
+
+    Nhiều cạnh trỏ tới nghĩa là thiếu văn bản đó làm hổng nhiều chỗ hơn. Bản không cần Neo4j
+    ở `app.ingestion.bac_cau.thieu_toan_van` cho cùng thứ tự.
+    """
+    with session() as s:
+        return [dict(r) for r in s.run(CYPHER_THIEU_TOAN_VAN)]
+
+
+def don_node_rong_da_co_toan_van() -> list[str]:
+    """Node rỗng nào đã có văn bản thật nhận cùng số hiệu ⇒ **dời cạnh sang rồi xoá node rỗng**.
+
+    `push_corpus` xoá sạch rồi nạp lại nên đường chính không cần hàm này. Nó tồn tại cho đường
+    nạp bổ sung, và để cơ chế "có dữ liệu thật thì node rỗng biến mất" là thứ **gọi được và
+    kiểm được**, chứ không phải một hệ quả phụ của việc xoá sạch.
+
+    Lặp qua 13 mã thay vì dùng APOC: loại cạnh không tham số hoá được trong Cypher, và 13 là
+    tập đóng nên vòng lặp này không bao giờ bỏ sót — thêm quan hệ mới vào `REL_TYPES` là nó tự
+    được xử lý ở đây.
+    """
+    da_don: list[str] = []
+    with session() as s:
+        rec = s.run(
+            "MATCH (rong:Document) WHERE rong.co_toan_van = false "
+            "MATCH (that:Document) "
+            "WHERE that.so_hieu = rong.doc_id AND that.co_toan_van IS NOT false "
+            "RETURN collect(DISTINCT rong.doc_id) AS ids"
+        ).single()
+        ids = (rec["ids"] if rec else []) or []
+        if not ids:
+            return []
+        for ma in REL_TYPES:
+            for huong in ("(a)-[e:{ma}]->(rong)", "(rong)-[e:{ma}]->(a)"):
+                cu = huong.format(ma=ma)
+                moi = cu.replace("rong", "that").replace("[e:", "[m:")
+                s.run(
+                    f"""
+                    MATCH (rong:Document) WHERE rong.doc_id IN $ids
+                    MATCH (that:Document) WHERE that.so_hieu = rong.doc_id
+                          AND that.co_toan_van IS NOT false
+                    MATCH {cu}
+                    MERGE {moi}
+                    SET m += properties(e)
+                    DELETE e
+                    """,
+                    ids=ids,
+                )
+        s.run("MATCH (rong:Document) WHERE rong.doc_id IN $ids DETACH DELETE rong", ids=ids)
+        da_don = sorted(ids)
+    return da_don
