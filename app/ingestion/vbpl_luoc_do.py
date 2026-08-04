@@ -32,9 +32,13 @@ import re
 import unicodedata
 
 from app.core.schemas import REL_TYPES, Relationship
+from app.core.so_hieu import phan_tich
 
-#: "Nghị định số 101/2012/NĐ-CP …" → "101/2012/NĐ-CP"; cũng bắt "14/2022/QH15" (không gạch nối).
-SO_HIEU_RE = re.compile(r"\b\d+[a-zA-Z]?/\d{4}/[A-ZĐ]+[A-ZĐ\d]*(?:-[A-ZĐ\d]+)*\b")
+#: Bắt ỨNG VIÊN số hiệu trong văn xuôi rồi để `so_hieu.phan_tich` quyết — cố ý KHÔNG mô tả
+#: hình dạng mã bằng lớp ký tự. Bản trước làm vậy và `[A-ZĐ]+` gặp `С` Cyrillic thì lùi lại
+#: khớp ngắn hơn, **im lặng cắt cụt** `51/2025/TT-BTС` thành `51/2025/TT`. Ở đây cụm chạy tới
+#: dấu phân cách; tra từ vựng mới là chỗ nói cụm đó hợp lệ hay không.
+UNG_VIEN_RE = re.compile(r"\b\d{1,4}[a-zA-Z]?/(?:\d{4}/)?[^\s,;.)\]]+")
 
 _KHOANG = re.compile(r"\s+")
 _TIEN_TO = re.compile(r"^văn\s*bản\s+", re.IGNORECASE)
@@ -64,10 +68,18 @@ def _dung_bang() -> dict[str, str]:
 MA_THEO_NHAN: dict[str, str] = _dung_bang()
 
 
-def so_hieu_tu_tieu_de(tieu_de: str) -> str | None:
-    """Trích số hiệu từ tiêu đề vbpl. `None` khi không có — không bịa khoá."""
-    m = SO_HIEU_RE.search(tieu_de or "")
-    return m.group(0) if m else None
+def so_hieu_tu_tieu_de(tieu_de: str) -> tuple[str | None, list[str]]:
+    """Tiêu đề vbpl → (số hiệu dạng công bố, cảnh báo). `None` khi không có — không bịa khoá.
+
+    Lấy ứng viên **đầu tiên phân tích được**: vbpl luôn đặt số hiệu của chính văn bản ở đầu
+    tiêu đề, còn các số hiệu sau là văn bản bị tác động (*"TT 30/2025 Sửa đổi TT 15/2024…"*).
+    Đo được: **12/36** tiêu đề trong mẫu chứa từ hai số hiệu trở lên.
+    """
+    for m in UNG_VIEN_RE.finditer(tieu_de or ""):
+        sh = phan_tich(m.group(0))
+        if sh:
+            return sh.chuan, sh.canh_bao
+    return None, []
 
 
 def doc_luoc_do(sample: dict) -> tuple[list[Relationship], list[str]]:
@@ -83,11 +95,11 @@ def doc_luoc_do(sample: dict) -> tuple[list[Relationship], list[str]]:
     canh: list[Relationship] = []
     canh_bao: list[str] = []
 
-    goc = so_hieu_tu_tieu_de(sample.get("thuoc_tinh", {}).get("so_hieu", "")) or (
-        sample.get("thuoc_tinh", {}).get("so_hieu") or ""
-    ).strip()
+    # Ưu tiên trường `thuoc_tinh.so_hieu` — có cấu trúc, hơn hẳn việc đọc từ tiêu đề.
+    goc, cb_goc = so_hieu_tu_tieu_de(sample.get("thuoc_tinh", {}).get("so_hieu", ""))
+    canh_bao += [f"số hiệu văn bản đang xem: {c}" for c in cb_goc]
     if not goc:
-        return [], ["không đọc được số hiệu của chính văn bản đang xem"]
+        return [], canh_bao + ["không đọc được số hiệu của chính văn bản đang xem"]
 
     for chieu in ("outgoing", "incoming"):
         for nhan, ds in (sample.get("luoc_do", {}).get(chieu) or {}).items():
@@ -100,7 +112,8 @@ def doc_luoc_do(sample: dict) -> tuple[list[Relationship], list[str]]:
                 continue
             for x in ds:
                 tieu_de = x.get("title", "") if isinstance(x, dict) else str(x)
-                kia = so_hieu_tu_tieu_de(tieu_de)
+                kia, cb = so_hieu_tu_tieu_de(tieu_de)
+                canh_bao += [f"{chieu}/{nhan}: {c}" for c in cb]
                 if not kia:
                     canh_bao.append(
                         f"{chieu}/{nhan}: không đọc được số hiệu từ {tieu_de[:70]!r}"

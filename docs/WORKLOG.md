@@ -89,6 +89,31 @@
     `tiet_semicolon_mo_ho`. Nhánh vẫn phải chạy đúng nên test của nó chuyển sang **Điểm dựng tay**
     và nói rõ là dựng tay — sửa fixture cho vừa test thì rẻ hơn, nhưng fixture là **chữ luật thật**,
     sửa nó là làm hỏng thứ đắt nhất trong repo.
+- **Done (chuẩn hoá SỐ HIỆU theo khung ký hiệu — `research/vb-phap-luat-ky-hieu.html`).**
+  - **Nghiên cứu của bạn đổi hẳn thiết kế, theo hướng tốt hơn.** Ba điều tôi chưa tính: (1) ký
+    hiệu là **hợp thành** `<loại>-<cơ quan>` ⇒ từ vựng là **O(loại)+O(cơ quan)**, tổ hợp mới
+    (`TT-BNNMT`) tự hợp lệ, không phải liệt kê tích của hai; (2) **năm TUỲ CHỌN** — `123/QĐ-NHNN`
+    là văn bản hành chính hợp lệ, regex cũ đòi năm nên **bỏ sót cả nhóm đó trong im lặng**;
+    (3) `TT-BT` là placeholder chứ không phải mã thật, và văn bản đó về thuế XNK ⇒ đúng là
+    **`TT-BTC`**, khớp ca Cyrillic.
+  - **Chỉ lưu MỘT dạng — dạng công bố.** Bản nháp của tôi định thêm "dạng so khớp" (bỏ số 0 đầu,
+    `Đ→D`) và một khoá kỹ thuật từ URL ⇒ **ba dạng, thừa**. Đo lại: **0 xung đột số 0 đầu** trên
+    toàn dữ liệu ⇒ giải bài toán không tồn tại. Chuẩn hoá là **hàm chạy ở biên**, không phải
+    trường thứ hai; ID trong URL vbpl là *provenance của bản ghi thô*, không phải danh tính.
+  - **Khử homoglyph là quy tắc CẤU TRÚC, không phải tra danh sách:** mã chỉ gồm chữ cái ⇒ bắt
+    được ký tự lạ **kể cả với mã cơ quan chưa có trong bảng**. Ca thật `51/2025/TT-BTС` (С =
+    U+0421 CYRILLIC ES) nay **sửa được + nêu đích danh codepoint**, thay vì regex cũ **im lặng
+    cắt cụt** thành `51/2025/TT` — một khoá cụt tệ hơn không có khoá vì nó vẫn join được, vào
+    nhầm văn bản.
+  - **`loai` đóng · `co_quan` mở.** Luật liệt kê đủ hình thức văn bản ⇒ mã loại lạ là lỗi. Còn
+    cơ quan thì không đóng được (63 UBND tỉnh, doanh nghiệp, cơ quan mới lập) ⇒ **cảnh báo, không
+    từ chối**. `qppl` suy được từ chính ký hiệu (có năm + loại quy phạm); `QĐ` trả `None` **cố ý**
+    vì từ 2015 Quyết định của Bộ trưởng không còn là VBQPPL nhưng của Thủ tướng/UBND tỉnh thì vẫn.
+  - **Test bắt một lỗi thật của tôi:** `TTg` (Thủ tướng) và `TTr` (Tờ trình) là mã **hoa-thường
+    lẫn lộn**, `.upper()` mù biến `QĐ-TTg` thành `QĐ-TTG` trong im lặng. Sửa theo đúng nguyên tắc
+    đang dùng: **từ vựng chốt chính tả**, không phải một phép biến đổi chuỗi.
+  - **Đo:** đọc lại mẫu vbpl vẫn **35 cạnh**, và cảnh báo đi từ 0 → **1** — đúng cái lỗi của
+    nguồn, trước đây bị nuốt. pytest **444**, ruff sạch.
 - **Done (13 quan hệ thành TẬP ĐÓNG + đọc lược đồ vbpl.vn).**
   - **Gốc rễ:** `REL_TYPES` cũ là **4 tên tự đặt** và `rel_type: str` **chưa bao giờ được đối
     chiếu với nó** ⇒ `HUONG_DAN` — một loại không có thật — sống 4 lần. Cùng bảng còn bị **chép ở

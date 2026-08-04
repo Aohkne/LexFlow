@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ký hiệu văn bản pháp luật Việt Nam — Cheat sheet</title>
+<style>
+  :root{
+    --ink:#1a1d23; --sub:#565d6b; --line:#e3e6ea; --bg:#fafbfc; --card:#ffffff;
+    --accent:#2f5fda; --accent-soft:#eef2ff; --good:#0f7a4a; --good-soft:#e8f7f0;
+    --warn:#a15c00; --warn-soft:#fdf3e3;
+    --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--ink); font-family:var(--sans);
+    line-height:1.55; padding:40px 20px 80px;
+  }
+  .wrap{max-width:920px; margin:0 auto;}
+  header{margin-bottom:32px;}
+  h1{font-size:26px; margin:0 0 6px; letter-spacing:-0.01em;}
+  .lead{color:var(--sub); font-size:15px; max-width:680px;}
+  h2{font-size:18px; margin:40px 0 14px; padding-bottom:8px; border-bottom:2px solid var(--line);}
+  h3{font-size:15px; margin:22px 0 8px; color:var(--ink);}
+  p{font-size:14.5px; color:#2b2f36;}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:20px 24px; margin-bottom:16px;}
+  .pattern{
+    font-family:var(--mono); font-size:15px; background:var(--accent-soft); color:var(--accent);
+    padding:14px 16px; border-radius:8px; display:inline-block; margin:8px 0; font-weight:600;
+  }
+  table{width:100%; border-collapse:collapse; font-size:13.5px; margin:10px 0;}
+  th{text-align:left; background:#f3f4f6; padding:8px 10px; font-weight:600; color:var(--sub); border-bottom:1px solid var(--line);}
+  td{padding:8px 10px; border-bottom:1px solid var(--line); vertical-align:top;}
+  tr:last-child td{border-bottom:none;}
+  code{font-family:var(--mono); background:#f0f1f3; padding:1px 6px; border-radius:4px; font-size:13px;}
+  .tag{display:inline-block; font-size:11px; font-weight:700; padding:2px 8px; border-radius:20px; margin-left:6px;}
+  .tag.qppl{background:var(--good-soft); color:var(--good);}
+  .tag.hc{background:var(--warn-soft); color:var(--warn);}
+  .example{
+    display:flex; flex-wrap:wrap; gap:10px; align-items:baseline; padding:12px 14px;
+    background:#f8f9fb; border-left:3px solid var(--accent); border-radius:0 8px 8px 0; margin:10px 0;
+  }
+  .example .code{font-family:var(--mono); font-weight:700; font-size:14.5px; color:var(--accent);}
+  .example .desc{font-size:13.5px; color:var(--sub);}
+  .note{background:var(--warn-soft); border:1px solid #f0dcb0; border-radius:8px; padding:12px 16px; font-size:13.5px; color:var(--warn); margin:12px 0;}
+  .legal{font-size:12.5px; color:var(--sub); margin-top:6px;}
+  footer{margin-top:48px; font-size:12px; color:var(--sub); text-align:center;}
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  @media(max-width:640px){.grid2{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Ký hiệu văn bản pháp luật &amp; hành chính Việt Nam</h1>
+  <div class="lead">Cách đọc và cấu tạo pattern của các ký hiệu như TT-NHNN, NĐ-CP, QĐ-SHB, QH14, QĐ-NHNN, TT-BT…</div>
+</header>
+
+<h2>1. Hai kiểu cấu tạo ký hiệu</h2>
+
+<div class="card">
+  <h3>Nhóm A — Văn bản của Quốc hội / Ủy ban Thường vụ Quốc hội <span class="tag qppl">QPPL</span></h3>
+  <div class="pattern">Số: [số thứ tự] / [năm ban hành] / QH[khóa]  (hoặc UBTVQH[khóa])</div>
+  <p>Chỉ áp dụng cho Luật, Bộ luật, Nghị quyết của Quốc hội, và Pháp lệnh/Nghị quyết của Ủy ban Thường vụ Quốc hội. Vì chỉ có một cơ quan duy nhất ban hành nên phần "cơ quan" được thay bằng <code>QH</code> + số khóa Quốc hội — không cần viết thêm tên cơ quan riêng.</p>
+  <div class="example">
+    <span class="code">Luật số 59/2020/QH14</span>
+    <span class="desc">Luật thứ 59, ban hành năm 2020, được Quốc hội khóa XIV thông qua</span>
+  </div>
+  <table>
+    <tr><th>Ký hiệu khóa</th><th>Nhiệm kỳ Quốc hội</th></tr>
+    <tr><td><code>QH12</code></td><td>Khóa XII (2007–2011)</td></tr>
+    <tr><td><code>QH13</code></td><td>Khóa XIII (2011–2016)</td></tr>
+    <tr><td><code>QH14</code></td><td>Khóa XIV (2016–2021)</td></tr>
+    <tr><td><code>QH15</code></td><td>Khóa XV (2021–2026)</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h3>Nhóm B — Văn bản của mọi cơ quan/tổ chức khác</h3>
+  <div class="pattern">Số: [số thứ tự] / ([năm ban hành] /) [Loại văn bản] - [Cơ quan ban hành]</div>
+  <p>Áp dụng cho Nghị định, Thông tư, Quyết định, Chỉ thị, Công văn... của Chính phủ, Thủ tướng, các Bộ/ngành, UBND, tòa án, và cả văn bản nội bộ của doanh nghiệp/tổ chức (như ngân hàng thương mại). Có 3 phần: <b>số thứ tự</b>, <b>loại văn bản viết tắt</b>, <b>cơ quan ban hành viết tắt</b> — phần <b>năm</b> có hay không tùy loại văn bản (xem mục 2).</p>
+  <div class="example">
+    <span class="code">39/2016/TT-NHNN</span>
+    <span class="desc">Thông tư số 39, năm 2016, do Ngân hàng Nhà nước ban hành</span>
+  </div>
+  <div class="example">
+    <span class="code">15/2025/NĐ-CP</span>
+    <span class="desc">Nghị định số 15, năm 2025, do Chính phủ ban hành</span>
+  </div>
+</div>
+
+<h2>2. Có năm hay không có năm — điểm khác biệt quan trọng</h2>
+<div class="card">
+  <table>
+    <tr><th></th><th>Văn bản quy phạm pháp luật (QPPL)</th><th>Văn bản hành chính / nội bộ</th></tr>
+    <tr>
+      <td><b>Bản chất</b></td>
+      <td>Đặt ra quy tắc xử sự chung, áp dụng nhiều lần, nhiều đối tượng</td>
+      <td>Giải quyết việc cụ thể, cá biệt (bổ nhiệm, cấp phép, xử phạt, thông báo…)</td>
+    </tr>
+    <tr>
+      <td><b>Ký hiệu</b></td>
+      <td><code>Số/Năm/LoạiVB-CơQuan</code> — luôn có năm</td>
+      <td><code>Số/LoạiVB-CơQuan</code> — thường KHÔNG có năm</td>
+    </tr>
+    <tr>
+      <td><b>Căn cứ</b></td>
+      <td>Luật Ban hành VBQPPL 2015 (sửa đổi 2020) + Nghị định 34/2016/NĐ-CP (sửa đổi bởi NĐ 154/2020/NĐ-CP)</td>
+      <td>Nghị định 30/2020/NĐ-CP về công tác văn thư</td>
+    </tr>
+    <tr>
+      <td><b>Ví dụ</b></td>
+      <td><code>39/2016/TT-NHNN</code>, <code>15/2025/NĐ-CP</code></td>
+      <td><code>123/QĐ-NHNN</code>, <code>456/QĐ-SHB</code></td>
+    </tr>
+  </table>
+  <p class="legal">Lưu ý: từ 2015, "Quyết định của Bộ trưởng" không còn là hình thức VBQPPL (chỉ còn Thông tư) — nên <code>QĐ-NHNN</code> hay <code>QĐ-BTC</code> hầu hết là quyết định cá biệt/nội bộ, không mang tính quy phạm.</p>
+</div>
+
+<h2>3. Loại văn bản thường gặp và ký hiệu</h2>
+<div class="grid2">
+  <div class="card">
+    <h3>Nhóm QPPL <span class="tag qppl">có năm</span></h3>
+    <table>
+      <tr><th>Ký hiệu</th><th>Loại văn bản</th></tr>
+      <tr><td><code>NĐ</code></td><td>Nghị định (Chính phủ)</td></tr>
+      <tr><td><code>TT</code></td><td>Thông tư (Bộ/ngành, Chánh án TANDTC…)</td></tr>
+      <tr><td><code>TTLT</code></td><td>Thông tư liên tịch (ít dùng từ 2016)</td></tr>
+      <tr><td><code>NQ</code></td><td>Nghị quyết (mang tính QPPL, vd của HĐND)</td></tr>
+      <tr><td><code>PL</code></td><td>Pháp lệnh (UBTVQH)</td></tr>
+      <tr><td><code>QĐ</code></td><td>Quyết định (chỉ còn của Thủ tướng, Chủ tịch nước, UBND cấp tỉnh)</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h3>Nhóm hành chính <span class="tag hc">thường không năm</span></h3>
+    <table>
+      <tr><th>Ký hiệu</th><th>Loại văn bản</th></tr>
+      <tr><td><code>QĐ</code></td><td>Quyết định (cá biệt)</td></tr>
+      <tr><td><code>CT</code></td><td>Chỉ thị</td></tr>
+      <tr><td><code>TB</code></td><td>Thông báo</td></tr>
+      <tr><td><code>HD</code></td><td>Hướng dẫn</td></tr>
+      <tr><td><code>KH</code></td><td>Kế hoạch</td></tr>
+      <tr><td><code>BC</code></td><td>Báo cáo</td></tr>
+      <tr><td><code>TTr</code></td><td>Tờ trình</td></tr>
+      <tr><td><code>CV</code></td><td>Công văn (thường không ghi loại VB trong ký hiệu)</td></tr>
+    </table>
+  </div>
+</div>
+
+<h2>4. Cơ quan ban hành viết tắt phổ biến</h2>
+<div class="card">
+  <table>
+    <tr><th>Ký hiệu</th><th>Cơ quan</th></tr>
+    <tr><td><code>CP</code></td><td>Chính phủ</td></tr>
+    <tr><td><code>TTg</code></td><td>Thủ tướng Chính phủ</td></tr>
+    <tr><td><code>NHNN</code></td><td>Ngân hàng Nhà nước Việt Nam</td></tr>
+    <tr><td><code>BTC</code></td><td>Bộ Tài chính (từ 2025 hợp nhất thêm Bộ KH&ĐT)</td></tr>
+    <tr><td><code>BCT</code></td><td>Bộ Công Thương</td></tr>
+    <tr><td><code>BNNMT</code></td><td>Bộ Nông nghiệp và Môi trường (hợp nhất 2025)</td></tr>
+    <tr><td><code>BXD</code></td><td>Bộ Xây dựng (từ 2025 hợp nhất thêm Bộ GTVT)</td></tr>
+    <tr><td><code>BGDĐT</code></td><td>Bộ Giáo dục và Đào tạo</td></tr>
+    <tr><td><code>BYT</code></td><td>Bộ Y tế</td></tr>
+    <tr><td><code>BTP</code></td><td>Bộ Tư pháp</td></tr>
+    <tr><td><code>BNV</code></td><td>Bộ Nội vụ</td></tr>
+    <tr><td><code>BQP</code></td><td>Bộ Quốc phòng</td></tr>
+    <tr><td><code>BCA</code></td><td>Bộ Công an</td></tr>
+    <tr><td><code>BNG</code></td><td>Bộ Ngoại giao</td></tr>
+    <tr><td><code>BVHTTDL</code></td><td>Bộ Văn hóa, Thể thao và Du lịch</td></tr>
+    <tr><td><code>BKHCN</code></td><td>Bộ Khoa học và Công nghệ</td></tr>
+    <tr><td><code>UBDTTG</code></td><td>Bộ Dân tộc và Tôn giáo (mới thành lập 2025)</td></tr>
+    <tr><td><code>TANDTC</code></td><td>Tòa án nhân dân tối cao</td></tr>
+    <tr><td><code>VKSNDTC</code></td><td>Viện kiểm sát nhân dân tối cao</td></tr>
+    <tr><td><code>UBND</code></td><td>Ủy ban nhân dân (kèm cấp tỉnh/huyện cụ thể trong tên đầy đủ)</td></tr>
+  </table>
+  <p class="legal">Ngoài cơ quan nhà nước, doanh nghiệp/tổ chức cũng dùng đúng khuôn mẫu này cho văn bản nội bộ, với mã là tên viết tắt của chính họ — ví dụ <code>SHB</code> (Ngân hàng TMCP Sài Gòn – Hà Nội), <code>VCB</code> (Vietcombank), <code>BIDV</code>… Đây không phải văn bản quy phạm pháp luật nhà nước mà là văn bản hành chính/nội bộ, nhưng cấu trúc ký hiệu vẫn tuân theo Nghị định 30/2020/NĐ-CP.</p>
+</div>
+
+<h2>5. Giải mã các ví dụ đã nêu</h2>
+<div class="card">
+  <div class="example"><span class="code">TT-NHNN</span><span class="desc">Thông tư của Ngân hàng Nhà nước → VBQPPL, luôn có năm. VD: 39/2016/TT-NHNN</span></div>
+  <div class="example"><span class="code">NĐ-CP</span><span class="desc">Nghị định của Chính phủ → VBQPPL, luôn có năm. VD: 15/2025/NĐ-CP</span></div>
+  <div class="example"><span class="code">QĐ-SHB</span><span class="desc">Quyết định nội bộ của Ngân hàng SHB → văn bản hành chính doanh nghiệp, không phải QPPL nhà nước, thường không kèm năm trong ký hiệu</span></div>
+  <div class="example"><span class="code">QH12 / QH13 / QH14 / QH15</span><span class="desc">Ký hiệu các khóa Quốc hội, gắn liền với Luật/Nghị quyết do khóa đó ban hành. VD: 59/2020/QH14</span></div>
+  <div class="example"><span class="code">QĐ-NHNN</span><span class="desc">Quyết định cá biệt của Thống đốc/NHNN (cấp phép, bổ nhiệm, xử lý vụ việc cụ thể) → văn bản hành chính, không phải QPPL vì từ 2015 "Quyết định của Bộ trưởng/Thủ trưởng ngang bộ" không còn là hình thức QPPL</span></div>
+  <div class="example"><span class="code">TT-BT</span><span class="desc">Không phải mã Bộ chuẩn hiện hành (các Thông tư hiện nay dùng mã 3–4 chữ như TT-BTC, TT-BTP, TT-BGDĐT…). Nhiều khả năng đây là ví dụ minh họa chung cho mẫu "TT-[Bộ]", hoặc thuộc thể thức cũ trước 1996 khi ký hiệu viết theo dạng <code>số-LoạiVB/CơQuan</code> (đảo ngược so với hiện nay) — nên xem đây là placeholder hơn là một mã cơ quan cụ thể đang dùng</span></div>
+</div>
+
+<h2>6. Căn cứ pháp lý</h2>
+<div class="card">
+  <p>
+  • Luật Ban hành văn bản quy phạm pháp luật 2015 (sửa đổi, bổ sung 2020)<br>
+  • Nghị định 34/2016/NĐ-CP, sửa đổi bởi Nghị định 154/2020/NĐ-CP — quy định chi tiết thể thức, số và ký hiệu của VBQPPL<br>
+  • Nghị định 30/2020/NĐ-CP về công tác văn thư — quy định số và ký hiệu của văn bản hành chính (27 loại văn bản hành chính)
+  </p>
+</div>
+
+<footer>Tổng hợp tham khảo · Tháng 8/2026 · Không phải tư vấn pháp lý chính thức, nên đối chiếu văn bản gốc khi cần trích dẫn</footer>
+
+</div>
+</body>
+</html>

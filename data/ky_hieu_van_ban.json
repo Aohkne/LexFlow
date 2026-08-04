@@ -1,0 +1,87 @@
+{
+  "_note": [
+    "Từ vựng ký hiệu văn bản — dữ liệu NGƯỜI viết, nguồn: research/vb-phap-luat-ky-hieu.html.",
+    "",
+    "Ký hiệu là HỢP THÀNH, không phải chuỗi phẳng, nên bảng này O(loại) + O(cơ quan) chứ không",
+    "phải tích của hai — tổ hợp mới (vd 'TT-BNNMT') tự hợp lệ mà không cần thêm dòng nào.",
+    "",
+    "Hai khuôn:",
+    "  A. Quốc hội / UBTVQH   <số>/<năm>/QH<khóa>          — chỉ một cơ quan nên thay bằng khóa",
+    "  B. mọi cơ quan khác    <số>/[<năm>/]<loại>-<cơ quan> — NĂM CÓ THỂ VẮNG",
+    "",
+    "Năm vắng là dấu hiệu văn bản HÀNH CHÍNH/nội bộ (NĐ 30/2020/NĐ-CP), có năm là VBQPPL",
+    "(NĐ 34/2016/NĐ-CP sửa bởi NĐ 154/2020). Đây là thông tin phân loại đọc được từ chính ký",
+    "hiệu, không phải suy đoán — xem `qppl` của từng loại.",
+    "",
+    "`co_quan` KHÔNG đóng được: còn UBND 63 tỉnh, doanh nghiệp, tổ chức mới lập. Mã lạ ⇒ CẢNH",
+    "BÁO chứ không từ chối. Ngược lại `loai` thì đóng — luật liệt kê đủ hình thức văn bản."
+  ],
+
+  "loai": {
+    "NĐ":   {"ten": "Nghị định", "qppl": true},
+    "TT":   {"ten": "Thông tư", "qppl": true},
+    "TTLT": {"ten": "Thông tư liên tịch", "qppl": true, "nhieu_co_quan": true},
+    "NQ":   {"ten": "Nghị quyết", "qppl": true},
+    "PL":   {"ten": "Pháp lệnh", "qppl": true},
+    "L":    {"ten": "Luật", "qppl": true},
+    "QĐ":   {"ten": "Quyết định", "qppl": null},
+    "CT":   {"ten": "Chỉ thị", "qppl": false},
+    "TB":   {"ten": "Thông báo", "qppl": false},
+    "HD":   {"ten": "Hướng dẫn", "qppl": false},
+    "KH":   {"ten": "Kế hoạch", "qppl": false},
+    "BC":   {"ten": "Báo cáo", "qppl": false},
+    "TTr":  {"ten": "Tờ trình", "qppl": false},
+    "CV":   {"ten": "Công văn", "qppl": false},
+    "VBHN": {"ten": "Văn bản hợp nhất", "qppl": false}
+  },
+  "_note_qppl": [
+    "`qppl: null` cho QĐ là CỐ Ý, không phải thiếu dữ liệu: từ 2015 'Quyết định của Bộ trưởng'",
+    "không còn là hình thức VBQPPL, nhưng Quyết định của Thủ tướng / Chủ tịch nước / UBND cấp",
+    "tỉnh thì vẫn là. Không suy được từ riêng ký hiệu ⇒ để trống thay vì đoán."
+  ],
+
+  "quoc_hoi": {
+    "QH":     "Quốc hội",
+    "UBTVQH": "Ủy ban Thường vụ Quốc hội"
+  },
+  "khoa_quoc_hoi": {
+    "12": "Khóa XII (2007–2011)",
+    "13": "Khóa XIII (2011–2016)",
+    "14": "Khóa XIV (2016–2021)",
+    "15": "Khóa XV (2021–2026)"
+  },
+
+  "co_quan": {
+    "CP": "Chính phủ",
+    "TTg": "Thủ tướng Chính phủ",
+    "CTN": "Chủ tịch nước",
+    "NHNN": "Ngân hàng Nhà nước Việt Nam",
+    "BTC": "Bộ Tài chính",
+    "BCT": "Bộ Công Thương",
+    "BNNMT": "Bộ Nông nghiệp và Môi trường",
+    "BXD": "Bộ Xây dựng",
+    "BGDĐT": "Bộ Giáo dục và Đào tạo",
+    "BYT": "Bộ Y tế",
+    "BTP": "Bộ Tư pháp",
+    "BNV": "Bộ Nội vụ",
+    "BQP": "Bộ Quốc phòng",
+    "BCA": "Bộ Công an",
+    "BNG": "Bộ Ngoại giao",
+    "BVHTTDL": "Bộ Văn hóa, Thể thao và Du lịch",
+    "BKHCN": "Bộ Khoa học và Công nghệ",
+    "UBDTTG": "Bộ Dân tộc và Tôn giáo",
+    "TANDTC": "Tòa án nhân dân tối cao",
+    "VKSNDTC": "Viện kiểm sát nhân dân tối cao",
+    "UBND": "Ủy ban nhân dân",
+    "SHB": "Ngân hàng TMCP Sài Gòn – Hà Nội",
+    "VCB": "Vietcombank",
+    "BIDV": "Ngân hàng TMCP Đầu tư và Phát triển Việt Nam"
+  },
+
+  "_note_khong_dung": [
+    "'TT-BT' KHÔNG phải mã cơ quan hiện hành — nghiên cứu xếp nó là placeholder cho khuôn",
+    "'TT-<Bộ>', hoặc thể thức trước 1996. Gặp trong dữ liệu thật thì gần như chắc là 'TT-BTC'",
+    "bị hỏng: ca đo được là '51/2025/TT-BTС' với С là CYRILLIC CAPITAL ES (U+0421), và nội dung",
+    "văn bản đó về thuế xuất nhập khẩu ⇒ Bộ Tài chính."
+  ]
+}

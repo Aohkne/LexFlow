@@ -118,9 +118,15 @@ def test_co_instance_BAI_BO_that(ket_qua):
 # --- 4. Không đoán, không im lặng --------------------------------------------
 
 
-def test_mau_that_khong_sinh_canh_bao_nao(ket_qua):
+def test_mau_that_chi_con_dung_mot_canh_bao_homoglyph(ket_qua):
+    """Mọi nhãn và mọi tiêu đề đều quy được về khoá; cảnh báo duy nhất là lỗi CỦA NGUỒN.
+
+    `51/2025/TT-BTС` mang `С` = CYRILLIC CAPITAL ES. Bản trước im lặng cắt cụt thành
+    `51/2025/TT`; nay sửa được nhưng **vẫn nói ra**, vì đó là khuyết tật của dữ liệu gốc.
+    """
     _, cb = ket_qua
-    assert cb == [], f"còn nhãn/số hiệu chưa quy được: {cb}"
+    assert len(cb) == 1, cb
+    assert "U+0421" in cb[0] and "CYRILLIC" in cb[0]
 
 
 def test_nhan_la_thi_bao_ra_chu_khong_bo_im_lang():
@@ -153,10 +159,12 @@ def test_khong_doc_duoc_so_hieu_thi_bao_ra():
         ("Thông tư số 40/2024/TT-NHNN Quy định về hoạt động", "40/2024/TT-NHNN"),
         ("Quyết định số 38/2007/QĐ-NHNN", "38/2007/QĐ-NHNN"),
         ("Không có số hiệu nào cả", None),
+        # 12/36 tiêu đề trong mẫu chứa 2+ số hiệu — phải lấy của CHÍNH văn bản, tức cái đầu.
+        ("Thông tư số 30/2025/TT-NHNN Sửa đổi Thông tư số 15/2024/TT-NHNN", "30/2025/TT-NHNN"),
     ],
 )
 def test_trich_so_hieu(tieu_de, cho):
-    assert so_hieu_tu_tieu_de(tieu_de) == cho
+    assert so_hieu_tu_tieu_de(tieu_de)[0] == cho
 
 
 def test_moi_canh_deu_dung_ma_trong_tap_dong(ket_qua):
