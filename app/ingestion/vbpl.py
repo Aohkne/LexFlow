@@ -32,6 +32,7 @@ import sys
 import time
 import unicodedata
 from collections import Counter
+from contextlib import contextmanager
 from dataclasses import dataclass
 from html import escape
 from html.parser import HTMLParser
@@ -797,32 +798,45 @@ def _dedupe_amendments(raw: list[dict]) -> list[dict]:
     return [b for b in best.values() if b["badges"]]
 
 
-def fetch_document(url: str) -> dict:
-    """Mở 1 văn bản, bóc cả 3 tab Nội dung / Thuộc tính / Lược đồ trong MỘT phiên trình duyệt."""
+@contextmanager
+def open_browser():
+    """Một phiên Chromium dùng chung. Tách khỏi `extract_document` để cào nhiều văn bản
+    trong cùng một lần launch (mỗi lần launch mất vài giây)."""
     from playwright.sync_api import sync_playwright
 
     with sync_playwright() as p:
         browser = p.chromium.launch()
         try:
-            page = browser.new_page(user_agent=_UA)
-            page.add_init_script(_OPEN_HOOK_JS)
-
-            page.goto(url, wait_until="domcontentloaded", timeout=45_000)
-            _wait_for_content(page)
-            title = page.title().split(" | CSDL")[0].strip()
-            main_text = page.evaluate(_JS_MAIN_TEXT)
-            content_html = page.evaluate(_JS_CONTENT_HTML)
-            prov_nodes = page.evaluate(_JS_PROVISION_NODES)
-            amendments = _dedupe_amendments(page.evaluate(_JS_AMENDMENTS))
-
-            _open_tab(page, url, _TAB_THUOC_TINH_URL, "Số hiệu")
-            properties = parse_property_rows(page.evaluate(_JS_PROP_ROWS))
-
-            _open_tab(page, url, _TAB_LUOC_DO_URL, "VĂN BẢN ĐANG XEM")
-            luoc_do_text = page.evaluate(_JS_MAIN_TEXT)
-            relations = _resolve_relation_urls(page, page.evaluate(_JS_TAG_RELATIONS))
+            yield browser
         finally:
             browser.close()
+
+
+def extract_document(browser, url: str) -> dict:
+    """Bóc cả 3 tab Nội dung / Thuộc tính / Lược đồ của 1 văn bản trên `browser` đang mở.
+
+    Mỗi văn bản một tab mới rồi đóng: hook `window.open` và state SPA không lẫn giữa các văn bản.
+    """
+    page = browser.new_page(user_agent=_UA)
+    try:
+        page.add_init_script(_OPEN_HOOK_JS)
+
+        page.goto(url, wait_until="domcontentloaded", timeout=45_000)
+        _wait_for_content(page)
+        title = page.title().split(" | CSDL")[0].strip()
+        main_text = page.evaluate(_JS_MAIN_TEXT)
+        content_html = page.evaluate(_JS_CONTENT_HTML)
+        prov_nodes = page.evaluate(_JS_PROVISION_NODES)
+        amendments = _dedupe_amendments(page.evaluate(_JS_AMENDMENTS))
+
+        _open_tab(page, url, _TAB_THUOC_TINH_URL, "Số hiệu")
+        properties = parse_property_rows(page.evaluate(_JS_PROP_ROWS))
+
+        _open_tab(page, url, _TAB_LUOC_DO_URL, "VĂN BẢN ĐANG XEM")
+        luoc_do_text = page.evaluate(_JS_MAIN_TEXT)
+        relations = _resolve_relation_urls(page, page.evaluate(_JS_TAG_RELATIONS))
+    finally:
+        page.close()
 
     if not properties:
         raise RuntimeError(
@@ -856,6 +870,17 @@ def fetch_document(url: str) -> dict:
             for a in amendments
         ],
     }
+
+
+def fetch_document(url: str) -> dict:
+    """Cào 1 văn bản trong một phiên trình duyệt riêng (dùng cho lệnh `dump`)."""
+    with open_browser() as browser:
+        return extract_document(browser, url)
+
+
+def slug_for(url: str) -> str:
+    """Tên file cho một URL chi tiết: slug đã bỏ đuôi id/uuid, cắt còn 80 ký tự."""
+    return _UUID_SUFFIX_RE.sub("", url.rstrip("/").rsplit("/", 1)[-1])[:80]
 
 
 def _iso_date(vn_date: str | None) -> str | None:
@@ -903,8 +928,7 @@ def save_document(url: str, out_dir: Path) -> Path:
     text = "\n".join(header) + "\n\n" + body
 
     out_dir.mkdir(parents=True, exist_ok=True)
-    slug = _UUID_SUFFIX_RE.sub("", url.rstrip("/").rsplit("/", 1)[-1])[:80]
-    out_path = out_dir / f"{slug}.txt"
+    out_path = out_dir / f"{slug_for(url)}.txt"
     out_path.write_text(text, encoding="utf-8")
     return out_path
 
@@ -964,7 +988,7 @@ def main(argv: list[str] | None = None) -> None:
         doc = fetch_document(args.url)
         out_dir = Path(args.out)
         out_dir.mkdir(parents=True, exist_ok=True)
-        slug = _UUID_SUFFIX_RE.sub("", args.url.rstrip("/").rsplit("/", 1)[-1])[:80]
+        slug = slug_for(args.url)
         out_path = out_dir / f"{slug}.json"
         out_path.write_text(
             json.dumps(doc, ensure_ascii=False, indent=1), encoding="utf-8"
