@@ -6,6 +6,20 @@
 
 ---
 
+## 2026-08-04 (T3) — đợt 3: khối trích dẫn trong văn bản sửa đổi
+
+- **Done (`parse_dieu` học đọc ngoặc kép — `app/ontology/parser.py`).** Bộ crawl cảnh báo *"ND80 Điều 1: khoản 5, 6, 7, 8 xuất hiện 2 lần với nội dung KHÁC nhau — cần người đọc quyết bản nào đang hiệu lực"*. Truy ra thì **không có gì để quyết**: một văn bản sửa đổi chép nguyên văn nội dung mới vào giữa hai dấu ngoặc kép, và phần chép mang **đánh số của văn bản BỊ sửa**. Khoản 5 lần một là của **ND101**, lần hai là của **ND80** — hai văn bản khác nhau, không phải hai phiên bản.
+  - **Hậu quả thật không nằm ở con số** mà ở khoá: `80/2016/NĐ-CP#than/dieu_1#khoan_5` trỏ vào **hai thứ khác nhau**, một trong hai là nội dung của văn bản khác — đúng kiểu nhập nhằng cả lớp khoá này sinh ra để chặn.
+  - **Việc này là của bộ tách, không phải của bên crawl.** Ngoặc kép là chữ của chính đạo luật; bỏ nó đi là sửa văn bản gốc và làm mất nghĩa của một văn bản sửa đổi. Nên `trong_trich_dan()` dựng mặt nạ theo ký tự, và cả ba chỗ nhận diện (khoản · điểm · tiết) bỏ qua dòng nằm trong khối. Khối **ở lại trong `text` của khoản mẹ** — bỏ khoản-giả khác hẳn bỏ chữ, và không có nó thì khoản 1 chỉ còn câu lệnh trống nghĩa.
+  - **Ngoặc lệch ⇒ bỏ luật cho cả Điều đó**, không đoán chỗ đóng: đoán sai sẽ nuốt phần còn lại của Điều — hỏng nặng hơn hẳn cái nó định sửa, và hỏng im lặng.
+  - **Đo trước khi viết**, và chính phép đo quyết định là làm được: ngoặc **cân 100%** trên cả 9 bản ghi; **0/18 fixture** có khoản/điểm trong ngoặc ⇒ 94 đơn vị và nhãn vàng **không đổi một dòng**; corpus có **75 khoản** đang bị gán nhầm chủ, tất cả ở TT20-2016 và TT23-2019 — đúng hai văn bản sửa đổi.
+  - **Kết quả:** ND80 Điều 1 từ 14 → **10 khoản, khớp đúng cây `provisions` của nguồn**; `char_span` không khoản nào lệch; ND52/TT15/TT40 không đổi một con số. **506 test** (thêm 11), ruff sạch, `--classify` giữ 94 đơn vị 45/9/40.
+  - Một lỗi bắt được khi chạy: văn bản kết thúc bằng `\n` sinh dòng rỗng cuối có `start == len(text)` ⇒ tra mặt nạ ném `IndexError`. Mặt nạ nay dài `len(text) + 1`, có test canh riêng.
+- **Done (`docs/PROMPT-SUA-CRAWLER-2.md`).** Bên crawl **không phải sửa dữ liệu** — chỉ hai câu cảnh báo: (1) cảnh báo "cần người đọc quyết" tạo ra **việc rà soát giả**, chỉ nên bắn khi cả hai dòng trùng đều **ngoài** ngoặc; (2) `check_tree_coverage` nói **ngược** — *"cây thiếu 4 khoản (10/14)"* trong khi cây đúng là 10, còn 14 mới là số thừa. Ở TT15 thì cây thiếu nút thật, ở văn bản sửa đổi thì cây lại **đúng hơn** toàn văn, vì cây đọc theo cấu trúc HTML nên biết khối trích dẫn là con của khoản.
+  - Ghi rõ trong prompt rằng cột đối chiếu đếm bằng regex thô nên **không** bằng số khoản của bộ tách (TT40: 209 vs 193) — để bên kia không chỉnh code cho khớp nhầm số.
+
+---
+
 ## 2026-08-04 (T3) — đợt 2: nhận dữ liệu crawl lại
 
 - **Done (kiểm độc lập báo cáo của crawler).** Không lấy báo cáo làm bằng, đếm lại khoản/điểm từ `articles[]` **và** từ `noi_dung` cho cả 9 văn bản: **8/9 khớp bảng nghiệm thu**. Ca lệch duy nhất là TT40 — **216 điểm, không phải 218 như tôi đưa**. Truy bằng chính file cũ trong git: bản cũ có điểm `đ` và `i` **lặp** ở cuối Điều 37 khoản 1, bản mới bỏ đúng hai cái đó. ⇒ **số của tôi sai**, vì phép khử trùng lúc tôi đo chỉ xử lý dòng khoản `^\d+\.` mà bỏ sót dòng điểm.

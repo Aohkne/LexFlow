@@ -53,6 +53,59 @@ _TIET_RE = re.compile(rf"^\(\s*({_ROMAN_ALT})\s*\)\s*(.*)$", re.I)
 _HOAC_RE = re.compile(r"(?:;|,)?\s*hoặc\s*$", re.I)
 _VA_RE = re.compile(r"(?:;|,)?\s*và\s*$", re.I)
 
+# --- Khối TRÍCH DẪN trong văn bản sửa đổi ------------------------------------
+#
+# Một văn bản sửa đổi luôn chép nguyên văn nội dung mới vào giữa hai dấu ngoặc kép, và
+# phần được chép mang **đánh số của văn bản BỊ sửa**. Không phân biệt thì máy gán nhầm
+# chủ: ND80 Điều 1 có 10 khoản của chính nó, nhưng đếm phẳng ra **14** — bốn cái thừa là
+# khoản 5, 6, 7, 8 **của ND101** nằm trong ngoặc.
+#
+# Hậu quả không dừng ở con số. Khoá `80/2016/NĐ-CP#than/dieu_1#khoan_5` khi đó trỏ vào
+# HAI thứ khác nhau, một trong hai thực chất là nội dung của văn bản khác — tức chính
+# kiểu nhập nhằng mà cả lớp khoá này sinh ra để chặn.
+#
+# Đo trước khi viết luật này:
+#   · ngoặc **cân 100%** trên cả 9 bản ghi đã crawl (`"` luôn chẵn, số `“` bằng số `”`);
+#   · sau khi bỏ dòng trong ngoặc, số khoản khớp cây `provisions` ở **7/8 văn bản trọn vẹn**
+#     (ND80 1/1, TT22 1/1, TT41 13/13, TT66 4/4, ND52 35/35, ND16 4/4);
+#   · **0/18 fixture** có khoản hay điểm nằm trong ngoặc ⇒ 94 đơn vị và nhãn vàng không đổi;
+#   · corpus hiện tại có **75 khoản** đang bị gán nhầm chủ, tất cả ở TT20-2016 và TT23-2019 —
+#     đúng hai văn bản sửa đổi.
+_MO_NGOAC, _DONG_NGOAC, _NGOAC_DAO = "“", "”", '"'
+
+
+def trong_trich_dan(text: str) -> list[bool]:
+    """Mặt nạ theo ký tự: vị trí này có nằm trong khối trích dẫn không.
+
+    `"` đảo trạng thái, `“` mở, `”` đóng. Chính ký tự ngoặc được đánh dấu là **trong**, để
+    một dòng mở đầu bằng ngoặc (`"4. Tổ chức…`) cũng bị coi là trong.
+
+    **Ngoặc lệch ⇒ trả mặt nạ toàn `False`**, tức bỏ luật này cho cả Điều đó. Cố đoán chỗ
+    đóng khi nguồn viết thiếu ngoặc sẽ nuốt phần còn lại của Điều — hỏng nặng hơn hẳn cái nó
+    định sửa, và hỏng im lặng. Không chắc thì làm như cũ.
+    """
+    # +1 phần tử: `_line_offsets` sinh một dòng rỗng ở cuối khi text kết thúc bằng '\n', và
+    # dòng đó có `start == len(text)`. Thiếu ô này thì tra mặt nạ ném IndexError — đã xảy ra.
+    if text.count(_NGOAC_DAO) % 2 or text.count(_MO_NGOAC) != text.count(_DONG_NGOAC):
+        return [False] * (len(text) + 1)
+    ra: list[bool] = []
+    mo = False
+    for ch in text:
+        if ch == _NGOAC_DAO:
+            mo = not mo
+            ra.append(True)
+        elif ch == _MO_NGOAC:
+            mo = True
+            ra.append(True)
+        elif ch == _DONG_NGOAC:
+            mo = False
+            ra.append(True)
+        else:
+            ra.append(mo)
+    ra.append(False)  # ô biên cho dòng rỗng cuối, xem chú thích ở trên
+    return ra
+
+
 # Rác biên tập của luatvietnam (nút "Phân tích" mở khối chú giải của biên tập
 # viên, không phải chữ của luật). Giữ bộ lọc riêng ở đây — sửa _NOISE_LINES
 # trong extract.py sẽ đổi hành vi đường ingest đang chạy.
@@ -139,7 +192,7 @@ def _line_offsets(text: str) -> list[tuple[str, int, int]]:
 
 
 def _split_tiet(
-    lines: list[tuple[str, int, int]], dieu_text: str
+    lines: list[tuple[str, int, int]], dieu_text: str, trich: list[bool] | None = None
 ) -> list[TietSpan]:
     """Các dòng của một Điểm → danh sách tiết `(i)/(ii)` kèm từ nối.
 
@@ -147,10 +200,14 @@ def _split_tiet(
     `unknown`: tiếng Việt pháp lý dùng ';' cho cả liệt kê lẫn lựa chọn, đoán bừa
     sẽ biến phép TUYỂN thành phép HỘI — đúng loại lỗi đổi nghĩa mà cả pipeline
     này sinh ra để chặn.
+
+    `trich` là mặt nạ khối trích dẫn (xem `trong_trich_dan`); tiết nằm trong đó là của văn
+    bản bị sửa. Mặc định `None` để gọi trực tiếp trong test vẫn được — chỉ `parse_dieu` mới
+    có sẵn mặt nạ của cả Điều.
     """
     groups: list[tuple[str, list[tuple[str, int, int]]]] = []
     for line, start, end in lines:
-        m = _TIET_RE.match(line)
+        m = None if trich is not None and trich[start] else _TIET_RE.match(line)
         if m:
             groups.append((m.group(1).lower(), [(line, start, end)]))
         elif groups:
@@ -425,6 +482,11 @@ def parse_dieu(dieu_text: str, so_hieu: str) -> DieuNode:
     if not lines:
         raise ValueError("Văn bản rỗng")
 
+    # Dòng nằm trong khối trích dẫn mang đánh số của văn bản BỊ sửa, không phải của văn bản
+    # này — xem `trong_trich_dan`. Nó ở lại trong `text` của khoản mẹ, đúng vai: *nội dung mà
+    # khoản này sửa thành*, chứ không phải khoản anh em.
+    trich = trong_trich_dan(dieu_text)
+
     head = _DIEU_RE.match(lines[0][0])
     if not head:
         raise ValueError(f"Dòng đầu không phải tiêu đề Điều: {lines[0][0][:60]!r}")
@@ -437,7 +499,7 @@ def parse_dieu(dieu_text: str, so_hieu: str) -> DieuNode:
     # Gom dòng theo Khoản, rồi theo Điểm bên trong Khoản.
     khoan_groups: list[tuple[re.Match[str], list[tuple[str, int, int]]]] = []
     for line, start, end in lines[1:]:
-        m = _KHOAN_RE.match(line)
+        m = None if trich[start] else _KHOAN_RE.match(line)
         if m:
             khoan_groups.append((m, [(line, start, end)]))
         elif khoan_groups:
@@ -452,7 +514,7 @@ def parse_dieu(dieu_text: str, so_hieu: str) -> DieuNode:
 
         diem_groups: list[tuple[re.Match[str], list[tuple[str, int, int]]]] = []
         for line, start, end in group[1:]:
-            dm = _DIEM_RE.match(line)
+            dm = None if trich[start] else _DIEM_RE.match(line)
             if dm:
                 diem_groups.append((dm, [(line, start, end)]))
             elif diem_groups:
@@ -467,7 +529,7 @@ def parse_dieu(dieu_text: str, so_hieu: str) -> DieuNode:
                 start=dg[0][1],
                 end=dg[-1][2],
                 text=dieu_text[dg[0][1] : dg[-1][2]],
-                tiet=_split_tiet(dg, dieu_text),
+                tiet=_split_tiet(dg, dieu_text, trich),
             )
             for dm, dg in diem_groups
         ]
