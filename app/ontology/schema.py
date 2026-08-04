@@ -168,6 +168,11 @@ class ConditionItem(BaseModel):
     sub: list[SubCondition] = Field(default_factory=list)
     # None = vô điều kiện. Guard ở tầng này phủ mọi tiết bên trong (AND dọc đường đi).
     ap_dung_khi: GuardApDung | None = None
+    # Không rỗng ⇒ guard của các tiết PHỦ TRỌN miền giá trị này (đã đối chiếu
+    # `data/phan_hoach.json`), nên `logic` dù là "unknown" cũng KHÔNG ảnh hưởng kết quả:
+    # đúng một tiết áp dụng với mọi tình huống. Đây là chứng cứ, không phải suy diễn —
+    # `connector` vẫn giữ nguyên. Xem `app/ontology/phan_hoach.py`.
+    guard_phan_hoach: str | None = None
     issues: list[str] = Field(default_factory=list)
 
 

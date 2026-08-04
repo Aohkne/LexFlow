@@ -116,7 +116,10 @@ def test_canh_bao_khi_khong_ro_va_hay_hoac(index):
     }
     cu = build_cu(data, k1, dieu, units)
     assert cu.conditions[0].logic == "unknown"
-    assert any("tiet_semicolon_" in w for w in cu.warnings), cu.warnings
+    # Mã cụ thể đã đổi ba lần (mo_ho → guard_da_phu → guard_phan_hoach) khi câu hỏi bàn
+    # giao cho người được mài sắc dần. Test này cố ý canh bất biến chứ không canh mã:
+    # nhánh `logic == "unknown"` KHÔNG BAO GIỜ im lặng, dù kết luận là gì.
+    assert any(("tiet_semicolon_" in w or "tiet_guard_" in w) for w in cu.warnings), cu.warnings
 
 
 def test_canh_bao_khi_span_khong_bao_het_tiet(index):

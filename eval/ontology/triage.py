@@ -50,6 +50,9 @@ _RULES: list[tuple[int, str, re.Pattern[str]]] = [
     (1, "máy tự lùi về span đơn vị", re.compile(r"lùi về span đơn vị")),
     # Hai mã phải đếm ĐỘC LẬP: câu hỏi bàn giao cho người khác nhau, nên công sức duyệt
     # cũng khác. Mã hẹp đứng trước mã rộng — cả hai đều chứa cụm "'và' hay 'hoặc'".
+    # Miền ĐÃ khai nhưng guard chưa phủ hết ⇒ câu hỏi cụ thể nhất trong cả bảng này, và là
+    # câu hỏi PHÁP LÝ thật: phần bỏ sót là đúng chỗ AND (miễn trừ) khác OR (bất khả thi).
+    (2, "guard chưa phủ hết miền — hỏi phần bỏ sót", re.compile(r"tiet_guard_thieu_gia_tri")),
     (2, "tiết đã có guard — xác nhận loại trừ nhau", re.compile(r"tiet_semicolon_guard_da_phu")),
     (2, "chưa xác định 'và' hay 'hoặc'", re.compile(r"'và' hay 'hoặc'")),
     (3, "nghi bịa: THÊM dấu hiệu tình thái", re.compile(r"thêm dấu hiệu")),
@@ -70,6 +73,9 @@ _RULES: list[tuple[int, str, re.Pattern[str]]] = [
     # vào hàng đợi. Nhưng vẫn phải đếm: đây là một MẪU (khác liên từ "hoặc" vốn là một
     # từ), và mẫu thì sai được — soát lại rẻ hơn nhiều so với phát hiện muộn.
     (5, "phép nối tiết đọc từ câu bao trùm", re.compile(r"tiet_logic_tu_chapeau")),
+    # Máy đã CHỨNG MINH connector vô hại bằng bảng phân hoạch ⇒ không còn câu hỏi nào bàn
+    # giao. Vẫn đếm: chứng minh dựa trên dữ liệu người viết, mà dữ liệu người viết thì sai được.
+    (5, "guard phủ trọn miền — connector vô hại", re.compile(r"tiet_guard_phan_hoach")),
     (5, "nhãn tóm lược: MẤT dấu hiệu", re.compile(r"mất dấu hiệu")),
     (5, "quote lệch marker/dấu câu", re.compile(r"quote không nằm trong")),
 ]

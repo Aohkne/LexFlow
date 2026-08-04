@@ -89,6 +89,36 @@
     `tiet_semicolon_mo_ho`. Nhánh vẫn phải chạy đúng nên test của nó chuyển sang **Điểm dựng tay**
     và nói rõ là dựng tay — sửa fixture cho vừa test thì rẻ hơn, nhưng fixture là **chữ luật thật**,
     sửa nó là làm hỏng thứ đắt nhất trong repo.
+- **Done (bảng phân hoạch — `docs/ONTOLOGY-POC.md` §14f).** Chốt vế còn thiếu của câu hỏi T2.
+  - **Câu hỏi ở §14c thiếu một vế.** Người duyệt trả lời *"loại trừ nhau về đối tượng áp dụng"*,
+    nhưng loại trừ nhau **chưa đủ**: `(g₁→c₁)∧(g₂→c₂)` vs `(g₁∧c₁)∨(g₂∧c₂)` chỉ trùng nhau ở
+    tình huống **có** một guard đúng; tình huống **không guard nào đúng** thì AND ra **miễn trừ**
+    còn OR ra **bất khả thi**. Điều kiện đúng là **phân hoạch** = loại trừ nhau **và phủ hết**.
+  - **Người chốt một lần cho mỗi thuộc tính, máy đối chiếu.** `data/phan_hoach.json` (người viết,
+    kèm **trích nguyên văn**) + `app/ontology/phan_hoach.py`. `connector` **giữ `unknown`**; cái
+    thêm vào là `ConditionItem.guard_phan_hoach` — trường **mang chứng cứ**. Chỗ thắng không phải
+    2 ca hiện có mà là **trả lời một lần cho mỗi thuộc tính thay vì mỗi bản ghi**.
+  - **Đo bác một quyết định thiết kế của chính tôi.** Định khoá bảng **thuần theo miền giá trị**
+    (lý do: `'cá nhân'` xuất hiện với **3** `thuoc_tinh` khác nhau). Nhưng khi tra căn cứ thật:
+    `khách hàng` = {cá nhân, tổ chức} (TT17 Đ2 k2) còn `tài khoản thanh toán` = {cá nhân, tổ chức,
+    **chung**} (TT17 Đ3 k1). **Cùng hai chữ, hai kết luận ngược nhau** ⇒ miền tách riêng để dùng
+    chung, nhưng **binding vẫn theo `thuoc_tinh`**. Khoá thuần theo tập giá trị sẽ chứng minh nhầm.
+  - **Lật lại một nhãn "báo động giả" của người duyệt.** TT17 Đ16 k2 điểm b chỉ nói tới tài khoản
+    `của cá nhân` và `của tổ chức`, trong khi TT17 Đ3 k1 liệt kê **ba** hình thức. Máy không kết
+    luận luật thiếu (chỗ khác có thể điều chỉnh) — nó đổi câu hỏi thành thứ trả lời được:
+    ***"tài khoản thanh toán chung thì áp dụng gì?"***
+  - **Bốn cửa mới được kết luận "phủ hết"**: luật có câu liệt kê đóng (bắt buộc `can_cu` + `trich`)
+    · không giá trị lạ · không guard trùng nhau · không giá trị nào bị bỏ sót. `chung_minh()` trả
+    `None` khi **chưa khai** — khác hẳn `du=False` là *đã trả lời và chưa phủ hết*. So khớp chuẩn
+    hoá hoa/thường, **không dò mờ**. Có test đối chiếu **từng câu `trich`** với `corpus.real.json`:
+    trích dẫn bịa tạo cảm giác đã kiểm chứng, nguy hiểm hơn ô để trống.
+  - **Đo: 6 số dự đoán trước, 5 đúng.** Tổng **76 → 76** · T5 **44 → 45** · hàng đợi **32 → 31** ·
+    **0 bản ghi khác đổi**. Sai một: ghi "T2 3 → 2" trong khi nền đã là 2 sau việc chapeau, thực
+    tế **2 → 1** — độ lệch đúng, con số nền lấy cũ một bước. pytest **357**, ruff sạch,
+    `--classify` **94 đơn vị 45/9/40**, `classify_testset` **9/9**.
+  - **Ngoài phạm vi cố ý:** guard anh em ở **tầng Điểm** (TT18 Đ9 k2, 4 nhánh) trộn hai miền —
+    3 giá trị quốc tịch + 1 loại chủ thể — nên không phải phân hoạch đơn miền; cảnh báo hiện chỉ
+    sinh ở tầng tiết nên phạm vi giữ đúng theo đó.
 - **Done (duyệt 33 cờ — nhãn người, `anotate/flag_verdicts.jsonl`).** Cờ ĐÚNG 15 · Báo động GIẢ 8
   · Không chắc **10**. Con số đáng đọc nhất là **10/33 (30%) không quyết được** — cờ không đưa đủ
   cho người duyệt, đó là hỏng của trang chứ không phải của người đọc. Ba kết luận rút ra:

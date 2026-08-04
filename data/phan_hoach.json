@@ -1,0 +1,47 @@
+{
+  "_doc": [
+    "Bảng PHÂN HOẠCH miền giá trị — dữ liệu NGƯỜI viết, không do LLM sinh, không do parser suy.",
+    "",
+    "Dùng để trả lời MỘT câu: các guard `ap_dung_khi` anh em có phủ trọn một miền không?",
+    "Nếu có thì phép nối giữa chúng ('và' hay 'hoặc') không còn ảnh hưởng kết quả, vì đúng",
+    "một guard đúng với mọi tình huống. Nếu KHÔNG phủ hết thì hai phép nối vẫn khác nhau ở",
+    "đúng phần bỏ sót: AND cho ra MIỄN TRỪ, OR cho ra BẤT KHẢ THI. Xem docs/ONTOLOGY-POC.md §14f.",
+    "",
+    "Máy CHỨNG MINH bằng bảng này, KHÔNG suy diễn: thiếu khai báo thì cờ ở lại, không đoán.",
+    "",
+    "`mien` là tập giá trị dùng chung — 'cá nhân' xuất hiện với 3 `thuoc_tinh` khác nhau trong",
+    "18 fixture, nên tách riêng để khỏi chép lại. Nhưng BINDING vẫn phải theo `thuoc_tinh`:",
+    "cùng hai chữ 'cá nhân'/'tổ chức' mà 'khách hàng' thì hết miền, còn 'tài khoản thanh toán'",
+    "thì CHƯA — TT17 Điều 3 khoản 1 liệt kê hình thức thứ ba là 'chung'.",
+    "",
+    "`phu_het` chỉ được đặt true khi có MỘT câu trong luật liệt kê đóng (dấu hiệu: 'bao gồm:',",
+    "'là A hoặc B'). Trích nguyên văn câu đó vào `trich` để người sau kiểm lại không cần mở file."
+  ],
+  "mien": {
+    "chu_the": ["cá nhân", "tổ chức"],
+    "hinh_thuc_tai_khoan_thanh_toan": ["cá nhân", "tổ chức", "chung"]
+  },
+  "thuoc_tinh": [
+    {
+      "ten": "khách hàng",
+      "mien": "chu_the",
+      "phu_het": true,
+      "can_cu": "17/2024/TT-NHNN#than/dieu_2#khoan_2",
+      "trich": "Tổ chức, cá nhân mở tài khoản thanh toán tại tổ chức cung ứng dịch vụ thanh toán (sau đây gọi tắt là khách hàng)."
+    },
+    {
+      "ten": "chủ thẻ chính",
+      "mien": "chu_the",
+      "phu_het": true,
+      "can_cu": "18/2024/TT-NHNN#than/dieu_3#khoan_14",
+      "trich": "Chủ thẻ chính là cá nhân hoặc tổ chức đứng tên thực hiện giao kết hợp đồng phát hành và sử dụng thẻ với tổ chức phát hành thẻ."
+    },
+    {
+      "ten": "tài khoản thanh toán",
+      "mien": "hinh_thuc_tai_khoan_thanh_toan",
+      "phu_het": true,
+      "can_cu": "17/2024/TT-NHNN#than/dieu_3#khoan_1",
+      "trich": "Các hình thức của tài khoản thanh toán bao gồm: tài khoản thanh toán của cá nhân, tài khoản thanh toán của tổ chức và tài khoản thanh toán chung."
+    }
+  ]
+}

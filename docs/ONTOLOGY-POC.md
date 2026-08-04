@@ -776,6 +776,93 @@ là ca thật duy nhất. Nhánh mã vẫn còn và vẫn phải chạy đúng, 
 **Điểm dựng tay** và nói rõ mình là dựng tay. Sửa fixture cho vừa test thì rẻ hơn, nhưng fixture
 là chữ luật thật — sửa nó là làm hỏng thứ đắt nhất trong repo.
 
+## 14f. Bảng phân hoạch — chứng minh connector vô hại thay vì hỏi lại mỗi bản ghi
+
+### Câu hỏi ở §14c còn thiếu một vế
+
+§14c đổi câu bàn giao từ *"và hay hoặc?"* sang *"các guard này có loại trừ nhau không?"*.
+Người duyệt trả lời *"loại trừ nhau về đối tượng áp dụng"* — và câu trả lời đó **chưa đủ**.
+
+Với mỗi tiết là một yêu cầu có guard:
+
+```
+AND:  (g₁ → c₁) ∧ (g₂ → c₂)
+OR :  (g₁ ∧ c₁) ∨ (g₂ ∧ c₂)
+```
+
+| tình huống | AND | OR |
+|---|---|---|
+| g₁ đúng | c₁ | c₁ |
+| g₂ đúng | c₂ | c₂ |
+| **không guard nào đúng** | **true** — miễn trừ hoàn toàn | **false** — không cách nào tuân thủ |
+
+Loại trừ nhau chỉ khớp hai hàng đầu. Hàng thứ ba lệch, và lệch theo hướng nguy hiểm nhất.
+Điều kiện đúng là **phân hoạch**: loại trừ nhau **và phủ hết**.
+
+### Người chốt một lần cho mỗi thuộc tính, máy đối chiếu
+
+Máy không suy ra được phân hoạch — `thuoc_tinh`/`gia_tri` là chuỗi tự do (§14c). Nhưng nó
+**không cần suy**: đây là sự thật về miền giá trị, người khai **một lần** vào
+`data/phan_hoach.json` kèm **trích nguyên văn** điều luật, rồi máy đối chiếu. Chỗ cách này
+thắng không phải 2 ca hiện có mà là **trả lời một lần cho mỗi thuộc tính thay vì mỗi bản ghi**.
+
+`connector` **giữ nguyên `unknown`** — không bịa gì. Cái thêm vào là `ConditionItem.guard_phan_hoach`,
+một trường **mang chứng cứ** giải thích vì sao connector không còn ảnh hưởng.
+
+### Đo đã bác một quyết định thiết kế của chính tôi
+
+Định ban đầu là khoá bảng **thuần theo miền giá trị**, lý do: `'cá nhân'` xuất hiện với **3**
+`thuoc_tinh` khác nhau trong 18 fixture (`khách hàng` · `tài khoản thanh toán` · `chủ thẻ chính`),
+khoá theo `thuoc_tinh` sẽ phải chép lại phân hoạch ba lần.
+
+Nhưng khi đi tra **căn cứ thật** thì số liệu lật lại:
+
+| thuộc tính | miền theo luật | căn cứ |
+|---|---|---|
+| `khách hàng` | {cá nhân, tổ chức} | TT17 Đ2 k2 — *"Tổ chức, cá nhân mở tài khoản thanh toán … (sau đây gọi tắt là **khách hàng**)"* |
+| `tài khoản thanh toán` | {cá nhân, tổ chức, **chung**} | TT17 Đ3 k1 — *"Các hình thức … **bao gồm**: … của cá nhân, … của tổ chức **và … chung**"* |
+
+Cùng hai chữ `cá nhân`/`tổ chức`, **hai kết luận ngược nhau**. Khoá thuần theo tập giá trị sẽ
+**chứng minh nhầm** ca thứ hai là đã phủ hết. Thiết kế cuối: **miền tách riêng để dùng chung,
+binding vẫn theo `thuoc_tinh`**.
+
+### Ca thật: một nhãn "báo động giả" bị lật lại
+
+TT17 Đ16 k2 điểm b có guard `(i) tài khoản thanh toán = cá nhân` · `(ii) … = tổ chức`. Người
+duyệt đánh **Báo động GIẢ**. Nhưng TT17 Đ3 k1 liệt kê **ba** hình thức, và điểm b **không nói
+gì về tài khoản thanh toán chung** — đúng phần bỏ sót là chỗ AND ≠ OR.
+
+Máy không kết luận luật thiếu sót (có thể chỗ khác điều chỉnh). Nó chỉ đổi câu hỏi thành thứ
+trả lời được: ***"tài khoản thanh toán chung thì áp dụng gì?"*** — cụ thể hơn hẳn *"và hay hoặc?"*.
+
+### Bốn cửa phải qua mới được kết luận "phủ hết"
+
+Từ chối chứng minh quan trọng hơn chứng minh: chứng minh nhầm sẽ **lặng lẽ xoá một câu hỏi
+pháp lý thật** khỏi hàng đợi.
+
+1. luật phải có **một câu liệt kê đóng** (`phu_het: true`, bắt buộc kèm `can_cu` + `trich`);
+2. không guard nào nêu giá trị **ngoài** miền (bảng và luật lệch nhau ⇒ im);
+3. không hai guard anh em **trùng** giá trị (chồng lấn ⇒ không thể là phân hoạch);
+4. không giá trị nào của miền **bị bỏ sót**.
+
+`chung_minh()` trả `None` khi thuộc tính **chưa khai** — khác hẳn `du=False` nghĩa là *đã trả
+lời, và câu trả lời là chưa phủ hết*. Gộp hai cái sẽ giấu mất chuyện bảng còn thiếu.
+
+So khớp chuẩn hoá hoa/thường và khoảng trắng, **không dò mờ**: dò mờ ở đây mở lại đúng cánh
+cửa mà cả thiết kế đóng — một giá trị gần giống được nhận thành phủ hết thì máy tự chứng minh
+cho mình một điều luật không nói.
+
+### Trích dẫn bịa còn tệ hơn không trích
+
+Có một test đối chiếu **từng câu `trich`** với `data/corpus.real.json`. Một trích dẫn bịa tạo
+cảm giác đã kiểm chứng — nguy hiểm hơn hẳn một ô để trống.
+
+### Ngoài phạm vi (cố ý)
+
+Guard **anh em ở tầng Điểm** (TT18 Đ9 k2 có 4 nhánh) chưa xử lý: nhóm đó trộn hai miền —
+ba giá trị quốc tịch dưới `khách hàng cá nhân`, cộng một `khách hàng tổ chức` — nên không phải
+một phân hoạch đơn miền. Cảnh báo hiện chỉ sinh ở tầng tiết, nên phạm vi giữ đúng theo đó.
+
 ## 15. Câu hỏi mở cho mentor
 
 1. Ba tầng tất định ở §4 có đủ để coi là **kiểm soát tính trung thành** cho tầng chuẩn tắc, hay vẫn cần

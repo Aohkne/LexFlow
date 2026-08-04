@@ -26,6 +26,7 @@ from app.ontology.modality import (
     relax_dereference,
 )
 from app.ontology.parser import chapeau_cua_diem, chapeau_logic, tach_guard, tiet_logic
+from app.ontology.phan_hoach import chung_minh
 from app.ontology.schema import (
     ActorCU,
     ComplianceUnit,
@@ -435,6 +436,7 @@ def _build_conditions(
 
         sub: list[SubCondition] = []
         logic = "unknown"
+        phan_hoach: str | None = None
         if diem_node and diem_node.tiet:
             logic = tiet_logic(diem_node)
             # Liên từ hiện ("hoặc") là MỘT TỪ, không cần nêu; câu bao trùm là một MẪU,
@@ -468,12 +470,36 @@ def _build_conditions(
                 # câu mà người duyệt trả lời được chỉ bằng cách nhìn danh sách giá trị.
                 if all(s.ap_dung_khi for s in sub):
                     ds = " | ".join(f"{s.ap_dung_khi.gia_tri!r}" for s in sub)
-                    item_warn.append(
-                        f"{where}: tiet_semicolon_guard_da_phu: {len(sub)} tiết đều có "
-                        f"điều kiện áp dụng riêng ({ds}). Xác nhận: các guard này có "
-                        "loại trừ nhau không? Nếu có thì 'và'/'hoặc' không còn ảnh "
-                        "hưởng — giữ connector 'unknown' là an toàn."
-                    )
+                    # …và câu hỏi đó VẪN CHƯA ĐỦ. Loại trừ nhau chỉ khớp hai cách đọc ở
+                    # những tình huống CÓ một guard đúng; tình huống không guard nào đúng
+                    # thì AND ra miễn trừ còn OR ra bất khả thi. Điều kiện đúng là PHÂN
+                    # HOẠCH — xem `phan_hoach.py`. Máy đối chiếu bảng người viết; không
+                    # có trong bảng thì giữ nguyên câu hỏi cũ chứ không đoán.
+                    cm = chung_minh(
+                        sub[0].ap_dung_khi.thuoc_tinh,
+                        [s.ap_dung_khi.gia_tri for s in sub],
+                    ) if len({s.ap_dung_khi.thuoc_tinh for s in sub}) == 1 else None
+                    if cm is not None and cm.du:
+                        phan_hoach = cm.mien
+                        item_warn.append(
+                            f"{where}: tiet_guard_phan_hoach: {len(sub)} tiết phủ TRỌN miền "
+                            f"{cm.mien!r} ({ds}) theo {cm.can_cu} ⇒ 'và'/'hoặc' không ảnh "
+                            "hưởng kết quả; connector giữ 'unknown'."
+                        )
+                    elif cm is not None and cm.thieu and not cm.la and not cm.trung_lap:
+                        item_warn.append(
+                            f"{where}: tiet_guard_thieu_gia_tri: {len(sub)} tiết mới phủ "
+                            f"({ds}), miền {cm.mien!r} theo {cm.can_cu} còn "
+                            f"{', '.join(repr(x) for x in cm.thieu)}. Phần bỏ sót là đúng chỗ "
+                            "'và'/'hoặc' còn khác nhau — hỏi: trường hợp đó áp dụng gì?"
+                        )
+                    else:
+                        item_warn.append(
+                            f"{where}: tiet_semicolon_guard_da_phu: {len(sub)} tiết đều có "
+                            f"điều kiện áp dụng riêng ({ds}). Xác nhận: các guard này có "
+                            "phủ hết các trường hợp không? Nếu có thì 'và'/'hoặc' không "
+                            "còn ảnh hưởng — khai vào data/phan_hoach.json để máy tự chốt."
+                        )
                 else:
                     item_warn.append(
                         f"{where}: tiet_semicolon_mo_ho: có {len(sub)} tiết nhưng chỉ "
@@ -497,6 +523,7 @@ def _build_conditions(
                 logic=logic,  # type: ignore[arg-type]
                 sub=sub,
                 ap_dung_khi=guard,
+                guard_phan_hoach=phan_hoach,
                 issues=item_err + item_warn,
             )
         )

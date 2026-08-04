@@ -225,12 +225,25 @@ def _cu_theo_diem(index, fixture: str, khoan_so: str, diem_so: str):
     )
 
 
-def test_moi_tiet_deu_co_guard_thi_doi_ma_va_liet_ke_gia_tri(index):
-    cu = _cu_theo_diem(index, "TT17-2024-dieu16.txt", "1", "a")
+@pytest.mark.parametrize(
+    ("khoan_so", "diem_so", "ma"),
+    [
+        # Cả hai nhóm tiết-guard trong corpus đều mang giá trị 'cá nhân'/'tổ chức', nhưng
+        # ra hai kết quả KHÁC NHAU vì `thuoc_tinh` khác nhau — xem test_ontology_phan_hoach.
+        ("1", "a", "tiet_guard_phan_hoach"),      # 'khách hàng' — phủ hết
+        ("2", "b", "tiet_guard_thieu_gia_tri"),   # 'tài khoản thanh toán' — còn 'chung'
+    ],
+)
+def test_moi_tiet_deu_co_guard_thi_doi_ma_va_liet_ke_gia_tri(index, khoan_so, diem_so, ma):
+    """Mã đổi theo việc chứng minh được hay không, nhưng giá trị luôn phải liệt kê ra.
+
+    Liệt kê để người duyệt (hoặc người khai `data/phan_hoach.json`) nhìn ra ngay guard nào
+    đang có mặt, không phải mở fixture.
+    """
+    cu = _cu_theo_diem(index, "TT17-2024-dieu16.txt", khoan_so, diem_so)
     w = " ".join(cu.warnings)
-    assert "tiet_semicolon_guard_da_phu" in w
+    assert ma in w
     assert "tiet_semicolon_mo_ho" not in w
-    # Liệt kê giá trị để người duyệt nhìn ra ngay hai nhánh có loại trừ nhau không.
     assert "'cá nhân'" in w and "'tổ chức'" in w
 
 
