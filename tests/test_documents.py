@@ -88,7 +88,10 @@ def test_approve_merge_vao_canonical(client, fake_store, monkeypatch):
 
     r = client.post(
         "/documents/TT99-2026/approve",
-        json={"relationships": [{"source_doc": "TT99-2026", "target_doc": "ND00-2020", "rel_type": "HUONG_DAN"}]},
+        # `DAN_CHIEU` cố ý chọn trung tính: test này canh việc GỘP quan hệ vào canonical,
+        # không canh loại quan hệ. Dùng một mã trong 13 mã v0.5 để khỏi ngụ ý câu trả lời
+        # cho chuyện TT → NĐ là `QUY_DINH_CHI_TIET_HUONG_DAN` hay `HUONG_DAN_AP_DUNG`.
+        json={"relationships": [{"source_doc": "TT99-2026", "target_doc": "ND00-2020", "rel_type": "DAN_CHIEU"}]},
         headers={"Authorization": f"Bearer {_token('admin')}"},
     )
     assert r.status_code == 200, r.text
@@ -98,7 +101,7 @@ def test_approve_merge_vao_canonical(client, fake_store, monkeypatch):
     import json as _json
     corpus = _json.loads(fake_store["storage"]["corpus.json"])
     assert {d["doc_id"] for d in corpus["documents"]} == {"ND00-2020", "TT99-2026"}
-    assert corpus["relationships"][0]["rel_type"] == "HUONG_DAN"
+    assert corpus["relationships"][0]["rel_type"] == "DAN_CHIEU"
     assert fake_store["rows"]["TT99-2026"]["status"] == "approved"
     assert "doc_approve" in fake_store["audit"]
     assert fake_store["ingested"] == 2  # re-ingest full: 2 văn bản × 1 điều
@@ -126,7 +129,7 @@ def _seed_canonical(fake_store) -> None:
     corpus = {
         "documents": [_DOC, old],
         "relationships": [{
-            "source_doc": "TT99-2026", "target_doc": "TT39-2014", "rel_type": "SUA_DOI",
+            "source_doc": "TT99-2026", "target_doc": "TT39-2014", "rel_type": "SUA_DOI_BO_SUNG",
             "anchors": [{"source_article": "Điều 1", "target_article": "Điều 1", "detail": "Sửa khoản 1"}],
         }],
     }

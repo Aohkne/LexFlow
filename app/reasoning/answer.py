@@ -6,7 +6,7 @@ from typing import Any
 
 from app.core.config import settings
 from app.core.llm import chat, chat_stream
-from app.core.schemas import ChatRequest, ChatResponse, Citation
+from app.core.schemas import ChatRequest, ChatResponse, Citation, nhan_quan_he
 from app.core.tracing import observe
 from app.ingestion.versioning import today_iso
 from app.knowledge.retrieval import graph_augmented_search, hybrid_search, search_in_docs
@@ -35,12 +35,7 @@ def _format_context(chunks: list[dict]) -> str:
     )
 
 
-_REL_LABEL = {
-    "THAY_THE": "thay thế",
-    "SUA_DOI": "sửa đổi, bổ sung",
-    "HUONG_DAN": "hướng dẫn thi hành",
-    "DAN_CHIEU": "dẫn chiếu",
-}
+# Nhãn lấy từ `app.core.schemas.REL_TYPES` — nguồn sự thật DUY NHẤT cho 13 quan hệ.
 
 
 def _prepare(req: ChatRequest) -> tuple[list[dict], str, str]:
@@ -64,7 +59,7 @@ def _prepare(req: ChatRequest) -> tuple[list[dict], str, str]:
     )
     if edges:
         rel_lines = "\n".join(
-            f"- {e['src']} {_REL_LABEL.get(e['rel_type'], e['rel_type'])} {e['tgt']}"
+            f"- {e['src']} {nhan_quan_he(e['rel_type'])} {e['tgt']}"
             + (f" ({e['note']})" if e.get("note") else "")
             for e in edges
         )

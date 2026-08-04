@@ -1,10 +1,54 @@
 """Pydantic models dùng chung giữa ingestion, knowledge, reasoning, api."""
 from __future__ import annotations
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
-# --- Quan hệ đồ thị pháp lý ---
-REL_TYPES = ["THAY_THE", "SUA_DOI", "HUONG_DAN", "DAN_CHIEU"]
+# --- Quan hệ đồ thị pháp lý -------------------------------------------------
+#
+# TẬP ĐÓNG 13 quan hệ theo KG v0.5 §6. "Đóng" là điểm chính: bản trước để
+# `REL_TYPES = ["THAY_THE", "SUA_DOI", "HUONG_DAN", "DAN_CHIEU"]` — bốn tên **tự đặt** —
+# và `rel_type: str` **chưa bao giờ được đối chiếu với nó**. Hệ quả đo được: `HUONG_DAN`
+# sống trong dữ liệu 4 lần dù đó không phải một quan hệ có thật trong hệ thống VBQPPL;
+# nó gộp hai thứ mà Điều 53 khoản 2 đối xử khác nhau, và cả bốn cạnh đều gán sai. Một
+# chuỗi tự do không có ai canh thì sai lặng lẽ và nhân lên.
+#
+# Cùng bảng đó từng bị CHÉP ở ba nơi (`schemas.py`, `answer.py`, `pipeline.py`) nên sửa
+# một chỗ không kéo theo hai chỗ kia. Nay một nguồn sự thật duy nhất.
+#
+# Mỗi mục: mã → (nhãn đầu CHỦ ĐỘNG, nhãn đầu BỊ ĐỘNG). Chiều cạnh theo quy ước v0.5:
+# văn bản chủ động / mới hơn → văn bản bị tác động / cũ hơn.
+#
+# 12/13 cặp theo khuôn `X` ⟷ `được X` hoặc `bị X`; `bị` (3 cạnh) đánh dấu **can thiệp
+# bất lợi** (huỷ hoặc treo), `được` (9 cạnh) là **diễn biến bình thường**. Ranh giới KHÔNG
+# phải "có chấm dứt hiệu lực hay không" — `thay thế` cũng chấm dứt nhưng mang `được`, vì
+# nó là **kế thừa** chứ không phải **triệt tiêu**. Cặp #8 bất quy tắc, hai nhãn khác gốc từ.
+REL_TYPES: dict[str, tuple[str, str]] = {
+    "HUONG_DAN_AP_DUNG": ("hướng dẫn áp dụng", "được hướng dẫn áp dụng"),
+    "QUY_DINH_CHI_TIET_HUONG_DAN": (
+        "quy định chi tiết, hướng dẫn thi hành",
+        "được quy định chi tiết, hướng dẫn thi hành",
+    ),
+    "HOP_NHAT": ("hợp nhất", "được hợp nhất"),
+    "SUA_DOI_BO_SUNG": ("sửa đổi, bổ sung", "được sửa đổi, bổ sung"),
+    "DINH_CHINH": ("đính chính", "được đính chính"),
+    "BAI_BO": ("bãi bỏ", "bị bãi bỏ"),
+    "DAN_CHIEU": ("dẫn chiếu", "được dẫn chiếu"),
+    "CAN_CU": ("căn cứ ban hành", "áp dụng"),  # bất quy tắc
+    "GIAI_THICH": ("giải thích", "được giải thích"),
+    "DINH_CHI_THI_HANH": ("đình chỉ thi hành", "bị đình chỉ thi hành"),
+    "TAM_NGUNG_HIEU_LUC": ("tạm ngưng hiệu lực", "bị tạm ngưng hiệu lực"),
+    "CONG_BO": ("công bố", "được công bố"),
+    "THAY_THE": ("thay thế", "được thay thế"),
+}
+
+#: Cạnh mang **can thiệp bất lợi** — huỷ bỏ hoặc treo hiệu lực.
+REL_BAT_LOI = frozenset({"BAI_BO", "DINH_CHI_THI_HANH", "TAM_NGUNG_HIEU_LUC"})
+
+
+def nhan_quan_he(rel_type: str, bi_dong: bool = False) -> str:
+    """Mã quan hệ → nhãn tiếng Việt. Mã lạ trả về chính nó, để log còn đọc được."""
+    cap = REL_TYPES.get(rel_type)
+    return cap[1 if bi_dong else 0] if cap else rel_type
 
 
 class RelAnchor(BaseModel):
@@ -20,11 +64,27 @@ class Relationship(BaseModel):
 
     source_doc: str  # doc_id gốc
     target_doc: str  # doc_id đích
-    rel_type: str  # một trong REL_TYPES
+    rel_type: str  # PHẢI thuộc REL_TYPES — xem validator bên dưới
     valid_from: str | None = None  # ISO date; None = không rõ
     note: str | None = None
     # [] = quan hệ mức văn bản (như cũ); có phần tử = biết chi tiết mức điều
     anchors: list[RelAnchor] = Field(default_factory=list)
+
+    @field_validator("rel_type")
+    @classmethod
+    def _trong_tap_dong(cls, v: str) -> str:
+        """Chặn tại BIÊN dữ liệu vào, không phải lúc truy vấn.
+
+        Nêu đích danh mã sai **và** cả 13 mã hợp lệ: người sửa dữ liệu cần biết ngay
+        phải điền gì, chứ không phải đi tra tài liệu. Đây là chỗ `HUONG_DAN` lẽ ra phải
+        chết ngay lần nạp đầu tiên thay vì sống trong corpus.
+        """
+        if v not in REL_TYPES:
+            raise ValueError(
+                f"rel_type {v!r} không thuộc 13 quan hệ của KG v0.5. "
+                f"Hợp lệ: {', '.join(sorted(REL_TYPES))}"
+            )
+        return v
 
 
 class DocumentMeta(BaseModel):

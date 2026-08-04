@@ -86,8 +86,8 @@
   ],
   "relationships": [
     { "source_doc": "TT40-2024", "target_doc": "TT39-2014", "rel_type": "THAY_THE", "valid_from": "2024-07-01", "note": "Thông tư 40 thay thế Thông tư 39" },
-    { "source_doc": "TT40-2024", "target_doc": "ND52-2024", "rel_type": "HUONG_DAN", "valid_from": "2024-07-01", "note": "Hướng dẫn thi hành Nghị định 52" },
-    { "source_doc": "QD-2023-SUADOI", "target_doc": "TT39-2014", "rel_type": "SUA_DOI", "valid_from": "2023-01-01", "note": "Sửa đổi Điều 8 Khoản 2" },
+    { "source_doc": "TT40-2024", "target_doc": "ND52-2024", "rel_type": "CAN_CU", "valid_from": "2024-07-01", "note": "Thông tư 40 ban hành căn cứ Nghị định 52 (dữ liệu MẪU)" },
+    { "source_doc": "QD-2023-SUADOI", "target_doc": "TT39-2014", "rel_type": "SUA_DOI_BO_SUNG", "valid_from": "2023-01-01", "note": "Sửa đổi Điều 8 Khoản 2" },
     { "source_doc": "INTERNAL-WALLET-2023", "target_doc": "TT40-2024", "rel_type": "DAN_CHIEU", "note": "Tham chiếu hạn mức theo Thông tư 40" }
   ]
 }

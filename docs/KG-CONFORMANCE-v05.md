@@ -284,19 +284,44 @@ giá trị. §2.3 gọi đây là "trường chết"; nguyên nhân là một nh
 
 > Mức: **thấp** · Chi phí rất nhỏ, và là đường rẻ nhất để §3 node cấu trúc đi từ 3/8 lên 6/8.
 
-**(b) Tên quan hệ LỆCH, không chỉ thiếu.** 13 instance trong `corpus.real.json`:
+**(b) Tên quan hệ LỆCH, không chỉ thiếu — và một loại là do tự đặt.** ✅ **ĐÃ SỬA 04/08.**
 
-| trong dữ liệu | số | v0.5 gọi là |
-|---|---|---|
-| `THAY_THE` | 4 | `THAY_THE` ✅ |
-| `DAN_CHIEU` | 3 | `DAN_CHIEU` ✅ |
-| `SUA_DOI` | 2 | `SUA_DOI_BO_SUNG` ❌ — đổi tên cơ học |
-| `HUONG_DAN` | 4 | ❌ **cần phán định người** |
+| trong dữ liệu (cũ) | số | v0.5 gọi là | xử lý |
+|---|---|---|---|
+| `THAY_THE` | 4 | `THAY_THE` ✅ | giữ |
+| `DAN_CHIEU` | 3 | `DAN_CHIEU` ✅ | giữ |
+| `SUA_DOI` | 2 | `SUA_DOI_BO_SUNG` | đổi tên cơ học |
+| `HUONG_DAN` | 4 | **không tồn tại** | → **`CAN_CU`** |
 
-Bốn cạnh `HUONG_DAN` (TT40 · TT15 · TT17 · TT18 → ND52) rơi đúng vào chỗ §6.3 cảnh báo: nhãn này
-**gộp hai thứ mà Điều 53 khoản 2 đối xử khác nhau** — `QUY_DINH_CHI_TIET_HUONG_DAN` (ban hành theo
-uỷ quyền ⇒ R5 *cùng ngày hiệu lực* áp dụng) và `HUONG_DAN_AP_DUNG` (hướng dẫn thuần tuý ⇒ **không**
-áp dụng R5). Gộp lại là **báo lỗi giả** khi kiểm R5. Máy không tự tách được: đây là câu hỏi pháp lý.
+Gốc rễ: `REL_TYPES` cũ là **bốn tên tự đặt** (`app/core/schemas.py`), và `rel_type: str` **chưa
+bao giờ được đối chiếu với nó** — nên một loại không có thật sống được 4 lần. Cùng bảng đó còn bị
+**chép ở ba nơi** (`schemas.py`, `answer.py`, `pipeline.py`) nên sửa một chỗ không kéo theo hai
+chỗ kia.
+
+Bốn cạnh `HUONG_DAN` (TT40 · TT15 · TT17 · TT18 → ND52) ban đầu tưởng cần phán định giữa
+`QUY_DINH_CHI_TIET_HUONG_DAN` và `HUONG_DAN_AP_DUNG` (§6.3 — hai thứ Điều 53 k2 đối xử khác nhau).
+**Nguồn chính thống trả lời thay:** trong lược đồ vbpl.vn của NĐ 52/2024, cả bốn nằm ở
+`incoming / "Văn bản áp dụng"` — **nhãn bị động của `CAN_CU`**, cặp **#8 bất quy tắc** — chứ không
+nằm ở `"Văn bản quy định chi tiết, hướng dẫn thi hành"` (nhóm đó chỉ có TT 34/2024). Tức các Thông
+tư **ban hành căn cứ** NĐ 52, không phải hướng dẫn nó.
+
+⇒ §6 lên **4/13 mã có instance** (`THAY_THE` 4 · `CAN_CU` 4 · `DAN_CHIEU` 3 · `SUA_DOI_BO_SUNG` 2),
+tất cả đều là tên v0.5. Soát lại bằng `uv run python -m app.ingestion.kiem_quan_he`.
+
+**(b2) Nguồn vbpl.vn đã mô hình hoá sẵn đúng thứ §6 đặc tả.** `luoc_do.outgoing`/`incoming`, mỗi
+nhóm mang một nhãn trùng cột "chủ động/bị động" của bảng 13 quan hệ. **Chiều mũi tên do
+`outgoing`/`incoming` quyết định, không do nhãn** — quy tắc đồng nhất cho cả 13 mã:
+
+```
+outgoing  ⇒  văn bản đang xem là ĐẦU NGUỒN   (current → listed)
+incoming  ⇒  văn bản đang xem là ĐẦU ĐÍCH    (listed → current)
+```
+
+Bằng chứng nó đúng kể cả với cặp bất quy tắc: cùng mã `CAN_CU` ra **hai chiều ngược nhau** trên
+cùng một trang — `outgoing "Căn cứ ban hành"` (ND52 → 10 Luật) và `incoming "Văn bản áp dụng"`
+(20 Thông tư → ND52). Đọc `data/raw/vbpl/sample.json` bằng `app/ingestion/vbpl_luoc_do.py` ra
+**35 cạnh · 0 cảnh báo**: `CAN_CU` 30 · `THAY_THE` 2 · `BAI_BO` 1 · `QUY_DINH_CHI_TIET_HUONG_DAN` 1
+· `DAN_CHIEU` 1.
 
 **(c) `BAI_BO` = 0 instance ⇒ ca kiểm chứng bắt buộc của §6.2 sẽ chạy nhưng trả RỖNG.**
 
@@ -355,15 +380,17 @@ chưa có chỗ nào ghi *"câu luật này nói về mốc bắt đầu hay m�
 | §4 · Khoá ba nhánh | **1/3** |
 | §5 · Đánh số Điều/Khoản | **5/6** |
 | §3 · Node meta-schema | **4/15** |
-| §6 · 13 quan hệ | **2/13** (sửa xuống 04/08 — xem dưới) · cách lưu khác kiểu ⇒ Cypher của spec không chạy |
+| §6 · 13 quan hệ | **13/13 trong schema · 4/13 có instance** (04/08) · cạnh đã CÓ KIỂU ⇒ Cypher của spec chạy được |
 | §7 · Tầng thời gian | **0/5** |
 | §8 · Độ tin cậy | **0/2** |
 | §9 · Mười quyết định | 3 đạt · 2 không đạt · 1 một phần · 4 chưa áp dụng được |
 
-> **Một ô sửa XUỐNG ngày 04/08: §6 từ 4/13 thành 2/13.** Bản 03/08 đếm 4 vì dữ liệu có 4 `rel_type`.
-> Đối chiếu kỹ từng tên (§3.5b) thì chỉ `THAY_THE` và `DAN_CHIEU` **trùng tên** v0.5; `SUA_DOI`
-> phải đổi thành `SUA_DOI_BO_SUNG`, còn `HUONG_DAN` **không ánh xạ được** vì v0.5 tách nó làm hai
-> quan hệ mà Điều 53 k2 đối xử khác nhau. Đếm một cạnh sai tên là đạt thì lần cutover sẽ vỡ im lặng.
+> **§6 đi qua hai bước ngày 04/08.** Bản 03/08 đếm **4/13** vì dữ liệu có 4 `rel_type`. Đối chiếu
+> từng tên (§3.5b) thì thực chất chỉ **2** trùng tên v0.5 — đếm một cạnh sai tên là đạt thì lần
+> cutover sẽ vỡ im lặng. Sau đó sửa cả hai đầu: **schema** lên đủ 13 mã dưới dạng **tập đóng có
+> validator** kèm cạnh có kiểu trong Neo4j, và **dữ liệu** về đúng 4 mã v0.5 (`HUONG_DAN` → `CAN_CU`
+> theo lược đồ vbpl.vn). Hai con số tách riêng vì chúng nói hai chuyện: *"hệ đã biểu diễn được"* và
+> *"corpus đã có bao nhiêu"*.
 
 **Kết luận, không làm tròn lên:** phần v0.5 đặc tả kỹ nhất — đánh số và khoá nhánh `than` —
 code đã thoả và **có test canh**. Phần còn lại của v0.5 phần lớn **chưa tồn tại dưới dạng
@@ -377,14 +404,15 @@ code**, và ba chỗ mâu thuẫn ở §3 là thứ phải xử lý trước khi
 | 2 | `is_effective` sang nửa mở (§3.2) | cao | một dấu `<` + test biên |
 | 3 | Chặn khoá `#than/` bịa (§3.4) | trung bình | nhỏ |
 | 4 | Thống nhất không gian ID (§3.3) | cao | lớn — quyết định kiến trúc |
-| 5 | 13 cạnh có kiểu thay `REL{rel_type}` (§2.4) | trung bình | vừa; mở khoá được ca kiểm chứng §6.2 |
+| ~~5~~ | ~~13 cạnh có kiểu thay `REL{rel_type}`~~ — ✅ **xong 04/08** | — | truy vấn §6.2 nay viết được (`khoang_trong_lap_phap()`); corpus 0 `BAI_BO` nên trả rỗng, nhưng vbpl CÓ (NĐ52 → NĐ16/2019) |
 | 6 | `la_vbhn`, `nguon_hieu_luc_den`, `da_xac_minh_nguon` (§2.5, §2.6) | trung bình | nhỏ mỗi cái, nhưng cần quy trình nhập liệu đi kèm |
 | 7 | `nhanh` thành trường, `Khoan.ten` nullable (§2.2, §2.7) | thấp | rất nhỏ |
 | 8 | `PhienBanDieu`, `Chuong`/`Muc`, `VanBanKemTheo`, `PhuLuc` | — | ~~phụ thuộc #4~~ → **xem #10**: `Chuong`/`Muc` KHÔNG phụ thuộc #4 |
 | 9 | Sửa changelog v0.5 §2 cho khớp bảng §5 (`so_goc` chứ không `so_khoan_goc`) | thấp | sửa spec, không sửa code |
 | **10** | **Giữ dòng Chương/Mục ở `extract.py:90`** (§3.5a) — điền `Article.chapter`/`.section` | trung bình | **rất nhỏ**; 47 Chương + 15 Mục có sẵn trong HTML gốc, **0 dữ liệu tay** |
 | **11** | **Bắc cầu `so_hieu` trên `DocumentMeta`** (§3.5d) — giữ nguyên `doc_id` | trung bình | nhỏ; regex đã chạy đúng, chỉ chưa trả về. **Không chạm lịch sử Supabase** |
-| **12** | **Chuẩn hoá 4 tên quan hệ** (§3.5b) — `SUA_DOI`→`SUA_DOI_BO_SUNG` cơ học; 4 cạnh `HUONG_DAN` **cần người phán định** | trung bình | tiền đề của #5 |
+| ~~12~~ | ~~Chuẩn hoá 4 tên quan hệ~~ — ✅ **xong 04/08**: `SUA_DOI`→`SUA_DOI_BO_SUNG`, `HUONG_DAN`→`CAN_CU` | — | `kiem_quan_he` báo **0 cạnh sai** |
+| **13** | **Nạp lược đồ vbpl thành cạnh** — `vbpl_luoc_do.py` đã đọc được 35 cạnh/0 cảnh báo từ một trang; còn thiếu bước quy `so_hieu` → `doc_id` (phụ thuộc #11) | cao | vừa; đây là đường để §6 đi từ 4/13 lên gần đủ |
 
 > **Hai mục 10–11 làm đổi thứ tự phụ thuộc của #8.** Bản 03/08 xếp `Chuong`/`Muc` sau #4 (thống
 > nhất ID) vì tưởng phải có `VanBan` node trước. Đo lại: `Article.chapter` là **trường phẳng trên

@@ -12,7 +12,7 @@ from pathlib import Path
 from app.core import vectordb
 from app.core.config import LANCEDB_TABLE, settings
 from app.core.llm import EMBED_DIM, embed_documents
-from app.core.schemas import CorpusDocument, Relationship
+from app.core.schemas import CorpusDocument, Relationship, nhan_quan_he
 from app.ingestion.versioning import effective_dates
 
 _BATCH = 32
@@ -123,12 +123,8 @@ def write_lancedb(rows: list[dict]) -> int:
     return len(rows)
 
 
-_REL_VERB = {
-    "THAY_THE": "thay thế",
-    "SUA_DOI": "sửa đổi, bổ sung",
-    "HUONG_DAN": "hướng dẫn thi hành",
-    "DAN_CHIEU": "dẫn chiếu",
-}
+# Nhãn lấy từ `app.core.schemas.REL_TYPES` — nguồn sự thật DUY NHẤT cho 13 quan hệ.
+# Trước đây bảng này bị chép ở ba nơi nên sửa một chỗ không kéo theo hai chỗ kia.
 
 
 def build_change_events(docs: list[CorpusDocument], rels: list[Relationship]) -> list[dict]:
@@ -136,7 +132,7 @@ def build_change_events(docs: list[CorpusDocument], rels: list[Relationship]) ->
     titles = {d.doc_id: d.title for d in docs}
     events = []
     for r in rels:
-        verb = _REL_VERB.get(r.rel_type, r.rel_type)
+        verb = nhan_quan_he(r.rel_type)
         desc = f"{titles.get(r.source_doc, r.source_doc)} {verb} {titles.get(r.target_doc, r.target_doc)}"
         if r.note:
             desc += f" — {r.note}"

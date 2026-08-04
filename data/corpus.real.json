@@ -2096,7 +2096,7 @@
   {
    "source_doc": "TT23-2019",
    "target_doc": "TT39-2014",
-   "rel_type": "SUA_DOI",
+   "rel_type": "SUA_DOI_BO_SUNG",
    "valid_from": "2020-01-07",
    "note": "Sửa đổi, bổ sung một số điều về trung gian thanh toán (ví điện tử)",
    "anchors": [
@@ -2120,7 +2120,7 @@
   {
    "source_doc": "TT20-2016",
    "target_doc": "TT39-2014",
-   "rel_type": "SUA_DOI",
+   "rel_type": "SUA_DOI_BO_SUNG",
    "valid_from": "2016-07-01",
    "note": "Sửa đổi, bổ sung một số điều của TT 39/2014",
    "anchors": [
@@ -2144,30 +2144,30 @@
   {
    "source_doc": "TT40-2024",
    "target_doc": "ND52-2024",
-   "rel_type": "HUONG_DAN",
+   "rel_type": "CAN_CU",
    "valid_from": "2024-07-17",
-   "note": "Hướng dẫn hoạt động cung ứng dịch vụ trung gian thanh toán"
+   "note": "TT 40/2024 ban hành căn cứ NĐ 52/2024 — vbpl.vn lược đồ NĐ 52/2024, nhóm incoming 'Văn bản áp dụng' (nhãn bị động của CAN_CU)"
   },
   {
    "source_doc": "TT15-2024",
    "target_doc": "ND52-2024",
-   "rel_type": "HUONG_DAN",
+   "rel_type": "CAN_CU",
    "valid_from": "2024-07-01",
-   "note": "Hướng dẫn cung ứng dịch vụ thanh toán không dùng tiền mặt"
+   "note": "TT 15/2024 ban hành căn cứ NĐ 52/2024 — vbpl.vn lược đồ NĐ 52/2024, nhóm incoming 'Văn bản áp dụng' (nhãn bị động của CAN_CU)"
   },
   {
    "source_doc": "TT17-2024",
    "target_doc": "ND52-2024",
-   "rel_type": "HUONG_DAN",
+   "rel_type": "CAN_CU",
    "valid_from": "2024-07-01",
-   "note": "Hướng dẫn mở và sử dụng tài khoản thanh toán"
+   "note": "TT 17/2024 ban hành căn cứ NĐ 52/2024 — vbpl.vn lược đồ NĐ 52/2024, nhóm incoming 'Văn bản áp dụng' (nhãn bị động của CAN_CU)"
   },
   {
    "source_doc": "TT18-2024",
    "target_doc": "ND52-2024",
-   "rel_type": "HUONG_DAN",
+   "rel_type": "CAN_CU",
    "valid_from": "2024-07-01",
-   "note": "Hướng dẫn hoạt động thẻ ngân hàng"
+   "note": "TT 18/2024 ban hành căn cứ NĐ 52/2024 — vbpl.vn lược đồ NĐ 52/2024, nhóm incoming 'Văn bản áp dụng' (nhãn bị động của CAN_CU)"
   },
   {
    "source_doc": "SHB-QD-VI-2023",

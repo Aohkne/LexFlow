@@ -89,6 +89,31 @@
     `tiet_semicolon_mo_ho`. Nhánh vẫn phải chạy đúng nên test của nó chuyển sang **Điểm dựng tay**
     và nói rõ là dựng tay — sửa fixture cho vừa test thì rẻ hơn, nhưng fixture là **chữ luật thật**,
     sửa nó là làm hỏng thứ đắt nhất trong repo.
+- **Done (13 quan hệ thành TẬP ĐÓNG + đọc lược đồ vbpl.vn).**
+  - **Gốc rễ:** `REL_TYPES` cũ là **4 tên tự đặt** và `rel_type: str` **chưa bao giờ được đối
+    chiếu với nó** ⇒ `HUONG_DAN` — một loại không có thật — sống 4 lần. Cùng bảng còn bị **chép ở
+    ba nơi** (`schemas.py`, `answer.py`, `pipeline.py`). Nay một nguồn duy nhất + validator chặn ở
+    **biên dữ liệu vào**, thông báo lỗi nêu đủ 13 mã hợp lệ.
+  - **Cạnh CÓ KIỂU trong Neo4j** (4 chỗ Cypher). Nhờ đó viết được truy vấn §6.2 *legislative void*
+    (`BAI_BO` mà không `THAY_THE`) — với một kiểu cạnh duy nhất thì câu đó **không tồn tại**.
+    `khoang_trong_lap_phap()` ghi rõ: corpus có **0 `BAI_BO`** nên trả rỗng **vì thiếu dữ liệu**,
+    không phải vì không có khoảng trống nào.
+  - **Câu hỏi tưởng phải hỏi người thì NGUỒN trả lời.** `data/raw/vbpl/sample.json` (mẫu schema sẽ
+    thu thập) có `luoc_do.outgoing/incoming` khớp đúng hai cột nhãn của v0.5 §6. Cả bốn Thông tư
+    TT15/17/18/40-2024 nằm ở `incoming / "Văn bản áp dụng"` — **nhãn bị động của `CAN_CU`**, cặp
+    **#8 bất quy tắc** — chứ không ở `"Văn bản quy định chi tiết, hướng dẫn thi hành"` (chỉ có
+    TT34/2024). ⇒ quan hệ đúng là **`CAN_CU`**: các TT **ban hành căn cứ** NĐ52, không hướng dẫn nó.
+  - **Chiều mũi tên do `outgoing`/`incoming` quyết, KHÔNG do nhãn** — một quy tắc cho cả 13 mã.
+    Bằng chứng nó đúng kể cả với cặp bất quy tắc: cùng mã `CAN_CU` ra **hai chiều ngược nhau** trên
+    cùng một trang (outgoing "Căn cứ ban hành" → 10 Luật; incoming "Văn bản áp dụng" → 20 Thông tư).
+    Bảng nhãn **suy từ `REL_TYPES`**, không gõ tay ⇒ không thể trôi khỏi tập đóng; 26 nhãn sau
+    chuẩn hoá vẫn phân biệt được từng cái (có test canh vì phép chuẩn hoá bỏ dấu phẩy).
+  - **Đo:** đọc mẫu ra **35 cạnh · 0 cảnh báo** (`CAN_CU` 30 · `THAY_THE` 2 · `BAI_BO` 1 ·
+    `QUY_DINH_CHI_TIET_HUONG_DAN` 1 · `DAN_CHIEU` 1). **`BAI_BO` có instance thật**: NĐ52 → NĐ16/2019
+    ⇒ ca kiểm chứng §6.2 sẽ có dữ liệu khi chuyển nguồn. Sửa 6/13 hàng corpus (diff **10 dòng**,
+    chiều giữ nguyên, `documents` không đụng), `kiem_quan_he` báo **0 cạnh sai**. pytest **413**.
+  - Cạnh khoá bằng **số hiệu** (`52/2024/NĐ-CP`) — khoá v0.5 dùng và có sẵn trong vbpl — chứ không
+    phải `doc_id`. Quy về `doc_id` chờ trường bắc cầu `so_hieu` (việc #11).
 - **Done (đối chiếu lại v0.5 + G1 tầng CU — `docs/KG-CONFORMANCE-v05.md`, `ONTOLOGY-POC.md` §14g–h).**
   - **Đo lại conformance: điểm KHÔNG đổi một ô nào.** Ba đợt việc 04/08 đều ở tầng CU, không chạm
     tầng văn bản. Ghi lại thay vì làm tròn lên — một báo cáo đối chiếu mà tự cải thiện điểm sau

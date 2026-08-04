@@ -19,7 +19,7 @@ def test_build_change_events():
     rels = [
         Relationship(source_doc="TT40-2024", target_doc="TT23-2019",
                      rel_type="THAY_THE", valid_from="2024-07-01", note="toàn bộ"),
-        Relationship(source_doc="TT40-2024", target_doc="XX-9999", rel_type="SUA_DOI"),
+        Relationship(source_doc="TT40-2024", target_doc="XX-9999", rel_type="SUA_DOI_BO_SUNG"),
     ]
     events = build_change_events(_DOCS, rels)
     assert len(events) == 2
