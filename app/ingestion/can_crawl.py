@@ -27,6 +27,7 @@ from app.core.schemas import DocumentMeta, Relationship
 from app.core.so_hieu import phan_tich
 from app.ingestion.bac_cau import CanCrawl, thieu_toan_van
 from app.ingestion.pipeline import load_corpus
+from app.ingestion.vbpl_corpus import doc_thu_muc
 from app.ingestion.vbpl_luoc_do import UNG_VIEN_RE, doc_luoc_do, tieu_de_theo_so_hieu
 
 MUC_TEN = {0: "GẤP", 1: "cao", 2: "vừa", 3: "thấp"}
@@ -38,17 +39,51 @@ MUC_VI_SAO = {
 }
 
 
+def la_ban_ghi_vbpl(mau: object) -> bool:
+    """Bản ghi vbpl thật, phân biệt với thứ khác nằm cùng thư mục.
+
+    Cùng `data/raw/vbpl/` còn có `*.corpus.json` (đã chuyển sang khuôn `CorpusDocument`) và
+    `crawl-report.json` (nhật ký lần chạy). Cả hai **không** có `luoc_do`, nên đưa vào
+    `doc_luoc_do` chỉ sinh ra cảnh báo *"không đọc được số hiệu của chính văn bản đang xem"* —
+    một cảnh báo đúng câu chữ nhưng sai đối tượng, và đúng loại nhiễu làm người ta ngừng đọc
+    cảnh báo. Nhận diện bằng **hình dạng**, không bằng tên file.
+    """
+    return isinstance(mau, dict) and isinstance(mau.get("luoc_do"), dict)
+
+
 def _doc_vbpl(thu_muc: Path) -> tuple[list[Relationship], dict[str, str], list[str]]:
-    """Đọc mọi bản ghi vbpl trong thư mục. Thiếu thư mục ⇒ rỗng, không phải lỗi."""
+    """Đọc mọi bản ghi vbpl trong thư mục. Thiếu thư mục ⇒ rỗng, không phải lỗi.
+
+    **Khử trùng theo số hiệu.** Một văn bản có thể nằm ở hai file (bản crawl theo slug và bản
+    chép tay để làm mẫu test). Không khử thì mỗi cạnh của nó **đếm hai lần** — và đây là lỗi
+    đọc thầm lặng nhất trong cả luồng, vì kết quả vẫn "chạy được", chỉ là sai số.
+    """
     canh: list[Relationship] = []
     tieu_de: dict[str, str] = {}
     canh_bao: list[str] = []
+    #: số hiệu → (số mục lược đồ, tên file, cạnh, tiêu đề). Giữ bản ghi NHIỀU lược đồ hơn:
+    #: hai bản của cùng một văn bản chỉ khác nhau vì crawl khác thời điểm.
+    theo_sh: dict[str, tuple[int, str, list[Relationship], dict[str, str]]] = {}
+
     for p in sorted(thu_muc.glob("*.json")) if thu_muc.exists() else []:
         mau = json.loads(p.read_text(encoding="utf-8"))
+        if not la_ban_ghi_vbpl(mau):
+            continue
         c, cb = doc_luoc_do(mau)
-        canh += c
         canh_bao += [f"{p.name}: {x}" for x in cb]
-        for k, v in tieu_de_theo_so_hieu(mau).items():
+        goc = (mau.get("thuoc_tinh") or {}).get("so_hieu") or p.name
+        n = sum(len(v) for ch in ("outgoing", "incoming") for v in (mau["luoc_do"].get(ch) or {}).values())
+        cu = theo_sh.get(goc)
+        if cu is None or n > cu[0]:
+            if cu is not None:
+                canh_bao.append(f"{goc}: có ở cả {cu[1]!r} ({cu[0]} mục) và {p.name!r} ({n} mục) — lấy bản nhiều hơn")
+            theo_sh[goc] = (n, p.name, c, tieu_de_theo_so_hieu(mau))
+        elif n < cu[0] or p.name != cu[1]:
+            canh_bao.append(f"{goc}: bỏ qua {p.name!r} ({n} mục) vì đã có {cu[1]!r} ({cu[0]} mục)")
+
+    for _, _, c, td in theo_sh.values():
+        canh += c
+        for k, v in td.items():
             tieu_de.setdefault(k, v)
     return canh, tieu_de, canh_bao
 
@@ -125,6 +160,16 @@ def main(argv: list[str] | None = None) -> int:
 
     docs, rels_corpus = load_corpus(a.corpus)
     canh_vbpl, tieu_de, cb = _doc_vbpl(Path(a.vbpl))
+
+    # Văn bản đã crawl nhưng CHƯA nạp vào corpus vẫn là "đã có toàn văn" — nếu không tính vào
+    # thì danh sách bảo đi crawl lại đúng thứ vừa crawl xong. Văn bản 0 điều (`29/VBHN-NHNN`)
+    # thì `doc_file` trả `van_ban=None`, nên nó ở lại danh sách, đúng như phải thế.
+    da_crawl = [k.van_ban for k in doc_thu_muc(Path(a.vbpl)) if k.van_ban]
+    co_san = {d.so_hieu for d in docs if d.so_hieu}
+    them = [v for v in da_crawl if v.so_hieu not in co_san]
+    if them:
+        print(f"[đã crawl, chưa nạp corpus] {len(them)}: {', '.join(v.so_hieu for v in them)}")
+    docs = docs + them
     ds = thieu_toan_van(rels_corpus + canh_vbpl, docs, tieu_de)
     sua = sua_doi_van_ban_ta_co(ds, docs)
 

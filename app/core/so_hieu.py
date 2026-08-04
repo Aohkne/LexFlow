@@ -154,6 +154,13 @@ def phan_tich(raw: str) -> SoHieu | None:
     if "-" not in duoi:
         return None  # nhóm B bắt buộc `<loại>-<cơ quan>`; không có gạch nối thì chưa quy được
     phan = duoi.split("-")
+    if not all(phan):
+        # Phần rỗng ⇒ cụm đã bị cắt, và cắt cụt là đúng thứ lớp này sinh ra để chặn: một khoá
+        # cụt vẫn join được, vào nhầm văn bản. Ca thật: nguồn viết `21/2017/TT- NHNN` (thừa
+        # dấu cách) ⇒ ứng viên dừng ở `21/2017/TT-`. Nối lại là việc của bộ ĐỌC, nơi còn nhìn
+        # thấy phần văn bản đứng sau; ở đây chỉ có mảnh, nên không được đoán.
+        return None
+
     loai = _lam_sach_ma(phan[0], "mã loại", loai_map, canh_bao)
     cq = [_lam_sach_ma(x, "mã cơ quan", co_quan_map, canh_bao) for x in phan[1:]]
 

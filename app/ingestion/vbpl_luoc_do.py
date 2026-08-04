@@ -32,7 +32,7 @@ import re
 import unicodedata
 
 from app.core.schemas import REL_TYPES, Relationship
-from app.core.so_hieu import phan_tich
+from app.core.so_hieu import _tu_vung, phan_tich
 
 #: Bắt ỨNG VIÊN số hiệu trong văn xuôi rồi để `so_hieu.phan_tich` quyết — cố ý KHÔNG mô tả
 #: hình dạng mã bằng lớp ký tự. Bản trước làm vậy và `[A-ZĐ]+` gặp `С` Cyrillic thì lùi lại
@@ -42,6 +42,12 @@ UNG_VIEN_RE = re.compile(r"\b\d{1,4}[a-zA-Z]?/(?:\d{4}/)?[^\s,;.)\]]+")
 
 _KHOANG = re.compile(r"\s+")
 _TIEN_TO = re.compile(r"^văn\s*bản\s+", re.IGNORECASE)
+
+#: Nối lại phần bị dấu cách cắt rời: `21/2017/TT- NHNN` → `21/2017/TT-NHNN`. Chỉ dùng khi ứng
+#: viên **kết thúc bằng gạch nối** — tức đã biết chắc cụm bị cụt — nên không đụng tới dấu gạch
+#: ngang dùng làm dấu câu trong tiêu đề. Đo trên 258 số hiệu của mọi bản ghi đã crawl: **2 ca**,
+#: cùng một văn bản, và cả hai lần từ kế tiếp là mã cơ quan có trong bảng.
+_NOI_LAI = re.compile(r"\s*([A-Za-zĐđ][A-Za-zĐđ-]*)")
 
 
 def chuan_hoa_nhan(s: str) -> str:
@@ -79,7 +85,35 @@ def so_hieu_tu_tieu_de(tieu_de: str) -> tuple[str | None, list[str]]:
         sh = phan_tich(m.group(0))
         if sh:
             return sh.chuan, sh.canh_bao
+        cum, cb = _noi_cum_bi_cat(tieu_de or "", m)
+        if cum:
+            return cum.chuan, cb + cum.canh_bao
     return None, []
+
+
+def _noi_cum_bi_cat(tieu_de: str, m: re.Match[str]):
+    """Ứng viên cụt vì nguồn thừa dấu cách ⇒ thử nối với từ liền sau. Có ghi lại việc đã nối.
+
+    Ba điều kiện, và điều kiện thứ ba là chỗ khác biệt đáng nói: mã cơ quan sau khi nối **phải
+    có trong từ vựng**. Ở một ký hiệu nguyên vẹn thì mã lạ được *chấp nhận kèm cảnh báo* — tập
+    cơ quan không đóng được (63 UBND tỉnh, cơ quan mới lập), và không có cách đọc nào khác.
+    Nhưng ở đây ta đang **chèn thêm một phép nối mà nguồn không viết**, nên gánh nặng chứng
+    minh cao hơn: không có bằng chứng thì `"Thông tư số 21/2017/TT- Quy định về…"` sẽ lặng lẽ
+    thành `21/2017/TT-Quy`. Đo trên 258 số hiệu của mọi bản ghi đã crawl: 2 ca cần nối, cả hai
+    nối ra `NHNN` — có trong bảng.
+    """
+    if not m.group(0).endswith("-"):
+        return None, []
+    ke = _NOI_LAI.match(tieu_de, m.end())
+    if not ke:
+        return None, []
+    sh = phan_tich(m.group(0) + ke.group(1))
+    if sh is None or not all(x in _tu_vung()[1] for x in sh.co_quan):
+        return None, []
+    return sh, [
+        f"số hiệu {m.group(0)!r} bị dấu cách cắt rời khỏi {ke.group(1)!r} — đã nối thành "
+        f"{sh.chuan!r}"
+    ]
 
 
 def doc_luoc_do(sample: dict) -> tuple[list[Relationship], list[str]]:

@@ -1,0 +1,74 @@
+{
+ "nguon": "research\\crawl_list.txt",
+ "da_cao": [
+  {
+   "canh_bao": [],
+   "slug": "nghi-dinh-so-16-2019-nd-cp-sua-doi-bo-sung-mot-so-dieu-cua-cac-nghi-dinh-quy-din",
+   "title": "Nghị định 16/2019/NĐ-CP của Chính phủ",
+   "trang_thai": "Hết hiệu lực một phần",
+   "so_ky_tu": 8591,
+   "cay_dieu_khoan": {
+    "dieu": 7,
+    "khoan": 14
+   },
+   "so_dieu_bi_tac_dong": 0,
+   "so_van_ban_lien_quan": 15,
+   "doc_id": "16-2019-NĐ-CP",
+   "so_dieu": 7,
+   "url": "https://vbpl.vn/van-ban/chi-tiet/nghi-dinh-so-16-2019-nd-cp-sua-doi-bo-sung-mot-so-dieu-cua-cac-nghi-dinh-quy-dinh-ve-dieu-kien-kinh-doanh-thuoc-pham-vi-quan-ly-nha-nuoc-cua-ngan-hang-nha-nuoc-viet-nam--134064",
+   "giay": 6.0
+  },
+  {
+   "canh_bao": [],
+   "slug": "thong-tu-22-2026-tt-nhnn-sua-doi-bo-sung-mot-so-dieu-cua-thong-tu-so-40-2024-tt-",
+   "title": "Thông tư 22/2026/TT-NHNN của Ngân hàng Nhà nước Việt Nam",
+   "trang_thai": "Còn hiệu lực",
+   "so_ky_tu": 11620,
+   "cay_dieu_khoan": {
+    "dieu": 6,
+    "khoan": 2
+   },
+   "so_dieu_bi_tac_dong": 0,
+   "so_van_ban_lien_quan": 8,
+   "doc_id": "22-2026-TT-NHNN",
+   "so_dieu": 6,
+   "url": "https://vbpl.vn/van-ban/chi-tiet/thong-tu-22-2026-tt-nhnn-sua-doi-bo-sung-mot-so-dieu-cua-thong-tu-so-40-2024-tt-nhnn-quy-dinh-ve-hoat-dong-cung-ung-dich-vu-trung-gian-thanh-toan--a6a75c30-54f6-11f1-9329-618b687c8cbb",
+   "giay": 4.8
+  },
+  {
+   "canh_bao": [],
+   "slug": "thong-tu-so-41-2025-tt-nhnn-sua-doi-bo-sung-mot-so-dieu-cua-thong-tu-so-40-2024-",
+   "title": "Thông tư 41/2025/TT-NHNN của Ngân hàng Nhà nước Việt Nam",
+   "trang_thai": "Hết hiệu lực một phần",
+   "so_ky_tu": 27573,
+   "cay_dieu_khoan": {
+    "dieu": 27,
+    "khoan": 34
+   },
+   "so_dieu_bi_tac_dong": 1,
+   "so_van_ban_lien_quan": 9,
+   "doc_id": "41-2025-TT-NHNN",
+   "so_dieu": 27,
+   "url": "https://vbpl.vn/van-ban/chi-tiet/thong-tu-so-41-2025-tt-nhnn-sua-doi-bo-sung-mot-so-dieu-cua-thong-tu-so-40-2024-tt-nhnn-quy-dinh-ve-hoat-dong-cung-ung-dich-vu-trung-gian-thanh-toan--183319",
+   "giay": 5.0
+  },
+  {
+   "canh_bao": [
+    "không có toàn văn trên vbpl (chỉ thuộc tính/lược đồ) — nhiều khả năng toàn văn chỉ nằm trong file đính kèm"
+   ],
+   "slug": "van-ban-hop-nhat-so-29-vbhn-nhnn-quy-dinh-ve-hoat-dong-cung-ung-dich-vu-trung-gi",
+   "title": "Văn bản hợp nhất 29/VBHN-NHNN của Ngân hàng Nhà nước Việt Nam",
+   "trang_thai": null,
+   "so_ky_tu": 334,
+   "cay_dieu_khoan": {},
+   "so_dieu_bi_tac_dong": 0,
+   "so_van_ban_lien_quan": 2,
+   "doc_id": "29-VBHN-NHNN",
+   "so_dieu": 0,
+   "url": "https://vbpl.vn/van-ban/chi-tiet/van-ban-hop-nhat-so-29-vbhn-nhnn-quy-dinh-ve-hoat-dong-cung-ung-dich-vu-trung-gian-thanh-toan--186078",
+   "giay": 25.2
+  }
+ ],
+ "bo_qua": [],
+ "hong": []
+}

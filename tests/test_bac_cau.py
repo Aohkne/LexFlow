@@ -203,17 +203,18 @@ def test_mot_luoc_do_KHONG_du_de_biet_van_ban_da_bi_sua_chua():
 
     Test này khoá lại kết luận rút ra từ đó: **crawl từng văn bản corpus**, không chỉ đầu mút.
     """
-    from app.ingestion.can_crawl import _doc_vbpl
-
     docs, rels_corpus = load_corpus("data/corpus.real.json")
 
+    # Neo vào ĐÚNG hai file, không phải cả thư mục: thư mục lớn dần theo mỗi đợt crawl, và một
+    # test đổi kết quả theo số file thì không còn kiểm được điều nó định kiểm.
     chi_nd52, _ = doc_luoc_do(json.loads(_SAMPLE.read_text(encoding="utf-8")))
+    tt40, _ = doc_luoc_do(json.loads(_SAMPLE_V2.read_text(encoding="utf-8")))
+
     ds1 = {d.so_hieu: d for d in thieu_toan_van(rels_corpus + chi_nd52, docs)}
     assert [m for m, _ in ds1["41/2025/TT-NHNN"].quan_he] == ["CAN_CU"]
     assert ds1["41/2025/TT-NHNN"].uu_tien == 3, "một lược đồ ⇒ tưởng chỉ là xuất xứ"
 
-    ca_hai, _, _ = _doc_vbpl(_SAMPLE.parent)
-    ds2 = {d.so_hieu: d for d in thieu_toan_van(rels_corpus + ca_hai, docs)}
+    ds2 = {d.so_hieu: d for d in thieu_toan_van(rels_corpus + chi_nd52 + tt40, docs)}
     assert "SUA_DOI_BO_SUNG" in [m for m, _ in ds2["41/2025/TT-NHNN"].quan_he]
     assert ds2["41/2025/TT-NHNN"].uu_tien == 1, "hai lược đồ ⇒ hoá ra nó SỬA ĐỔI corpus"
 

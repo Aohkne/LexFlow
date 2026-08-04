@@ -167,6 +167,53 @@ def test_trich_so_hieu(tieu_de, cho):
     assert so_hieu_tu_tieu_de(tieu_de)[0] == cho
 
 
+def test_dau_cach_cat_roi_so_hieu_thi_noi_lai_VA_noi_ra():
+    """Ca THẬT trong lược đồ NĐ80/2016: nguồn viết `"Thông tư số 21/2017/TT- NHNN …"`.
+
+    Ứng viên dừng ở `21/2017/TT-`. Nối lại được vì bộ đọc còn thấy phần đứng sau — nhưng phải
+    **nói ra**, vì đó là khuyết tật của nguồn, y như ca `С` Cyrillic.
+    """
+    sh, cb = so_hieu_tu_tieu_de("Thông tư số 21/2017/TT- NHNN Quy định về phương thức giải ngân")
+    assert sh == "21/2017/TT-NHNN"
+    assert any("bị dấu cách cắt rời" in c for c in cb)
+
+
+@pytest.mark.parametrize(
+    "tieu_de",
+    [
+        # Nối bừa thì thành `21/2017/TT-Quy` — một khoá bịa, tệ ngang khoá cụt.
+        "Thông tư số 21/2017/TT- Quy định về phương thức giải ngân vốn cho vay",
+        # Mã lạ: ở ký hiệu NGUYÊN VẸN thì chấp nhận kèm cảnh báo, nhưng không đủ để CHÈN phép nối.
+        "Thông tư số 21/2017/TT- XYZQ quy định gì đó",
+    ],
+)
+def test_khong_noi_bua_khi_khong_co_bang_chung(tieu_de):
+    """Chèn một phép nối mà nguồn không viết ⇒ gánh nặng chứng minh cao hơn là chỉ đọc được.
+
+    Nên điều kiện là mã cơ quan sau khi nối **có trong từ vựng**, chứ không phải "phân tích
+    được". Sửa nguồn quá tay thì sai lặng lẽ, y như cắt cụt.
+    """
+    assert so_hieu_tu_tieu_de(tieu_de)[0] is None
+    # Nhưng ký hiệu nguyên vẹn mang mã lạ thì VẪN nhận — tập cơ quan không đóng được.
+    sh, cb = so_hieu_tu_tieu_de("Thông tư số 21/2017/TT-XYZQ quy định gì đó")
+    assert sh == "21/2017/TT-XYZQ" and any("chưa có trong bảng" in c for c in cb)
+
+
+def test_bo_qua_file_khong_phai_ban_ghi_vbpl():
+    """`data/raw/vbpl/` còn chứa `*.corpus.json` và `crawl-report.json`.
+
+    Đưa chúng vào `doc_luoc_do` sinh ra cảnh báo *"không đọc được số hiệu của chính văn bản
+    đang xem"* — đúng câu chữ, sai đối tượng, và đúng loại nhiễu làm người ta ngừng đọc cảnh
+    báo. Nhận diện bằng **hình dạng** (`luoc_do` là dict), không bằng tên file.
+    """
+    from app.ingestion.can_crawl import la_ban_ghi_vbpl
+
+    assert la_ban_ghi_vbpl({"luoc_do": {"outgoing": {}, "incoming": {}}})
+    assert not la_ban_ghi_vbpl({"nguon": "x", "da_cao": [], "bo_qua": [], "hong": []})
+    assert not la_ban_ghi_vbpl({"doc_id": "16-2019-NĐ-CP", "so_hieu": "16/2019/NĐ-CP", "articles": []})
+    assert not la_ban_ghi_vbpl([])
+
+
 def test_moi_canh_deu_dung_ma_trong_tap_dong(ket_qua):
     canh, _ = ket_qua
     assert Counter(c.rel_type for c in canh).keys() <= set(REL_TYPES)

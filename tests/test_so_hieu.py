@@ -73,11 +73,26 @@ def test_so_0_dau_GIU_NGUYEN():
         "",
         "52/2024",             # thiếu phần loại-cơ quan
         "52/2024/NDCP",        # nhóm B bắt buộc có gạch nối
+        "21/2017/TT-",         # ca THẬT: nguồn viết `21/2017/TT- NHNN`, ứng viên dừng ở gạch nối
+        "52/2024/-CP",         # thiếu mã loại
+        "52/2024/NĐ--CP",      # gạch nối đôi ⇒ có phần rỗng ở giữa
     ],
 )
 def test_khong_dung_khuon_thi_tra_None(raw):
     assert phan_tich(raw) is None
     assert chuan_hoa(raw) is None
+
+
+def test_phan_RONG_bi_tu_choi_chu_khong_thanh_khoa_cut():
+    """`21/2017/TT-` từng phân tích được với `co_quan=['']` ⇒ khoá cụt `21/2017/TT-`.
+
+    Đúng thứ lớp này sinh ra để chặn: khoá cụt **vẫn join được**, vào nhầm văn bản, và chỉ để
+    lại một cảnh báo *"cơ quan '' chưa có trong bảng"* — đọc như một mã lạ cần bổ sung, chứ
+    không như một cụm đã hỏng. Nối lại là việc của bộ ĐỌC (`vbpl_luoc_do`), nơi còn nhìn thấy
+    phần văn bản đứng sau; ở đây chỉ có mảnh nên không được đoán.
+    """
+    assert phan_tich("21/2017/TT-") is None
+    assert phan_tich("21/2017/TT-NHNN").co_quan == ["NHNN"]
 
 
 # --- 3. Homoglyph: quy tắc CẤU TRÚC, không phải tra danh sách ----------------
