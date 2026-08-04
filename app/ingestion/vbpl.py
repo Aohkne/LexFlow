@@ -37,6 +37,7 @@ from dataclasses import dataclass
 from html import escape
 from html.parser import HTMLParser
 from pathlib import Path
+from urllib.parse import quote
 
 import httpx
 from tenacity import retry, stop_after_attempt, wait_exponential
@@ -195,6 +196,7 @@ def fetch_rendered_main_text(url: str) -> tuple[str, str]:
 # chậm thì đọc DOM trước khi tab render xong và lặng lẽ trả về 0 trường.
 _TAB_THUOC_TINH_URL = "thuoc-tinh"
 _TAB_LUOC_DO_URL = "luoc-do"
+_TAB_TAI_VE_URL = "tai-ve"
 
 # Mục trong Lược đồ không phải <a href> — điều hướng bằng window.open trong handler React.
 # Ghi đè window.open để LẤY được URL đích mà không thật sự tải trang đó (13 mục = 13 lượt
@@ -313,43 +315,97 @@ _JS_PROVISION_NODES = r"""() => {
   const badgesOf = (el) => [...new Set(
     [...el.querySelectorAll('button')].map(b => b.innerText.trim()).filter(Boolean)
   )];
+  // Nhãn vbpl chèn vào, KHÔNG thuộc văn bản. Bắt buộc có "được|bị": "Điều khoản thi hành" là
+  // tiêu đề Điều có thật, lọc theo tiền tố "Điều khoản" trần sẽ ăn mất nó.
+  const stripBadges = (s) => s.replace(/^(Điều khoản (được|bị) [^\n]*\n)+/, '');
+  const norm = (s) => (s || '').replace(/\s+/g, ' ').trim();
+  // Mỗi khối sửa đổi có mặt 2 lần: bản mang class prov-* (không nhãn) và bản bọc ngoài có
+  // nhãn. Ghép cặp theo NỘI DUNG chứ không theo mã `type` — nhiều khối khác nhau dùng chung
+  // một mã (cùng văn bản sửa đổi), nên ghép theo mã sẽ nuốt mất khối thật.
+  const daCoMarkup = new Set(
+    [...main.querySelectorAll('[class*="prov-"]')].map(e => norm(e.innerText))
+  );
+  // Cấp của một dòng, suy từ cách đánh số. Cố tình KHÔNG nhận "(i)"/"(ii)": cấp tiết được
+  // mô hình hoá như một span bên trong Điểm chứ không có id riêng.
+  const capOf = (line) => {
+    if (/^Điều\s+\d+\s*\./.test(line)) return 'prov-article';
+    if (/^\d+[a-z]?\.\s/.test(line)) return 'prov-clause';   // "3b." là số khoản có thật
+    if (/^[a-zđ]\)\s/.test(line)) return 'prov-item';
+    return null;
+  };
   const out = [];
-  // Lấy cả phần tử prov-* LẪN khối sửa đổi, theo đúng thứ tự tài liệu. Khi văn bản sửa đổi
-  // thay nguyên một Điều, tiêu đề Điều mới nằm trong khối và KHÔNG mang class prov-article
-  // (trang chỉ có 20 prov-article cho 23 Điều) — phải sinh nút thay cho nó, nếu không mọi
-  // khoản phía sau bị treo nhầm vào Điều liền trước.
+  const viTri = new Map();   // nội dung chuẩn hoá → vị trí nút trong `out`
+  // Lấy cả phần tử prov-* LẪN khối sửa đổi, theo đúng thứ tự tài liệu.
   for (const el of main.querySelectorAll('[class*="prov-"], [type]')) {
     const t = el.getAttribute('type') || '';
-    if (/^\d+:/.test(t)) {
-      const stripped = (el.innerText || '').trim().replace(/^(Điều khoản [^\n]*\n)+/, '');
-      const first = stripped.split('\n')[0].trim();
-      if (/^Điều\s+\d+\s*\./.test(first)) {
+    const isBlock = /^\d+:/.test(t);
+    const cls = [...el.classList].find(c => c.startsWith('prov-'));
+
+    // Phần tử điều khoản thật. Phải xét TRƯỚC nhánh khối: khi khối sửa đổi chỉ thay đúng
+    // một Khoản, chính thẻ prov-clause đó mang luôn attribute `type`, và nếu ưu tiên nhánh
+    // khối thì cả Khoản bị bỏ (chỉ tiêu đề Điều mới được giữ lại).
+    if (cls) {
+      const block = el.closest('[type]');
+      const bt = block?.getAttribute('type') || '';
+      const inBlock = /^\d+:/.test(bt) ? bt : (isBlock ? t : '');
+      viTri.set(norm(stripBadges((el.innerText || '').trim())), out.length);
+      out.push({
+        id: el.id || null,
+        cls,
+        parent_id: el.getAttribute('parent-id'),
+        hidden: getComputedStyle(el).display === 'none',
+        amend_type: inBlock || null,
+        amend_badges: inBlock ? badgesOf(block || el) : [],
+        text: stripBadges((el.innerText || '').trim()).replace(/\s*\n\s*/g, ' '),
+        html: el.innerHTML,   // giữ đậm/nghiêng; lọc bằng whitelist ở phía Python
+      });
+      continue;
+    }
+    if (!isBlock) continue;
+
+    const hidden = getComputedStyle(el).display === 'none';
+    const badges = badgesOf(el);
+    const body = stripBadges((el.innerText || '').trim());
+    const lines = body.split('\n').map(s => s.trim()).filter(Boolean);
+    // Bản có nhãn của một khối đã được lấy qua thẻ prov-* của chính nó → bỏ, kẻo đếm 2 lần.
+    // Nhãn thì chỉ bản này có, nên chuyển sang nút đã giữ trước khi bỏ.
+    if (daCoMarkup.has(norm(body))) {
+      const i = viTri.get(norm(body));
+      if (i !== undefined && badges.length) out[i].amend_badges = badges;
+      continue;
+    }
+
+    // Khối CÓ markup prov-* bên trong: các phần tử đó tự vào vòng lặp này rồi, ở đây chỉ
+    // cần bù tiêu đề Điều — trang không gắn class cho nó (23 Điều nhưng chỉ 20 prov-article).
+    if (el.querySelector('[class*="prov-"]')) {
+      if (lines.length && capOf(lines[0]) === 'prov-article') {
         out.push({
-          id: null, cls: 'prov-article', parent_id: null, tu_sinh: true,
-          hidden: getComputedStyle(el).display === 'none',
-          amend_type: t, amend_badges: badgesOf(el), text: first,
+          id: null, cls: 'prov-article', parent_id: null, tu_sinh: true, hidden,
+          amend_type: t, amend_badges: badges, text: lines[0], html: '',
         });
       }
       continue;
     }
-    const cls = [...el.classList].find(c => c.startsWith('prov-'));
-    if (!cls) continue;
-    const block = el.closest('[type]');
-    const bt = block?.getAttribute('type') || '';
-    const inBlock = /^\d+:/.test(bt);
-    out.push({
-      id: el.id || null,
-      cls,
-      parent_id: el.getAttribute('parent-id'),
-      hidden: getComputedStyle(el).display === 'none',
-      amend_type: inBlock ? bt : null,
-      amend_badges: inBlock ? badgesOf(block) : [],
-      text: (el.innerText || '').trim().replace(/\s*\n\s*/g, ' '),
-      html: el.innerHTML,   // giữ đậm/nghiêng; lọc bằng whitelist ở phía Python
-    });
+
+    // Khối KHÔNG có markup nào: toàn bộ phần được sửa đổi nằm ở dạng text thuần. Đây là
+    // chỗ cây mất Khoản/Điểm — sinh nút theo cách đánh số của từng dòng.
+    for (const line of lines) {
+      const c = capOf(line);
+      out.push({
+        id: null, cls: c || 'prov-content', parent_id: null, tu_sinh: true, hidden,
+        amend_type: t, amend_badges: c ? badges : [], text: line, html: '',
+      });
+    }
   }
   return out;
 }"""
+
+# Tab "Tải về": tên tệp / dung lượng / ngày nằm ở 3 phần tử lá liền nhau, KHÔNG có thẻ <a>
+# nào — nên phải đọc theo dòng lá rồi ghép, chứ không lấy href được.
+_JS_FILE_LEAVES = r"""() => [...document.querySelector('main').querySelectorAll('*')]
+    .filter(e => !e.children.length)
+    .map(e => (e.innerText || '').trim())
+    .filter(t => t && t.length < 200)"""
 
 _JS_PROP_ROWS = r"""() => [...document.querySelectorAll('main table tr')]
     .map(tr => [...tr.querySelectorAll('td,th')].map(td => td.innerText.trim()))
@@ -621,45 +677,281 @@ def build_provision_tree(nodes: list[dict]) -> list[dict]:
     return roots
 
 
-def flatten_articles(tree: list[dict]) -> list[dict]:
-    """Cây → danh sách Điều phẳng đúng dạng `Article` (đơn vị chunk cho RAG).
+# Tiêu đề trong TOÀN VĂN. "Điều" giữ nguyên chữ hoa/thường vì "ĐIỀU KHOẢN THI HÀNH" là tiêu
+# đề Chương, không phải Điều; Chương/Mục thì có văn bản viết hoa cả dòng ("CHƯƠNG IV").
+_TEXT_DIEU_RE = re.compile(r"^Điều\s+(\d+)\s*\.\s*(.*)$")
+_TEXT_CHUONG_RE = re.compile(r"^Chương\s+([IVXLCDM]+|\d+)\s*\.?\s*(.*)$", re.I)
+_TEXT_MUC_RE = re.compile(r"^Mục\s+(\d+)\s*\.?\s*(.*)$", re.I)
+# Hậu tố chữ là số khoản có thật: văn bản sửa đổi chèn "khoản 3a, 3b" vào giữa 3 và 4.
+_TEXT_KHOAN_RE = re.compile(r"^(\d+[a-z]?)\.\s")
+_TEXT_DIEM_RE = re.compile(r"^([a-zđ])\)\s")
 
-    Text của một Điều = phần thân của nó cộng toàn bộ Khoản/Điểm bên dưới, giữ nguyên thứ
-    tự đọc. Nhãn Chương/Mục lấy từ tổ tiên để trình xem hiện heading.
+
+# Ranh giới THÂN văn bản. Phụ lục hay là biểu mẫu (giấy phép, đơn đề nghị) và có "Điều 1..7"
+# của riêng nó — đếm chúng vào là thổi phồng số điều (66/2025: 16 điều thật, 37 nếu tính phụ
+# lục). Khoá node phía sau cũng chỉ neo vào thân ("#than/dieu_{n}").
+_PHU_LUC_RE = re.compile(r"^PHỤ LỤC\b")
+
+
+def _body_end(lines: list[str]) -> int:
+    """Chỉ số dòng bắt đầu phần Phụ lục, hoặc hết văn bản nếu không có."""
+    for i, ln in enumerate(lines):
+        if _PHU_LUC_RE.match(ln.strip()):
+            return i
+    return len(lines)
+
+
+def _is_shouted(line: str) -> bool:
+    """Dòng viết hoa toàn bộ — tiêu đề Chương/Mục nằm ở (các) dòng ngay sau số hiệu."""
+    return bool(line) and any(c.isalpha() for c in line) and line == line.upper()
+
+
+def split_articles(noi_dung: str) -> list[dict]:
+    """Toàn văn → danh sách Điều, text là LÁT CẮT NGUYÊN VĂN của `noi_dung`.
+
+    Đây là nguồn duy nhất sinh `articles`, KHÔNG dựng lại từ cây điều khoản: cây lấy từ DOM
+    và DOM thiếu markup cho phần bị sửa đổi (xem `check_tree_coverage`), nên dựng lại từ cây
+    sẽ mất số thứ tự "1." / "a)" — mà số thứ tự chính là khoá định danh của Khoản/Điểm ở
+    phía sau, không phải chuyện trình bày.
+
+    `text` của Điều bắt đầu ngay SAU "Điều N. " (tức từ tiêu đề Điều) và kéo tới ngay trước
+    tiêu đề kế tiếp, nên `noi_dung[char_start:char_end] == text` luôn đúng từng ký tự.
+    Chương/Mục cắt ngang thân Điều nên cũng là điểm dừng — nhãn của chúng đi vào
+    `chapter`/`section` thay vì lẫn vào text.
+    """
+    lines = noi_dung.split("\n")
+    offsets, pos = [], 0
+    for ln in lines:
+        offsets.append(pos)
+        pos += len(ln) + 1
+
+    het_than = _body_end(lines)
+    heads: list[tuple[int, str, str, str]] = []  # (dòng, cấp, số, phần tiêu đề cùng dòng)
+    for i, ln in enumerate(lines[:het_than]):
+        s = ln.strip()
+        for cap, rx in (("dieu", _TEXT_DIEU_RE), ("chuong", _TEXT_CHUONG_RE), ("muc", _TEXT_MUC_RE)):
+            m = rx.match(s)
+            if m:
+                heads.append((i, cap, m.group(1), m.group(2).strip()))
+                break
+    head_lines = {h[0] for h in heads}
+
+    def title_after(i: int, inline: str) -> str:
+        parts = [inline] if inline else []
+        j = i + 1
+        while j < len(lines) and j not in head_lines and _is_shouted(lines[j].strip()):
+            parts.append(lines[j].strip())
+            j += 1
+        return " ".join(parts)
+
+    out: list[dict] = []
+    chuong = muc = None
+    for idx, (i, cap, so, inline) in enumerate(heads):
+        if cap in ("chuong", "muc"):
+            ten = "Chương" if cap == "chuong" else "Mục"
+            title = title_after(i, inline)
+            label = f"{ten} {so}. {title}" if title else f"{ten} {so}"
+            if cap == "chuong":
+                chuong, muc = label, None
+            else:
+                muc = label
+            continue
+
+        head = lines[i]
+        indent = len(head) - len(head.lstrip())
+        start = offsets[i] + indent + _TEXT_DIEU_RE.match(head.strip()).start(2)
+        nxt = heads[idx + 1][0] if idx + 1 < len(heads) else het_than
+        end = offsets[nxt] - 1 if nxt < len(lines) else len(noi_dung)
+        text = noi_dung[start:end].rstrip()
+        out.append(
+            {
+                "article": f"Điều {so}",
+                "text": text,
+                "chapter": chuong,
+                "section": muc,
+                "superseded": False,
+                "char_start": start,
+                "char_end": start + len(text),
+            }
+        )
+    return out
+
+
+# Nhãn vbpl chèn vào thân điều để đánh dấu điều khoản bị tác động. Bắt buộc có "được|bị":
+# "Điều khoản thi hành" là TIÊU ĐỀ ĐIỀU có thật (3 văn bản trong lô này có), lọc theo tiền tố
+# "Điều khoản" trần là ăn mất nội dung thật.
+_BADGE_LINE_RE = re.compile(r"^Điều khoản (được|bị)\s")
+# Sai của NGUỒN, chỉ báo chứ không sửa: thiếu dấu cách sau dấu chấm ("3.Dịch vụ thu hộ") làm
+# bộ tách khoản bỏ sót đúng khoản đó.
+_KHOAN_DINH_LIEN_RE = re.compile(r"^(\d+)\.(?=\S)")
+
+
+_FILE_NAME_RE = re.compile(r"\.(pdf|docx?|zip|rar|html?|xlsx?)$", re.I)
+_FILE_SIZE_RE = re.compile(r"^[\d.,]+\s*[KMG]?B$", re.I)
+# Tệp gốc nằm trên gateway của Bộ Tư pháp, không phải vbpl.vn. Mẫu URL này quan sát được từ
+# request mà chính trang phát ra khi mở tab "Văn bản gốc", và đã đối chứng trên văn bản khác.
+_FILE_GATEWAY = "https://vbpl-bientap-gateway.moj.gov.vn/api/qtdc/public/doc/minio/buckets/vbpl"
+
+
+def parse_file_leaves(leaves: list[str]) -> list[dict]:
+    """Danh sách text lá của tab "Tải về" → [{ten, kich_thuoc}] theo đúng thứ tự trang.
+
+    Trang không dùng thẻ <a>: tên tệp, dung lượng và ngày là 3 phần tử liền nhau. Lấy tên
+    trước rồi mới ngó sang phải tìm dung lượng, để một tệp không có dung lượng cũng không
+    làm lệch cả danh sách.
     """
     out: list[dict] = []
+    for i, t in enumerate(leaves):
+        if not _FILE_NAME_RE.search(t):
+            continue
+        size = next(
+            (s for s in leaves[i + 1 : i + 3] if _FILE_SIZE_RE.match(s)),
+            None,
+        )
+        out.append({"ten": t, "kich_thuoc": size})
+    return out
 
-    def label(cap: str, node: dict) -> str:
-        ten = {"chuong": "Chương", "muc": "Mục", "dieu": "Điều"}[cap]
-        head = f"{ten} {node['so']}" if node["so"] else ten
-        return f"{head}. {node['tieu_de']}".rstrip(". ") if node["tieu_de"] else head
 
-    def body(node: dict, depth: int = 0) -> list[str]:
-        lines = [node["text"]] if node["text"] else []
-        for kid in node["con"]:
-            lines += body(kid, depth + 1)
-        return lines
+def file_download_url(url: str, ten: str) -> str | None:
+    """URL tải tệp gốc, dựng từ id số trong URL chi tiết + tên tệp."""
+    doc_id = url.rstrip("/").rsplit("--", 1)[-1]
+    if not doc_id.isdigit():
+        return None
+    return f"{_FILE_GATEWAY}/{doc_id}/{quote(ten)}/download"
 
-    def walk(nodes: list[dict], chuong: str | None, muc: str | None) -> None:
-        for n in nodes:
-            if n["cap"] == "chuong":
-                walk(n["con"], label("chuong", n), None)
-            elif n["cap"] == "muc":
-                walk(n["con"], chuong, label("muc", n))
-            elif n["cap"] == "dieu":
-                out.append(
-                    {
-                        "article": f"Điều {n['so']}" if n["so"] else "Điều",
-                        "text": "\n".join(body(n)).strip(),
-                        "chapter": chuong,
-                        "section": muc,
-                        "superseded": False,
-                    }
+
+def strip_amend_noise(body: str) -> tuple[str, list[dict], list[str]]:
+    """Toàn văn thô → (toàn văn sạch, nhãn đã lọc, cảnh báo).
+
+    vbpl chèn vào trang hai thứ không thuộc văn bản: dòng nhãn đánh dấu điều khoản bị tác
+    động, và ở một số điều là cả BẢN SAO của chính các khoản đó. Cả hai lọt vào toàn văn và
+    thổi phồng số khoản.
+
+    Hai điều tuyệt đối không được làm:
+      - cắt mọi thứ từ dòng nhãn trở đi: ở nhiều điều nhãn chỉ là dấu đứng TRƯỚC khoản bị
+        sửa, và khoản đó là nội dung thật, chỉ xuất hiện một lần;
+      - khử hai dòng "gần giống": khác dù một ký tự thì rất có thể là bản cũ vs bản mới, giữ
+        cả hai và cảnh báo — chọn hộ là im lặng làm sai.
+    """
+    out: list[str] = []
+    labels: list[dict] = []
+    warnings: list[str] = []
+    dieu: str | None = None
+    seen_khoan: dict[str, str] = {}  # số khoản → text (trong Điều hiện tại)
+    seen_line: set[tuple[str, str]] = set()  # (phạm vi, text) đã gặp
+    khoan: str | None = None
+    pending: list[str] = []
+
+    def note(cap: str, so: str | None) -> None:
+        """Nhãn đứng trước đơn vị nào thì gắn vào đơn vị đó — đây là thông tin điều khoản bị
+        tác động, lọc khỏi toàn văn thì phải giữ lại ở chỗ khác chứ không được vứt."""
+        for nhan in pending:
+            labels.append({"dieu": dieu, "cap": cap, "so": so, "nhan": nhan})
+        pending.clear()
+
+    for line in body.split("\n"):
+        s = line.strip()
+        if _BADGE_LINE_RE.match(s):
+            pending.append(s)
+            continue
+
+        m = _TEXT_DIEU_RE.match(s)
+        if m:
+            dieu, khoan = m.group(1), None
+            seen_khoan, seen_line = {}, set()
+            note("dieu", dieu)
+            out.append(line)
+            continue
+
+        m = _TEXT_KHOAN_RE.match(s)
+        if m and dieu is not None:
+            so = m.group(1)
+            truoc = seen_khoan.get(so)
+            if truoc == s:  # lặp y hệt → bản sao vbpl chèn vào
+                note("khoan", so)
+                continue
+            if truoc is not None:
+                warnings.append(
+                    f"Điều {dieu}: khoản {so} xuất hiện 2 lần với nội dung KHÁC nhau — giữ cả "
+                    "hai, cần người đọc quyết bản nào là bản đang hiệu lực"
                 )
-            else:
-                walk(n["con"], chuong, muc)
+            seen_khoan[so] = s
+            khoan = so
+            note("khoan", so)
+            out.append(line)
+            continue
 
-    walk(tree, None, None)
+        m = _TEXT_DIEM_RE.match(s)
+        if m and dieu is not None:
+            # Điểm chỉ khử lặp TRONG cùng một khoản: "a)" ở khoản 1 và "a)" ở khoản 2 là hai
+            # điểm khác nhau, dù nội dung có thể ngắn và giống nhau.
+            key = (f"{dieu}#{khoan}", s)
+            if key in seen_line:
+                note("diem", m.group(1))
+                continue
+            seen_line.add(key)
+            note("diem", m.group(1))
+            out.append(line)
+            continue
+
+        if _KHOAN_DINH_LIEN_RE.match(s):
+            warnings.append(
+                f"nguồn thiếu dấu cách sau số khoản: {s[:60]!r} — giữ nguyên như nguồn, "
+                "bộ tách khoản sẽ không nhận ra dòng này"
+            )
+        note("khac", None)
+        out.append(line)
+
+    return "\n".join(out), labels, warnings
+
+
+def count_units(noi_dung: str) -> dict[str, int]:
+    """Đếm Điều/Khoản/Điểm trong THÂN văn bản — mốc đối chiếu cho cây điều khoản.
+
+    Điểm chỉ tính khi có Khoản cha: khoá định danh phía sau là `dieu_{n}#khoan_{m}#diem_{x}`,
+    một Điểm không có Khoản cha thì không có khoá nào để mang. Ca này xảy ra thật — khi khoản
+    cha nằm trong ngoặc kép (đoạn trích của văn bản sửa đổi) nên không nhận ra được.
+    """
+    out = {"dieu": 0, "khoan": 0, "diem": 0}
+    in_dieu = False
+    in_khoan = False
+    lines = noi_dung.split("\n")
+    for ln in lines[: _body_end(lines)]:
+        s = ln.strip()
+        if _TEXT_DIEU_RE.match(s):
+            out["dieu"] += 1
+            in_dieu, in_khoan = True, False
+        elif not in_dieu:
+            continue
+        elif _TEXT_KHOAN_RE.match(s):
+            out["khoan"] += 1
+            in_khoan = True
+        elif in_khoan and _TEXT_DIEM_RE.match(s):
+            out["diem"] += 1
+    return out
+
+
+def has_full_text(noi_dung: str) -> bool:
+    """Nguồn có đăng thân văn bản hay không — mốc là có ít nhất một dòng "Điều N.".
+
+    Cố tình KHÔNG đo bằng độ dài: trang chỉ có thuộc tính vẫn dài vài trăm ký tự.
+    """
+    return any(_TEXT_DIEU_RE.match(ln.strip()) for ln in noi_dung.split("\n"))
+
+
+def check_tree_coverage(tree: list[dict], noi_dung: str) -> list[str]:
+    """So số Khoản/Điểm trong cây với số đếm được từ toàn văn, trả danh sách cảnh báo.
+
+    Cây dựng từ DOM nên chỉ thấy phần có class `prov-*`; phần nằm trong khối sửa đổi thường
+    không có markup đó. Lệch là chuyện âm thầm — không có exception nào — nên phải đo.
+    """
+    have = count_provisions(tree)
+    want = count_units(noi_dung)
+    out = []
+    for cap, ten in (("dieu", "Điều"), ("khoan", "Khoản"), ("diem", "Điểm")):
+        got, exp = have.get(cap, 0), want[cap]
+        if got < exp:
+            out.append(f"cây điều khoản thiếu {exp - got} {ten} so với toàn văn ({got}/{exp})")
     return out
 
 
@@ -670,20 +962,47 @@ _DOC_TYPE_RE = re.compile(
 )
 
 
+def _ascii_upper(s: str) -> str:
+    """"NĐ-CP" → "NDCP": bỏ dấu, Đ→D, chỉ giữ chữ/số, viết hoa."""
+    s = s.replace("Đ", "D").replace("đ", "d")
+    s = unicodedata.normalize("NFKD", s)
+    return "".join(c for c in s if c.isalnum() and not unicodedata.combining(c)).upper()
+
+
+def doc_id_from_so_hieu(so_hieu: str) -> str:
+    """Số hiệu → doc_id theo đúng quy ước corpus: `<loại ASCII><số>-<năm>`.
+
+        15/2024/TT-NHNN → TT15-2024      101/2012/NĐ-CP → ND101-2012
+
+    Ký hiệu không có năm thì phần phân biệt là cơ quan: 29/VBHN-NHNN → VBHN29-NHNN.
+    Quy ước này đo từ 11 văn bản ngoại đang có trong corpus — sinh sai là tạo NODE THỨ HAI
+    cho cùng một văn bản, không phải chỉ đặt tên xấu.
+    """
+    parts = [p.strip() for p in so_hieu.split("/") if p.strip()]
+    if len(parts) < 2:
+        return _ascii_upper(so_hieu)
+    so = parts[0]
+    if len(parts) >= 3 and re.fullmatch(r"\d{4}", parts[1]):
+        loai, nam = parts[2], parts[1]
+        return f"{_ascii_upper(loai.split('-')[0])}{so}-{nam}"
+    loai, _, co_quan = parts[1].partition("-")
+    head = f"{_ascii_upper(loai)}{so}"
+    return f"{head}-{_ascii_upper(co_quan)}" if co_quan else head
+
+
 def to_corpus_document(doc: dict) -> dict:
     """Kết quả `dump` → JSON đúng dạng `CorpusDocument` để đưa vào luồng duyệt.
 
-    doc_id lấy từ Số hiệu (đã bỏ dấu "/"), vì đó là định danh người dùng tra cứu; thiếu
-    Số hiệu thì lùi về slug URL để không bao giờ sinh doc_id rỗng.
+    doc_id theo quy ước corpus (xem `doc_id_from_so_hieu`); thiếu Số hiệu thì lùi về slug
+    URL để không bao giờ sinh doc_id rỗng.
     """
     props = doc.get("thuoc_tinh") or {}
     so_hieu = (props.get("so_hieu") or "").strip()
-    doc_id = so_hieu.replace("/", "-") or _UUID_SUFFIX_RE.sub(
-        "", doc["url"].rstrip("/").rsplit("/", 1)[-1]
-    )[:60]
+    doc_id = doc_id_from_so_hieu(so_hieu) if so_hieu else slug_for(doc["url"])[:60]
     title = doc.get("title") or doc_id
     m = _DOC_TYPE_RE.match(props.get("loai_van_ban") or title)
     tree = doc.get("cay_dieu_khoan") or []
+    noi_dung = doc.get("noi_dung") or ""
 
     return {
         "doc_id": doc_id,
@@ -703,8 +1022,10 @@ def to_corpus_document(doc: dict) -> dict:
         or doc.get("trang_thai")
         or None,
         "source_url": doc.get("url"),
-        "source_files": [],
-        "articles": flatten_articles(tree),
+        "source_files": doc.get("tep_dinh_kem") or [],
+        "co_toan_van": bool(doc.get("co_toan_van", has_full_text(noi_dung))),
+        "canh_bao": list(doc.get("canh_bao") or []),
+        "articles": split_articles(noi_dung),
         "provisions": tree,
     }
 
@@ -835,6 +1156,8 @@ def extract_document(browser, url: str) -> dict:
         _open_tab(page, url, _TAB_LUOC_DO_URL, "VĂN BẢN ĐANG XEM")
         luoc_do_text = page.evaluate(_JS_MAIN_TEXT)
         relations = _resolve_relation_urls(page, page.evaluate(_JS_TAG_RELATIONS))
+
+        files = _read_attachments(page, url)
     finally:
         page.close()
 
@@ -844,32 +1167,125 @@ def extract_document(browser, url: str) -> dict:
             "trúc. Kiểm tra _PROP_KEYS trước khi dùng kết quả."
         )
 
-    body, status, valid_from = clean_body(main_text)
+    raw_body, status, valid_from = clean_body(main_text)
+    body, labels, warnings = strip_amend_noise(raw_body)
+    tree = build_provision_tree(prov_nodes)
+    luoc_do = group_relations(relations) if relations else parse_relations(luoc_do_text)
+
+    affected = [
+        {
+            "dieu": a["article"],
+            "phan_loai": sorted({classify_badge(b) for b in a["badges"]}),
+            "nhan": a["badges"],
+            "ma_type": a["type_code"],
+            "trich": " ".join(a["text"].split())[:400],
+        }
+        for a in amendments
+    ]
+    affected += _labels_not_in(affected, labels)
+
+    co_toan_van = has_full_text(body)
+    if not co_toan_van:
+        warnings.append(
+            "nguồn không đăng toàn văn (chỉ có thuộc tính/lược đồ) — toàn văn nhiều khả năng "
+            "chỉ nằm trong tệp đính kèm, cần tìm nguồn khác nếu muốn thân văn bản"
+        )
+    if not files:
+        warnings.append("tab Tải về không liệt kê tệp nào — không có bản gốc để đối chiếu")
+    warnings += check_tree_coverage(tree, body)
+    warnings += _source_quirks(luoc_do)
+
     return {
         "url": url,
         "title": title,
         "trang_thai": status,
         "ngay_hieu_luc": _iso_date(valid_from),
+        "co_toan_van": co_toan_van,
+        "canh_bao": warnings,
         # 3 dạng của cùng một nội dung: text thuần cho pipeline extract hiện có, HTML giữ
         # đúng định dạng web để hiển thị lại, và cây có cấu trúc cho KG.
         "noi_dung": body,
         "noi_dung_html": content_html,
-        "cay_dieu_khoan": build_provision_tree(prov_nodes),
+        "cay_dieu_khoan": tree,
         "thuoc_tinh": properties,
+        "tep_dinh_kem": files,
         # DOM cho cả URL đích; chỉ khi không bóc được mục nào mới lùi về đọc text thuần
         # (giữ được tiêu đề, mất URL).
-        "luoc_do": group_relations(relations) if relations else parse_relations(luoc_do_text),
-        "dieu_khoan_bi_tac_dong": [
-            {
-                "dieu": a["article"],
-                "phan_loai": sorted({classify_badge(b) for b in a["badges"]}),
-                "nhan": a["badges"],
-                "ma_type": a["type_code"],
-                "trich": " ".join(a["text"].split())[:400],
-            }
-            for a in amendments
-        ],
+        "luoc_do": luoc_do,
+        "dieu_khoan_bi_tac_dong": affected,
     }
+
+
+def _read_attachments(page, url: str) -> list[dict]:
+    """Tab "Tải về" → [{ten, kich_thuoc, url}]. Không mở được tab thì trả rỗng."""
+    try:
+        _open_tab(page, url, _TAB_TAI_VE_URL, "Tải về")
+        page.wait_for_function(
+            "() => /\\.(pdf|docx?|zip|rar)\\b/i.test("
+            "document.querySelector('main')?.innerText ?? '')",
+            timeout=20_000,
+        )
+    except Exception:  # noqa: BLE001 — không có tệp là chuyện bình thường, đã có cảnh báo
+        return []
+    return [
+        {**f, "url": file_download_url(url, f["ten"])}
+        for f in parse_file_leaves(page.evaluate(_JS_FILE_LEAVES))
+    ]
+
+
+def _labels_not_in(affected: list[dict], labels: list[dict]) -> list[dict]:
+    """Nhãn đã lọc khỏi toàn văn mà `dieu_khoan_bi_tac_dong` chưa có → bổ sung.
+
+    Nhãn là thông tin thật (vbpl đánh dấu điều khoản nào bị tác động); lọc nó khỏi thân văn
+    bản mà không giữ lại chỗ nào là mất dữ liệu.
+    """
+    have = {(a["dieu"], nhan) for a in affected for nhan in a["nhan"]}
+    out: dict[tuple, dict] = {}
+    for lb in labels:
+        dieu = f"Điều {lb['dieu']}" if lb["dieu"] else None
+        if (dieu, lb["nhan"]) in have:
+            continue
+        key = (dieu, lb["cap"], lb["so"])
+        item = out.setdefault(
+            key,
+            {
+                "dieu": dieu,
+                "cap": lb["cap"],
+                "so": lb["so"],
+                "phan_loai": [],
+                "nhan": [],
+                "ma_type": None,
+                "trich": "",
+                "tu_nhan_trong_toan_van": True,
+            },
+        )
+        if lb["nhan"] not in item["nhan"]:
+            item["nhan"].append(lb["nhan"])
+            item["phan_loai"] = sorted({classify_badge(b) for b in item["nhan"]})
+    return list(out.values())
+
+
+# Lỗi của NGUỒN — chỉ báo, KHÔNG tự sửa: chuẩn hoá im lặng ở tầng crawl thì phía sau không
+# còn cách nào biết nguồn đã sai.
+_QUIRK_SPACED_DASH_RE = re.compile(r"\b[A-ZĐ]{2,5}-\s+[A-ZĐ]{2,5}\b")
+_QUIRK_CYRILLIC_RE = re.compile(r"[Ѐ-ӿ]")
+
+
+def _source_quirks(luoc_do: dict) -> list[str]:
+    out: list[str] = []
+    for cats in luoc_do.values():
+        for items in cats.values():
+            for it in items:
+                title = it["title"] if isinstance(it, dict) else str(it)
+                if _QUIRK_SPACED_DASH_RE.search(title):
+                    out.append(f"nguồn thừa dấu cách trong số hiệu: {title[:70]!r}")
+                m = _QUIRK_CYRILLIC_RE.search(title)
+                if m:
+                    out.append(
+                        f"nguồn dùng ký tự Cyrillic {m.group()!r} (U+{ord(m.group()):04X}) "
+                        f"trong số hiệu: {title[:70]!r}"
+                    )
+    return out
 
 
 def fetch_document(url: str) -> dict:
@@ -881,6 +1297,16 @@ def fetch_document(url: str) -> dict:
 def slug_for(url: str) -> str:
     """Tên file cho một URL chi tiết: slug đã bỏ đuôi id/uuid, cắt còn 80 ký tự."""
     return _UUID_SUFFIX_RE.sub("", url.rstrip("/").rsplit("/", 1)[-1])[:80]
+
+
+# Hai artefact để RIÊNG thư mục: cùng nằm một chỗ thì glob `*.json` của luồng đọc bản ghi thô
+# sẽ nuốt luôn bản đã chuyển khuôn (và cả file báo cáo).
+def raw_path(out_dir: Path, slug: str) -> Path:
+    return out_dir / "raw" / f"{slug}.json"
+
+
+def corpus_path(out_dir: Path, slug: str) -> Path:
+    return out_dir / "corpus" / f"{slug}.json"
 
 
 def _iso_date(vn_date: str | None) -> str | None:
@@ -906,7 +1332,23 @@ def clean_body(main_text: str) -> tuple[str, str | None, str | None]:
     last_tai_ve = max((i for i, ln in enumerate(lines) if ln == "Tải về"), default=-1)
     body_lines = lines[last_tai_ve + 1 :] if last_tai_ve >= 0 else lines
     body = "\n".join(ln for ln in body_lines if ln and ln not in _NOISE_LINES)
+    if _looks_like_property_table(body):
+        # Trang không đăng thân văn bản; cái còn lại trong <main> là bảng thuộc tính. Trả về
+        # nó như thể là toàn văn thì phía sau không có cách nào biết — để rỗng và báo ra.
+        return "", status, valid_from
     return body, status, valid_from
+
+
+def _looks_like_property_table(body: str) -> bool:
+    """Thân văn bản rỗng nên phần đọc được chỉ là bảng thuộc tính (hay gặp ở văn bản hợp nhất).
+
+    Nhận diện bằng CẤU TRÚC — có nhãn của bảng thuộc tính mà không có dòng "Điều N." nào —
+    chứ không bằng độ dài: bảng thuộc tính vẫn dài vài trăm ký tự.
+    """
+    if has_full_text(body):
+        return False
+    lines = {ln.strip() for ln in body.split("\n")}
+    return len(lines & set(_PROP_KEYS)) >= 4
 
 
 def save_document(url: str, out_dir: Path) -> Path:
@@ -987,9 +1429,9 @@ def main(argv: list[str] | None = None) -> None:
         print(f"[vbpl] Đang tải 3 tab của {args.url} ...")
         doc = fetch_document(args.url)
         out_dir = Path(args.out)
-        out_dir.mkdir(parents=True, exist_ok=True)
         slug = slug_for(args.url)
-        out_path = out_dir / f"{slug}.json"
+        out_path = raw_path(out_dir, slug)
+        out_path.parent.mkdir(parents=True, exist_ok=True)
         out_path.write_text(
             json.dumps(doc, ensure_ascii=False, indent=1), encoding="utf-8"
         )
@@ -1000,7 +1442,14 @@ def main(argv: list[str] | None = None) -> None:
               f"{len(doc['noi_dung_html'])} ký tự HTML")
         print(f"[vbpl] Cây điều khoản: {count_provisions(doc['cay_dieu_khoan'])}")
         print(f"[vbpl] Thuộc tính : {len(doc['thuoc_tinh'])} trường")
+        print(f"[vbpl] Toàn văn   : {'có' if doc['co_toan_van'] else 'KHÔNG CÓ'} | "
+              f"{count_units(doc['noi_dung'])}")
+        print(f"[vbpl] Tệp đính kèm: {len(doc['tep_dinh_kem'])}")
+        for f in doc["tep_dinh_kem"]:
+            print(f"    - {f['ten']} ({f['kich_thuoc']})\n      {f['url']}")
         print(f"[vbpl] Điều khoản bị tác động: {n_amend} — {dict(kinds)}")
+        for w in doc["canh_bao"]:
+            print(f"[vbpl] CẢNH BÁO: {w}")
         print("[vbpl] Lược đồ:")
         n_url = 0
         for direction, cats in doc["luoc_do"].items():
@@ -1019,7 +1468,8 @@ def main(argv: list[str] | None = None) -> None:
 
         if args.corpus:
             cdoc = to_corpus_document(doc)
-            cpath = out_dir / f"{slug}.corpus.json"
+            cpath = corpus_path(out_dir, slug)
+            cpath.parent.mkdir(parents=True, exist_ok=True)
             cpath.write_text(
                 json.dumps(cdoc, ensure_ascii=False, indent=1), encoding="utf-8"
             )

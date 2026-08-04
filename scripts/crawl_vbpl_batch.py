@@ -24,9 +24,12 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from app.ingestion.vbpl import (  # noqa: E402
+    corpus_path,
     count_provisions,
+    count_units,
     extract_document,
     open_browser,
+    raw_path,
     slug_for,
     to_corpus_document,
 )
@@ -38,7 +41,9 @@ def read_urls(path: Path) -> list[str]:
     """URL theo thứ tự trong file, bỏ dòng trống / dòng `#` comment / URL trùng."""
     urls: list[str] = []
     seen: set[str] = set()
-    for lineno, raw in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+    # utf-8-sig: file sinh từ PowerShell/Notepad có BOM, đọc bằng utf-8 thuần thì dòng đầu
+    # dính ﻿ và không còn khớp "http".
+    for lineno, raw in enumerate(path.read_text(encoding="utf-8-sig").splitlines(), 1):
         line = raw.strip()
         if not line or line.startswith("#"):
             continue
@@ -59,26 +64,20 @@ def crawl_one(browser, url: str, out_dir: Path, corpus: bool) -> dict:
     """Cào 1 URL, ghi file, trả về thống kê ngắn để in ra và đưa vào báo cáo."""
     doc = extract_document(browser, url)
     slug = slug_for(url)
-    (out_dir / f"{slug}.json").write_text(
-        json.dumps(doc, ensure_ascii=False, indent=1), encoding="utf-8"
-    )
-
-    # Có văn bản (hay gặp ở văn bản hợp nhất) chỉ đăng thuộc tính + lược đồ, toàn văn nằm
-    # trong file đính kèm. Vẫn ghi kết quả — nhưng phải nói ra, đừng báo OK như văn bản đủ.
-    warnings: list[str] = []
-    if not doc["noi_dung_html"] or not doc["cay_dieu_khoan"]:
-        warnings.append(
-            "không có toàn văn trên vbpl (chỉ thuộc tính/lược đồ) — nhiều khả năng "
-            "toàn văn chỉ nằm trong file đính kèm"
-        )
+    path = raw_path(out_dir, slug)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(doc, ensure_ascii=False, indent=1), encoding="utf-8")
 
     stat = {
-        "canh_bao": warnings,
+        "canh_bao": doc["canh_bao"],
+        "co_toan_van": doc["co_toan_van"],
         "slug": slug,
         "title": doc["title"],
         "trang_thai": doc["trang_thai"],
         "so_ky_tu": len(doc["noi_dung"]),
+        "toan_van": count_units(doc["noi_dung"]),
         "cay_dieu_khoan": count_provisions(doc["cay_dieu_khoan"]),
+        "so_tep_dinh_kem": len(doc["tep_dinh_kem"]),
         "so_dieu_bi_tac_dong": len(doc["dieu_khoan_bi_tac_dong"]),
         "so_van_ban_lien_quan": sum(
             len(items) for cats in doc["luoc_do"].values() for items in cats.values()
@@ -86,9 +85,9 @@ def crawl_one(browser, url: str, out_dir: Path, corpus: bool) -> dict:
     }
     if corpus:
         cdoc = to_corpus_document(doc)
-        (out_dir / f"{slug}.corpus.json").write_text(
-            json.dumps(cdoc, ensure_ascii=False, indent=1), encoding="utf-8"
-        )
+        cpath = corpus_path(out_dir, slug)
+        cpath.parent.mkdir(parents=True, exist_ok=True)
+        cpath.write_text(json.dumps(cdoc, ensure_ascii=False, indent=1), encoding="utf-8")
         stat["doc_id"] = cdoc["doc_id"]
         stat["so_dieu"] = len(cdoc["articles"])
     return stat
@@ -126,7 +125,7 @@ def main() -> None:
     with open_browser() as browser:
         for i, url in enumerate(urls, 1):
             slug = slug_for(url)
-            if not args.force and (args.out / f"{slug}.json").exists():
+            if not args.force and raw_path(args.out, slug).exists():
                 print(f"[{i}/{len(urls)}] bỏ qua (đã có): {slug}")
                 skipped.append(url)
                 continue
@@ -152,10 +151,11 @@ def main() -> None:
                 stat["url"] = url
                 stat["giay"] = round(time.monotonic() - started, 1)
                 done.append(stat)
+                tv = stat["toan_van"]
                 print(
-                    f"      OK {stat['giay']}s — {stat['so_ky_tu']} ký tự | "
-                    f"{stat['cay_dieu_khoan']} | {stat['so_dieu_bi_tac_dong']} điều bị tác động | "
-                    f"{stat['so_van_ban_lien_quan']} VB liên quan"
+                    f"      OK {stat['giay']}s — {tv['dieu']} điều / {tv['khoan']} khoản / "
+                    f"{tv['diem']} điểm | cây {stat['cay_dieu_khoan']} | "
+                    f"{stat['so_tep_dinh_kem']} tệp | {stat['so_van_ban_lien_quan']} VB liên quan"
                     + (f" | doc_id={stat['doc_id']}" if corpus else "")
                 )
                 for w in stat["canh_bao"]:
@@ -171,10 +171,12 @@ def main() -> None:
     flagged = [d for d in done if d["canh_bao"]]
     print(
         f"\n[batch] Xong: {len(done)} cào mới, {len(skipped)} bỏ qua, {len(failed)} hỏng"
-        + (f", {len(flagged)} thiếu toàn văn." if flagged else ".")
+        + (f", {len(flagged)} có cảnh báo." if flagged else ".")
     )
     for d in flagged:
-        print(f"    THIẾU TOÀN VĂN {d['slug']}")
+        print(f"    {d['slug']}")
+        for w in d["canh_bao"]:
+            print(f"       - {w}")
     for f in failed:
         print(f"    HỎNG {f['url']}\n         {f['error'][:150]}")
     report_path.write_text(

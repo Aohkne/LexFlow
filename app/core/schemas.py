@@ -76,6 +76,10 @@ class Article(BaseModel):
     # Nhãn phân cấp phẳng (không dựng cây) — hiển thị heading trong trình xem
     chapter: str | None = None  # ví dụ "Chương II. Mở và sử dụng tài khoản thanh toán"
     section: str | None = None  # ví dụ "Mục 1. Mở tài khoản"
+    # Vị trí của `text` trong toàn văn nguồn: `noi_dung[char_start:char_end] == text`.
+    # Cho phép phía sau neo trích dẫn ở mức ký tự về đúng bản gốc.
+    char_start: int | None = None
+    char_end: int | None = None
 
 
 class Provision(BaseModel):
@@ -103,6 +107,10 @@ class CorpusDocument(DocumentMeta):
 
     articles: list[Article] = Field(default_factory=list)
     provisions: list[Provision] = Field(default_factory=list)
+    # Nguồn có đăng toàn văn hay không. `False` = chỉ có thuộc tính/lược đồ (hay gặp ở văn
+    # bản hợp nhất): `articles` rỗng vì KHÔNG CÓ, chứ không phải vì bóc hỏng.
+    co_toan_van: bool = True
+    canh_bao: list[str] = Field(default_factory=list)
 
 
 # --- API models ---

@@ -10,7 +10,6 @@ from app.ingestion.vbpl import (
     count_provisions,
     group_relations,
     parse_property_rows,
-    flatten_articles,
     parse_relations,
     sanitize_inline,
     split_heading,
@@ -307,23 +306,7 @@ def test_build_provision_tree_on_empty_input():
     assert build_provision_tree([]) == []
 
 
-# --- cay -> Article phang + CorpusDocument ---
-
-def test_flatten_articles_gan_nhan_chuong_muc():
-    arts = flatten_articles(build_provision_tree(PROV_NODES))
-    assert [a["article"] for a in arts] == ["Điều 1", "Điều 2", "Điều 3"]
-    assert arts[0]["chapter"] == "Chương I. QUY ĐỊNH CHUNG"
-    assert arts[0]["section"] is None
-    assert arts[2]["chapter"] == "Chương II"          # chương không có tiêu đề
-
-
-def test_flatten_articles_gop_ca_khoan_va_diem_vao_text():
-    arts = flatten_articles(build_provision_tree(PROV_NODES))
-    dieu2 = arts[1]["text"]
-    assert "Tổ chức cung ứng dịch vụ thanh toán." in dieu2       # khoản 1
-    assert "Ngân hàng thương mại." in dieu2                       # điểm a nằm dưới khoản 2
-    assert dieu2.index("Ngân hàng, chi nhánh") < dieu2.index("Ngân hàng thương mại.")
-
+# --- CorpusDocument ---
 
 def test_to_corpus_document_lay_doc_id_tu_so_hieu():
     doc = to_corpus_document({
@@ -340,13 +323,14 @@ def test_to_corpus_document_lay_doc_id_tu_so_hieu():
             "tinh_trang_hieu_luc": "Hết hiệu lực một phần",
         },
         "cay_dieu_khoan": build_provision_tree(PROV_NODES),
+        "noi_dung": "Điều 1. Phạm vi\nnội dung\nĐiều 2. Đối tượng\n1. Tổ chức.",
     })
-    assert doc["doc_id"] == "15-2024-TT-NHNN"       # "/" không dùng được trong URL path
+    assert doc["doc_id"] == "TT15-2024"             # đúng quy ước corpus
     assert doc["doc_type"] == "Thông tư"
     assert doc["ngay_ban_hanh"] == "2024-06-28"     # dd/mm/yyyy -> ISO
     assert doc["valid_to"] is None                  # "" nghĩa là chưa hết hiệu lực
     assert doc["source_url"].startswith("https://vbpl.vn/")
-    assert len(doc["articles"]) == 3 and len(doc["provisions"]) == 2
+    assert len(doc["articles"]) == 2 and len(doc["provisions"]) == 2
 
 
 def test_to_corpus_document_thieu_so_hieu_thi_lui_ve_slug():
