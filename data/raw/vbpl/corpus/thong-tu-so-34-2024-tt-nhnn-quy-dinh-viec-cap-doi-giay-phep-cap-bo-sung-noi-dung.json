@@ -33,7 +33,7 @@
  ],
  "co_toan_van": true,
  "canh_bao": [
-  "cây điều khoản thiếu 1 Điểm so với toàn văn (98/99)"
+  "lệch Điểm giữa cây điều khoản và toàn văn: cây 98, toàn văn 99 — chưa biết bên nào đúng, phải soi DOM (nguồn có khi bỏ markup một dòng khiến cây thiếu, có khi render khối sửa đổi 2 lần khiến toàn văn dư)"
  ],
  "articles": [
   {
