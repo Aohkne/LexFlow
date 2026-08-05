@@ -28,8 +28,7 @@
  ],
  "co_toan_van": true,
  "canh_bao": [
-  "nguồn thiếu dấu cách sau số khoản: '1.Việc nạp tiền vào ví điện tử được thực hiện thông qua:' — giữ nguyên như nguồn, bộ tách khoản sẽ không nhận ra dòng này",
-  "cây điều khoản thiếu 4 Khoản so với toàn văn (189/193)"
+  "nguồn thiếu dấu cách sau số khoản: '1.Việc nạp tiền vào ví điện tử được thực hiện thông qua:' — giữ nguyên như nguồn, bộ tách khoản sẽ không nhận ra dòng này"
  ],
  "articles": [
   {
@@ -2144,172 +2143,186 @@
        "con": [
         {
          "id": null,
-         "cap": "diem",
-         "so": "a",
+         "cap": "khoan",
+         "so": "1",
          "tieu_de": "",
-         "text": "Số văn bản (nếu có), thời điểm (ngày, tháng, năm) lập thỏa thuận;",
-         "html": "a) Số văn bản (nếu có), thời điểm (ngày, tháng, năm) lập thỏa thuận;",
+         "text": "Thỏa thuận mở và sử dụng ví điện tử giữa tổ chức cung ứng dịch vụ ví điện tử và khách hàng phải bao gồm tối thiểu các nội dung sau đây:",
+         "html": "",
          "bi_tac_dong": [
           "sua_doi_bo_sung"
          ],
          "an": false,
-         "con": []
-        },
-        {
-         "id": null,
-         "cap": "diem",
-         "so": "b",
-         "tieu_de": "",
-         "text": "Tên tổ chức cung ứng dịch vụ ví điện tử;",
-         "html": "b) Tên tổ chức cung ứng dịch vụ ví điện tử;",
-         "bi_tac_dong": [
-          "sua_doi_bo_sung"
-         ],
-         "an": false,
-         "con": []
-        },
-        {
-         "id": null,
-         "cap": "diem",
-         "so": "c",
-         "tieu_de": "",
-         "text": "Thông tin về khách hàng mở ví điện tử theo quy định tại Điều 20 Thông tư này;",
-         "html": "c) Thông tin về khách hàng mở ví điện tử theo quy định tại Điều 20 Thông tư này;",
-         "bi_tac_dong": [
-          "sua_doi_bo_sung"
-         ],
-         "an": false,
-         "con": []
-        },
-        {
-         "id": null,
-         "cap": "diem",
-         "so": "d",
-         "tieu_de": "",
-         "text": "Quyền, trách nhiệm cụ thể của các bên;",
-         "html": "d) Quyền, trách nhiệm cụ thể của các bên;",
-         "bi_tac_dong": [
-          "sua_doi_bo_sung"
-         ],
-         "an": false,
-         "con": []
-        },
-        {
-         "id": null,
-         "cap": "diem",
-         "so": "đ",
-         "tieu_de": "",
-         "text": "Quy định về các loại phí, mức phí, cách thức thu phí, việc điều chỉnh phí trong mở, sử dụng ví điện tử;",
-         "html": "đ) Quy định về các loại phí, mức phí, cách thức thu phí, việc điều chỉnh phí trong mở, sử dụng ví điện tử;",
-         "bi_tac_dong": [
-          "sua_doi_bo_sung"
-         ],
-         "an": false,
-         "con": []
-        },
-        {
-         "id": null,
-         "cap": "diem",
-         "so": "e",
-         "tieu_de": "",
-         "text": "Việc sử dụng ví điện tử gồm:",
-         "html": "e) Việc sử dụng ví điện tử gồm:",
-         "bi_tac_dong": [
-          "sua_doi_bo_sung"
-         ],
-         "an": false,
-         "con": []
-        },
-        {
-         "id": null,
-         "cap": "diem",
-         "so": "g",
-         "tieu_de": "",
-         "text": "Các quy định đối với việc liên kết ví điện tử với tài khoản đồng Việt Nam hoặc thẻ ghi nợ của chủ ví điện tử tại ngân hàng liên kết;",
-         "html": "g) Các quy định đối với việc liên kết ví điện tử với tài khoản đồng Việt Nam hoặc thẻ ghi nợ của chủ ví điện tử tại ngân hàng liên kết;",
-         "bi_tac_dong": [
-          "sua_doi_bo_sung"
-         ],
-         "an": false,
-         "con": []
-        },
-        {
-         "id": null,
-         "cap": "diem",
-         "so": "h",
-         "tieu_de": "",
-         "text": "Các trường hợp đóng ví điện tử và xử lý số dư còn lại khi đóng ví điện tử, bao gồm:",
-         "html": "h) Các trường hợp đóng ví điện tử và xử lý số dư còn lại khi đóng ví điện tử, bao gồm:",
-         "bi_tac_dong": [
-          "sua_doi_bo_sung"
-         ],
-         "an": false,
-         "con": []
-        },
-        {
-         "id": null,
-         "cap": "diem",
-         "so": "i",
-         "tieu_de": "",
-         "text": "Việc cung cấp thông tin và hình thức thông báo cho chủ ví điện tử biết về: số dư và các giao dịch phát sinh trên ví điện tử; việc ví điện tử bị đóng; thời điểm hết hạn hiệu lực, hạn sử dụng của giấy tờ tùy thân trong hồ sơ mở ví điện tử và các thông tin cần thiết khác trong quá trình sử dụng ví điện tử;",
-         "html": "i) Việc cung cấp thông tin và hình thức thông báo cho chủ ví điện tử biết về: số dư và các giao dịch phát sinh trên ví điện tử; việc ví điện tử bị đóng; thời điểm hết hạn hiệu lực, hạn sử dụng của giấy tờ tùy thân trong hồ sơ mở ví điện tử và các thông tin cần thiết khác trong quá trình sử dụng ví điện tử;",
-         "bi_tac_dong": [
-          "sua_doi_bo_sung"
-         ],
-         "an": false,
-         "con": []
-        },
-        {
-         "id": null,
-         "cap": "diem",
-         "so": "k",
-         "tieu_de": "",
-         "text": "Phương thức tiếp nhận đề nghị tra soát, khiếu nại; thời hạn xử lý đề nghị tra soát, khiếu nại và việc xử lý kết quả tra soát, khiếu nại theo quy định của Ngân hàng Nhà nước về cung ứng dịch vụ thanh toán không dùng tiền mặt;",
-         "html": "k) Phương thức tiếp nhận đề nghị tra soát, khiếu nại; thời hạn xử lý đề nghị tra soát, khiếu nại và việc xử lý kết quả tra soát, khiếu nại theo quy định của Ngân hàng Nhà nước về cung ứng dịch vụ thanh toán không dùng tiền mặt;",
-         "bi_tac_dong": [
-          "sua_doi_bo_sung"
-         ],
-         "an": false,
-         "con": []
-        },
-        {
-         "id": null,
-         "cap": "diem",
-         "so": "l",
-         "tieu_de": "",
-         "text": "Việc thực hiện các biện pháp quản lý rủi ro, đảm bảo an toàn, bảo mật trong sử dụng ví điện tử, trong đó bao gồm: các trường hợp xác minh lại thông tin nhận biết khách hàng và việc từ chối thực hiện giao dịch hoặc tạm dừng thực hiện các giao dịch trên ví điện tử phù hợp với quy định tại Điều 28 Thông tư này;",
-         "html": "l) Việc thực hiện các biện pháp quản lý rủi ro, đảm bảo an toàn, bảo mật trong sử dụng ví điện tử, trong đó bao gồm: các trường hợp xác minh lại thông tin nhận biết khách hàng và việc từ chối thực hiện giao dịch hoặc tạm dừng thực hiện các giao dịch trên ví điện tử phù hợp với quy định tại Điều 28 Thông tư này;",
-         "bi_tac_dong": [
-          "sua_doi_bo_sung"
-         ],
-         "an": false,
-         "con": []
-        },
-        {
-         "id": null,
-         "cap": "diem",
-         "so": "m",
-         "tieu_de": "",
-         "text": "Việc xử lý dữ liệu cá nhân của khách hàng hoặc dữ liệu cá nhân do khách hàng cung cấp, việc cung cấp thông tin cho bên thứ ba nhằm phục vụ việc cung ứng dịch vụ thanh toán cho khách hàng, xử lý các trường hợp nghi ngờ gian lận, giả mạo, vi phạm quy định pháp luật;",
-         "html": "m) Việc xử lý dữ liệu cá nhân của khách hàng hoặc dữ liệu cá nhân do khách hàng cung cấp, việc cung cấp thông tin cho bên thứ ba nhằm phục vụ việc cung ứng dịch vụ thanh toán cho khách hàng, xử lý các trường hợp nghi ngờ gian lận, giả mạo, vi phạm quy định pháp luật;",
-         "bi_tac_dong": [
-          "sua_doi_bo_sung"
-         ],
-         "an": false,
-         "con": []
-        },
-        {
-         "id": null,
-         "cap": "diem",
-         "so": "n",
-         "tieu_de": "",
-         "text": "Các trường hợp cung cấp thông tin bao gồm:",
-         "html": "n) Các trường hợp cung cấp thông tin bao gồm:",
-         "bi_tac_dong": [
-          "sua_doi_bo_sung"
-         ],
-         "an": false,
-         "con": []
+         "con": [
+          {
+           "id": null,
+           "cap": "diem",
+           "so": "a",
+           "tieu_de": "",
+           "text": "Số văn bản (nếu có), thời điểm (ngày, tháng, năm) lập thỏa thuận;",
+           "html": "a) Số văn bản (nếu có), thời điểm (ngày, tháng, năm) lập thỏa thuận;",
+           "bi_tac_dong": [
+            "sua_doi_bo_sung"
+           ],
+           "an": false,
+           "con": []
+          },
+          {
+           "id": null,
+           "cap": "diem",
+           "so": "b",
+           "tieu_de": "",
+           "text": "Tên tổ chức cung ứng dịch vụ ví điện tử;",
+           "html": "b) Tên tổ chức cung ứng dịch vụ ví điện tử;",
+           "bi_tac_dong": [
+            "sua_doi_bo_sung"
+           ],
+           "an": false,
+           "con": []
+          },
+          {
+           "id": null,
+           "cap": "diem",
+           "so": "c",
+           "tieu_de": "",
+           "text": "Thông tin về khách hàng mở ví điện tử theo quy định tại Điều 20 Thông tư này;",
+           "html": "c) Thông tin về khách hàng mở ví điện tử theo quy định tại Điều 20 Thông tư này;",
+           "bi_tac_dong": [
+            "sua_doi_bo_sung"
+           ],
+           "an": false,
+           "con": []
+          },
+          {
+           "id": null,
+           "cap": "diem",
+           "so": "d",
+           "tieu_de": "",
+           "text": "Quyền, trách nhiệm cụ thể của các bên;",
+           "html": "d) Quyền, trách nhiệm cụ thể của các bên;",
+           "bi_tac_dong": [
+            "sua_doi_bo_sung"
+           ],
+           "an": false,
+           "con": []
+          },
+          {
+           "id": null,
+           "cap": "diem",
+           "so": "đ",
+           "tieu_de": "",
+           "text": "Quy định về các loại phí, mức phí, cách thức thu phí, việc điều chỉnh phí trong mở, sử dụng ví điện tử;",
+           "html": "đ) Quy định về các loại phí, mức phí, cách thức thu phí, việc điều chỉnh phí trong mở, sử dụng ví điện tử;",
+           "bi_tac_dong": [
+            "sua_doi_bo_sung"
+           ],
+           "an": false,
+           "con": []
+          },
+          {
+           "id": null,
+           "cap": "diem",
+           "so": "e",
+           "tieu_de": "",
+           "text": "Việc sử dụng ví điện tử gồm:",
+           "html": "e) Việc sử dụng ví điện tử gồm:",
+           "bi_tac_dong": [
+            "sua_doi_bo_sung"
+           ],
+           "an": false,
+           "con": []
+          },
+          {
+           "id": null,
+           "cap": "diem",
+           "so": "g",
+           "tieu_de": "",
+           "text": "Các quy định đối với việc liên kết ví điện tử với tài khoản đồng Việt Nam hoặc thẻ ghi nợ của chủ ví điện tử tại ngân hàng liên kết;",
+           "html": "g) Các quy định đối với việc liên kết ví điện tử với tài khoản đồng Việt Nam hoặc thẻ ghi nợ của chủ ví điện tử tại ngân hàng liên kết;",
+           "bi_tac_dong": [
+            "sua_doi_bo_sung"
+           ],
+           "an": false,
+           "con": []
+          },
+          {
+           "id": null,
+           "cap": "diem",
+           "so": "h",
+           "tieu_de": "",
+           "text": "Các trường hợp đóng ví điện tử và xử lý số dư còn lại khi đóng ví điện tử, bao gồm:",
+           "html": "h) Các trường hợp đóng ví điện tử và xử lý số dư còn lại khi đóng ví điện tử, bao gồm:",
+           "bi_tac_dong": [
+            "sua_doi_bo_sung"
+           ],
+           "an": false,
+           "con": []
+          },
+          {
+           "id": null,
+           "cap": "diem",
+           "so": "i",
+           "tieu_de": "",
+           "text": "Việc cung cấp thông tin và hình thức thông báo cho chủ ví điện tử biết về: số dư và các giao dịch phát sinh trên ví điện tử; việc ví điện tử bị đóng; thời điểm hết hạn hiệu lực, hạn sử dụng của giấy tờ tùy thân trong hồ sơ mở ví điện tử và các thông tin cần thiết khác trong quá trình sử dụng ví điện tử;",
+           "html": "i) Việc cung cấp thông tin và hình thức thông báo cho chủ ví điện tử biết về: số dư và các giao dịch phát sinh trên ví điện tử; việc ví điện tử bị đóng; thời điểm hết hạn hiệu lực, hạn sử dụng của giấy tờ tùy thân trong hồ sơ mở ví điện tử và các thông tin cần thiết khác trong quá trình sử dụng ví điện tử;",
+           "bi_tac_dong": [
+            "sua_doi_bo_sung"
+           ],
+           "an": false,
+           "con": []
+          },
+          {
+           "id": null,
+           "cap": "diem",
+           "so": "k",
+           "tieu_de": "",
+           "text": "Phương thức tiếp nhận đề nghị tra soát, khiếu nại; thời hạn xử lý đề nghị tra soát, khiếu nại và việc xử lý kết quả tra soát, khiếu nại theo quy định của Ngân hàng Nhà nước về cung ứng dịch vụ thanh toán không dùng tiền mặt;",
+           "html": "k) Phương thức tiếp nhận đề nghị tra soát, khiếu nại; thời hạn xử lý đề nghị tra soát, khiếu nại và việc xử lý kết quả tra soát, khiếu nại theo quy định của Ngân hàng Nhà nước về cung ứng dịch vụ thanh toán không dùng tiền mặt;",
+           "bi_tac_dong": [
+            "sua_doi_bo_sung"
+           ],
+           "an": false,
+           "con": []
+          },
+          {
+           "id": null,
+           "cap": "diem",
+           "so": "l",
+           "tieu_de": "",
+           "text": "Việc thực hiện các biện pháp quản lý rủi ro, đảm bảo an toàn, bảo mật trong sử dụng ví điện tử, trong đó bao gồm: các trường hợp xác minh lại thông tin nhận biết khách hàng và việc từ chối thực hiện giao dịch hoặc tạm dừng thực hiện các giao dịch trên ví điện tử phù hợp với quy định tại Điều 28 Thông tư này;",
+           "html": "l) Việc thực hiện các biện pháp quản lý rủi ro, đảm bảo an toàn, bảo mật trong sử dụng ví điện tử, trong đó bao gồm: các trường hợp xác minh lại thông tin nhận biết khách hàng và việc từ chối thực hiện giao dịch hoặc tạm dừng thực hiện các giao dịch trên ví điện tử phù hợp với quy định tại Điều 28 Thông tư này;",
+           "bi_tac_dong": [
+            "sua_doi_bo_sung"
+           ],
+           "an": false,
+           "con": []
+          },
+          {
+           "id": null,
+           "cap": "diem",
+           "so": "m",
+           "tieu_de": "",
+           "text": "Việc xử lý dữ liệu cá nhân của khách hàng hoặc dữ liệu cá nhân do khách hàng cung cấp, việc cung cấp thông tin cho bên thứ ba nhằm phục vụ việc cung ứng dịch vụ thanh toán cho khách hàng, xử lý các trường hợp nghi ngờ gian lận, giả mạo, vi phạm quy định pháp luật;",
+           "html": "m) Việc xử lý dữ liệu cá nhân của khách hàng hoặc dữ liệu cá nhân do khách hàng cung cấp, việc cung cấp thông tin cho bên thứ ba nhằm phục vụ việc cung ứng dịch vụ thanh toán cho khách hàng, xử lý các trường hợp nghi ngờ gian lận, giả mạo, vi phạm quy định pháp luật;",
+           "bi_tac_dong": [
+            "sua_doi_bo_sung"
+           ],
+           "an": false,
+           "con": []
+          },
+          {
+           "id": null,
+           "cap": "diem",
+           "so": "n",
+           "tieu_de": "",
+           "text": "Các trường hợp cung cấp thông tin bao gồm:",
+           "html": "n) Các trường hợp cung cấp thông tin bao gồm:",
+           "bi_tac_dong": [
+            "sua_doi_bo_sung"
+           ],
+           "an": false,
+           "con": []
+          }
+         ]
         },
         {
          "id": "id_87abfee4-2c83-11f1-bd8b-a1c853b5d7f9",
@@ -3169,6 +3182,19 @@
          "html": "",
          "bi_tac_dong": [
           "sua_doi_bo_sung"
+         ],
+         "an": false,
+         "con": []
+        },
+        {
+         "id": null,
+         "cap": "khoan",
+         "so": "2",
+         "tieu_de": "",
+         "text": "Quy định tại khoản 1 Điều này không áp dụng đối với:",
+         "html": "",
+         "bi_tac_dong": [
+          "bai_bo"
          ],
          "an": false,
          "con": [
@@ -4381,107 +4407,121 @@
      "con": [
       {
        "id": null,
-       "cap": "diem",
-       "so": "a",
+       "cap": "khoan",
+       "so": "1",
        "tieu_de": "",
-       "text": "Thực hiện lệnh thanh toán của chủ ví điện tử sau khi đã kiểm tra, kiểm soát tính hợp pháp, hợp lệ của lệnh thanh toán;",
-       "html": "a) Thực hiện lệnh thanh toán của chủ ví điện tử sau khi đã kiểm tra, kiểm soát tính hợp pháp, hợp lệ của lệnh thanh toán;",
+       "text": "Đối với khách hàng:",
+       "html": "",
        "bi_tac_dong": [
         "sua_doi_bo_sung"
        ],
        "an": false,
-       "con": []
-      },
-      {
-       "id": null,
-       "cap": "diem",
-       "so": "b",
-       "tieu_de": "",
-       "text": "Lưu giữ và cập nhật đầy đủ các mẫu chữ ký, mẫu dấu (nếu có) của khách hàng đã đăng ký để kiểm tra, đối chiếu trong quá trình sử dụng ví điện tử;",
-       "html": "b) Lưu giữ và cập nhật đầy đủ các mẫu chữ ký, mẫu dấu (nếu có) của khách hàng đã đăng ký để kiểm tra, đối chiếu trong quá trình sử dụng ví điện tử;",
-       "bi_tac_dong": [
-        "sua_doi_bo_sung"
-       ],
-       "an": false,
-       "con": []
-      },
-      {
-       "id": null,
-       "cap": "diem",
-       "so": "c",
-       "tieu_de": "",
-       "text": "Kịp thời ghi Có vào ví điện tử của khách hàng các lệnh thanh toán chuyển tiền đến, nạp tiền vào ví điện tử; hoàn trả các khoản tiền do sai sót đã ghi Nợ đối với ví điện tử của khách hàng; phối hợp hoàn trả các khoản tiền đã được xác định chuyển nhầm vào ví điện tử của khách hàng theo đề nghị của tổ chức cung ứng dịch vụ ví điện tử, ngân hàng, chi nhánh ngân hàng nước ngoài thực hiện lệnh chuyển tiền;",
-       "html": "c) Kịp thời ghi Có vào ví điện tử của khách hàng các lệnh thanh toán chuyển tiền đến, nạp tiền vào ví điện tử; hoàn trả các khoản tiền do sai sót đã ghi Nợ đối với ví điện tử của khách hàng; phối hợp hoàn trả các khoản tiền đã được xác định chuyển nhầm vào ví điện tử của khách hàng theo đề nghị của tổ chức cung ứng dịch vụ ví điện tử, ngân hàng, chi nhánh ngân hàng nước ngoài thực hiện lệnh chuyển tiền;",
-       "bi_tac_dong": [
-        "sua_doi_bo_sung"
-       ],
-       "an": false,
-       "con": []
-      },
-      {
-       "id": null,
-       "cap": "diem",
-       "so": "d",
-       "tieu_de": "",
-       "text": "Thông tin đầy đủ, kịp thời cho chủ ví điện tử về số dư, các giao dịch, chứng từ của các giao dịch phát sinh trên ví điện tử và chịu trách nhiệm về tính chính xác đối với những thông tin mà mình cung cấp;",
-       "html": "d) Thông tin đầy đủ, kịp thời cho chủ ví điện tử về số dư, các giao dịch, chứng từ của các giao dịch phát sinh trên ví điện tử và chịu trách nhiệm về tính chính xác đối với những thông tin mà mình cung cấp;",
-       "bi_tac_dong": [
-        "sua_doi_bo_sung"
-       ],
-       "an": false,
-       "con": []
-      },
-      {
-       "id": null,
-       "cap": "diem",
-       "so": "đ",
-       "tieu_de": "",
-       "text": "Cập nhật thông tin khách hàng định kỳ hoặc khi khách hàng thông báo thay đổi thông tin trong hồ sơ mở ví điện tử và kịp thời cập nhật, xác minh thông tin nhận biết khách hàng khi xác định khách hàng có mức độ rủi ro cao theo tiêu chí do tổ chức cung ứng dịch vụ ví điện tử ban hành; bảo quản lưu trữ hồ sơ ví điện tử và các chứng từ giao dịch qua ví điện tử theo đúng quy định của pháp luật;",
-       "html": "đ) Cập nhật thông tin khách hàng định kỳ hoặc khi khách hàng thông báo thay đổi thông tin trong hồ sơ mở ví điện tử và kịp thời cập nhật, xác minh thông tin nhận biết khách hàng khi xác định khách hàng có mức độ rủi ro cao theo tiêu chí do tổ chức cung ứng dịch vụ ví điện tử ban hành; bảo quản lưu trữ hồ sơ ví điện tử và các chứng từ giao dịch qua ví điện tử theo đúng quy định của pháp luật;",
-       "bi_tac_dong": [
-        "sua_doi_bo_sung"
-       ],
-       "an": false,
-       "con": []
-      },
-      {
-       "id": null,
-       "cap": "diem",
-       "so": "e",
-       "tieu_de": "",
-       "text": "Bảo mật các thông tin, dữ liệu cá nhân của khách hàng hoặc dữ liệu cá nhân do khách hàng cung cấp, các thông tin liên quan đến ví điện tử và các giao dịch trên ví điện tử của khách hàng theo quy định của pháp luật;",
-       "html": "e) Bảo mật các thông tin, dữ liệu cá nhân của khách hàng hoặc dữ liệu cá nhân do khách hàng cung cấp, các thông tin liên quan đến ví điện tử và các giao dịch trên ví điện tử của khách hàng theo quy định của pháp luật;",
-       "bi_tac_dong": [
-        "sua_doi_bo_sung"
-       ],
-       "an": false,
-       "con": []
-      },
-      {
-       "id": null,
-       "cap": "diem",
-       "so": "g",
-       "tieu_de": "",
-       "text": "Hướng dẫn khách hàng sử dụng ví điện tử an toàn, thông báo, giải thích cho khách hàng về hành vi bị cấm trong mở, sử dụng ví điện tử và giải đáp, xử lý kịp thời thắc mắc, khiếu nại của khách hàng trong mở và sử dụng ví điện tử theo quy định tại Thông tư này và thỏa thuận giữa chủ ví điện tử với tổ chức cung ứng dịch vụ ví điện tử;",
-       "html": "g) Hướng dẫn khách hàng sử dụng ví điện tử an toàn, thông báo, giải thích cho khách hàng về hành vi bị cấm trong mở, sử dụng ví điện tử và giải đáp, xử lý kịp thời thắc mắc, khiếu nại của khách hàng trong mở và sử dụng ví điện tử theo quy định tại Thông tư này và thỏa thuận giữa chủ ví điện tử với tổ chức cung ứng dịch vụ ví điện tử;",
-       "bi_tac_dong": [
-        "sua_doi_bo_sung"
-       ],
-       "an": false,
-       "con": []
-      },
-      {
-       "id": null,
-       "cap": "diem",
-       "so": "i",
-       "tieu_de": "",
-       "text": "Ban hành quy định nội bộ về mở và sử dụng ví điện tử tại tổ chức cung ứng dịch vụ ví điện tử; hướng dẫn, thông báo công khai để khách hàng biết và thực hiện. Quy định nội bộ phải bao gồm tối thiểu các nội dung sau:",
-       "html": "i) Ban hành quy định nội bộ về mở và sử dụng ví điện tử tại tổ chức cung ứng dịch vụ ví điện tử; hướng dẫn, thông báo công khai để khách hàng biết và thực hiện. Quy định nội bộ phải bao gồm tối thiểu các nội dung sau:",
-       "bi_tac_dong": [
-        "bo_sung"
-       ],
-       "an": false,
-       "con": []
+       "con": [
+        {
+         "id": null,
+         "cap": "diem",
+         "so": "a",
+         "tieu_de": "",
+         "text": "Thực hiện lệnh thanh toán của chủ ví điện tử sau khi đã kiểm tra, kiểm soát tính hợp pháp, hợp lệ của lệnh thanh toán;",
+         "html": "a) Thực hiện lệnh thanh toán của chủ ví điện tử sau khi đã kiểm tra, kiểm soát tính hợp pháp, hợp lệ của lệnh thanh toán;",
+         "bi_tac_dong": [
+          "sua_doi_bo_sung"
+         ],
+         "an": false,
+         "con": []
+        },
+        {
+         "id": null,
+         "cap": "diem",
+         "so": "b",
+         "tieu_de": "",
+         "text": "Lưu giữ và cập nhật đầy đủ các mẫu chữ ký, mẫu dấu (nếu có) của khách hàng đã đăng ký để kiểm tra, đối chiếu trong quá trình sử dụng ví điện tử;",
+         "html": "b) Lưu giữ và cập nhật đầy đủ các mẫu chữ ký, mẫu dấu (nếu có) của khách hàng đã đăng ký để kiểm tra, đối chiếu trong quá trình sử dụng ví điện tử;",
+         "bi_tac_dong": [
+          "sua_doi_bo_sung"
+         ],
+         "an": false,
+         "con": []
+        },
+        {
+         "id": null,
+         "cap": "diem",
+         "so": "c",
+         "tieu_de": "",
+         "text": "Kịp thời ghi Có vào ví điện tử của khách hàng các lệnh thanh toán chuyển tiền đến, nạp tiền vào ví điện tử; hoàn trả các khoản tiền do sai sót đã ghi Nợ đối với ví điện tử của khách hàng; phối hợp hoàn trả các khoản tiền đã được xác định chuyển nhầm vào ví điện tử của khách hàng theo đề nghị của tổ chức cung ứng dịch vụ ví điện tử, ngân hàng, chi nhánh ngân hàng nước ngoài thực hiện lệnh chuyển tiền;",
+         "html": "c) Kịp thời ghi Có vào ví điện tử của khách hàng các lệnh thanh toán chuyển tiền đến, nạp tiền vào ví điện tử; hoàn trả các khoản tiền do sai sót đã ghi Nợ đối với ví điện tử của khách hàng; phối hợp hoàn trả các khoản tiền đã được xác định chuyển nhầm vào ví điện tử của khách hàng theo đề nghị của tổ chức cung ứng dịch vụ ví điện tử, ngân hàng, chi nhánh ngân hàng nước ngoài thực hiện lệnh chuyển tiền;",
+         "bi_tac_dong": [
+          "sua_doi_bo_sung"
+         ],
+         "an": false,
+         "con": []
+        },
+        {
+         "id": null,
+         "cap": "diem",
+         "so": "d",
+         "tieu_de": "",
+         "text": "Thông tin đầy đủ, kịp thời cho chủ ví điện tử về số dư, các giao dịch, chứng từ của các giao dịch phát sinh trên ví điện tử và chịu trách nhiệm về tính chính xác đối với những thông tin mà mình cung cấp;",
+         "html": "d) Thông tin đầy đủ, kịp thời cho chủ ví điện tử về số dư, các giao dịch, chứng từ của các giao dịch phát sinh trên ví điện tử và chịu trách nhiệm về tính chính xác đối với những thông tin mà mình cung cấp;",
+         "bi_tac_dong": [
+          "sua_doi_bo_sung"
+         ],
+         "an": false,
+         "con": []
+        },
+        {
+         "id": null,
+         "cap": "diem",
+         "so": "đ",
+         "tieu_de": "",
+         "text": "Cập nhật thông tin khách hàng định kỳ hoặc khi khách hàng thông báo thay đổi thông tin trong hồ sơ mở ví điện tử và kịp thời cập nhật, xác minh thông tin nhận biết khách hàng khi xác định khách hàng có mức độ rủi ro cao theo tiêu chí do tổ chức cung ứng dịch vụ ví điện tử ban hành; bảo quản lưu trữ hồ sơ ví điện tử và các chứng từ giao dịch qua ví điện tử theo đúng quy định của pháp luật;",
+         "html": "đ) Cập nhật thông tin khách hàng định kỳ hoặc khi khách hàng thông báo thay đổi thông tin trong hồ sơ mở ví điện tử và kịp thời cập nhật, xác minh thông tin nhận biết khách hàng khi xác định khách hàng có mức độ rủi ro cao theo tiêu chí do tổ chức cung ứng dịch vụ ví điện tử ban hành; bảo quản lưu trữ hồ sơ ví điện tử và các chứng từ giao dịch qua ví điện tử theo đúng quy định của pháp luật;",
+         "bi_tac_dong": [
+          "sua_doi_bo_sung"
+         ],
+         "an": false,
+         "con": []
+        },
+        {
+         "id": null,
+         "cap": "diem",
+         "so": "e",
+         "tieu_de": "",
+         "text": "Bảo mật các thông tin, dữ liệu cá nhân của khách hàng hoặc dữ liệu cá nhân do khách hàng cung cấp, các thông tin liên quan đến ví điện tử và các giao dịch trên ví điện tử của khách hàng theo quy định của pháp luật;",
+         "html": "e) Bảo mật các thông tin, dữ liệu cá nhân của khách hàng hoặc dữ liệu cá nhân do khách hàng cung cấp, các thông tin liên quan đến ví điện tử và các giao dịch trên ví điện tử của khách hàng theo quy định của pháp luật;",
+         "bi_tac_dong": [
+          "sua_doi_bo_sung"
+         ],
+         "an": false,
+         "con": []
+        },
+        {
+         "id": null,
+         "cap": "diem",
+         "so": "g",
+         "tieu_de": "",
+         "text": "Hướng dẫn khách hàng sử dụng ví điện tử an toàn, thông báo, giải thích cho khách hàng về hành vi bị cấm trong mở, sử dụng ví điện tử và giải đáp, xử lý kịp thời thắc mắc, khiếu nại của khách hàng trong mở và sử dụng ví điện tử theo quy định tại Thông tư này và thỏa thuận giữa chủ ví điện tử với tổ chức cung ứng dịch vụ ví điện tử;",
+         "html": "g) Hướng dẫn khách hàng sử dụng ví điện tử an toàn, thông báo, giải thích cho khách hàng về hành vi bị cấm trong mở, sử dụng ví điện tử và giải đáp, xử lý kịp thời thắc mắc, khiếu nại của khách hàng trong mở và sử dụng ví điện tử theo quy định tại Thông tư này và thỏa thuận giữa chủ ví điện tử với tổ chức cung ứng dịch vụ ví điện tử;",
+         "bi_tac_dong": [
+          "sua_doi_bo_sung"
+         ],
+         "an": false,
+         "con": []
+        },
+        {
+         "id": null,
+         "cap": "diem",
+         "so": "i",
+         "tieu_de": "",
+         "text": "Ban hành quy định nội bộ về mở và sử dụng ví điện tử tại tổ chức cung ứng dịch vụ ví điện tử; hướng dẫn, thông báo công khai để khách hàng biết và thực hiện. Quy định nội bộ phải bao gồm tối thiểu các nội dung sau:",
+         "html": "i) Ban hành quy định nội bộ về mở và sử dụng ví điện tử tại tổ chức cung ứng dịch vụ ví điện tử; hướng dẫn, thông báo công khai để khách hàng biết và thực hiện. Quy định nội bộ phải bao gồm tối thiểu các nội dung sau:",
+         "bi_tac_dong": [
+          "bo_sung"
+         ],
+         "an": false,
+         "con": []
+        }
+       ]
       },
       {
        "id": "id_87c7c4c6-2c83-11f1-acb5-59925a7b81d6",
@@ -5156,7 +5196,21 @@
            ],
            "an": false,
            "con": []
-          },
+          }
+         ]
+        },
+        {
+         "id": null,
+         "cap": "khoan",
+         "so": "1",
+         "tieu_de": "",
+         "text": "Trường hợp hết thời hạn Giấy phép:",
+         "html": "",
+         "bi_tac_dong": [
+          "sua_doi_bo_sung"
+         ],
+         "an": false,
+         "con": [
           {
            "id": null,
            "cap": "diem",

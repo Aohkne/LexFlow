@@ -33,7 +33,6 @@
  ],
  "co_toan_van": true,
  "canh_bao": [
-  "cây điều khoản thiếu 2 Khoản so với toàn văn (76/78)",
   "cây điều khoản thiếu 1 Điểm so với toàn văn (98/99)"
  ],
  "articles": [
@@ -917,81 +916,109 @@
        "con": [
         {
          "id": null,
-         "cap": "diem",
-         "so": "a",
+         "cap": "khoan",
+         "so": "1",
          "tieu_de": "",
-         "text": "Thay đổi tên;",
-         "html": "a) Thay đổi tên;",
+         "text": "Văn phòng đại diện nước ngoài lập hồ sơ đề nghị sửa đổi, bổ sung Giấy phép và gửi qua dịch vụ bưu chính hoặc nộp trực tiếp đến trụ sở chính Ngân hàng Nhà nước chi nhánh (Bộ phận Một cửa) theo quy định tại điểm a khoản 2 Điều 11 Thông tư này và đảm bảo nguyên tắc lập hồ sơ theo quy định tại Điều 8 Thông tư này đối với các nội dung thay đổi sau đây:",
+         "html": "",
          "bi_tac_dong": [
           "sua_doi_bo_sung"
          ],
          "an": false,
-         "con": []
+         "con": [
+          {
+           "id": null,
+           "cap": "diem",
+           "so": "a",
+           "tieu_de": "",
+           "text": "Thay đổi tên;",
+           "html": "a) Thay đổi tên;",
+           "bi_tac_dong": [
+            "sua_doi_bo_sung"
+           ],
+           "an": false,
+           "con": []
+          },
+          {
+           "id": null,
+           "cap": "diem",
+           "so": "b",
+           "tieu_de": "",
+           "text": "Thay đổi địa bàn đặt trụ sở khác địa bàn tỉnh, thành phố nơi văn phòng đại diện nước ngoài đang đặt trụ sở;",
+           "html": "b) Thay đổi địa bàn đặt trụ sở khác địa bàn tỉnh, thành phố nơi văn phòng đại diện nước ngoài đang đặt trụ sở;",
+           "bi_tac_dong": [
+            "sua_doi_bo_sung"
+           ],
+           "an": false,
+           "con": []
+          },
+          {
+           "id": null,
+           "cap": "diem",
+           "so": "c",
+           "tieu_de": "",
+           "text": "Gia hạn thời hạn hoạt động.",
+           "html": "c) Gia hạn thời hạn hoạt động.",
+           "bi_tac_dong": [
+            "sua_doi_bo_sung"
+           ],
+           "an": false,
+           "con": []
+          }
+         ]
         },
         {
          "id": null,
-         "cap": "diem",
-         "so": "b",
+         "cap": "khoan",
+         "so": "2",
          "tieu_de": "",
-         "text": "Thay đổi địa bàn đặt trụ sở khác địa bàn tỉnh, thành phố nơi văn phòng đại diện nước ngoài đang đặt trụ sở;",
-         "html": "b) Thay đổi địa bàn đặt trụ sở khác địa bàn tỉnh, thành phố nơi văn phòng đại diện nước ngoài đang đặt trụ sở;",
+         "text": "Văn phòng đại diện nước ngoài nộp văn bản thông báo qua dịch vụ bưu chính hoặc trực tiếp đến Trụ sở chính Ngân hàng Nhà nước chi nhánh nơi đặt trụ sở (Bộ phận Một cửa) chậm nhất 07 (bảy) ngày làm việc kể từ ngày có các nội dung thay đổi sau đây:",
+         "html": "",
          "bi_tac_dong": [
           "sua_doi_bo_sung"
          ],
          "an": false,
-         "con": []
-        },
-        {
-         "id": null,
-         "cap": "diem",
-         "so": "c",
-         "tieu_de": "",
-         "text": "Gia hạn thời hạn hoạt động.",
-         "html": "c) Gia hạn thời hạn hoạt động.",
-         "bi_tac_dong": [
-          "sua_doi_bo_sung"
-         ],
-         "an": false,
-         "con": []
-        },
-        {
-         "id": null,
-         "cap": "diem",
-         "so": "a",
-         "tieu_de": "",
-         "text": "Thay đổi Trưởng văn phòng đại diện nước ngoài;",
-         "html": "a) Thay đổi Trưởng văn phòng đại diện nước ngoài;",
-         "bi_tac_dong": [
-          "sua_doi_bo_sung"
-         ],
-         "an": false,
-         "con": []
-        },
-        {
-         "id": null,
-         "cap": "diem",
-         "so": "b",
-         "tieu_de": "",
-         "text": "Thay đổi địa điểm đặt trụ sở trên cùng địa bàn tỉnh, thành phố;",
-         "html": "b) Thay đổi địa điểm đặt trụ sở trên cùng địa bàn tỉnh, thành phố;",
-         "bi_tac_dong": [
-          "sua_doi_bo_sung"
-         ],
-         "an": false,
-         "con": []
-        },
-        {
-         "id": null,
-         "cap": "diem",
-         "so": "c",
-         "tieu_de": "",
-         "text": "Thay đổi địa chỉ đặt trụ sở mà không làm thay đổi địa điểm đặt trụ sở.",
-         "html": "c) Thay đổi địa chỉ đặt trụ sở mà không làm thay đổi địa điểm đặt trụ sở.",
-         "bi_tac_dong": [
-          "sua_doi_bo_sung"
-         ],
-         "an": false,
-         "con": []
+         "con": [
+          {
+           "id": null,
+           "cap": "diem",
+           "so": "a",
+           "tieu_de": "",
+           "text": "Thay đổi Trưởng văn phòng đại diện nước ngoài;",
+           "html": "a) Thay đổi Trưởng văn phòng đại diện nước ngoài;",
+           "bi_tac_dong": [
+            "sua_doi_bo_sung"
+           ],
+           "an": false,
+           "con": []
+          },
+          {
+           "id": null,
+           "cap": "diem",
+           "so": "b",
+           "tieu_de": "",
+           "text": "Thay đổi địa điểm đặt trụ sở trên cùng địa bàn tỉnh, thành phố;",
+           "html": "b) Thay đổi địa điểm đặt trụ sở trên cùng địa bàn tỉnh, thành phố;",
+           "bi_tac_dong": [
+            "sua_doi_bo_sung"
+           ],
+           "an": false,
+           "con": []
+          },
+          {
+           "id": null,
+           "cap": "diem",
+           "so": "c",
+           "tieu_de": "",
+           "text": "Thay đổi địa chỉ đặt trụ sở mà không làm thay đổi địa điểm đặt trụ sở.",
+           "html": "c) Thay đổi địa chỉ đặt trụ sở mà không làm thay đổi địa điểm đặt trụ sở.",
+           "bi_tac_dong": [
+            "sua_doi_bo_sung"
+           ],
+           "an": false,
+           "con": []
+          }
+         ]
         },
         {
          "id": "id_4bfa6510-2dce-11f1-86fd-4b9eb1799184",

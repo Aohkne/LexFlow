@@ -43,8 +43,7 @@
  ],
  "co_toan_van": true,
  "canh_bao": [
-  "nguồn thiếu dấu cách sau số khoản: '3.Dịch vụ thu hộ và dịch vụ chi hộ' — giữ nguyên như nguồn, bộ tách khoản sẽ không nhận ra dòng này",
-  "cây điều khoản thiếu 1 Khoản so với toàn văn (96/97)"
+  "nguồn thiếu dấu cách sau số khoản: '3.Dịch vụ thu hộ và dịch vụ chi hộ' — giữ nguyên như nguồn, bộ tách khoản sẽ không nhận ra dòng này"
  ],
  "articles": [
   {
@@ -1289,6 +1288,19 @@
          "text": "Quy trình thực hiện dịch vụ chuyển tiền qua tài khoản thanh toán của khách hàng được thực hiện như quy trình dịch vụ thanh toán ủy nhiệm chi.",
          "html": "1. Quy trình thực hiện dịch vụ chuyển tiền qua tài khoản thanh toán của khách hàng được thực hiện như quy trình dịch vụ thanh toán ủy nhiệm chi.",
          "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": null,
+         "cap": "khoan",
+         "so": "2",
+         "tieu_de": "",
+         "text": "Quy trình thực hiện dịch vụ chuyển tiền không qua tài khoản thanh toán của khách hàng:",
+         "html": "",
+         "bi_tac_dong": [
+          "thay_the"
+         ],
          "an": false,
          "con": [
           {
