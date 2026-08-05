@@ -2,8 +2,9 @@
 
     uv run python scripts/crawl_vbpl_batch.py research/crawl_list.txt
 
-Với mỗi URL ghi ra `data/raw/vbpl/<slug>.json` (3 tab) và `<slug>.corpus.json` (dạng
-CorpusDocument) — đúng như lệnh `vbpl dump --corpus`, chỉ khác là chạy vòng lặp.
+Với mỗi URL ghi ra `<đích>/raw/<slug>.json` (3 tab) và `<đích>/corpus/<slug>.json` (dạng
+CorpusDocument) — đúng như lệnh `vbpl dump --corpus`, chỉ khác là chạy vòng lặp. Thư mục
+đích lấy từ `$LEXFLOW_VBPL_OUT`, không đặt thì `<gốc repo>/data/raw/vbpl`; `--out` đè lên cả hai.
 
 Bốn thứ khiến nó khác một vòng `for` gọi CLI:
   * dùng lại MỘT phiên Chromium cho cả danh sách (mỗi lần launch tốn vài giây);
@@ -27,6 +28,7 @@ from app.ingestion.vbpl import (  # noqa: E402
     corpus_path,
     count_provisions,
     count_units,
+    default_out_dir,
     extract_document,
     open_browser,
     raw_path,
@@ -96,7 +98,12 @@ def crawl_one(browser, url: str, out_dir: Path, corpus: bool) -> dict:
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("list_file", type=Path, help="file .txt, mỗi dòng 1 URL vbpl.vn")
-    ap.add_argument("--out", type=Path, default=Path("data/raw/vbpl"))
+    ap.add_argument(
+        "--out",
+        type=Path,
+        default=default_out_dir(),
+        help="thư mục đích (mặc định $LEXFLOW_VBPL_OUT, không đặt thì <gốc repo>/data/raw/vbpl)",
+    )
     ap.add_argument("--delay", type=float, default=3.0, help="giây nghỉ giữa 2 văn bản")
     ap.add_argument("--retries", type=int, default=2, help="số lần thử lại mỗi URL khi lỗi")
     ap.add_argument("--limit", type=int, help="chỉ cào N URL đầu (để thử trước)")

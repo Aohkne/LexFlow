@@ -8,10 +8,12 @@ from app.ingestion.vbpl import (
     classify_badge,
     clean_body,
     count_provisions,
+    default_out_dir,
     group_relations,
     parse_property_rows,
     parse_relations,
     sanitize_inline,
+    sitemap_cache_dir,
     split_heading,
     to_corpus_document,
 )
@@ -382,3 +384,32 @@ def test_clean_body_cuts_ui_noise_before_the_last_download_tab():
     assert valid_from == "01/07/2024"
     assert body.startswith("Điều 1.")
     assert "TRANG CHỦ" not in body
+
+
+# --- Thu muc dich: khong duoc phu thuoc cwd ---
+def test_thu_muc_dich_mac_dinh_khong_doi_theo_cwd(tmp_path, monkeypatch):
+    """Mặc định neo vào gốc repo, nên `cd` đi đâu cũng ghi về đúng một chỗ.
+
+    Đây là lỗi thật đã xảy ra: cùng một lệnh chạy từ hai checkout anh em ghi ra hai
+    thư mục khác nhau, và bản crawl "biến mất" mất cả một lượt đi tìm.
+    """
+    monkeypatch.delenv("LEXFLOW_VBPL_OUT", raising=False)
+    truoc = default_out_dir()
+    monkeypatch.chdir(tmp_path)
+    assert default_out_dir() == truoc
+    assert truoc.is_absolute()
+    assert truoc.parts[-3:] == ("data", "raw", "vbpl")
+
+
+def test_bien_moi_truong_de_len_thu_muc_dich(tmp_path, monkeypatch):
+    monkeypatch.setenv("LEXFLOW_VBPL_OUT", str(tmp_path / "kho"))
+    assert default_out_dir() == tmp_path / "kho"
+    # Cache sitemap đi theo artefact — một biến điều khiển cả hai, không tách ra được.
+    assert sitemap_cache_dir() == tmp_path / "kho" / ".sitemap_cache"
+
+
+def test_bien_moi_truong_rong_thi_coi_nhu_khong_dat(monkeypatch):
+    """`$env:LEXFLOW_VBPL_OUT = ""` là cách tắt biến quen tay trên PowerShell — không được
+    hiểu thành Path("") tức là cwd."""
+    monkeypatch.setenv("LEXFLOW_VBPL_OUT", "   ")
+    assert default_out_dir().parts[-3:] == ("data", "raw", "vbpl")

@@ -11,6 +11,12 @@ __pycache__/
 # LanceDB local store
 data/lancedb/
 
+# Cache sitemap vbpl.vn — không phải bản chụp nguồn, tải lại được, ~15-20 MB
+data/raw/vbpl/.sitemap_cache/
+
+# Cấu hình Claude Code riêng từng máy (chứa đường dẫn tuyệt đối của máy đó)
+.claude/settings.local.json
+
 # Next.js
 web/node_modules/
 web/.next/

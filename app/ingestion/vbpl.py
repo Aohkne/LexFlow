@@ -19,7 +19,9 @@ Output: .txt sạch (tiêu đề + trạng thái hiệu lực + ngày hiệu l�
 data/raw/vbpl/ — bước tiếp theo vẫn là pipeline hiện có, KHÔNG tự ingest:
   uv run python -m app.ingestion.extract data/raw/vbpl/<file>.txt --source external
 
-Lịch sự với server: sitemap được cache ra đĩa (data/raw/vbpl/.sitemap_cache/, ít đổi), có
+Thư mục đích: biến môi trường LEXFLOW_VBPL_OUT, không đặt thì <gốc repo>/data/raw/vbpl.
+
+Lịch sự với server: sitemap được cache ra đĩa (<đích>/.sitemap_cache/, ít đổi), có
 delay giữa các lần tải sitemap con, và mỗi lần fetch chỉ mở 1 trang. Nếu gọi `fetch` lặp lại
 nhiều văn bản, tự thêm delay vài giây giữa các lần gọi.
 """
@@ -27,6 +29,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import sys
 import time
@@ -57,7 +60,22 @@ _UA = (
 # dùng UA Chrome bình thường (đúng thực tế: Playwright chạy Chromium thật) là hợp lý — không
 # giả mạo danh tính người dùng cụ thể nào, không qua mặt CAPTCHA/đăng nhập.
 
-_SITEMAP_CACHE_DIR = Path("data/raw/vbpl/.sitemap_cache")
+# Thư mục đích của mọi thứ cào về. Trước đây là Path("data/raw/vbpl") — TƯƠNG ĐỐI theo cwd,
+# nên cùng một lệnh chạy từ hai checkout anh em lại ghi ra hai chỗ khác nhau, và có lần mất
+# cả lượt đi tìm bản crawl "biến mất". Giờ neo cứng, không phụ thuộc cwd:
+#   LEXFLOW_VBPL_OUT nếu đặt  →  <gốc repo>/data/raw/vbpl nếu không.
+_REPO_ROOT = Path(__file__).resolve().parents[2]
+
+
+def default_out_dir() -> Path:
+    """Thư mục artefact mặc định — dùng chung cho CLI này và scripts/crawl_vbpl_batch.py."""
+    env = os.environ.get("LEXFLOW_VBPL_OUT", "").strip()
+    return Path(env) if env else _REPO_ROOT / "data" / "raw" / "vbpl"
+
+
+def sitemap_cache_dir() -> Path:
+    """Cache sitemap nằm cùng chỗ với artefact — một biến môi trường điều khiển cả hai."""
+    return default_out_dir() / ".sitemap_cache"
 
 _STATUS_WORDS = {
     "Còn hiệu lực",
@@ -123,10 +141,11 @@ def _get_sitemap_xml(sid: int) -> str:
 
 def fetch_sitemap_urls(sitemap_ids, cache: bool = True) -> list[SitemapEntry]:
     """Tải + parse các sitemap con của vbpl.vn, cache ra đĩa (mỗi file ~1-2 MB, ít đổi)."""
-    _SITEMAP_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    cache_dir = sitemap_cache_dir()
+    cache_dir.mkdir(parents=True, exist_ok=True)
     entries: list[SitemapEntry] = []
     for sid in sitemap_ids:
-        cache_path = _SITEMAP_CACHE_DIR / f"{sid}.xml"
+        cache_path = cache_dir / f"{sid}.xml"
         if cache and cache_path.exists():
             xml = cache_path.read_text(encoding="utf-8")
         else:
@@ -1487,13 +1506,13 @@ def main(argv: list[str] | None = None) -> None:
 
     p_fetch = sub.add_parser("fetch", help="Tải 1 văn bản (URL chi tiết) → text sạch")
     p_fetch.add_argument("url")
-    p_fetch.add_argument("--out", default="data/raw/vbpl")
+    p_fetch.add_argument("--out", default=default_out_dir())
 
     p_dump = sub.add_parser(
         "dump", help="Tải cả 3 tab (Nội dung + Thuộc tính + Lược đồ) → JSON có cấu trúc"
     )
     p_dump.add_argument("url")
-    p_dump.add_argument("--out", default="data/raw/vbpl")
+    p_dump.add_argument("--out", default=default_out_dir())
     p_dump.add_argument(
         "--corpus",
         action="store_true",
