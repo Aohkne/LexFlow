@@ -9,11 +9,18 @@ tầng thời gian, độ tin cậy) **phần lớn chưa tồn tại dưới d�
 Ngày đối chiếu: 2026-08-03, **đo lại 2026-08-04** · v0.5 bản 29/07/2026 · mọi số trong tài liệu
 này kiểm lại được bằng §6.
 
-> **Đo lại 04/08 — điểm các khối KHÔNG đổi một ô nào.** Ngày 04/08 có ba đợt việc ở tầng CU
-> (`source_diem` suy từ parser · luật chapeau · bảng phân hoạch), và **không đợt nào chạm tầng
-> văn bản**, nên mọi con số §2 và §5 giữ nguyên. Cái đã đổi là **§4 tăng từ 4 lên 7 mục** và
-> **§3.5 là mục mới** — bốn phát hiện truy được nguyên nhân. Ghi lại đây thay vì làm tròn lên,
-> vì một báo cáo đối chiếu mà tự cải thiện điểm sau mỗi lần chạm code thì hết là thước đo.
+> **Đo lại 04/08 — điểm các khối KHÔNG đổi một ô nào**, qua **sáu đợt việc** trong ngày. Ba đợt
+> đầu ở tầng CU (`source_diem` suy từ parser · luật chapeau · bảng phân hoạch) không chạm tầng
+> văn bản. Ba đợt sau **có** chạm (cầu `so_hieu` · node rỗng · nhận dữ liệu crawl lại · khối
+> trích dẫn) nhưng vẫn không nâng ô nào, vì chúng **mở đường** chứ chưa **nạp dữ liệu**: §3
+> `Chuong`/`Muc` nay có 115/174 điều đã crawl nhưng corpus vẫn 0/278; §6 có đủ 13 mã trong
+> schema nhưng corpus vẫn 4/13 instance.
+>
+> Cái đã đổi: **§4 từ 4 → 9 mục**, **§3.5–§3.8 là bốn mục mới**, và hai lỗi §3.1/§3.2 được **đo
+> lại trực tiếp** — cả hai còn sống, xem §5. Ghi vậy thay vì làm tròn lên, vì một báo cáo đối
+> chiếu mà tự cải thiện điểm sau mỗi lần chạm code thì hết là thước đo.
+>
+> Đường găng nay là **một việc dữ liệu, không phải việc code**: nạp 7 văn bản đã crawl (#14).
 
 ---
 
@@ -100,6 +107,12 @@ là **khớp chuỗi con**, không phải định nghĩa node:
 
 - `Article.chapter` / `Article.section` (`core/schemas.py:51-52`) **được khai báo nhưng
   0/278 điều có giá trị** — không code nào gán. **Trường chết.**
+  > **Cập nhật 04/08 — nút thắt đã dịch chỗ.** Bên crawl nay trả `chapter`/`section` sẵn, và
+  > `vbpl_corpus.doc_file` nhận được: **115/174 điều** trong 8 văn bản đã crawl có `chapter`
+  > (đầy đủ ở mọi văn bản *có* Chương — ND52 38/38, TT40 54/54, TT15 23/23; các văn bản còn 0
+  > đều là văn bản sửa đổi ngắn, bản thân chúng không có Chương nào). Corpus vẫn **0/278** vì
+  > 7 văn bản này **chưa được nạp**. Tức từ *"code không đọc được"* thành *"chưa nạp"* — vẫn
+  > 0 điểm cho §3, nhưng việc còn lại là nạp dữ liệu, không phải viết code.
 - `Gate.pham_vi` nhận `"chuong"` / `"muc"` (`schema.py:159`) — nhưng **luôn kèm
   `suy_ra_duoc=False`**, vì parser không có node tương ứng để quy về. Đây là cách xử lý
   **trung thực** (nói thẳng "có phạm vi nhưng chưa quy được về khoá node"), không phải một
@@ -108,14 +121,22 @@ là **khớp chuỗi con**, không phải định nghĩa node:
 Giới hạn có chủ đích của §3 (gạch đầu dòng không đánh số nằm lại trong nội dung của `Diem`):
 ✅ thoả **theo cấu trúc** — parser không tạo node nào dưới cấp Điểm.
 
-### 2.4 · §6 · 13 quan hệ giữa văn bản — **2/13, và cách lưu khác hẳn**
+### 2.4 · §6 · 13 quan hệ giữa văn bản — **13/13 schema · 4/13 instance**
 
-> Bản 03/08 ghi 4/13 (đếm số `rel_type` có trong dữ liệu). Sửa xuống **2/13** ngày 04/08 sau khi
-> đối chiếu từng tên — xem §3.5b: chỉ `THAY_THE` và `DAN_CHIEU` trùng tên v0.5.
+> **Ba mốc trong một ngày, giữ lại cả ba vì chúng nói ba chuyện khác nhau.**
+> Bản 03/08 ghi **4/13**, đếm số `rel_type` có trong dữ liệu. Sửa xuống **2/13** sáng 04/08 sau
+> khi đối chiếu **từng tên** (§3.5b): chỉ `THAY_THE` và `DAN_CHIEU` trùng tên v0.5 — đếm một
+> cạnh sai tên là đạt thì lần cutover sẽ vỡ im lặng. Rồi sửa cả hai đầu trong ngày: **schema**
+> lên đủ **13/13** (tập đóng có validator + cạnh có kiểu trong Neo4j), **dữ liệu** về đúng tên
+> v0.5 nên trở lại **4/13 instance** — lần này là 4 cái đúng. Hợp nhất thêm lược đồ vbpl thì
+> **7/13** (thêm `BAI_BO` · `QUY_DINH_CHI_TIET_HUONG_DAN` · `HOP_NHAT`), nhưng những cạnh đó
+> chạm đầu mút chưa có toàn văn ⇒ xem §3.7.
+>
+> Bảng dưới giữ nguyên **hiện trạng lúc phát hiện**, không viết lại — nó là bằng chứng cho §3.5b.
 
 | | |
 |---|---|
-| **có** (4) | `THAY_THE` · `SUA_DOI` · `HUONG_DAN` · `DAN_CHIEU` — `core/schemas.py:7`; 13 instance trong `data/corpus.real.json` |
+| **có** (4, *tên cũ — đã sửa*) | `THAY_THE` · `SUA_DOI` · `HUONG_DAN` · `DAN_CHIEU` — `core/schemas.py:7`; 13 instance trong `data/corpus.real.json` |
 | **thiếu** (9) | `HUONG_DAN_AP_DUNG` · `HOP_NHAT` · `DINH_CHINH` · `BAI_BO` · `CAN_CU` · `GIAI_THICH` · `DINH_CHI_THI_HANH` · `TAM_NGUNG_HIEU_LUC` · `CONG_BO` |
 | **lệch tên** | `SUA_DOI` ↔ `SUA_DOI_BO_SUNG` · `HUONG_DAN` ↔ `QUY_DINH_CHI_TIET_HUONG_DAN` |
 
@@ -179,6 +200,16 @@ hiện tại **không phân biệt được vùng đó** — một bản extract
 
 Tương tự, thiếu `nguon_hieu_luc_den` nghĩa là một `valid_to` **do suy đoán** trông **y hệt**
 một `valid_to` **đọc được từ văn bản**. Hiện chưa gây hại vì **0/278 điều có `valid_to`**.
+
+> **Một nửa của §8 nay rẻ hơn hẳn — đo 04/08.** Bản ghi crawl mang sẵn `source_url` (trang
+> vbpl.vn) và `source_files` (link `.docx`/`.pdf` **bản gốc** trên `moj.gov.vn`, có cả với
+> ND80/2016). Đây đúng là *xuất xứ cấp văn bản* mà §8 đòi. Nhưng `DocumentMeta` **không có
+> trường nào để nhận**, nên `vbpl_corpus.doc_file` đọc xong rồi **bỏ đi** — cùng kiểu lãng phí
+> mà `so_hieu` đã mắc một lần (§3.5d).
+>
+> Thêm hai trường là việc nhỏ. Nó **chưa** cho `da_xac_minh_nguon` (3 mức) — biết link bản gốc
+> khác với đã đọc bản Công báo có chữ ký — nhưng nó cho **cái tiền đề**: muốn xác minh thì
+> trước hết phải biết đường tới bản gốc, và hiện ta biết rồi mà không lưu.
 
 ### 2.7 · §9 · Mười quyết định thiết kế
 
@@ -407,9 +438,35 @@ vẫn giữ — ở đó chính **cạnh** mới là thông tin.
 Danh sách cần crawl: `docs/CAN-CRAWL.md`, sinh bằng
 `uv run python -m app.ingestion.can_crawl --md docs/CAN-CRAWL.md`.
 
+### 3.8 · Khối trích dẫn: chỗ §5 đặc tả kỹ nhất vẫn còn một lỗ
+
+§5 là khối v0.5 viết chặt nhất — `so_goc`/`so_hau_to`, bảng 23 chữ, `Điều 15a`. Nhưng nó đặc tả
+**cách đọc một con số**, không nói con số ấy **thuộc về ai**.
+
+Văn bản sửa đổi chép nguyên văn nội dung mới vào giữa hai dấu ngoặc kép, và phần chép mang đánh
+số của văn bản **bị** sửa. `80/2016/NĐ-CP` Điều 1 vì thế đếm phẳng ra **14 khoản**, thật ra là
+**10 của ND80 + 4 của ND101**. Cây `provisions` của nguồn nói 10 — và cây đúng.
+
+Hậu quả không nằm ở con số mà ở khoá: `80/2016/NĐ-CP#than/dieu_1#khoan_5` trỏ vào **hai thứ khác
+nhau**, một trong hai là nội dung của văn bản khác. Đúng loại nhập nhằng §4 sinh ra để chặn, mà
+§4 không chặn được vì nó chỉ quy định *hình dạng* khoá.
+
+Đã xử lý ở `parser.trong_trich_dan()` — mặt nạ theo ký tự, cả ba chỗ nhận diện (khoản · điểm ·
+tiết) bỏ qua dòng trong khối. Khối **ở lại trong `text` của khoản mẹ**: bỏ khoản-giả khác hẳn bỏ
+chữ, không có nó thì khoản 1 chỉ còn câu lệnh trống nghĩa. Ngoặc lệch ⇒ **bỏ luật cho cả Điều
+đó** thay vì đoán chỗ đóng.
+
+Đo trước khi viết, và chính phép đo cho phép làm: ngoặc **cân 100%** trên 9 bản ghi · **0/18
+fixture** dính ⇒ 94 đơn vị và nhãn vàng không đổi · corpus có **75 khoản** đang gán nhầm chủ,
+tất cả ở TT20-2016 và TT23-2019 — đúng hai văn bản sửa đổi. Sau khi sửa: ND80 Điều 1 về **10
+khoản khớp cây**, `char_span` không khoản nào lệch, ND52/TT15/TT40 không đổi một con số.
+
+> ⇒ **Đề nghị cho v0.6:** §5 nên có một mục *"phạm vi đánh số"* — số thứ tự chỉ thuộc về văn bản
+> đang đọc khi nó nằm **ngoài** khối trích dẫn. Đây là mục thứ 8 trong §4 (PoC đi trước v0.5).
+
 ---
 
-## 4. Bảy chỗ PoC đã đi TRƯỚC v0.5 — v0.6 nên hấp thụ
+## 4. Chín chỗ PoC đã đi TRƯỚC v0.5 — v0.6 nên hấp thụ
 
 Không phải mục tự khen. Đây là những thứ **đo được trên văn bản thật** mà spec chưa phủ, nên
 chúng là đầu vào cho bản sau chứ không phải là "code lệch spec".
@@ -429,7 +486,14 @@ chúng là đầu vào cho bản sau chứ không phải là "code lệch spec".
 | **Bảng phân hoạch** (`data/phan_hoach.json` + `guard_phan_hoach`) — chứng minh `connector` **vô hại** thay vì hỏi lại mỗi bản ghi | 2 nhóm guard anh em; **1 chứng minh được** (`khách hàng` = {cá nhân, tổ chức}, TT17 Đ2 k2), **1 không** (`tài khoản thanh toán` còn hình thức `chung`, TT17 Đ3 k1) | v0.5 không có chỗ nào ghi *"tập giá trị này là đóng"*. Mà thiếu nó thì `(g→c)∧…` và `(g∧c)∨…` **lệch nhau** đúng ở phần bỏ sót: AND ra **miễn trừ**, OR ra **bất khả thi** |
 | **Luật chapeau** (`chapeau_logic`) — câu bao trùm quyết phép nối các tiết khi tiết im lặng | 5 Điểm có tiết; 2 giải bằng liên từ hiện, **1 bằng chapeau**, 2 còn `unknown`. Chữ `"sau"` trong corpus mang **bốn nghĩa trái ngược**, dạng đông nhất là `(sau đây gọi là …)` **15+ lần** | §5 đặc tả đánh số nhưng **không nói** cấp dưới Điểm kết hợp theo phép gì, cũng không cảnh báo `"một trong các … sau"` là `any` chứ không phải `all` |
 
-Ba mục này chung một luận điểm với bốn mục trên: **v0.5 đặc tả rất kỹ *địa chỉ* của một quy phạm
+### Hai mục thêm cuối ngày 04/08 — khác ba mục trên ở chỗ chúng chạm vào chính khối v0.5 đặc tả kỹ
+
+| phát hiện | số đo | v0.5 nói gì |
+|---|---|---|
+| **Node rỗng** (`VanBanRong`) — đầu mút xuất hiện trong đồ thị mà **chưa có toàn văn** vẫn là một node thật, có `so_hieu`, tự biến mất khi crawl xong | 57 cạnh quy hết về `doc_id`, **32 đầu mút** thành node rỗng; `related_docs()` loại chúng khỏi truy hồi còn `related_edges()` giữ | v0.5 §3 **giả định mọi node đều có văn bản**. Nhưng ca kiểm chứng bắt buộc §6.2 (*khoảng trống lập pháp*) chỉ tồn tại **ở đúng những đầu mút chưa tải** — bỏ chúng đi là bỏ luôn ca kiểm chứng |
+| **Phạm vi đánh số** (`trong_trich_dan`) — số thứ tự chỉ thuộc văn bản đang đọc khi nằm **ngoài** khối trích dẫn | ND80 Điều 1: **14 → 10 khoản**, khớp cây nguồn; ngoặc cân 100%/9 bản ghi; **0/18 fixture** dính; corpus có **75 khoản** gán nhầm chủ (TT20-2016, TT23-2019) | §5 đặc tả *cách đọc* một con số rất chặt nhưng **không nói con số ấy thuộc về ai**. Xem §3.8 |
+
+Năm mục này chung một luận điểm với bốn mục trên: **v0.5 đặc tả rất kỹ *địa chỉ* của một quy phạm
 (khoá, đánh số, quan hệ giữa văn bản) nhưng chưa đặc tả *nội dung chuẩn tắc* bên trong một Khoản.**
 Đó đúng là mặt mà PoC buộc phải dựng để trích được Compliance Unit, nên v0.6 hấp thụ được ngay.
 
@@ -444,9 +508,9 @@ chưa có chỗ nào ghi *"câu luật này nói về mốc bắt đầu hay m�
 
 | khối v0.5 | điểm |
 |---|---|
-| §4 · Khoá ba nhánh | **1/3** |
-| §5 · Đánh số Điều/Khoản | **5/6** |
-| §3 · Node meta-schema | **4/15** |
+| §4 · Khoá ba nhánh | **1/3** — `#than/` có, `#kemtheo_`/`#phuluc_` không sinh được |
+| §5 · Đánh số Điều/Khoản | **5/6** — thêm luật *phạm vi đánh số* (§3.8), v0.5 chưa có |
+| §3 · Node meta-schema | **4/15** — dữ liệu `Chuong`/`Muc` **đã có** ở 115/174 điều đã crawl, chưa nạp nên corpus vẫn 0/278 (§2.3) |
 | §6 · 13 quan hệ | **13/13 trong schema · 4/13 có instance trong corpus · 7/13 khi hợp nhất 2 lược đồ vbpl** (04/08) — thêm `BAI_BO` · `QUY_DINH_CHI_TIET_HUONG_DAN` · `HOP_NHAT`; cạnh đã CÓ KIỂU ⇒ Cypher của spec chạy được; 57 cạnh quy hết về `doc_id`, 32 đầu mút thành node rỗng (§3.7) |
 | §7 · Tầng thời gian | **0/5** |
 | §8 · Độ tin cậy | **0/2** |
@@ -467,8 +531,8 @@ code**, và ba chỗ mâu thuẫn ở §3 là thứ phải xử lý trước khi
 
 | # | việc | mức | chi phí |
 |---|---|---|---|
-| 1 | `status` bốn trạng thái (§3.1) — **lỗi đang sống** | cao | nhỏ, chạm web |
-| 2 | `is_effective` sang nửa mở (§3.2) | cao | một dấu `<` + test biên |
+| 1 | `status` bốn trạng thái (§3.1) — **lỗi đang sống, đo lại 04/08 vẫn còn**: `valid_from=2030` hôm nay hiện ra `het_hieu_luc`, trong khi nó **chưa từng** có hiệu lực | cao | nhỏ, chạm web |
+| 2 | `is_effective` sang nửa mở (§3.2) — **đo lại 04/08 vẫn ĐÓNG**: `valid_to=2024-07-01` hỏi đúng ngày 01/07 vẫn trả `True`, lệch v0.5 đúng **một ngày** | cao | một dấu `<` + test biên |
 | 3 | Chặn khoá `#than/` bịa (§3.4) | trung bình | nhỏ |
 | 4 | Thống nhất không gian ID (§3.3) | cao | lớn — quyết định kiến trúc |
 | ~~5~~ | ~~13 cạnh có kiểu thay `REL{rel_type}`~~ — ✅ **xong 04/08** | — | truy vấn §6.2 nay viết được (`khoang_trong_lap_phap()`); corpus 0 `BAI_BO` nên trả rỗng, nhưng vbpl CÓ (NĐ52 → NĐ16/2019) |
@@ -476,12 +540,15 @@ code**, và ba chỗ mâu thuẫn ở §3 là thứ phải xử lý trước khi
 | 7 | `nhanh` thành trường, `Khoan.ten` nullable (§2.2, §2.7) | thấp | rất nhỏ |
 | 8 | `PhienBanDieu`, `Chuong`/`Muc`, `VanBanKemTheo`, `PhuLuc` | — | ~~phụ thuộc #4~~ → **xem #10**: `Chuong`/`Muc` KHÔNG phụ thuộc #4 |
 | 9 | Sửa changelog v0.5 §2 cho khớp bảng §5 (`so_goc` chứ không `so_khoan_goc`) | thấp | sửa spec, không sửa code |
-| **10** | **Giữ dòng Chương/Mục ở `extract.py:90`** (§3.5a) — điền `Article.chapter`/`.section` | trung bình | **rất nhỏ**; 47 Chương + 15 Mục có sẵn trong HTML gốc, **0 dữ liệu tay** |
+| ~~10~~ | ~~Giữ dòng Chương/Mục ở `extract.py:90`~~ — ✅ **giải bằng đường khác 04/08**: nguồn crawl trả sẵn, `vbpl_corpus` nhận được **115/174 điều có `chapter`**. Không cần sửa `extract.py` nữa; chỉ còn **nạp** | — | gộp vào #14 |
 | ~~11~~ | ~~Bắc cầu `so_hieu` trên `DocumentMeta`~~ — ✅ **xong 04/08**: 15/15 văn bản có `so_hieu`, `doc_id` không đổi một dòng | — | `app/ingestion/bac_cau.py` · 16 test |
 | ~~12~~ | ~~Chuẩn hoá 4 tên quan hệ~~ — ✅ **xong 04/08**: `SUA_DOI`→`SUA_DOI_BO_SUNG`, `HUONG_DAN`→`CAN_CU` | — | `kiem_quan_he` báo **0 cạnh sai** |
 | ~~13~~ | ~~Nạp lược đồ vbpl thành cạnh~~ — ✅ **xong 04/08**: 48 cạnh quy được về `doc_id`, **0 cạnh rơi**; 30 đầu mút thành **node rỗng** | — | xem §3.6 |
-| **14** | **Crawl 30 văn bản trong `docs/CAN-CRAWL.md`** — node rỗng thành node thật, không cần bước di trú nào | cao | phụ thuộc dữ liệu, không phụ thuộc code |
-| **15** | **Chạy `supabase/migrations/0006_quan_he_v05.sql`** — 2 dòng seed `HUONG_DAN`/`SUA_DOI` **vẫn đang nằm trong Supabase thật** | cao | dán vào SQL Editor; xem §3.6c |
+| **14** | **Nạp 7 văn bản đã crawl vào corpus** — mở khoá ba thứ cùng lúc: `Chuong`/`Muc` (#10), ca `BAI_BO` của §6.2, và sửa 75 khoản gán nhầm chủ (§3.8). **Đường găng hiện tại** | cao | vừa; TT15 khác corpus 9/22 điều và **corpus mới là bên sai** (Điều 18 nuốt Điều 19) ⇒ phải đo từng điều |
+| **15** | ~~Chạy `supabase/migrations/0006_quan_he_v05.sql`~~ — ✅ **user đã chạy 04/08** | — | xem §3.6c |
+| **16** | **Crawl tiếp `docs/CAN-CRAWL.md`** — còn **68 văn bản**; `30/2016/TT-NHNN` và `58/2021/NĐ-CP` ở mức GẤP vì mang `BAI_BO` | cao | phụ thuộc dữ liệu, không phụ thuộc code |
+| **17** | **Dựng lại instance Neo4j** — Aura `fd63789d…` **không phân giải DNS**; mọi truy vấn §6 hiện không chạy được ở đâu cả | cao | tạo instance mới + `push_corpus`; xem §3.6a |
+| **18** | **Nhận `source_url`/`source_files` vào `DocumentMeta`** (§2.6) — bản ghi crawl đã có, `doc_file` đọc xong rồi bỏ đi | trung bình | rất nhỏ; là tiền đề của `da_xac_minh_nguon`, không thay thế nó |
 
 > **Hai mục 10–11 làm đổi thứ tự phụ thuộc của #8.** Bản 03/08 xếp `Chuong`/`Muc` sau #4 (thống
 > nhất ID) vì tưởng phải có `VanBan` node trước. Đo lại: `Article.chapter` là **trường phẳng trên
@@ -559,8 +626,30 @@ for s in ['Số: 52/2024/NĐ-CP', 'Số: 51/2025/TT-BTС', 'Số: 123/QĐ-NHNN',
 "@
 
 # --- §3.6/§3.7: cầu số hiệu → doc_id, node rỗng, danh sách cần crawl ---
-uv run pytest -q tests\test_bac_cau.py tests\test_quan_he_web.py   # 16 + 4
-uv run python -m app.ingestion.can_crawl                            # 30 văn bản cần crawl
+uv run pytest -q tests\test_bac_cau.py tests\test_quan_he_web.py
+uv run python -m app.ingestion.can_crawl        # 20 có toàn văn · 147 cạnh · 68 cần crawl
+
+# --- §3.8: khối trích dẫn — ND80 Điều 1 phải ra 10 khoản, KHÔNG phải 14 ---
+uv run pytest -q tests\test_ontology_trich_dan.py
+
+# --- §3.1 và §3.2: hai lỗi còn sống. Đo TRỰC TIẾP, đừng đọc code rồi suy ---
+$env:PYTHONPATH="."; uv run python -c @"
+from app.ingestion.versioning import is_effective
+print([is_effective('2020-01-01','2024-07-01',False,d) for d in
+       ('2024-06-30','2024-07-01','2024-07-02')])   # [True, True, False] ⇒ khoảng ĐÓNG
+print(is_effective('2030-01-01',None,False,'2026-08-04'))  # False ⇒ UI dán nhãn 'het_hieu_luc'
+"@
+
+# --- §2.3: Chương/Mục — trường sống chưa, dữ liệu nạp chưa ---
+$env:PYTHONPATH="."; uv run python -c @"
+from pathlib import Path
+from app.ingestion.pipeline import load_corpus
+from app.ingestion.vbpl_corpus import doc_thu_muc
+d, _ = load_corpus('data/corpus.real.json')
+print('corpus  :', sum(1 for x in d for a in x.articles if a.chapter), '/', sum(len(x.articles) for x in d))
+k = [x for x in doc_thu_muc(Path('data/raw/vbpl')) if x.van_ban]
+print('đã crawl:', sum(1 for x in k for a in x.van_ban.articles if a.chapter), '/', sum(len(x.van_ban.articles) for x in k))
+"@
 
 # --- §4: 13 guard · 5 Điểm có tiết · 2 nhóm guard anh em ---
 $env:PYTHONPATH="."; uv run pytest -q tests\test_ontology_guard.py tests\test_ontology_phan_hoach.py tests\test_ontology_chapeau_tiet.py
