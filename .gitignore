@@ -11,6 +11,9 @@ __pycache__/
 # LanceDB local store
 data/lancedb/
 
+# Downloaded HF datasets (large binaries, re-downloadable)
+data/tuvanphapluat/
+
 # Cache sitemap vbpl.vn — không phải bản chụp nguồn, tải lại được, ~15-20 MB
 data/raw/vbpl/.sitemap_cache/
 
