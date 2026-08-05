@@ -6,6 +6,29 @@
 
 ---
 
+## 2026-08-05 (T4) — đợt 4: overlay dưới-văn-bản (P1–P3), 8 task subagent-driven TDD
+
+- **Done (P1–P3 qua 8 task, mỗi task TDD đỏ→xanh, 2 vòng fix sau review).** `CanhTacDong` (cạnh
+  con↔con: khoản/điểm chạm khoản/điểm) sinh từ mệnh lệnh sửa đổi → nút overlay thưa
+  (`dung_overlay`) → phiên bản hiện hành theo thời gian + luật cạnh-chết (`phien_ban_hien_hanh`)
+  → định tuyến sau truy hồi (`dinh_tuyen`, 3 nhánh: nguyen_ven/nen_da_sua/trich_trong_van_ban_sua).
+  Số đo thật (xem mục mới trong `docs/KG-CONFORMANCE-v05.md`): **178 cạnh**, đối chứng TT40
+  90.4% (75/83) · TT15 92.5% (37/40) · TT34 92.1% (35/38); **167 khoá đích — 126 da_sua · 36
+  bi_bai_bo · 5 nguyên_ven**; bộ nhãn tay `eval/overlay/cau_hoi_nhan.jsonl` (12 dòng, cả 3
+  nhánh, gắn nhãn bằng đọc luật rồi mới chạy `dinh_tuyen` đối chiếu) khớp **12/12**.
+- **Decision (hai lệch so với kế hoạch — đo rồi giữ số thật, không sửa cho khớp dự đoán).**
+  (1) Kế hoạch đoán TT40 Điều 41 sẽ về `nguyen_ven` "vì TT22 đã giết TT41 Đ16" — dữ liệu thật có
+  cạnh THỨ BA (TT22 Đ1 tự viết lại trực tiếp TT40 Đ41, không chỉ bãi TT41 Đ16) nên trạng thái
+  thật là `da_sua`; sửa test theo số đo, không sửa code cho khớp dự đoán mù.
+  (2) Kế hoạch giả định mỗi `loi_van_moi` nằm gọn trong MỘT khối `trich_dan` — đo thật thấy
+  13/142 cạnh là khối GỘP (nhiều khối trích không liền kề trong cùng mệnh lệnh, đúng luật
+  `canh_tu_dieu` Quy tắc 3), mỗi ca đều mang cảnh báo kèm theo — test đổi sang bất biến chính
+  xác hơn (biên span khớp đúng biên `trich_dan` thật) thay vì khẳng định hẹp ban đầu.
+- **Kiểm:** `uv run pytest -q` **551 passed** · `ruff check .` sạch · `--classify` giữ 94 đơn vị
+  45/9/40.
+
+---
+
 ## 2026-08-05 (T4) — đợt 3: nạp lượt crawl 22 văn bản (20 → 26 văn bản, `BAI_BO` ×4)
 
 - **Done (kiểm độc lập báo cáo crawler trước khi tin).** 22 file corpus + 22 raw; 14 văn bản có toàn văn = đúng **261 điều** như báo cáo; cả 14 qua kiểm `char_span` lớp 1 của mình, 0 cảnh báo đối chứng; 8 VBHN rỗng đúng như đã đoán (giới hạn nguồn). Đuôi `Nơi nhận:` nguồn **vẫn dán** ở 7/14 — bộ cắt của loader xử lý, không lọt vào corpus. TT38 được crawler điền sẵn `valid_to=2024-07-01` — khớp bằng chứng TT15 Đ22 k4 độc lập tìm ra.

@@ -42,6 +42,14 @@ mọi số trong tài liệu này kiểm lại được bằng §6.
 > Đường găng nay là **một việc dữ liệu, không phải việc code**: nạp 7 văn bản đã crawl (#14).
 > *(05/08: #14 xong — xem khối đầu tài liệu; đường găng chuyển sang #16 crawl và #17 Neo4j.)*
 
+> **Overlay dưới-văn-bản (05/08, P1–P3).** 178 cạnh tác động (`eval/overlay/canh_tac_dong.jsonl`),
+> đối chứng hai chiều với `dieu_khoan_bi_tac_dong`: TT40 **90.4%** (75/83) · TT15 **92.5%**
+> (37/40) · TT34 **92.1%** (35/38) — cả ba qua ngưỡng ≥90%. 167 khoá đích xuất hiện trong 178
+> cạnh: **126 da_sua · 36 bi_bai_bo · 5 nguyên_ven** (đo tại 2026-08-05, sau luật cạnh-chết).
+> Bộ câu hỏi gắn nhãn tay (`eval/overlay/cau_hoi_nhan.jsonl`, 12 dòng, cả 3 nhánh) khớp
+> `dinh_tuyen` **12/12**. Cạnh sửa đổi giờ nối con↔con (khoản/điểm chạm khoản/điểm), cạnh văn
+> bản (Điều X sửa đổi Điều Y) chỉ còn làm tầng hiệu lực, không phải nơi tra lời văn mới.
+
 ---
 
 ## 1. Repo có HAI schema văn bản, v0.5 mô tả MỘT

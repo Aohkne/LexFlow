@@ -1,5 +1,11 @@
 from __future__ import annotations
 
+import json
+from pathlib import Path
+
+import pytest
+
+from app.ingestion.pipeline import build_chunks, load_corpus
 from app.ontology.dinh_tuyen import dinh_tuyen, khoa_tu_chunk_id
 from app.ontology.tac_dong import CanhTacDong
 
@@ -47,3 +53,57 @@ def test_nhanh_2_sau_hon_khoa_chet_theo_nguon_bi_bai_bo():
     v_truoc = dinh_tuyen("ND::Điều 5", None, _CANH_SAU_HON, _SH_SAU_HON, "2025-06-01")
     assert v_truoc.nhanh == "nen_da_sua"  # trước ngày B áp, cạnh A còn sống
     assert v_truoc.khoa_dich == "N#than/dieu_5#khoan_2"
+
+
+# --- Bộ câu hỏi gắn nhãn TAY trên dữ liệu THẬT (Task 8) --------------------------------
+#
+# `eval/overlay/cau_hoi_nhan.jsonl` gắn nhãn bằng cách ĐỌC từng chunk + cạnh liên quan
+# (không chạy `dinh_tuyen` trước rồi chép lại — xem `ghi_chu` của từng dòng để thấy lý lẽ
+# pháp lý/toạ độ span). `hom_nay` CỐ ĐỊNH "2026-08-05" cho toàn bộ file nhãn — sau
+# `valid_from` lớn nhất trong `canh_tac_dong.jsonl` (2026-05-19) nên mọi cạnh đều đã áp.
+
+_CORPUS_REAL = Path("data/corpus.real.json")
+_CANH_TAC_DONG_JSONL = Path("eval/overlay/canh_tac_dong.jsonl")
+_CAU_HOI_NHAN_JSONL = Path("eval/overlay/cau_hoi_nhan.jsonl")
+_HOM_NAY = "2026-08-05"
+
+
+@pytest.mark.skipif(
+    not (_CORPUS_REAL.exists() and _CANH_TAC_DONG_JSONL.exists() and _CAU_HOI_NHAN_JSONL.exists()),
+    reason="thiếu data/corpus.real.json, eval/overlay/canh_tac_dong.jsonl hoặc "
+    "eval/overlay/cau_hoi_nhan.jsonl",
+)
+def test_bo_cau_hoi_nhan_khop_100_phan_tram():
+    docs, _rels = load_corpus(_CORPUS_REAL)
+    so_hieu_theo_doc = {d.doc_id: d.so_hieu for d in docs}
+    chunk_theo_id = {c["id"]: c for c in build_chunks(docs)}
+
+    canh = [
+        CanhTacDong.model_validate_json(line)
+        for line in _CANH_TAC_DONG_JSONL.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+
+    hang = [
+        json.loads(line)
+        for line in _CAU_HOI_NHAN_JSONL.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    assert len(hang) >= 10
+
+    nhanh_thay = {"nguyen_ven", "nen_da_sua", "trich_trong_van_ban_sua"}
+    assert {h["nhanh_dung"] for h in hang} == nhanh_thay  # phủ đủ cả 3 nhánh
+
+    sai: list[str] = []
+    for h in hang:
+        # Chunk phải thật sự có trong corpus — nhãn không được trỏ vào một id bịa.
+        assert h["chunk_id"] in chunk_theo_id, f"chunk lạ: {h['chunk_id']}"
+
+        span = tuple(h["span"]) if h["span"] is not None else None
+        v = dinh_tuyen(h["chunk_id"], span, canh, so_hieu_theo_doc, _HOM_NAY)
+        assert v is not None, f"không định tuyến được: {h['chunk_id']}"
+        if v.nhanh != h["nhanh_dung"]:
+            sai.append(f"{h['chunk_id']}: nhãn={h['nhanh_dung']!r} nhưng dinh_tuyen={v.nhanh!r}")
+
+    assert not sai, "\n".join(sai)
+    print(f"\n[cau_hoi_nhan] {len(hang)}/{len(hang)} khớp nhãn tại hôm_nay={_HOM_NAY}")
