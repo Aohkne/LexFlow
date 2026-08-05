@@ -1070,6 +1070,17 @@ def check_tree_coverage(tree: list[dict], noi_dung: str) -> list[str]:
     có 10 Khoản và 10 mới là số đúng, còn đếm phẳng ra 14 vì tính cả 4 khoản của văn bản bị
     sửa được chép vào. Cây đọc theo cấu trúc HTML nên biết đoạn trích là con của khoản; ở văn
     bản sửa đổi cây ĐÚNG HƠN toàn văn đếm phẳng, ngược với 15/2024 (cây thiếu nút thật).
+
+    Câu cảnh báo CỐ TÌNH không nói bên nào sai. Bản cũ viết "cây điều khoản thiếu N ..." và
+    câu đó đã dẫn sai người đọc hai lần: ở 34/2024 Điều 10 cây thiếu thật (nguồn bỏ markup của
+    dòng Khoản, đã sửa ở `_JS_PROVISION_NODES`), nhưng ở 34/2024 Điều 23 thì ngược — cây đúng
+    98 Điểm, còn toàn văn dư 1 vì nguồn render mỗi khối sửa đổi hai lần (một bản mang class
+    `prov-*`, một bản bọc ngoài có nhãn "Điều khoản được sửa đổi, bổ sung", nội dung y hệt).
+    Cây khử được cặp đó, `main.innerText` thì không.
+
+    Không trừ số dòng lặp ra khỏi mốc đối chiếu: đo trên 22 văn bản thì quan hệ giữa hai phép
+    đếm không phải phép trừ (40/2024 cây 221 Điểm còn toàn văn 216), trừ đi chỉ đẻ ra cảnh báo
+    "cây dư" sai. Lệch thì báo lệch, ai đọc phải mở DOM ra mới kết luận được.
     """
     have = count_provisions(tree)
     want = count_units(noi_dung, ngoai_trich_dan=True)
@@ -1077,7 +1088,11 @@ def check_tree_coverage(tree: list[dict], noi_dung: str) -> list[str]:
     for cap, ten in (("dieu", "Điều"), ("khoan", "Khoản"), ("diem", "Điểm")):
         got, exp = have.get(cap, 0), want[cap]
         if got < exp:
-            out.append(f"cây điều khoản thiếu {exp - got} {ten} so với toàn văn ({got}/{exp})")
+            out.append(
+                f"lệch {ten} giữa cây điều khoản và toàn văn: cây {got}, toàn văn {exp} — "
+                "chưa biết bên nào đúng, phải soi DOM (nguồn có khi bỏ markup một dòng khiến "
+                "cây thiếu, có khi render khối sửa đổi 2 lần khiến toàn văn dư)"
+            )
     return out
 
 

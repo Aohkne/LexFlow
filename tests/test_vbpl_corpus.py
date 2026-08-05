@@ -197,10 +197,14 @@ def test_cay_bam_sat_toan_van_tren_du_lieu_that(tt15_sach):
     dem = count_provisions(tree)
     assert dem["dieu"] == 23
     assert dem["diem"] == 57
-    # Còn thiếu đúng 1 Khoản: dòng "3.Dịch vụ thu hộ..." nguồn viết thiếu dấu cách.
+    # Bản chụp nút phẳng này lấy TRƯỚC khi `_JS_PROVISION_NODES` biết bù dòng Khoản không có
+    # thẻ, nên vẫn còn thiếu 1 Khoản. Cào lại bây giờ ra 97; giữ bản chụp cũ ở đây để còn một
+    # ca lệch thật mà kiểm tra `check_tree_coverage`.
     assert dem["khoan"] == 96
     assert check_tree_coverage(tree, tt15_sach) == [
-        "cây điều khoản thiếu 1 Khoản so với toàn văn (96/97)"
+        "lệch Khoản giữa cây điều khoản và toàn văn: cây 96, toàn văn 97 — chưa biết bên nào "
+        "đúng, phải soi DOM (nguồn có khi bỏ markup một dòng khiến cây thiếu, có khi render "
+        "khối sửa đổi 2 lần khiến toàn văn dư)"
     ]
 
 
@@ -210,7 +214,10 @@ def test_check_tree_coverage_len_tieng_khi_lech():
          "hidden": False, "amend_type": None, "amend_badges": []},
     ])
     warnings = check_tree_coverage(tree, "Điều 1. Phạm vi\n1. Một.\n2. Hai.")
-    assert warnings == ["cây điều khoản thiếu 2 Khoản so với toàn văn (0/2)"]
+    assert len(warnings) == 1
+    assert warnings[0].startswith("lệch Khoản giữa cây điều khoản và toàn văn: cây 0, toàn văn 2")
+    # Không được khẳng định bên nào sai: ở 34/2024 Điều 23 chính toàn văn mới là bên dư.
+    assert "cây điều khoản thiếu" not in warnings[0]
 
 
 def test_check_tree_coverage_im_lang_khi_du(tt15_sach):

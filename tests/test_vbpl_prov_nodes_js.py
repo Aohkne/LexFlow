@@ -9,6 +9,8 @@ gặp `<p>` lồng bên trong lúc parse HTML, nên không dựng lại được
 dựng bằng React nên lồng được). Đoạn JS chọn phần tử theo class và attribute `type`, không đụng
 tới tên thẻ, nên khác biệt này không ảnh hưởng điều đang kiểm tra.
 """
+from concurrent.futures import ThreadPoolExecutor
+
 import pytest
 
 from app.ingestion.vbpl import _JS_PROVISION_NODES, build_provision_tree, count_provisions
@@ -59,21 +61,33 @@ HTML_KHOI_MO_DAU_BANG_DIEU = """
 
 @pytest.fixture(scope="module")
 def chay_js():
-    """Trả về hàm: HTML -> danh sách nút phẳng do _JS_PROVISION_NODES bóc ra."""
+    """Trả về hàm: HTML -> danh sách nút phẳng do _JS_PROVISION_NODES bóc ra.
+
+    Chromium chạy trong MỘT THREAD RIÊNG. Playwright sync API từ chối khởi động khi thread
+    hiện tại đang có event loop asyncio, mà chạy cả bộ test thì TestClient của FastAPI để lại
+    đúng cái loop đó — hậu quả là test này lặng lẽ bị skip dù chạy một mình vẫn pass, tức là
+    im lặng đúng lúc cần lên tiếng nhất. Thread sạch thì không dính.
+    """
     sync_api = pytest.importorskip("playwright.sync_api")
-    try:
+
+    def phien(html: str):
         with sync_api.sync_playwright() as p:
             browser = p.chromium.launch()
-            page = browser.new_page()
-
-            def chay(html: str):
+            try:
+                page = browser.new_page()
                 page.set_content(html)
                 return page.evaluate(_JS_PROVISION_NODES)
+            finally:
+                browser.close()
 
-            yield chay
-            browser.close()
-    except sync_api.Error as exc:  # chưa `playwright install chromium`
-        pytest.skip(f"không mở được Chromium: {exc}")
+    def chay(html: str):
+        with ThreadPoolExecutor(max_workers=1) as ex:
+            try:
+                return ex.submit(phien, html).result()
+            except sync_api.Error as exc:  # chưa `playwright install chromium`
+                pytest.skip(f"không mở được Chromium: {exc}")
+
+    return chay
 
 
 def _cap_va_so(nodes):
