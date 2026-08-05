@@ -11,7 +11,14 @@ mọi số trong tài liệu này kiểm lại được bằng §6.
 
 > **05/08 — #14 đã xong: corpus 15 → 20 văn bản (278 → 338 điều), và lần đầu điểm nhích.**
 > Nạp 8 văn bản crawl (5 mới + 3 thay: ND52/TT15/TT40; `29/VBHN-NHNN` giữ làm node rỗng vì vbpl
-> không đăng toàn văn). Hệ quả đo được: `chapter` **115/338** điều (hết 0/278) · §6 lên **5/13
+> không đăng toàn văn). Hệ quả đo được: `chapter` **115/338** điều (hết 0/278) · §6 lên **5/13**…
+>
+> **…và ĐỢT 2 cùng ngày, sau lượt crawl 22 văn bản của bên crawl:** corpus lên **26 văn bản ·
+> 425 điều · 1 289 khoản · 1 053 điểm · `chapter` 180/425 · 35 quan hệ**. `BAI_BO` thành **4**
+> (thêm ND58 —Đ28→ bãi bỏ Đ4 NĐ16; TT15 —Đ22→ bãi bỏ Đ3 TT30/2016 — ca đầu tiên **cả hai đầu
+> đều có toàn văn**). 12 cạnh đợt 2 đều có căn cứ trích từ lời văn hoặc lược đồ; danh sách
+> crawl tự lớn 67→89 vì 13 lược đồ mới trỏ tiếp ra ngoài — đúng thiết kế của `can_crawl`.
+> Khối cũ bên dưới giữ số **đợt 1**: **5/13
 > mã có instance** trong chính corpus (23 cạnh, **hai** cạnh `BAI_BO` kèm neo: NĐ52 —Điều 37→
 > bãi bỏ Điều 3 NĐ16/2019; TT22 —Điều 6 k2→ bãi bỏ Điều 16/17/18 TT41/2025) · ca kiểm chứng §6.2 hết bị chặn bởi "0 `BAI_BO`". Ba phát hiện dọc đường,
 > mỗi cái một bài: (1) `_KHOAN_RE` đòi dấu cách sau `1.` còn vbpl in `1.Việc` dính liền — **bảng
@@ -455,7 +462,11 @@ bỏ cạnh · để tồn đọng · dựng **node rỗng**. Chọn lối thứ
 
 > **05/08, cùng phép đo trên corpus đã nạp:** 67 cạnh (23 corpus + 44 vbpl) vẫn quy hết,
 > **0 rơi**; node rỗng **32 → 27** (5 văn bản nạp đợt này rời tập stub), 38 cạnh đủ hai đầu
-> có toàn văn, 29 còn chạm stub. Đúng cơ chế thiết kế ở §3.6: node rỗng là *trạng thái chờ*,
+> có toàn văn, 29 còn chạm stub.
+>
+> **Đợt 2 (cùng ngày), phép đo chuẩn của test (corpus + lược đồ ND52):** 70 cạnh vào, 0 rơi,
+> **48** đủ hai đầu có toàn văn, **22** node rỗng — xem `test_corpus_that_cong_luoc_do_that`
+> cho số học từng phần của cả ba mốc 48/18/30 → 58/33/25 → 70/48/22. Đúng cơ chế thiết kế ở §3.6: node rỗng là *trạng thái chờ*,
 > mỗi đợt nạp rút bớt — không phải nợ vĩnh viễn.
 
 **Một lược đồ không đủ, và đây là bằng chứng chứ không phải suy đoán.** Lược đồ của một văn bản
@@ -553,8 +564,8 @@ chưa có chỗ nào ghi *"câu luật này nói về mốc bắt đầu hay m�
 |---|---|
 | §4 · Khoá ba nhánh | **1/3** — `#than/` có, `#kemtheo_`/`#phuluc_` không sinh được |
 | §5 · Đánh số Điều/Khoản | **5/6** — thêm luật *phạm vi đánh số* (§3.8), v0.5 chưa có |
-| §3 · Node meta-schema | **4/15** — dữ liệu `Chuong`/`Muc` ~~chưa nạp, corpus 0/278~~ → **nạp 05/08: 115/338 điều có `chapter`** (§2.3); vẫn là trường phẳng, chưa phải node nên điểm khối chưa nhích |
-| §6 · 13 quan hệ | **13/13 trong schema · ~~4/13~~ → 5/13 có instance trong corpus (05/08: thêm `BAI_BO`)** · 7/13 khi hợp nhất 2 lược đồ vbpl — cạnh đã CÓ KIỂU ⇒ Cypher của spec chạy được; sau nạp: **23 cạnh corpus + 35 vbpl = 58 quy hết về `doc_id`, 0 rơi, 25 đầu mút còn là node rỗng, 33 cạnh đủ hai đầu có toàn văn** (§3.7) |
+| §3 · Node meta-schema | **4/15** — dữ liệu `Chuong`/`Muc` ~~chưa nạp, corpus 0/278~~ → **nạp 05/08 (2 đợt): 180/425 điều có `chapter`** (§2.3); vẫn là trường phẳng, chưa phải node nên điểm khối chưa nhích |
+| §6 · 13 quan hệ | **13/13 trong schema · ~~4/13~~ → 5/13 có instance trong corpus (05/08: `BAI_BO` ×4, `kiem_quan_he` 0 cạnh sai)** · 7/13 khi hợp nhất lược đồ vbpl — cạnh đã CÓ KIỂU ⇒ Cypher của spec chạy được; sau đợt 2: **35 cạnh corpus + 35 vbpl (lược đồ ND52) = 70 quy hết về `doc_id`, 0 rơi, 22 đầu mút còn là node rỗng, 48 cạnh đủ hai đầu có toàn văn** (§3.7) |
 | §7 · Tầng thời gian | **0/5** |
 | §8 · Độ tin cậy | **0/2** |
 | §9 · Mười quyết định | 3 đạt · 2 không đạt · 1 một phần · 4 chưa áp dụng được |
@@ -617,11 +628,11 @@ foreach ($n in $names) { "{0,-24} {1}" -f $n, (Select-String -Path $py -SimpleMa
 # --- corpus: TRƯỚC nạp 05/08 các số là 278 · 0 chapter · 13 quan hệ (giữ làm mốc §3.5) ---
 $c = Get-Content data\corpus.real.json -Raw | ConvertFrom-Json
 $a = $c.documents | ForEach-Object { $_.articles }
-$a.Count                                        # 338   (trước 05/08: 278)
-($a | Where-Object { $_.chapter }).Count        # 115   (trước 05/08: 0)
+$a.Count                                        # 425   (trước 05/08: 278; sau đợt 1: 338)
+($a | Where-Object { $_.chapter }).Count        # 180   (trước 05/08: 0; sau đợt 1: 115)
 ($a | Where-Object { $_.valid_to }).Count       # 0 — hết hiệu lực chỉ ghi ở CẤP VĂN BẢN (ND101, ND80…), cấp điều vẫn trống (§2.5 chưa đổi)
-$c.relationships.Count                          # 23    (trước 05/08: 13)
-$c.relationships | Group-Object rel_type        # CAN_CU 7 · SUA_DOI_BO_SUNG 6 · THAY_THE 5 · DAN_CHIEU 3 · BAI_BO 2
+$c.relationships.Count                          # 35    (trước 05/08: 13; sau đợt 1: 23)
+$c.relationships | Group-Object rel_type        # CAN_CU 13 · SUA_DOI_BO_SUNG 9 · THAY_THE 6 · BAI_BO 4 · DAN_CHIEU 3
 
 # --- KhoanNode không có trường `ten` (rỗng = không có) ---
 Select-String -Path app\ontology\schema.py -Pattern "^\s*ten\s*:"
@@ -711,7 +722,7 @@ Hai số ở §4 **không đo lại trong đợt 04/08**, lấy từ số đo đ
 
 ```powershell
 # Nạp lặp lại được (idempotent): chạy thêm lần nữa phải in đúng cùng bộ số, không nhân đôi
-uv run python -m app.ingestion.nap_corpus --kho   # → 20 văn bản · 338 điều · 23 quan hệ
+uv run python -m app.ingestion.nap_corpus --kho   # → 26 văn bản · 425 điều · 35 quan hệ
 
 # 0 cạnh sai, BAI_BO=1, hết cảnh báo "trả RỖNG"
 uv run python -m app.ingestion.kiem_quan_he

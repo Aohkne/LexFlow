@@ -123,8 +123,86 @@ CANH_MOI: list[dict] = [
         "rel_type": "CAN_CU", "valid_from": "2026-02-15",
         "note": (
             "Căn cứ ban hành (lược đồ vbpl). Quan hệ chính của TT66 — sửa TT 34/2024 — "
-            "KHÔNG vào corpus: TT34 chưa có toàn văn, tầng bắc cầu giữ cạnh đó"
+            "vào ở đợt 2 bên dưới, sau khi TT34 được crawl và nạp"
         ),
+    },
+    # --- Đợt 2 (05/08, sau lượt crawl 22 văn bản): 6 văn bản mới có toàn văn ---
+    {
+        "source_doc": "TT15-2024", "target_doc": "TT38-2019",
+        "rel_type": "THAY_THE", "valid_from": "2024-07-01",
+        "note": (
+            "TT 15/2024 Điều 22 khoản 4: 'Thông tư này thay thế cho … Thông tư số "
+            "38/2019/TT-NHNN' — khớp valid_to=2024-07-01 crawler đã điền cho TT38"
+        ),
+    },
+    {
+        "source_doc": "TT15-2024", "target_doc": "TT30-2016",
+        "rel_type": "BAI_BO", "valid_from": "2024-07-01",
+        "note": (
+            "TT 15/2024 Điều 22 khoản 4 (cùng câu với thay thế TT46/TT38): 'bãi bỏ Điều 3 "
+            "của Thông tư số 30/2016/TT-NHNN' — bãi bỏ MỘT PHẦN, khớp tình trạng vbpl "
+            "'Hết hiệu lực một phần'"
+        ),
+        "anchors": [{"source_article": "Điều 22", "target_article": "Điều 3",
+                     "detail": "Bãi bỏ Điều 3 (phần sửa Thông tư 46/2014 về dịch vụ thanh toán)"}],
+    },
+    {
+        "source_doc": "ND58-2021", "target_doc": "ND16-2019",
+        "rel_type": "BAI_BO", "valid_from": "2021-08-15",
+        "note": (
+            "ND 58/2021 Điều 28 khoản 2: 'Bãi bỏ Điều 4 Nghị định số 16/2019/NĐ-CP' — "
+            "cùng khuôn với ND52 bãi bỏ Điều 3: mỗi nghị định thay một mảng thì gỡ đúng "
+            "điều ND16 sửa mảng đó. ND16 'Hết hiệu lực một phần' vì hai vết cắt này"
+        ),
+        "anchors": [{"source_article": "Điều 28", "target_article": "Điều 4",
+                     "detail": "Bãi bỏ Điều 4 (phần sửa ND 10/2010 về thông tin tín dụng)"}],
+    },
+    {
+        "source_doc": "TT30-2025", "target_doc": "TT15-2024",
+        "rel_type": "SUA_DOI_BO_SUNG", "valid_from": "2025-11-18",
+        "note": "Sửa đổi, bổ sung TT 15/2024 (tiêu đề + lược đồ vbpl); Điều 10 thay Phụ lục 01/02",
+    },
+    {
+        "source_doc": "TT21-2026", "target_doc": "TT15-2024",
+        "rel_type": "SUA_DOI_BO_SUNG", "valid_from": "2026-05-19",
+        "note": "Sửa đổi, bổ sung Điều 15 TT 15/2024 (tiêu đề + lược đồ vbpl)",
+        "anchors": [{"source_article": "Điều 1", "target_article": "Điều 15",
+                     "detail": "Sửa đổi, bổ sung Điều 15 (hạn mức, tổng hạn mức giao dịch)"}],
+    },
+    {
+        "source_doc": "TT66-2025", "target_doc": "TT34-2024",
+        "rel_type": "SUA_DOI_BO_SUNG", "valid_from": "2026-02-15",
+        "note": "Sửa đổi, bổ sung TT 34/2024 (tiêu đề + lược đồ vbpl); Điều 14 thay Phụ lục 01–04",
+    },
+    {
+        "source_doc": "TT30-2025", "target_doc": "ND52-2024",
+        "rel_type": "CAN_CU", "valid_from": "2025-11-18",
+        "note": "Căn cứ ban hành (lược đồ vbpl)",
+    },
+    {
+        "source_doc": "TT21-2026", "target_doc": "ND52-2024",
+        "rel_type": "CAN_CU", "valid_from": "2026-05-19",
+        "note": "Căn cứ ban hành (lược đồ vbpl)",
+    },
+    {
+        "source_doc": "TT30-2016", "target_doc": "ND101-2012",
+        "rel_type": "CAN_CU", "valid_from": "2016-11-28",
+        "note": "Căn cứ ban hành (lược đồ vbpl); TT30-2016 thuộc thời kỳ ND101 còn hiệu lực",
+    },
+    {
+        "source_doc": "TT30-2016", "target_doc": "ND80-2016",
+        "rel_type": "CAN_CU", "valid_from": "2016-11-28",
+        "note": "Căn cứ ban hành (lược đồ vbpl)",
+    },
+    {
+        "source_doc": "TT38-2019", "target_doc": "ND101-2012",
+        "rel_type": "CAN_CU", "valid_from": "2020-02-19",
+        "note": "Căn cứ ban hành (lược đồ vbpl)",
+    },
+    {
+        "source_doc": "TT38-2019", "target_doc": "ND80-2016",
+        "rel_type": "CAN_CU", "valid_from": "2020-02-19",
+        "note": "Căn cứ ban hành (lược đồ vbpl)",
     },
 ]
 

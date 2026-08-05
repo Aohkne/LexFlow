@@ -6,6 +6,17 @@
 
 ---
 
+## 2026-08-05 (T4) — đợt 3: nạp lượt crawl 22 văn bản (20 → 26 văn bản, `BAI_BO` ×4)
+
+- **Done (kiểm độc lập báo cáo crawler trước khi tin).** 22 file corpus + 22 raw; 14 văn bản có toàn văn = đúng **261 điều** như báo cáo; cả 14 qua kiểm `char_span` lớp 1 của mình, 0 cảnh báo đối chứng; 8 VBHN rỗng đúng như đã đoán (giới hạn nguồn). Đuôi `Nơi nhận:` nguồn **vẫn dán** ở 7/14 — bộ cắt của loader xử lý, không lọt vào corpus. TT38 được crawler điền sẵn `valid_to=2024-07-01` — khớp bằng chứng TT15 Đ22 k4 độc lập tìm ra.
+- **Done (nạp đợt 2 — 6 văn bản mới, 12 cạnh mới, tất cả có căn cứ).** Corpus: **26 văn bản · 425 điều · 1 289 khoản · 1 053 điểm · `chapter` 180/425 · 35 quan hệ · `kiem_quan_he` 0 cạnh sai**. Quét IGNORECASE (bài học TT22 áp dụng từ đầu) ra hai ca `BAI_BO` mới: **ND58 Đ28 k2 bãi bỏ Đ4 NĐ16** (NĐ16 giờ mang hai vết cắt từ hai nghị định — mỗi nghị định thay một mảng thì gỡ đúng điều sửa mảng đó) và **TT15 Đ22 k4 bãi bỏ Đ3 TT30/2016** — ca đầu tiên **cả nguồn lẫn đích đều có toàn văn**, tức truy vấn §6.2 hết phụ thuộc node rỗng. `BAI_BO` 2 → **4**.
+- **Done (test đo dữ liệu sống theo kịp — và một bài học về test "bằng chứng sống").** Bắc cầu ba mốc cùng phép đo 48/18/30 → 58/33/25 → **70/48/22**, số học khớp từng phần. Test "một lược đồ không đủ" mất chuyên án lần thứ HAI trong ngày (TT41 rồi TT34 lần lượt được nạp) — test neo vào "văn bản còn thiếu" thì mỗi đợt crawl thành công lại phá nó, nên chuyển sang lược đồ dựng tối thiểu, lịch sử hai ca thật giữ trong docstring. Viện dẫn cấp tiết 4 → 17 → **23** (TT30-2025 +3, TT34 +2, TT38 +1 — đo từng văn bản).
+- **Done (danh sách crawl tự lớn 67 → 89 — đúng thiết kế).** 13 lược đồ mới trỏ tiếp ra nhánh thẻ (TT19/2016 + 5 bản sửa), IBPS, thông tin tín dụng… `research/crawl_68_urls.txt` sinh lại: **89/89 có URL vbpl**, xếp GẤP → cao → vừa → thấp.
+- **Ship:** corpus.real.json bản 26 văn bản trong repo. Neo4j: xem mục dưới.
+- **Next:** push đồ thị (2), quyết chuyện `corpus/` tự đứng (3), thiết kế `PhienBanDieu` từ `trich_dan` + `dieu_khoan_bi_tac_dong` (4).
+
+---
+
 ## 2026-08-05 (T4) — #14: nạp 8 văn bản crawl vào corpus (15 → 20 văn bản)
 
 - **Done (kiểm trước nạp — và phép đo từng điều tóm được lỗi của chính bộ tách).** Cả 8 văn bản có toàn văn qua kiểm `char_span` từng ký tự; đo từng điều 3 văn bản trùng (ND52/TT15/TT40) thay vì tin tổng. Ba chỗ tưởng là lỗi crawl hoá ra ngược lại:
