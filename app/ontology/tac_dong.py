@@ -90,8 +90,8 @@ def canh_tu_dieu(
     mac_dinh_nen: str,
     khoi_trich: list[tuple[int, int]],
     valid_from: str | None,
-) -> list[CanhTacDong]:
-    """MỘT điều của văn bản sửa → danh sách cạnh tác động, gắn khối trích dẫn.
+) -> tuple[list[CanhTacDong], list[str]]:
+    """MỘT điều của văn bản sửa → (danh sách cạnh tác động, cảnh báo cấp điều).
 
     `char_start` là vị trí của `text_dieu` trong `noi_dung` (văn bản sửa); `khoi_trich`
     là các span `trich_dan` cũng ở toạ độ `noi_dung`. Năm quy tắc thiết kế:
@@ -108,20 +108,29 @@ def canh_tu_dieu(
        `d = len(nhan_dieu) + 2` bù cho tiền tố `f"{nhan_dieu}. "` đưa vào `parse_dieu` (để
        nó thấy dòng tiêu đề "Điều N. ..." hợp lệ). Nhiều khối trong cùng một mệnh lệnh ⇒
        gộp thành span `(min_start, max_end)`, kèm cảnh báo nếu chúng không liền kề (khe hở
-       giữa hai khối nghĩa là gộp có thể vơ luôn phần không phải lời văn mới).
+       giữa hai khối nghĩa là gộp có thể vơ luôn phần không phải lời văn mới). Một khối
+       CHỒNG LẤN ranh của mệnh lệnh mà không nằm trọn trong đó (cắt ngang biên khoản) bị
+       loại khỏi gộp và cũng phát cảnh báo riêng — im lặng bỏ qua nó cũng là một kiểu đoán.
     4. Mệnh lệnh `sua_doi`/`bo_sung` mà KHÔNG có khối trích nào ⇒ cạnh vẫn tạo,
-       `loi_van_moi=None` + cảnh báo — thiếu lời văn mới là khuyết tật đáng thấy ở tầng
-       trên, không phải lý do vứt cạnh (một cạnh có cảnh báo còn dò được, một cạnh biến mất
-       thì không).
+       `loi_van_moi=None` + cảnh báo trên CHÍNH cạnh đó (`CanhTacDong.canh_bao`) — thiếu
+       lời văn mới là khuyết tật đáng thấy ở tầng trên, không phải lý do vứt cạnh (một cạnh
+       có cảnh báo còn dò được, một cạnh biến mất thì không).
     5. Text đưa vào `parse_citations` là phần NGOÀI khối trích của mệnh lệnh — che bằng
        `trong_trich_dan` của parser trên toàn bộ `full` rồi mới cắt theo khoản: viện dẫn BÊN
        TRONG lời văn mới nói về văn bản NỀN, không phải đích của lệnh đang xét.
 
     Mệnh lệnh không đọc được động từ mở đầu (`thao_tac_tu_cau` trả `None`) thì bị BỎ QUA,
-    không tạo cạnh. Mệnh lệnh không giải được đích nào (`dich_tu_menh_lenh` trả rỗng) cũng
-    bị bỏ qua — `CanhTacDong.dich` bắt buộc phải có giá trị, không có gì để gán thì không
-    có cạnh để tạo; cảnh báo tương ứng vì vậy không có nơi neo và bị mất, đây là lựa chọn có
-    ý thức trong phạm vi hàm này (tầng gọi hàm nếu cần đếm "mệnh lệnh chết" phải tự log riêng).
+    không tạo cạnh, không cảnh báo — không phải mọi câu trong thân điều là một mệnh lệnh
+    (chapeau, câu mô tả...), nên im lặng ở bước này là đúng, không phải mất tích.
+
+    Mệnh lệnh CÓ đọc được động từ nhưng KHÔNG giải được đích nào (`dich_tu_menh_lenh` trả
+    rỗng) thì KHÔNG bị bỏ qua trong im lặng: không có cạnh nào được tạo (không có gì hợp lệ
+    để gán vào `CanhTacDong.dich`), nhưng mọi cảnh báo đã tính cho mệnh lệnh đó — cả cảnh
+    báo Quy tắc 3/4 lẫn cảnh báo "không giải được đích" của `dich_tu_menh_lenh` — đều được
+    gộp vào danh sách cảnh báo TRẢ VỀ Ở CẤP ĐIỀU (phần tử thứ hai của tuple), mỗi cảnh báo
+    có tiền tố `nguon` + đoạn mệnh lệnh rút gọn để người đọc biết cảnh báo này thuộc về đâu
+    mà tra. "Giải không được thì BÁO chứ không đoán" (bất biến của dự án) áp dụng ở đây
+    đúng nghĩa: một mệnh lệnh chết không được phép biến mất không dấu vết.
     """
     full = f"{nhan_dieu}. {text_dieu}"
     d = len(nhan_dieu) + 2
@@ -146,6 +155,7 @@ def canh_tu_dieu(
         don_vi = [(dieu.id, d, len(full), False)]
 
     ra: list[CanhTacDong] = []
+    canh_bao_dieu: list[str] = []
     for nguon, u_start, u_end, la_khoan in don_vi:
         than_menh_lenh = full_ngoai_trich[u_start:u_end]
         if la_khoan:
@@ -157,9 +167,18 @@ def canh_tu_dieu(
 
         span_start = char_start + u_start - d
         span_end = char_start + u_end - d
-        khoi = sorted(
-            (a, b) for a, b in khoi_trich if a >= span_start and b <= span_end
-        )
+        khoi: list[tuple[int, int]] = []
+        for a, b in khoi_trich:
+            if a >= span_start and b <= span_end:
+                khoi.append((a, b))
+            elif a < span_end and b > span_start:
+                # Chồng lấn nhưng không nằm trọn — cắt ngang ranh mệnh lệnh. Loại khỏi
+                # gộp (Quy tắc 3 chỉ gộp khối NẰM TRỌN) và nói ra, không âm thầm bỏ.
+                canh_bao_dieu.append(
+                    f"{nguon}: khối trích cắt ngang ranh mệnh lệnh — trích [{a},{b}) "
+                    f"chồng lấn nhưng không nằm trọn trong span [{span_start},{span_end})"
+                )
+        khoi.sort()
 
         canh_bao: list[str] = []
         loi_van_moi: tuple[int, int] | None = None
@@ -184,6 +203,11 @@ def canh_tu_dieu(
 
         dich_list, canh_bao_dich = dich_tu_menh_lenh(than_menh_lenh, sh_nen, ctx_dieu)
         if not dich_list:
+            # Đọc được động từ nhưng không giải được đích: KHÔNG có cạnh để neo cảnh báo
+            # (CanhTacDong.dich bắt buộc có giá trị) — đẩy lên cảnh báo cấp điều thay vì
+            # để chúng biến mất cùng với mệnh lệnh bị bỏ qua.
+            dia_chi = f"{nguon} ({menh_lenh_hien_thi[:80]!r})"
+            canh_bao_dieu.extend(f"{dia_chi}: {msg}" for msg in canh_bao + canh_bao_dich)
             continue
 
         for dich in dich_list:
@@ -198,4 +222,4 @@ def canh_tu_dieu(
                     canh_bao=canh_bao + canh_bao_dich,
                 )
             )
-    return ra
+    return ra, canh_bao_dieu
