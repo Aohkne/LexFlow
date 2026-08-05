@@ -14,8 +14,8 @@
   → định tuyến sau truy hồi (`dinh_tuyen`, 3 nhánh: nguyen_ven/nen_da_sua/trich_trong_van_ban_sua).
   Số đo thật (xem mục mới trong `docs/KG-CONFORMANCE-v05.md`): **178 cạnh**, đối chứng TT40
   90.4% (75/83) · TT15 92.5% (37/40) · TT34 92.1% (35/38); **167 khoá đích — 126 da_sua · 36
-  bi_bai_bo · 5 nguyên_ven**; bộ nhãn tay `eval/overlay/cau_hoi_nhan.jsonl` (12 dòng, cả 3
-  nhánh, gắn nhãn bằng đọc luật rồi mới chạy `dinh_tuyen` đối chiếu) khớp **12/12**.
+  bi_bai_bo · 5 nguyên_ven**; bộ nhãn tay `eval/overlay/cau_hoi_nhan.jsonl` (13 dòng — 12 lúc nghiệm thu + 1 hàng khoản-gộp thêm ở đợt sửa final review, cả 3
+  nhánh, gắn nhãn bằng đọc luật rồi mới chạy `dinh_tuyen` đối chiếu) khớp **13/13**. Final review toàn nhánh bắt 3 lỗi Important có ca tái hiện (khoá giả cho chunk khoản-gộp — 21.8% corpus; nhánh trích-dẫn không qua luật cạnh-chết; đuôi trích dẫn `bai_bo` in nhầm "sửa bởi") — một đợt sửa, re-review đủ 5/5, suite lên 555.
 - **Decision (hai lệch so với kế hoạch — đo rồi giữ số thật, không sửa cho khớp dự đoán).**
   (1) Kế hoạch đoán TT40 Điều 41 sẽ về `nguyen_ven` "vì TT22 đã giết TT41 Đ16" — dữ liệu thật có
   cạnh THỨ BA (TT22 Đ1 tự viết lại trực tiếp TT40 Đ41, không chỉ bãi TT41 Đ16) nên trạng thái

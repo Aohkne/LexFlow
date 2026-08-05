@@ -47,7 +47,7 @@ mọi số trong tài liệu này kiểm lại được bằng §6.
 > (37/40) · TT34 **92.1%** (35/38) — cả ba qua ngưỡng ≥90%. 167 khoá đích xuất hiện trong 178
 > cạnh: **126 da_sua · 36 bi_bai_bo · 5 nguyên_ven** (đo tại 2026-08-05, sau luật cạnh-chết).
 > Bộ câu hỏi gắn nhãn tay (`eval/overlay/cau_hoi_nhan.jsonl`, 12 dòng, cả 3 nhánh) khớp
-> `dinh_tuyen` **12/12**. Cạnh sửa đổi giờ nối con↔con (khoản/điểm chạm khoản/điểm), cạnh văn
+> `dinh_tuyen` **13/13** (12 khi nghiệm thu Task 8; +1 hàng khoản-gộp sau đợt sửa của final review — vá luôn khoá giả `#khoan_1-3` từng làm 14 chunk trả `nguyen_ven` sai). Cạnh sửa đổi giờ nối con↔con (khoản/điểm chạm khoản/điểm), cạnh văn
 > bản (Điều X sửa đổi Điều Y) chỉ còn làm tầng hiệu lực, không phải nơi tra lời văn mới.
 
 ---
