@@ -1,0 +1,30 @@
+=== 58/2021/NĐ-CP (2 mục nguồn, 2 lệch) ===
+[-] Điều 10. Nguyên tắc lập và gửi hồ sơ nguồn ghi ['sua_doi_bo_sung'] mà không có cạnh
+[-] Điều 10 nguồn ghi ['sua_doi_bo_sung'] mà không có cạnh
+=== 15/2024/TT-NHNN (40 mục nguồn, 3 lệch) ===
+[-] Điều 12. Dịch vụ chuyển tiền nguồn ghi ['thay_the'] mà không có cạnh
+[-] Điều 12 nguồn ghi ['thay_the'] mà không có cạnh
+[-] Điều 14 nguồn ghi ['sua_doi_bo_sung'] mà không có cạnh
+=== 30/2016/TT-NHNN (2 mục nguồn, 2 lệch) ===
+[-] Điều 3. Sửa đổi, bổ sung một số điều của Thông tư số 39/2014/TT-NHNN ngày 11 tháng 12 năm 2014 của Thống đốc Ngân hàng Nhà nước hướng dẫn về dịch vụ trung gian thanh toán nguồn ghi ['bai_bo'] mà không có cạnh
+[-] Điều 3 nguồn ghi ['bai_bo'] mà không có cạnh
+=== 34/2024/TT-NHNN (38 mục nguồn, 3 lệch) ===
+[-] Điều 23 nguồn ghi ['sua_doi_bo_sung'] mà không có cạnh
+[-] Điều 23 nguồn ghi ['sua_doi_bo_sung'] mà không có cạnh
+[-] Điều 23 nguồn ghi ['sua_doi_bo_sung'] mà không có cạnh
+=== 40/2024/TT-NHNN (83 mục nguồn, 14 lệch) ===
+[+] 40/2024/TT-NHNN#than/dieu_41 không có trong dieu_khoan_bi_tac_dong
+[+] 40/2024/TT-NHNN#than/dieu_5 không có trong dieu_khoan_bi_tac_dong
+[+] 40/2024/TT-NHNN#than/dieu_41 không có trong dieu_khoan_bi_tac_dong
+[+] 40/2024/TT-NHNN#than/dieu_46#khoan_1 không có trong dieu_khoan_bi_tac_dong
+[+] 40/2024/TT-NHNN#than/dieu_46#khoan_3 không có trong dieu_khoan_bi_tac_dong
+[+] 40/2024/TT-NHNN#than/dieu_47#khoan_2 không có trong dieu_khoan_bi_tac_dong
+[-] Điều 19. Thỏa thuận mở và sử dụng ví điện tử nguồn ghi ['sua_doi_bo_sung'] mà không có cạnh
+[-] Điều 19. Thỏa thuận mở và sử dụng ví điện tử nguồn ghi ['sua_doi_bo_sung'] mà không có cạnh
+[-] Điều 9 nguồn ghi ['bo_sung'] mà không có cạnh
+[-] Điều 19 nguồn ghi ['sua_doi_bo_sung'] mà không có cạnh
+[-] Điều 19 nguồn ghi ['sua_doi_bo_sung'] mà không có cạnh
+[-] Điều 21 nguồn ghi ['bo_sung'] mà không có cạnh
+[-] Điều 32 nguồn ghi ['bo_sung'] mà không có cạnh
+[-] Điều 37 nguồn ghi ['bo_sung'] mà không có cạnh
+=== 41/2025/TT-NHNN (4 mục nguồn, 0 lệch) ===

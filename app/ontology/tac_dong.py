@@ -11,11 +11,14 @@ ghi đè lời văn, chỉ khi đứng một mình "Bổ sung" mới là thêm m
 """
 from __future__ import annotations
 
+import json
 import re
+from pathlib import Path
 from typing import Literal
 
 from pydantic import BaseModel, Field
 
+from app.ingestion.vbpl_corpus import duong_dan_toan_van, file_da_chuyen_khuon
 from app.ingestion.vbpl_luoc_do import so_hieu_tu_tieu_de
 from app.ontology.citation import parse_citations, to_node_ids
 from app.ontology.parser import parse_dieu, trong_trich_dan
@@ -223,3 +226,256 @@ def canh_tu_dieu(
                 )
             )
     return ra, canh_bao_dieu
+
+
+# --- Đối chứng hai chiều với `dieu_khoan_bi_tac_dong` --------------------------
+
+#: Bóc (số hiệu, điều, cấp, số) từ một khoá đích do `to_node_ids` sinh: luôn
+#: `{so_hieu}#than/dieu_{n}` rồi có thể thêm `#khoan_{n}` rồi `#diem_{n}` — không bao giờ có
+#: `diem` mà thiếu `khoan` phía trước trong CHUỖI, nhưng cấp so khớp lấy theo mức SÂU NHẤT có
+#: mặt (diem > khoan > điều), vì đó là đơn vị đích thật của cạnh.
+_DICH_RE = re.compile(
+    r"^(?P<sh>.+?)#than/dieu_(?P<dieu>[^#]+)(?:#khoan_(?P<khoan>[^#]+))?(?:#diem_(?P<diem>[^#]+))?$"
+)
+
+#: Bóc số điều từ `dieu_khoan_bi_tac_dong[].dieu` — mục cấp điều viết "Điều 8. <tiêu đề>",
+#: mục cấp dưới viết bare "Điều 8". `[^\s.]+` dừng ở dấu chấm hoặc khoảng trắng đầu tiên nên
+#: ăn được cả hai dạng mà không cần biết trước đang đọc dạng nào.
+_MUC_DIEU_RE = re.compile(r"^Điều\s+([^\s.]+)")
+
+#: Một khoá node `...#than/dieu_N[#khoan_..][#diem_..]` bên trong một chuỗi tự do (cảnh báo cấp
+#: điều cũng nhúng `nguon` theo đúng khuôn này) — dùng để đếm "điều lệnh" ở `main` mà không phải
+#: chạy lại `canh_tu_dieu`. Chỉ lấy tới hết số điều: `[^#\s"'()]+` sau `dieu_` chặn ở dấu `#`
+#: kế tiếp (nếu có `#khoan_`/`#diem_`) nên luôn quy về đúng cấp ĐIỀU.
+_DIEU_ID_RE = re.compile(r"[^\s\"'()]+#than/dieu_[^#\s\"'()]+")
+
+
+def _dich_thanh_bo_ba(dich: str) -> tuple[str, str, str | None, str | None] | None:
+    m = _DICH_RE.match(dich)
+    if not m:
+        return None
+    if m.group("diem") is not None:
+        return m.group("sh"), m.group("dieu"), "diem", m.group("diem")
+    if m.group("khoan") is not None:
+        return m.group("sh"), m.group("dieu"), "khoan", m.group("khoan")
+    return m.group("sh"), m.group("dieu"), None, None
+
+
+def _muc_thanh_bo_ba(muc: dict) -> tuple[str, str | None, str | None] | None:
+    m = _MUC_DIEU_RE.match((muc.get("dieu") or "").strip())
+    if not m:
+        return None
+    cap = muc.get("cap")
+    if cap not in ("khoan", "diem"):
+        cap = None  # cấp "dieu"/"khac"/vắng mặt đều coi là mục Ở CẤP ĐIỀU (so bằng số điều)
+    so = muc.get("so") if cap else None
+    return m.group(1), cap, so
+
+
+def _khop(dieu_c: str, cap_c: str | None, so_c: str | None,
+          dieu_m: str, cap_m: str | None, so_m: str | None) -> bool:
+    """Một cạnh và một mục nguồn có nói về CÙNG một chỗ trong văn bản nền không.
+
+    Mục cấp điều (`cap_m is None`) chỉ đòi khớp số điều — không quan tâm cạnh trỏ vào khoản
+    nào bên trong. Mục cấp dưới điều đòi khớp đúng (điều, cấp, số); một cạnh trỏ NGUYÊN điều
+    (`cap_c is None`, ví dụ bãi bỏ cả điều) vẫn được coi là khớp mọi mục cấp dưới của điều đó
+    — bãi bỏ cả điều kéo theo mọi khoản/điểm bên trong, nên không thể coi là lệch.
+    """
+    if dieu_c != dieu_m:
+        return False
+    if cap_m is None:
+        return True
+    return cap_c is None or (cap_c == cap_m and so_c == so_m)
+
+
+def doi_chung(canh: list[CanhTacDong], muc: list[dict], so_hieu_nen: str) -> list[str]:
+    """Cạnh tác động mình sinh ra so HAI CHIỀU với `dieu_khoan_bi_tac_dong` của văn bản nền.
+
+    Lệch KHÔNG phải lỗi dừng: đây là công cụ soi, không phải bộ kiểm hợp lệ. Cả hai chiều đều
+    in kèm địa chỉ (khoá node đầy đủ / chuỗi "Điều N" nguyên văn) để người đọc tra thẳng vào
+    nguồn mà không cần lần lại qua code.
+    """
+    canh_dich = [
+        (c, *bo_ba)
+        for c in canh
+        if (bo_ba := _dich_thanh_bo_ba(c.dich)) is not None and bo_ba[0] == so_hieu_nen
+    ]
+    canh_dich = [(c, dieu, cap, so) for c, _sh, dieu, cap, so in canh_dich]
+
+    muc_dich = [
+        (m, *bo_ba) for m in muc if (bo_ba := _muc_thanh_bo_ba(m)) is not None
+    ]
+
+    lech: list[str] = []
+    for c, dieu_c, cap_c, so_c in canh_dich:
+        if not any(
+            _khop(dieu_c, cap_c, so_c, dieu_m, cap_m, so_m)
+            for _, dieu_m, cap_m, so_m in muc_dich
+        ):
+            lech.append(f"[+] {c.dich} không có trong dieu_khoan_bi_tac_dong")
+    for m, dieu_m, cap_m, so_m in muc_dich:
+        if not any(
+            _khop(dieu_c, cap_c, so_c, dieu_m, cap_m, so_m)
+            for _, dieu_c, cap_c, so_c in canh_dich
+        ):
+            lech.append(f"[-] {m['dieu']} nguồn ghi {m['phan_loai']} mà không có cạnh")
+    return lech
+
+
+# --- Quét cả thư mục ------------------------------------------------------------
+
+
+def _dau_tien(text: str) -> str:
+    return (text or "").split("\n", 1)[0].strip()
+
+
+def doc_tac_dong(thu_muc: Path) -> tuple[list[CanhTacDong], list[str]]:
+    """Mọi văn bản CÓ TOÀN VĂN trong `thu_muc` → cạnh tác động + cảnh báo gộp.
+
+    **`char_start` không cần bù trừ gì thêm ở tầng gọi** — đây là phát hiện phải xác nhận
+    bằng thăm dò trước khi viết hàm này (chữ ký `canh_tu_dieu` nhìn thoáng qua như đòi trừ
+    `len(nhan_dieu) + 2`, nhưng đó là phép bù NỘI BỘ của nó cho tiền tố nó tự thêm). `articles[]`
+    của corpus lưu `char_start` là vị trí của CHÍNH `text` (không kèm "Điều N. ") trong
+    `noi_dung` của bản ghi thô — đúng quy ước `canh_tu_dieu` đợi nhận. Đo trên TT41/2025 Điều 1:
+    `loi_van_moi=(1087,1309)` và `noi_dung[1087] == '"'` — đúng ký tự mở ngoặc kép của khối
+    trích đầu tiên, không lệch một ký tự nào.
+
+    Văn bản sửa = có ≥1 điều mà `thao_tac_tu_cau` đọc được động từ mệnh lệnh ở DÒNG ĐẦU thân
+    điều (đa số điều lệnh không chẻ khoản viết ngay động từ ở dòng đầu). Đây chỉ là bộ lọc
+    Ở CẤP VĂN BẢN — một khi văn bản đã vào diện "sửa", MỌI điều của nó đều được đưa qua
+    `canh_tu_dieu`, kể cả điều có tiêu đề không phải mệnh lệnh (ca TT22 Điều 6 "Điều khoản thi
+    hành": khoản 1 là hiệu lực thi hành, khoản 2 mới là "Bãi bỏ Điều 16, 17, 18..." — lọc ở
+    mức điều sẽ làm rớt đúng cạnh khoá cứng của nghiệm thu này).
+
+    `mac_dinh_nen` (số hiệu nền khi tiêu đề MỘT điều không tự nêu, ca TT41 Đ8 "Bãi bỏ khoản 4
+    Điều 24" không nói khoản 4 Điều 24 của văn bản nào) lấy từ bản ghi thô, quan hệ lược đồ
+    `luoc_do.outgoing["Văn bản được sửa đổi bổ sung"]`, mục ĐẦU TIÊN. Văn bản sửa nhiều nền
+    cùng lúc (TT30/2016 → TT19/2016 + TT22/2015 + TT39/2014) luôn tự nêu số hiệu nền trong
+    CHÍNH tiêu đề từng điều, nên fallback này chỉ thật sự được dùng ở các văn bản một-nền —
+    đúng lúc nó cần đúng.
+    """
+    ra: list[CanhTacDong] = []
+    canh_bao: list[str] = []
+    for p in file_da_chuyen_khuon(thu_muc):
+        try:
+            corpus = json.loads(p.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            canh_bao.append(f"{p.name}: không đọc được JSON corpus")
+            continue
+
+        dieu_list = corpus.get("articles") or []
+        if not dieu_list:
+            continue  # văn bản 0 điều (VBHN không có toàn văn) — bỏ sạch, không phải lỗi
+
+        so_hieu_sua = corpus.get("so_hieu")
+        if not so_hieu_sua:
+            canh_bao.append(f"{p.name}: thiếu so_hieu — bỏ qua cả văn bản")
+            continue
+
+        la_van_ban_sua = any(
+            thao_tac_tu_cau(_dau_tien(a.get("text") or "")) is not None for a in dieu_list
+        )
+        if not la_van_ban_sua:
+            continue
+
+        p_tho = duong_dan_toan_van(p)
+        if not p_tho.exists():
+            canh_bao.append(f"{so_hieu_sua}: thiếu bản ghi thô {p_tho.name!r} — bỏ qua")
+            continue
+        try:
+            tho = json.loads(p_tho.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            canh_bao.append(f"{so_hieu_sua}: bản ghi thô {p_tho.name!r} không đọc được JSON")
+            continue
+
+        mac_dinh_nen = so_hieu_sua
+        muc_tieu = (
+            (tho.get("luoc_do") or {}).get("outgoing") or {}
+        ).get("Văn bản được sửa đổi bổ sung") or []
+        if muc_tieu:
+            sh, _cb = so_hieu_tu_tieu_de(muc_tieu[0].get("title") or "")
+            if sh:
+                mac_dinh_nen = sh
+
+        valid_from = corpus.get("valid_from")
+        khoi_toan_bo = [
+            (t["char_start"], t["char_end"])
+            for t in corpus.get("trich_dan") or []
+            if isinstance(t.get("char_start"), int) and isinstance(t.get("char_end"), int)
+        ]
+
+        for a in dieu_list:
+            nhan = a.get("article")
+            cs, ce = a.get("char_start"), a.get("char_end")
+            if not nhan or not isinstance(cs, int) or not isinstance(ce, int):
+                canh_bao.append(
+                    f"{so_hieu_sua}: điều {nhan!r} thiếu char_start/char_end — bỏ qua"
+                )
+                continue
+            khoi = [(a0, b0) for a0, b0 in khoi_toan_bo if a0 >= cs and b0 <= ce]
+            canh, canh_bao_dieu = canh_tu_dieu(
+                nhan, a.get("text") or "", cs, so_hieu_sua, mac_dinh_nen, khoi, valid_from
+            )
+            ra.extend(canh)
+            canh_bao.extend(f"{so_hieu_sua}: {w}" for w in canh_bao_dieu)
+    return ra, canh_bao
+
+
+def main() -> None:
+    thu_muc = Path("data/raw/vbpl")
+    canh, canh_bao = doc_tac_dong(thu_muc)
+
+    theo_nguon: dict[str, list[CanhTacDong]] = {}
+    for c in canh:
+        theo_nguon.setdefault(c.nguon.split("#", 1)[0], []).append(c)
+
+    cb_theo_nguon: dict[str, int] = {}
+    dieu_lenh: dict[str, set[str]] = {}
+    for c in canh:
+        for did in _DIEU_ID_RE.findall(c.nguon):
+            dieu_lenh.setdefault(did.split("#", 1)[0], set()).add(did)
+    for w in canh_bao:
+        sh_prefix, _, phan_con_lai = w.partition(": ")
+        cb_theo_nguon[sh_prefix] = cb_theo_nguon.get(sh_prefix, 0) + 1
+        for did in _DIEU_ID_RE.findall(phan_con_lai):
+            dieu_lenh.setdefault(sh_prefix, set()).add(did)
+
+    tat_ca_nguon = sorted(set(theo_nguon) | set(cb_theo_nguon))
+    print(f"{'văn bản sửa':<22} {'điều lệnh':>9} {'cạnh':>6} {'cảnh báo':>8}")
+    for sh in tat_ca_nguon:
+        print(
+            f"{sh:<22} {len(dieu_lenh.get(sh, ())):>9} "
+            f"{len(theo_nguon.get(sh, [])):>6} {cb_theo_nguon.get(sh, 0):>8}"
+        )
+
+    dong_doi_chung: list[str] = []
+    for p in file_da_chuyen_khuon(thu_muc):
+        corpus = json.loads(p.read_text(encoding="utf-8"))
+        so_hieu = corpus.get("so_hieu")
+        if not so_hieu:
+            continue
+        p_tho = duong_dan_toan_van(p)
+        if not p_tho.exists():
+            continue
+        tho = json.loads(p_tho.read_text(encoding="utf-8"))
+        muc = tho.get("dieu_khoan_bi_tac_dong") or []
+        if not muc:
+            continue
+        lech = doi_chung(canh, muc, so_hieu)
+        dong_doi_chung.append(f"=== {so_hieu} ({len(muc)} mục nguồn, {len(lech)} lệch) ===")
+        dong_doi_chung.extend(lech)
+
+    out_dir = Path("eval/overlay")
+    out_dir.mkdir(parents=True, exist_ok=True)
+    (out_dir / "canh_tac_dong.jsonl").write_text(
+        "".join(c.model_dump_json() + "\n" for c in canh), encoding="utf-8"
+    )
+    (out_dir / "doi_chung.txt").write_text(
+        "".join(line + "\n" for line in dong_doi_chung), encoding="utf-8"
+    )
+    print(f"\nghi {len(canh)} cạnh -> {out_dir / 'canh_tac_dong.jsonl'}")
+    print(f"ghi đối chứng -> {out_dir / 'doi_chung.txt'}")
+
+
+if __name__ == "__main__":
+    main()
