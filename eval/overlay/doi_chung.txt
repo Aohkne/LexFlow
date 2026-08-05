@@ -28,3 +28,17 @@
 [-] Điều 32 nguồn ghi ['bo_sung'] mà không có cạnh
 [-] Điều 37 nguồn ghi ['bo_sung'] mà không có cạnh
 === 41/2025/TT-NHNN (4 mục nguồn, 0 lệch) ===
+
+--- cảnh báo cấp điều ---
+30/2016/TT-NHNN: 30/2016/TT-NHNN#than/dieu_1#khoan_12 ('Thay thế Phụ lục ban hành kèm theo Thông tư số 19/2016/TT-NHNN ngày 30 tháng 6 n'): không giải được đích từ mệnh lệnh: 'Thay thế Phụ lục ban hành kèm theo Thông tư số 19/2016/TT-NHNN ngày 30 tháng 6 n'
+30/2025/TT-NHNN: 30/2025/TT-NHNN#than/dieu_4#khoan_1 ('Thay thế cụm từ "người chuyển tiền" bằng cụm từ "bên chuyển tiền".'): nhiều khối trích không liền kề trong cùng mệnh lệnh '30/2025/TT-NHNN#than/dieu_4#khoan_1' — gộp thành span (5649, 5698)
+30/2025/TT-NHNN: 30/2025/TT-NHNN#than/dieu_4#khoan_1 ('Thay thế cụm từ "người chuyển tiền" bằng cụm từ "bên chuyển tiền".'): không giải được đích từ mệnh lệnh: 'Thay thế cụm từ                     bằng cụm từ                  .'
+30/2025/TT-NHNN: 30/2025/TT-NHNN#than/dieu_4#khoan_2 ('Thay thế cụm từ "người thụ hưởng" bằng cụm từ "bên thụ hưởng".'): nhiều khối trích không liền kề trong cùng mệnh lệnh '30/2025/TT-NHNN#than/dieu_4#khoan_2' — gộp thành span (5719, 5764)
+30/2025/TT-NHNN: 30/2025/TT-NHNN#than/dieu_4#khoan_2 ('Thay thế cụm từ "người thụ hưởng" bằng cụm từ "bên thụ hưởng".'): không giải được đích từ mệnh lệnh: 'Thay thế cụm từ                   bằng cụm từ                .'
+30/2025/TT-NHNN: 30/2025/TT-NHNN#than/dieu_10#khoan_1 ('Thay thế Phụ lục số 01 ban hành kèm theo Thông tư số 15/2024/TT-NHNN bằng Phụ lụ'): không giải được đích từ mệnh lệnh: 'Thay thế Phụ lục số 01 ban hành kèm theo Thông tư số 15/2024/TT-NHNN bằng Phụ lụ'
+30/2025/TT-NHNN: 30/2025/TT-NHNN#than/dieu_10#khoan_2 ('Thay thế Phụ lục số 02 ban hành kèm theo Thông tư số 15/2024/TT-NHNN bằng Phụ lụ'): không giải được đích từ mệnh lệnh: 'Thay thế Phụ lục số 02 ban hành kèm theo Thông tư số 15/2024/TT-NHNN bằng Phụ lụ'
+30/2025/TT-NHNN: 30/2025/TT-NHNN#than/dieu_10#khoan_3 ('Thay thế Phụ lục số 04 ban hành kèm theo Thông tư 15/2024/TT-NHNN bằng Phụ lục 0'): không giải được đích từ mệnh lệnh: 'Thay thế Phụ lục số 04 ban hành kèm theo Thông tư 15/2024/TT-NHNN bằng Phụ lục 0'
+30/2025/TT-NHNN: 30/2025/TT-NHNN#than/dieu_10#khoan_4 ('Bổ sung Phụ lục 05.'): mệnh lệnh 'bo_sung' không có khối trích dẫn — thiếu lời văn mới
+30/2025/TT-NHNN: 30/2025/TT-NHNN#than/dieu_10#khoan_4 ('Bổ sung Phụ lục 05.'): không giải được đích từ mệnh lệnh: 'Bổ sung Phụ lục 05.'
+41/2025/TT-NHNN: 41/2025/TT-NHNN#than/dieu_25 ('Thay thế Phụ lục kèm theo Thông tư 40/2024/TT-NHNN\nThay thế Phụ lục số 01, Phụ l'): không giải được đích từ mệnh lệnh: 'Thay thế Phụ lục kèm theo Thông tư 40/2024/TT-NHNN\nThay thế Phụ lục số 01, Phụ l'
+66/2025/TT-NHNN: 66/2025/TT-NHNN#than/dieu_14 ('Thay thế một số Phụ lục kèm theo Thông tư số 34/2024/TT-NHNN\nThay thế Phụ lục 01'): không giải được đích từ mệnh lệnh: 'Thay thế một số Phụ lục kèm theo Thông tư số 34/2024/TT-NHNN\nThay thế Phụ lục 01'

@@ -28,10 +28,20 @@ from app.ontology.tac_dong import CanhTacDong
 from app.ontology.tac_dong import _DICH_RE as _KHOA_RE
 
 #: Nhãn chunk `"Điều 8"` hoặc `"Điều 8 Khoản 7"` — đúng dạng `_khoan_label` của
-#: `app/ingestion/pipeline.py` sinh ra cho chunk KHÔNG gộp nhiều khoản (gộp "Khoản 1-3" hay
-#: cắt cửa sổ "(phần 2)" không giải được thành MỘT khoá duy nhất nên nằm ngoài regex này —
-#: khoá bên dưới do brief chỉ định, không mở rộng).
-_NHAN_RE = re.compile(r"^Điều\s+(\d+[a-zđ]?)(?:\s+Khoản\s+(\S+))?$")
+#: `app/ingestion/pipeline.py` sinh ra cho chunk KHÔNG gộp nhiều khoản. Khoản phải là MỘT
+#: khoản thật (`\d+[a-zđ]?`) — không `\S+` (review round 2, F1): `\S+` khớp cả "1-6" của một
+#: nhãn GỘP nhiều khoản và mint một khoá `#khoan_1-3` KHÔNG TỒN TẠI, khiến chunk (21.8% số
+#: chunk thật) rớt khỏi mọi cạnh tác động và bị đọc nhầm là nguyên vẹn. Cắt cửa sổ ký tự
+#: "(phần 2)" (điều không chẻ khoản được) vẫn không giải được thành MỘT khoá — nằm ngoài
+#: regex này lẫn regex gộp bên dưới, `khoa_tu_chunk_id` trả `None` cho dạng đó.
+_NHAN_RE = re.compile(r"^Điều\s+(\d+[a-zđ]?)(?:\s+Khoản\s+(\d+[a-zđ]?))?$")
+
+#: Nhãn GỘP nhiều khoản liền kề — `_khoan_label` chỉ sinh dạng `"{đầu}-{cuối}"` với hai số
+#: khoản thuần chữ số (`_KHOAN_RE` của pipeline.py chỉ bắt `^\d+\.`, không có hậu tố chữ).
+#: Khớp dạng này thì KHÔNG mint khoá khoản (không biết chính xác khoản nào trong dải bị
+#: tác động) — chỉ lấy phần điều, để `dinh_tuyen` dò tiếp bằng `_canh_deeper_ap_duoc` (khoá
+#: điều là khoá THẬT, chunk chắc chắn là một phần của điều đó — review round 2, F1).
+_NHAN_GOP_KHOAN_RE = re.compile(r"^Điều\s+(\d+[a-zđ]?)\s+Khoản\s+\d+-\d+$")
 
 # `_KHOA_RE` = `app.ontology.tac_dong._DICH_RE` — cùng bóc một khoá overlay
 # `{so_hieu}#than/dieu_N[#khoan_M[#diem_x]]` thành các phần, tái dùng thay vì khai lại
@@ -42,7 +52,14 @@ def khoa_tu_chunk_id(chunk_id: str, so_hieu_theo_doc: dict[str, str]) -> str | N
     """Chunk-id `"{doc_id}::{label}"` → khoá overlay `"{so_hieu}#than/dieu_N[#khoan_M]"`.
 
     Trả `None` khi `doc_id` không có trong bảng (văn bản lạ) hoặc `label` không khớp dạng
-    "Điều N" / "Điều N Khoản M" — KHÔNG bịa khoá cho những trường hợp không chắc.
+    "Điều N" / "Điều N Khoản M" / "Điều N Khoản M-K" (gộp) — KHÔNG bịa khoá cho những trường
+    hợp không chắc.
+
+    Nhãn GỘP nhiều khoản (`_NHAN_GOP_KHOAN_RE`, vd `"Điều 8 Khoản 1-6"`) không cho ra một khoá
+    khoản — không khoản nào trong dải "1-6" là MỘT khoản thật để mint `#khoan_1-6` (khoá đó
+    không tồn tại trong overlay, không cạnh nào trỏ tới). Rơi về khoá CẤP ĐIỀU thay: khoá đó
+    thật (chunk chắc chắn nằm trong điều này) và đủ để `dinh_tuyen` dò tiếp cạnh sâu hơn bên
+    trong điều qua `_canh_deeper_ap_duoc` (review round 2, F1).
     """
     doc_id, sep, nhan = chunk_id.partition("::")
     if not sep:
@@ -51,9 +68,13 @@ def khoa_tu_chunk_id(chunk_id: str, so_hieu_theo_doc: dict[str, str]) -> str | N
     if so_hieu is None:
         return None
     m = _NHAN_RE.match(nhan)
-    if not m:
-        return None
-    dieu, khoan = m.group(1), m.group(2)
+    if m:
+        dieu, khoan = m.group(1), m.group(2)
+    else:
+        m_gop = _NHAN_GOP_KHOAN_RE.match(nhan)
+        if not m_gop:
+            return None
+        dieu, khoan = m_gop.group(1), None
     khoa = f"{so_hieu}#than/dieu_{dieu}"
     if khoan:
         khoa += f"#khoan_{khoan}"
@@ -146,6 +167,15 @@ def dinh_tuyen(
     so_hieu_doc = so_hieu_theo_doc.get(doc_id)
 
     # --- Nhánh 3: chunk thuộc văn bản SỬA, span retrieval trùng lời văn mới của cạnh nó phát.
+    #
+    # Khớp span KHÔNG đủ để nói "sửa bởi" ở thì hiện tại (review round 2, F2): cạnh có thể đã
+    # CHẾT (luật cạnh-chết của `phien_ban_hien_hanh` — chính nguồn phát ra nó đã bị bãi bỏ) dù
+    # đoạn văn bản vẫn nằm đó và span vẫn khớp. Cổng qua `phien_ban_hien_hanh(c.dich, ...)`:
+    # cạnh còn ÁP ĐƯỢC hôm nay khi và chỉ khi nó có mặt trong `cac_lan` (route công khai, không
+    # tự chấm valid_from/cạnh-chết ở đây). Chunk vẫn LÀ một trích dẫn (span vẫn khớp lời văn nó
+    # mang) nên vẫn về nhánh `trich_trong_van_ban_sua` — chỉ câu trích dẫn phải nói thật là sửa
+    # đổi đó không còn hiệu lực, kèm ai đã bãi bỏ nó (suy từ `phien_ban_hien_hanh(c.nguon, ...)`,
+    # cùng cách `_canh_deeper_ap_duoc` đã làm cho nhánh 2).
     if span_chunk is not None and so_hieu_doc is not None:
         for c in canh:
             if (
@@ -153,11 +183,26 @@ def dinh_tuyen(
                 and c.loi_van_moi is not None
                 and _giao_nhau(span_chunk, c.loi_van_moi)
             ):
+                pb_dich = phien_ban_hien_hanh(c.dich, canh, hom_nay)
+                if c in pb_dich.cac_lan:
+                    trich = f"{_cite(c.dich)} (sửa bởi {_cite(c.nguon)})"
+                else:
+                    pb_nguon = phien_ban_hien_hanh(c.nguon, canh, hom_nay)
+                    if pb_nguon.trang_thai == "bi_bai_bo":
+                        bai_bo_edge = pb_nguon.cac_lan[-1]
+                        trich = (
+                            f"{_cite(c.dich)} (từng được sửa bởi {_cite(c.nguon)} — đã bị "
+                            f"bãi bỏ bởi {_cite(bai_bo_edge.nguon)}, không còn áp dụng)"
+                        )
+                    else:
+                        # Chưa gặp trong dữ liệu thật (vd valid_from còn ở tương lai) — vẫn
+                        # nói thẳng "không áp dụng" thay vì im lặng giữ nguyên "sửa bởi".
+                        trich = f"{_cite(c.dich)} (từng được sửa bởi {_cite(c.nguon)}, hiện không áp dụng)"
                 return KetQuaTuyen(
                     nhanh="trich_trong_van_ban_sua",
                     khoa_goc=khoa_goc,
                     khoa_dich=c.dich,
-                    trich_dan_dung_chu=f"{_cite(c.dich)} (sửa bởi {_cite(c.nguon)})",
+                    trich_dan_dung_chu=trich,
                 )
 
     # --- Nhánh 2: chunk thuộc văn bản NỀN, đã bị sửa/bãi bỏ — rộng-hơn-hoặc-bằng trước.
@@ -175,11 +220,16 @@ def dinh_tuyen(
 
     sau_hon = _canh_deeper_ap_duoc(khoa_goc, canh, hom_nay)
     if sau_hon is not None:
+        # Cùng chữ với nhánh rộng-hơn-hoặc-bằng ở trên (review round 2, F3): `sau_hon` có thể
+        # là `bai_bo` (vd bãi điểm c bên trong một khoản) — "sửa bởi" cho một lệnh XOÁ là nói
+        # sai thao tác, dù "route" (nen_da_sua) vẫn đúng.
+        if sau_hon.thao_tac == "bai_bo":
+            trich = f"{_cite(sau_hon.dich)} (đã bị bãi bỏ bởi {_cite(sau_hon.nguon)})"
+        else:
+            trich = f"{_cite(sau_hon.dich)} (sửa bởi {_cite(sau_hon.nguon)})"
         return KetQuaTuyen(
-            nhanh="nen_da_sua",
-            khoa_goc=khoa_goc,
-            khoa_dich=sau_hon.dich,
-            trich_dan_dung_chu=f"{_cite(sau_hon.dich)} (sửa bởi {_cite(sau_hon.nguon)})",
+            nhanh="nen_da_sua", khoa_goc=khoa_goc, khoa_dich=sau_hon.dich,
+            trich_dan_dung_chu=trich,
         )
 
     # --- Nhánh 1: không cạnh nào chạm — nguyên vẹn.

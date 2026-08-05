@@ -465,6 +465,16 @@ def main() -> None:
         dong_doi_chung.append(f"=== {so_hieu} ({len(muc)} mục nguồn, {len(lech)} lệch) ===")
         dong_doi_chung.extend(lech)
 
+    # Cảnh báo cấp điều (`canh_bao_dieu` gộp lên từ `canh_tu_dieu` — mệnh lệnh đọc được động
+    # từ nhưng không giải được đích, khối trích cắt ngang ranh...) trước đây chỉ ĐẾM ra console
+    # (`cb_theo_nguon`) — chữ thật của từng cảnh báo biến mất, không ai tra lại được (review
+    # round 2, F4). Ghi nguyên văn vào cuối `doi_chung.txt` thay vì một file riêng: cùng là sản
+    # phẩm "soi" của `main()`, không phải bộ kiểm hợp lệ.
+    if canh_bao:
+        dong_doi_chung.append("")
+        dong_doi_chung.append("--- cảnh báo cấp điều ---")
+        dong_doi_chung.extend(canh_bao)
+
     out_dir = Path("eval/overlay")
     out_dir.mkdir(parents=True, exist_ok=True)
     (out_dir / "canh_tac_dong.jsonl").write_text(
