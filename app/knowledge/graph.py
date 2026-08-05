@@ -37,7 +37,9 @@ from app.core.schemas import (
 
 #: Khớp mọi cạnh quan hệ. Liệt kê tường minh thay vì `[e]` trần: một cạnh không thuộc 13
 #: mã sẽ **không** lọt vào kết quả đọc, thay vì lặng lẽ đi tiếp như hồi còn `[:REL]`.
-_MOI_CANH = "|".join(f":{m}" for m in REL_TYPES)
+#: Cú pháp `:A|B|C` (một dấu hai chấm cho cả chuỗi): dạng cũ `:A|:B` bị Neo4j 5 bỏ khi có
+#: biến `e` đứng trước — lỗi chỉ lộ ra ngày đầu tiên chạy trên server thật (05/08).
+_MOI_CANH = ":" + "|".join(REL_TYPES)
 
 
 def _kiem_ma(rel_type: str) -> str:
@@ -211,7 +213,9 @@ def related_docs(doc_ids: list[str], ke_ca_rong: bool = False) -> list[str]:
     """
     if not doc_ids:
         return []
-    loc = "" if ke_ca_rong else "AND b.co_toan_van IS NOT false "
+    # `coalesce(…, true)`: node nạp trước khi có trường này mang null, và chúng đều CÓ toàn
+    # văn. Viết `IS NOT false` là cú pháp Python lạc sang Cypher — Neo4j 5 từ chối.
+    loc = "" if ke_ca_rong else "AND coalesce(b.co_toan_van, true) "
     with session() as s:
         rec = s.run(
             f"MATCH (a:Document)-[{_MOI_CANH}]-(b:Document) "
@@ -257,7 +261,7 @@ def don_node_rong_da_co_toan_van() -> list[str]:
         rec = s.run(
             "MATCH (rong:Document) WHERE rong.co_toan_van = false "
             "MATCH (that:Document) "
-            "WHERE that.so_hieu = rong.doc_id AND that.co_toan_van IS NOT false "
+            "WHERE that.so_hieu = rong.doc_id AND coalesce(that.co_toan_van, true) "
             "RETURN collect(DISTINCT rong.doc_id) AS ids"
         ).single()
         ids = (rec["ids"] if rec else []) or []
@@ -271,7 +275,7 @@ def don_node_rong_da_co_toan_van() -> list[str]:
                     f"""
                     MATCH (rong:Document) WHERE rong.doc_id IN $ids
                     MATCH (that:Document) WHERE that.so_hieu = rong.doc_id
-                          AND that.co_toan_van IS NOT false
+                          AND coalesce(that.co_toan_van, true)
                     MATCH {cu}
                     MERGE {moi}
                     SET m += properties(e)
