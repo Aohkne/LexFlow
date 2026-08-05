@@ -1,0 +1,41 @@
+{
+ "doc_id": "VBHN12-NHNN",
+ "title": "Văn bản hợp nhất 12/VBHN-NHNN của Ngân hàng Nhà nước Việt Nam",
+ "doc_type": "Văn bản hợp nhất",
+ "source": "external",
+ "valid_from": "2019-02-22",
+ "valid_to": null,
+ "so_hieu": "12/VBHN-NHNN",
+ "co_quan_ban_hanh": "Ngân hàng Nhà nước Việt Nam",
+ "nguoi_ky": "Đoàn Thái Sơn",
+ "chuc_danh": "Phó Thống đốc",
+ "nganh": null,
+ "linh_vuc": "Chưa phân loại",
+ "ngay_ban_hanh": null,
+ "tinh_trang_hieu_luc": null,
+ "source_url": "https://vbpl.vn/van-ban/chi-tiet/van-ban-hop-nhat-so-12-vbhn-nhnn-quy-dinh-dieu-kien-doi-voi-hoat-dong-dai-ly-doi-ngoai-te-hoat-dong-cung-ung-dich-vu-nhan-va-chi-tra-ngoai-te-cua-to-chuc-kinh-te--134356",
+ "source_files": [
+  {
+   "ten": "12.2019.VBHN.NHNN.pdf",
+   "kich_thuoc": "0.28MB",
+   "url": "https://vbpl-bientap-gateway.moj.gov.vn/api/qtdc/public/doc/minio/buckets/vbpl/134356/12.2019.VBHN.NHNN.pdf/download"
+  },
+  {
+   "ten": "tvHienThiToanVan_12.2019.VBHN.NHNN.pdf",
+   "kich_thuoc": "0.28MB",
+   "url": "https://vbpl-bientap-gateway.moj.gov.vn/api/qtdc/public/doc/minio/buckets/vbpl/134356/tvHienThiToanVan_12.2019.VBHN.NHNN.pdf/download"
+  },
+  {
+   "ten": "tvVanBanGoc_12.2019.VBHN.NHNN.pdf",
+   "kich_thuoc": "0.28MB",
+   "url": "https://vbpl-bientap-gateway.moj.gov.vn/api/qtdc/public/doc/minio/buckets/vbpl/134356/tvVanBanGoc_12.2019.VBHN.NHNN.pdf/download"
+  }
+ ],
+ "co_toan_van": false,
+ "canh_bao": [
+  "nguồn không đăng toàn văn (chỉ có thuộc tính/lược đồ) — toàn văn nhiều khả năng chỉ nằm trong tệp đính kèm, cần tìm nguồn khác nếu muốn thân văn bản"
+ ],
+ "articles": [],
+ "provisions": [],
+ "trich_dan": []
+}

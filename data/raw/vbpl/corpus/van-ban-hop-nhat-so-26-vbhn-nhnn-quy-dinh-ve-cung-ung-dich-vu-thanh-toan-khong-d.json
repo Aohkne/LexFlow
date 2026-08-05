@@ -1,0 +1,41 @@
+{
+ "doc_id": "VBHN26-NHNN",
+ "title": "Văn bản hợp nhất 26/VBHN-NHNN của Ngân hàng Nhà nước Việt Nam",
+ "doc_type": "Văn bản hợp nhất",
+ "source": "external",
+ "valid_from": "2025-11-13",
+ "valid_to": null,
+ "so_hieu": "26/VBHN-NHNN",
+ "co_quan_ban_hanh": "Ngân hàng Nhà nước Việt Nam",
+ "nguoi_ky": "Đoàn Thái Sơn",
+ "chuc_danh": "Phó Thống đốc",
+ "nganh": null,
+ "linh_vuc": "Chưa phân loại",
+ "ngay_ban_hanh": null,
+ "tinh_trang_hieu_luc": null,
+ "source_url": "https://vbpl.vn/van-ban/chi-tiet/van-ban-hop-nhat-so-26-vbhn-nhnn-quy-dinh-ve-cung-ung-dich-vu-thanh-toan-khong-dung-tien-mat--183743",
+ "source_files": [
+  {
+   "ten": "26.2025.VBHN.NHNN.pdf",
+   "kich_thuoc": "3MB",
+   "url": "https://vbpl-bientap-gateway.moj.gov.vn/api/qtdc/public/doc/minio/buckets/vbpl/183743/26.2025.VBHN.NHNN.pdf/download"
+  },
+  {
+   "ten": "tvHienThiToanVan_26.2025.VBHN.NHNN.pdf",
+   "kich_thuoc": "3MB",
+   "url": "https://vbpl-bientap-gateway.moj.gov.vn/api/qtdc/public/doc/minio/buckets/vbpl/183743/tvHienThiToanVan_26.2025.VBHN.NHNN.pdf/download"
+  },
+  {
+   "ten": "tvVanBanGoc_26.2025.VBHN.NHNN.pdf",
+   "kich_thuoc": "3MB",
+   "url": "https://vbpl-bientap-gateway.moj.gov.vn/api/qtdc/public/doc/minio/buckets/vbpl/183743/tvVanBanGoc_26.2025.VBHN.NHNN.pdf/download"
+  }
+ ],
+ "co_toan_van": false,
+ "canh_bao": [
+  "nguồn không đăng toàn văn (chỉ có thuộc tính/lược đồ) — toàn văn nhiều khả năng chỉ nằm trong tệp đính kèm, cần tìm nguồn khác nếu muốn thân văn bản"
+ ],
+ "articles": [],
+ "provisions": [],
+ "trich_dan": []
+}

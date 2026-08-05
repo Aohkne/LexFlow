@@ -1,0 +1,664 @@
+{
+ "doc_id": "TT30-2025",
+ "title": "Thông tư 30/2025/TT-NHNN của Ngân hàng Nhà nước Việt Nam",
+ "doc_type": "Thông tư",
+ "source": "external",
+ "valid_from": "2025-11-18",
+ "valid_to": null,
+ "so_hieu": "30/2025/TT-NHNN",
+ "co_quan_ban_hanh": "Ngân hàng Nhà nước Việt Nam",
+ "nguoi_ky": "Phạm Tiến Dũng",
+ "chuc_danh": "Phó Thống đốc",
+ "nganh": "Ngân hàng",
+ "linh_vuc": "Thanh tra",
+ "ngay_ban_hanh": "2025-09-30",
+ "tinh_trang_hieu_luc": "Còn hiệu lực",
+ "source_url": "https://vbpl.vn/van-ban/chi-tiet/thong-tu-so-30-2025-tt-nhnn-sua-doi-bo-sung-cua-thong-tu-so-15-2024-tt-nhnn-quy-dinh-ve-cung-ung-dich-vu-thanh-toan-khong-dung-tien-mat--182565",
+ "source_files": [
+  {
+   "ten": "THông tư 30-2025-TT-NHNN.pdf",
+   "kich_thuoc": "5.34MB",
+   "url": "https://vbpl-bientap-gateway.moj.gov.vn/api/qtdc/public/doc/minio/buckets/vbpl/182565/TH%C3%B4ng%20t%C6%B0%2030-2025-TT-NHNN.pdf/download"
+  },
+  {
+   "ten": "Thông tư 30-2025-TT-NHNN.docx",
+   "kich_thuoc": "0.09MB",
+   "url": "https://vbpl-bientap-gateway.moj.gov.vn/api/qtdc/public/doc/minio/buckets/vbpl/182565/Th%C3%B4ng%20t%C6%B0%2030-2025-TT-NHNN.docx/download"
+  },
+  {
+   "ten": "VanBanGoc_THông tư 30-2025-TT-NHNN.pdf",
+   "kich_thuoc": "5.34MB",
+   "url": "https://vbpl-bientap-gateway.moj.gov.vn/api/qtdc/public/doc/minio/buckets/vbpl/182565/VanBanGoc_TH%C3%B4ng%20t%C6%B0%2030-2025-TT-NHNN.pdf/download"
+  }
+ ],
+ "co_toan_van": true,
+ "canh_bao": [],
+ "articles": [
+  {
+   "article": "Điều 1",
+   "text": "Sửa đổi, bổ sung khoản 10 Điều 3\n\"10. Giấy tờ tùy thân bao gồm:\na) Đối với cá nhân là công dân Việt Nam: thẻ căn cước công dân, thẻ căn cước hoặc căn cước điện tử;\nb) Đối với cá nhân là người gốc Việt Nam chưa xác định được quốc tịch: giấy chứng nhận căn cước;\nc) Đối với người nước ngoài cư trú tại Việt Nam: hộ chiếu hoặc giấy tờ khác chứng minh được nhân thân do cơ quan có thẩm quyền nước ngoài cấp kèm theo thị thực nhập cảnh hoặc giấy tờ có giá trị thay thị thực hoặc giấy tờ chứng minh được miễn thị thực nhập cảnh; hoặc danh tính điện tử (thông qua việc truy cập vào tài khoản định danh điện tử mức độ 02) (nếu có).\nGiấy tờ tùy thân phải còn hiệu lực và thời hạn sử dụng trong quá trình sử dụng dịch vụ thanh toán.\".",
+   "chapter": null,
+   "section": null,
+   "superseded": false,
+   "char_start": 976,
+   "char_end": 1700
+  },
+  {
+   "article": "Điều 2",
+   "text": "Sửa đổi, bổ sung khoản 5 Điều 6\n\"5. Trường hợp phát hiện vụ việc có dấu hiệu tội phạm, tổ chức cung ứng dịch vụ thanh toán, tổ chức cung ứng dịch vụ trung gian thanh toán thực hiện tố giác, báo tin cho cơ quan nhà nước có thẩm quyền theo quy định của pháp luật về tố tụng hình sự và báo cáo bằng văn bản cho Ngân hàng Nhà nước (Vụ Thanh toán, Ngân hàng Nhà nước chi nhánh Khu vực trên địa bàn); đồng thời, thông báo bằng văn bản cho khách hàng về tình trạng xử lý đề nghị tra soát, khiếu nại. Trong trường hợp cơ quan nhà nước có thẩm quyền thông báo kết quả giải quyết không có yếu tố tội phạm, trong vòng 15 ngày làm việc kể từ ngày có kết luận của cơ quan nhà nước có thẩm quyền, tổ chức cung ứng dịch vụ thanh toán, tổ chức cung ứng dịch vụ trung gian thanh toán thỏa thuận với khách hàng về phương án xử lý kết quả tra soát, xử lý khiếu nại.\".",
+   "chapter": null,
+   "section": null,
+   "superseded": false,
+   "char_start": 1709,
+   "char_end": 2557
+  },
+  {
+   "article": "Điều 3",
+   "text": "Sửa đổi, bổ sung một số điểm, khoản của Điều 7\n1. Sửa đổi, bổ sung điểm a khoản 2 Điều 7 như sau:\n\"a) Tổ chức tín dụng có nhu cầu thực hiện nộp, rút tiền mặt qua Hệ thống thanh toán điện tử liên ngân hàng Quốc gia cần thực hiện: Trụ sở chính tổ chức tín dụng hoặc chi nhánh tổ chức tín dụng trên địa bàn gửi Ngân hàng Nhà nước chi nhánh Khu vực trên địa bàn bản đăng ký danh sách cán bộ được ủy quyền thực hiện giao dịch tiền mặt với Ngân hàng Nhà nước chi nhánh Khu vực kèm văn bản ủy quyền của từng cán bộ do người đại diện hợp pháp của tổ chức tín dụng ký (theo Phụ lục 01 ban hành kèm theo Thông tư này). Văn bản ủy quyền phải ghi rõ các thông tin người được ủy quyền, thời hạn ủy quyền, nội dung ủy quyền về việc giao dịch và vận chuyển tiền mặt;\".\n2. Sửa đổi, bổ sung điểm c khoản 2 Điều 7 như sau:\n\"c) Việc thực hiện giao dịch nộp tiền mặt tại Ngân hàng Nhà nước chi nhánh Khu vực: chi nhánh tổ chức tín dụng trên địa bàn lập Giấy nộp tiền theo mẫu quy định tại Chế độ kế toán giao nhận, điều chuyển, phát hành, thu hồi và tiêu hủy tiền mặt tại Ngân hàng Nhà nước, Ngân hàng Nhà nước chi nhánh Khu vực trên địa bàn căn cứ nội dung Giấy nộp tiền, lập Lệnh chuyển tiền qua Hệ thống thanh toán điện tử liên ngân hàng Quốc gia gửi ngân hàng nhận lệnh là Trụ sở chính tổ chức tín dụng để ghi Có vào tài khoản thanh toán của Trụ sở chính tổ chức tín dụng mở tại Sở Giao dịch Ngân hàng Nhà nước. Trường hợp Ngân hàng Nhà nước chi nhánh Khu vực đã thực hiện thủ tục nhập tiền từ chi nhánh tổ chức tín dụng trên địa bàn nhưng hết thời gian gửi lệnh thanh toán của Hệ thống thanh toán điện tử liên ngân hàng Quốc gia, Ngân hàng Nhà nước chi nhánh Khu vực lập Lệnh chuyển tiền qua Hệ thống thanh toán điện tử liên ngân hàng Quốc gia để gửi Trụ sở chính tổ chức tín dụng vào ngày làm việc tiếp theo;\".\n3. Sửa đổi, bổ sung điểm d khoản 2 Điều 7 như sau:\n\"d) Định kỳ hàng tháng, Ngân hàng Nhà nước chi nhánh Khu vực xác định số phí phải thu của các chi nhánh tổ chức tín dụng trên địa bàn (phí rút tiền mặt, phí thanh toán từng lần) và lập Lệnh chuyển nợ qua Hệ thống thanh toán điện tử liên ngân hàng Quốc gia gửi Trụ sở chính tổ chức tín dụng để tiến hành thu phí theo quy định của Ngân hàng Nhà nước. Việc gửi Lệnh chuyển Nợ qua Hệ thống thanh toán điện tử liên ngân hàng Quốc gia để thu phí giữa Ngân hàng Nhà nước chi nhánh Khu vực và Trụ sở chính tổ chức tín dụng phải trên cơ sở văn bản thỏa thuận về việc thanh toán Nợ trong Hệ thống thanh toán điện tử liên ngân hàng do Trụ sở chính tổ chức tín dụng cung cấp theo quy định về quản lý, vận hành và sử dụng Hệ thống thanh toán điện tử liên ngân hàng Quốc gia;\".\n4. Thay thế cụm từ \"Ngân hàng Nhà nước chi nhánh các tỉnh, thành phố\", \"Ngân hàng Nhà nước chi nhánh tỉnh, thành phố\" bằng cụm từ \"Ngân hàng Nhà nước chi nhánh Khu vực\" tại câu mũ khoản 2, điểm b, điểm đ khoản 2 Điều 7.\n5. Thay thế cụm từ \"Hệ thống thanh toán điện tử liên ngân hàng\" bằng cụm từ \"Hệ thống thanh toán điện tử liên ngân hàng Quốc gia\" tại câu mũ khoản 2, điểm b, điểm đ khoản 2 Điều 7.",
+   "chapter": null,
+   "section": null,
+   "superseded": false,
+   "char_start": 2566,
+   "char_end": 5578
+  },
+  {
+   "article": "Điều 4",
+   "text": "Thay thế một số cụm từ của khoản 2 Điều 12\n1. Thay thế cụm từ \"người chuyển tiền\" bằng cụm từ \"bên chuyển tiền\".\n2. Thay thế cụm từ \"người thụ hưởng\" bằng cụm từ \"bên thụ hưởng\".",
+   "chapter": null,
+   "section": null,
+   "superseded": false,
+   "char_start": 5587,
+   "char_end": 5765
+  },
+  {
+   "article": "Điều 5",
+   "text": "Sửa đổi, bổ sung một số điểm, khoản của Điều 14\n1. Sửa đổi, bổ sung điểm b(i), (ii) khoản 2 Điều 14 như sau:\n\"(i) Khi khách hàng có nhu cầu nộp tiền mặt để yêu cầu doanh nghiệp cung ứng dịch vụ bưu chính công ích chuyển tiền cho bên thụ hưởng, doanh nghiệp cung ứng dịch vụ bưu chính công ích hướng dẫn khách hàng lập mẫu chuyển tiền theo quy định của doanh nghiệp cung ứng dịch vụ bưu chính công ích, đảm bảo đầy đủ thông tin cần thiết của bên chuyển tiền và bên thụ hưởng, bao gồm: tên, địa chỉ, số điện thoại, số giấy tờ tùy thân của cá nhân hoặc người đại diện của tổ chức, chữ ký của bên chuyển tiền; mã số doanh nghiệp (nếu có) và các thông tin khác;\nNếu bên chuyển tiền là cá nhân, khi chuyển tiền khách hàng phải xuất trình giấy tờ tùy thân. Trong trường hợp bên chuyển tiền là người được ủy quyền, người được ủy quyền phải xuất trình giấy tờ tùy thân và văn bản ủy quyền theo quy định của pháp luật. Nếu bên chuyển tiền là tổ chức, người đại diện của tổ chức khi chuyển tiền phải xuất trình giấy tờ tùy thân và giấy tờ chứng minh tư cách đại diện hợp pháp của tổ chức đó. Doanh nghiệp cung ứng dịch vụ bưu chính công ích có biện pháp kiểm tra, đối chiếu thông tin, dữ liệu định danh khách hàng và lưu trữ theo quy định của pháp luật;\nKhi nhận yêu cầu chuyển tiền, doanh nghiệp cung ứng dịch vụ bưu chính công ích có trách nhiệm kiểm soát các thông tin trên mẫu chuyển tiền. Sau khi kiểm soát, nếu chứng từ thanh toán do khách hàng lập hợp pháp, hợp lệ và số tiền khách hàng nộp khớp đúng với số tiền ghi trên lệnh chuyển tiền, nhân viên ký chứng từ, làm thủ tục chuyển tiền đi cho khách hàng. Chậm nhất trong 01 ngày làm việc kể từ thời điểm nhận được chứng từ thanh toán hợp pháp, hợp lệ của khách hàng, doanh nghiệp cung ứng dịch vụ bưu chính công ích phải xử lý và hoàn tất việc chuyển tiền đi cho khách hàng;\n(ii) Khi nhận được lệnh chuyển tiền đến, doanh nghiệp cung ứng dịch vụ bưu chính công ích phục vụ bên thụ hưởng phải kiểm tra chứng từ đảm bảo hợp pháp, hợp lệ và chậm nhất trong 01 ngày làm việc kể từ thời điểm nhận được lệnh chuyển tiền đến thực hiện hạch toán vào tài khoản thích hợp và thông báo cho bên thụ hưởng đến nhận tiền hoặc giao tiền tại địa chỉ bên chuyển tiền yêu cầu theo thỏa thuận;\nNếu bên thụ hưởng là cá nhân, khi đến nhận tiền khách hàng phải xuất trình giấy tờ tùy thân. Trong trường hợp người nhận tiền là người được ủy quyền, người được ủy quyền xuất trình giấy tờ tùy thân và văn bản ủy quyền theo quy định của pháp luật. Nếu bên thụ hưởng là tổ chức, người đại diện của tổ chức đến nhận tiền phải xuất trình giấy tờ tùy thân và giấy tờ chứng minh tư cách đại diện hợp pháp của tổ chức đó. Doanh nghiệp cung ứng dịch vụ bưu chính công ích có biện pháp kiểm tra, đối chiếu thông tin, dữ liệu định danh khách hàng và lưu trữ theo quy định của pháp luật;\".\n2. Bổ sung khoản 3a vào sau khoản 3 Điều 14 như sau:\n\"3a. Căn cứ vào từng loại hình dịch vụ thu hộ, chi hộ, Doanh nghiệp cung ứng dịch vụ bưu chính công ích ký kết thỏa thuận bằng văn bản với khách hàng sử dụng dịch vụ bao gồm tối thiểu các nội dung:\na) Số hợp đồng/văn bản thỏa thuận;\nb) Thời điểm (ngày, tháng, năm) lập;\nc) Tên, địa chỉ của các bên tham gia;\nd) Thỏa thuận về thời hạn xử lý các giao dịch thanh toán, quyết toán;\nđ) Phạm vi cung cấp dịch vụ;\ne) Đối tượng khách hàng;\ng) Địa điểm giao dịch;\nh) Việc thực hiện các biện pháp đảm bảo an toàn, bảo mật;\ni) Các nội dung về quyền và nghĩa vụ của các bên;\nk) Trách nhiệm phối hợp xử lý tra soát, khiếu nại, tranh chấp rủi ro trong quá trình thực hiện, trong đó quy định cụ thể trách nhiệm của các bên trong việc tiếp nhận thông tin từ khách hàng, thời gian xử lý, trách nhiệm và phương án đền bù các tổn thất phát sinh;\nl) Quy định về phí thu hộ, chi hộ;\nm) Hiệu lực của hợp đồng/văn bản thỏa thuận;\nCác bên được thỏa thuận các nội dung khác phù hợp với quy định của Thông tư này và quy định của pháp luật có liên quan.\".",
+   "chapter": null,
+   "section": null,
+   "superseded": false,
+   "char_start": 5774,
+   "char_end": 9656
+  },
+  {
+   "article": "Điều 6",
+   "text": "Thay thế cụm từ tại điểm b(ii) khoản 1 và điểm b(ii) khoản 2 Điều 15\nThay thế cụm từ \"Cơ quan thực hiện chức năng phòng, chống rửa tiền\" bằng cụm từ \"Cục Phòng, chống rửa tiền\".",
+   "chapter": null,
+   "section": null,
+   "superseded": false,
+   "char_start": 9665,
+   "char_end": 9842
+  },
+  {
+   "article": "Điều 7",
+   "text": "Sửa đổi, bổ sung một số điểm, khoản của Điều 19\n1. Sửa đổi, bổ sung tên Điều 19 như sau:\n\"Trách nhiệm của tổ chức cung ứng dịch vụ thanh toán, tổ chức cung ứng dịch vụ trung gian thanh toán\".\n2. Sửa đổi, bổ sung khoản 1 Điều 19 như sau:\n\"1. Tổ chức cung ứng dịch vụ thanh toán có trách nhiệm thông báo và hướng dẫn khách hàng sử dụng dịch vụ thanh toán mà mình cung cấp; trả lời hoặc xử lý kịp thời các thắc mắc, khiếu nại của tổ chức, cá nhân sử dụng dịch vụ thanh toán trong phạm vi nghĩa vụ và quyền hạn của mình.\".\n3. Sửa đổi, bổ sung khoản 2 Điều 19 như sau:\n\"2. Tổ chức cung ứng dịch vụ thanh toán có trách nhiệm thực hiện giao dịch thanh toán kịp thời, an toàn, chính xác theo thỏa thuận với tổ chức, cá nhân sử dụng dịch vụ thanh toán; niêm yết công khai phí dịch vụ thanh toán.\".\n4. Bổ sung khoản 2a, khoản 2b vào sau khoản 2 Điều 19 như sau:\n\"2a. Tổ chức cung ứng dịch vụ thanh toán, tổ chức cung ứng dịch vụ trung gian thanh toán có trách nhiệm thực hiện các biện pháp đảm bảo cung ứng dịch vụ thanh toán, dịch vụ trung gian thanh toán được thông suốt, liên tục. Tổng thời gian gián đoạn cung ứng toàn bộ dịch vụ thanh toán trực tuyến, dịch vụ trung gian thanh toán trực tuyến không vượt quá 04 giờ/năm, thời gian gián đoạn cung ứng dịch vụ không vượt quá 30 phút/lần trừ các trường hợp bất khả kháng hoặc bảo trì, nâng cấp hệ thống đã được thông báo trước 24 giờ cho khách hàng và gửi thông báo cho đơn vị giám sát (Ngân hàng Nhà nước) qua địa chỉ thư điện tử gshttt_vtt@sbv.gov.vn để nắm bắt và theo dõi.\n2b. Tổ chức cung ứng dịch vụ thanh toán, tổ chức cung ứng dịch vụ trung gian thanh toán có trách nhiệm báo cáo Ngân hàng Nhà nước trong thời hạn 04 giờ khi phát hiện sự cố gây gián đoạn quá 30 phút hoạt động cung ứng dịch vụ thanh toán trực tuyến, dịch vụ trung gian thanh toán trực tuyến (trong đó bao gồm trường hợp bất khả kháng hoặc trường hợp vượt quá thời hạn bảo trì, nâng cấp hệ thống đã được thông báo trước 24 giờ) theo Phụ lục 05 ban hành kèm theo Thông tư này. Trong thời hạn 03 ngày làm việc kể từ ngày hoàn thành khắc phục sự cố, tổ chức cung ứng dịch vụ thanh toán, tổ chức cung ứng dịch vụ trung gian thanh toán có trách nhiệm gửi báo cáo sự cố đầy đủ các nội dung theo Phụ lục số 05 ban hành kèm theo Thông tư này qua địa chỉ thư điện tử gshttt_vtt@sbv.gov.vn để nắm bắt và theo dõi tình hình xử lý sự cố.\".\n5. Bổ sung khoản 3a vào sau khoản 3 Điều 19 như sau:\n\"3a. Tổ chức cung ứng dịch vụ thanh toán có trách nhiệm kiểm tra, kiểm soát lệnh thanh toán hợp pháp, hợp lệ trong đó đảm bảo thể hiện đúng số hiệu tài khoản thanh toán, tên tài khoản thanh toán trong thỏa thuận mở và sử dụng tài khoản thanh toán của khách hàng khi thực hiện giao dịch thanh toán và hiển thị đầy đủ trên chứng từ thanh toán.\".\n6. Bổ sung khoản 3b vào sau khoản 3a Điều 19 như sau:\n\"3b. Khi thực hiện dịch vụ ủy nhiệm chi, dịch vụ chuyển tiền qua tài khoản thanh toán hoặc không qua tài khoản thanh toán, tổ chức cung ứng dịch vụ thanh toán phục vụ bên trả tiền có trách nhiệm cung cấp cho tổ chức cung ứng dịch vụ thanh toán phục vụ bên thụ hưởng khi được tổ chức cung ứng dịch vụ thanh toán phục vụ bên thụ hưởng yêu cầu các thông tin tối thiểu liên quan đến giao dịch và các tổ chức cung ứng dịch vụ thanh toán phải bảo đảm tuân thủ quy định pháp luật về cung cấp và bảo mật thông tin, gồm:\na) Thông tin về bên trả tiền, gồm: Tên của bên trả tiền, số hiệu tài khoản thanh toán của bên trả tiền hoặc số tham chiếu giao dịch (khi không có tài khoản thanh toán), Địa chỉ hoặc số định danh của bên trả tiền;\nb) Thông tin về bên thụ hưởng, gồm: Tên của bên thụ hưởng, Số hiệu tài khoản thanh toán của bên thụ hưởng hoặc số tham chiếu giao dịch (khi không có tài khoản thanh toán).\".\n7. Sửa đổi, bổ sung khoản 8 Điều 19 như sau:\n\"8. Tổ chức cung ứng dịch vụ thanh toán có trách nhiệm áp dụng các biện pháp, giải pháp đảm bảo kiểm tra, đối chiếu khớp đúng thông tin xác minh khách hàng đã được xác thực chính xác là do cơ quan Công an cấp hoặc thông qua xác thực tài khoản định danh điện tử của người đó do Hệ thống định danh và xác thực điện tử tạo lập trong quá trình thực hiện giao dịch thanh toán.\".\n8. Sửa đổi, bổ sung khoản 9 Điều 19 như sau:\n\"9. Các tổ chức cung ứng dịch vụ thanh toán căn cứ quy định tại Thông tư này và quy định của pháp luật có liên quan để ban hành, tổ chức thực hiện và tuân thủ đầy đủ quy trình nội bộ về cung ứng dịch vụ thanh toán không dùng tiền mặt tại đơn vị mình và chịu trách nhiệm trước pháp luật về quy trình nội bộ của đơn vị mình.\".",
+   "chapter": null,
+   "section": null,
+   "superseded": false,
+   "char_start": 9851,
+   "char_end": 14332
+  },
+  {
+   "article": "Điều 8",
+   "text": "Sửa đổi, bổ sung điểm a khoản 3 Điều 20\n\"a) Có hợp đồng hoặc thỏa thuận bằng văn bản với ĐVCNTT, trong đó phải quy định cụ thể các nội dung: quyền và trách nhiệm của các bên; quy định rõ việc ĐVCNTT phải chịu trách nhiệm về tính hợp pháp của các hàng hóa, dịch vụ cung ứng và cam kết không thực hiện các giao dịch bị cấm theo quy định của pháp luật; yêu cầu ĐVCNTT cam kết không được phân biệt giá hoặc thu thêm tiền, phụ phí đối với các giao dịch thanh toán tiền hàng hóa, dịch vụ bằng phương tiện thanh toán không dùng tiền mặt so với thanh toán bằng tiền mặt và phân biệt giá giữa các phương tiện tiện thanh toán không dùng tiền mặt; việc xử lý dữ liệu cá nhân của khách hàng hoặc dữ liệu cá nhân do khách hàng cung cấp, việc cung cấp thông tin cho bên thứ ba nhằm phục vụ việc nhận biết ĐVCNTT; các trường hợp chấm dứt hợp đồng;\".",
+   "chapter": null,
+   "section": null,
+   "superseded": false,
+   "char_start": 14341,
+   "char_end": 15175
+  },
+  {
+   "article": "Điều 9",
+   "text": "Sửa đổi, bổ sung Điều 23\n\"Điều 23. Trách nhiệm tổ chức thực hiện\n1. Vụ Thanh toán\na) Có trách nhiệm theo dõi và phối hợp với các đơn vị liên quan để xử lý những vướng mắc phát sinh trong quá trình thực hiện Thông tư này;\nb) Làm đầu mối, phối hợp với Thanh tra Ngân hàng Nhà nước, Cục Công nghệ thông tin trong công tác kiểm tra việc tuân thủ các quy định về hoạt động cung ứng dịch vụ thanh toán không qua tài khoản thanh toán của khách hàng của doanh nghiệp cung ứng dịch vụ bưu chính công ích.\n2. Thanh tra Ngân hàng Nhà nước, Cục Quản lý, giám sát tổ chức tín dụng, Ngân hàng Nhà nước chi nhánh Khu vực\na) Có trách nhiệm thanh tra, giám sát việc tuân thủ các quy định tại Thông tư này và xử lý các trường hợp vi phạm theo thẩm quyền, thông báo cho Vụ Thanh toán để theo dõi;\nb) Thực hiện thanh tra hoạt động cung ứng dịch vụ thanh toán không qua tài khoản thanh toán của doanh nghiệp cung ứng dịch vụ bưu chính công ích theo quy định của pháp luật, xử lý các trường hợp vi phạm theo thẩm quyền và thông báo kết quả cho Vụ Thanh toán, các đơn vị có liên quan.\n3. Thủ trưởng các đơn vị thuộc Ngân hàng Nhà nước, tổ chức cung ứng dịch vụ thanh toán, tổ chức cung ứng dịch vụ trung gian thanh toán và các tổ chức, cá nhân có liên quan chịu trách nhiệm tổ chức thực hiện Thông tư này.\".",
+   "chapter": null,
+   "section": null,
+   "superseded": false,
+   "char_start": 15184,
+   "char_end": 16468
+  },
+  {
+   "article": "Điều 10",
+   "text": "Sửa đổi, bổ sung Phụ lục kèm theo Thông tư số 15/2024/TT-NHNN\n1. Thay thế Phụ lục số 01 ban hành kèm theo Thông tư số 15/2024/TT-NHNN bằng Phụ lục 01 ban hành kèm theo Thông tư này.\n2. Thay thế Phụ lục số 02 ban hành kèm theo Thông tư số 15/2024/TT-NHNN bằng Phụ lục 02 ban hành kèm theo Thông tư này.\n3. Thay thế Phụ lục số 04 ban hành kèm theo Thông tư 15/2024/TT-NHNN bằng Phụ lục 04 ban hành kèm theo Thông tư này.\n4. Bổ sung Phụ lục 05.",
+   "chapter": null,
+   "section": null,
+   "superseded": false,
+   "char_start": 16478,
+   "char_end": 16919
+  },
+  {
+   "article": "Điều 11",
+   "text": "Trách nhiệm tổ chức thực hiện\nThủ trưởng các đơn vị thuộc Ngân hàng Nhà nước, tổ chức cung ứng dịch vụ thanh toán, tổ chức cung ứng dịch vụ trung gian thanh toán và các tổ chức, cá nhân có liên quan chịu trách nhiệm tổ chức thực hiện Thông tư này.",
+   "chapter": null,
+   "section": null,
+   "superseded": false,
+   "char_start": 16929,
+   "char_end": 17176
+  },
+  {
+   "article": "Điều 12",
+   "text": "Điều khoản thi hành\n1. Thông tư này có hiệu lực thi hành từ ngày 18 tháng 11 năm 2025, trừ quy định tại khoản 2 Điều này.\n2. Khoản 5 Điều 7 Thông tư này có hiệu lực thi hành từ ngày 01 tháng 4 năm 2026.\n3. Bãi bỏ khoản 2 Điều 17 Thông tư số 41/2024/TT-NHNN ngày 17 tháng 7 năm 2024 của Thống đốc Ngân hàng Nhà nước Việt Nam quy định về giám sát và thực hiện giám sát các hệ thống thanh toán quan trọng, hoạt động cung ứng dịch vụ trung gian thanh toán.\nKT. THỐNG ĐỐC\nPHÓ THỐNG ĐỐC\n(Đã ký)\nPhạm Tiến Dũng",
+   "chapter": null,
+   "section": null,
+   "superseded": false,
+   "char_start": 17186,
+   "char_end": 17689
+  }
+ ],
+ "provisions": [
+  {
+   "id": "id_2323d78a-eb83-11f0-968a-9bf12b5cf519",
+   "cap": "dieu",
+   "so": "1",
+   "tieu_de": "Sửa đổi, bổ sung khoản 10 Điều 3",
+   "text": "\"10. Giấy tờ tùy thân bao gồm:\na) Đối với cá nhân là công dân Việt Nam: thẻ căn cước công dân, thẻ căn cước hoặc căn cước điện tử;\nb) Đối với cá nhân là người gốc Việt Nam chưa xác định được quốc tịch: giấy chứng nhận căn cước;\nc) Đối với người nước ngoài cư trú tại Việt Nam: hộ chiếu hoặc giấy tờ khác chứng minh được nhân thân do cơ quan có thẩm quyền nước ngoài cấp kèm theo thị thực nhập cảnh hoặc giấy tờ có giá trị thay thị thực hoặc giấy tờ chứng minh được miễn thị thực nhập cảnh; hoặc danh tính điện tử (thông qua việc truy cập vào tài khoản định danh điện tử mức độ 02) (nếu có).\nGiấy tờ tùy thân phải còn hiệu lực và thời hạn sử dụng trong quá trình sử dụng dịch vụ thanh toán.\".",
+   "html": "\"10. Giấy tờ tùy thân bao gồm:<br>a) Đối với cá nhân là công dân Việt Nam: thẻ căn cước công dân, thẻ căn cước hoặc căn cước điện tử;<br>b) Đối với cá nhân là người gốc Việt Nam chưa xác định được quốc tịch: giấy chứng nhận căn cước;<br>c) Đối với người nước ngoài cư trú tại Việt Nam: hộ chiếu hoặc giấy tờ khác chứng minh được nhân thân do cơ quan có thẩm quyền nước ngoài cấp kèm theo thị thực nhập cảnh hoặc giấy tờ có giá trị thay thị thực hoặc giấy tờ chứng minh được miễn thị thực nhập cảnh; hoặc danh tính điện tử (thông qua việc truy cập vào tài khoản định danh điện tử mức độ 02) (nếu có).<br>Giấy tờ tùy thân phải còn hiệu lực và thời hạn sử dụng trong quá trình sử dụng dịch vụ thanh toán.\".",
+   "bi_tac_dong": null,
+   "an": false,
+   "con": []
+  },
+  {
+   "id": "id_2323d794-eb83-11f0-94c5-f11872141087",
+   "cap": "dieu",
+   "so": "2",
+   "tieu_de": "Sửa đổi, bổ sung khoản 5 Điều 6",
+   "text": "\"5. Trường hợp phát hiện vụ việc có dấu hiệu tội phạm, tổ chức cung ứng dịch vụ thanh toán, tổ chức cung ứng dịch vụ trung gian thanh toán thực hiện tố giác, báo tin cho cơ quan nhà nước có thẩm quyền theo quy định của pháp luật về tố tụng hình sự và báo cáo bằng văn bản cho Ngân hàng Nhà nước (Vụ Thanh toán, Ngân hàng Nhà nước chi nhánh Khu vực trên địa bàn); đồng thời, thông báo bằng văn bản cho khách hàng về tình trạng xử lý đề nghị tra soát, khiếu nại. Trong trường hợp cơ quan nhà nước có thẩm quyền thông báo kết quả giải quyết không có yếu tố tội phạm, trong vòng 15 ngày làm việc kể từ ngày có kết luận của cơ quan nhà nước có thẩm quyền, tổ chức cung ứng dịch vụ thanh toán, tổ chức cung ứng dịch vụ trung gian thanh toán thỏa thuận với khách hàng về phương án xử lý kết quả tra soát, xử lý khiếu nại.\".",
+   "html": "\"5. Trường hợp phát hiện vụ việc có dấu hiệu tội phạm, tổ chức cung ứng dịch vụ thanh toán, tổ chức cung ứng dịch vụ trung gian thanh toán thực hiện tố giác, báo tin cho cơ quan nhà nước có thẩm quyền theo quy định của pháp luật về tố tụng hình sự và báo cáo bằng văn bản cho Ngân hàng Nhà nước (Vụ Thanh toán, Ngân hàng Nhà nước chi nhánh Khu vực trên địa bàn); đồng thời, thông báo bằng văn bản cho khách hàng về tình trạng xử lý đề nghị tra soát, khiếu nại. Trong trường hợp cơ quan nhà nước có thẩm quyền thông báo kết quả giải quyết không có yếu tố tội phạm, trong vòng 15 ngày làm việc kể từ ngày có kết luận của cơ quan nhà nước có thẩm quyền, tổ chức cung ứng dịch vụ thanh toán, tổ chức cung ứng dịch vụ trung gian thanh toán thỏa thuận với khách hàng về phương án xử lý kết quả tra soát, xử lý khiếu nại.\".",
+   "bi_tac_dong": null,
+   "an": false,
+   "con": []
+  },
+  {
+   "id": "id_2323d79e-eb83-11f0-ba82-2fc930705da2",
+   "cap": "dieu",
+   "so": "3",
+   "tieu_de": "Sửa đổi, bổ sung một số điểm, khoản của Điều 7",
+   "text": "\"a) Tổ chức tín dụng có nhu cầu thực hiện nộp, rút tiền mặt qua Hệ thống thanh toán điện tử liên ngân hàng Quốc gia cần thực hiện: Trụ sở chính tổ chức tín dụng hoặc chi nhánh tổ chức tín dụng trên địa bàn gửi Ngân hàng Nhà nước chi nhánh Khu vực trên địa bàn bản đăng ký danh sách cán bộ được ủy quyền thực hiện giao dịch tiền mặt với Ngân hàng Nhà nước chi nhánh Khu vực kèm văn bản ủy quyền của từng cán bộ do người đại diện hợp pháp của tổ chức tín dụng ký (theo Phụ lục 01 ban hành kèm theo Thông tư này). Văn bản ủy quyền phải ghi rõ các thông tin người được ủy quyền, thời hạn ủy quyền, nội dung ủy quyền về việc giao dịch và vận chuyển tiền mặt;\".\n\"c) Việc thực hiện giao dịch nộp tiền mặt tại Ngân hàng Nhà nước chi nhánh Khu vực: chi nhánh tổ chức tín dụng trên địa bàn lập Giấy nộp tiền theo mẫu quy định tại Chế độ kế toán giao nhận, điều chuyển, phát hành, thu hồi và tiêu hủy tiền mặt tại Ngân hàng Nhà nước, Ngân hàng Nhà nước chi nhánh Khu vực trên địa bàn căn cứ nội dung Giấy nộp tiền, lập Lệnh chuyển tiền qua Hệ thống thanh toán điện tử liên ngân hàng Quốc gia gửi ngân hàng nhận lệnh là Trụ sở chính tổ chức tín dụng để ghi Có vào tài khoản thanh toán của Trụ sở chính tổ chức tín dụng mở tại Sở Giao dịch Ngân hàng Nhà nước. Trường hợp Ngân hàng Nhà nước chi nhánh Khu vực đã thực hiện thủ tục nhập tiền từ chi nhánh tổ chức tín dụng trên địa bàn nhưng hết thời gian gửi lệnh thanh toán của Hệ thống thanh toán điện tử liên ngân hàng Quốc gia, Ngân hàng Nhà nước chi nhánh Khu vực lập Lệnh chuyển tiền qua Hệ thống thanh toán điện tử liên ngân hàng Quốc gia để gửi Trụ sở chính tổ chức tín dụng vào ngày làm việc tiếp theo;\".\n\"d) Định kỳ hàng tháng, Ngân hàng Nhà nước chi nhánh Khu vực xác định số phí phải thu của các chi nhánh tổ chức tín dụng trên địa bàn (phí rút tiền mặt, phí thanh toán từng lần) và lập Lệnh chuyển nợ qua Hệ thống thanh toán điện tử liên ngân hàng Quốc gia gửi Trụ sở chính tổ chức tín dụng để tiến hành thu phí theo quy định của Ngân hàng Nhà nước. Việc gửi Lệnh chuyển Nợ qua Hệ thống thanh toán điện tử liên ngân hàng Quốc gia để thu phí giữa Ngân hàng Nhà nước chi nhánh Khu vực và Trụ sở chính tổ chức tín dụng phải trên cơ sở văn bản thỏa thuận về việc thanh toán Nợ trong Hệ thống thanh toán điện tử liên ngân hàng do Trụ sở chính tổ chức tín dụng cung cấp theo quy định về quản lý, vận hành và sử dụng Hệ thống thanh toán điện tử liên ngân hàng Quốc gia;\".",
+   "html": "\"a) Tổ chức tín dụng có nhu cầu thực hiện nộp, rút tiền mặt qua Hệ thống thanh toán điện tử liên ngân hàng Quốc gia cần thực hiện: Trụ sở chính tổ chức tín dụng hoặc chi nhánh tổ chức tín dụng trên địa bàn gửi Ngân hàng Nhà nước chi nhánh Khu vực trên địa bàn bản đăng ký danh sách cán bộ được ủy quyền thực hiện giao dịch tiền mặt với Ngân hàng Nhà nước chi nhánh Khu vực kèm văn bản ủy quyền của từng cán bộ do người đại diện hợp pháp của tổ chức tín dụng ký (theo Phụ lục 01 ban hành kèm theo Thông tư này). Văn bản ủy quyền phải ghi rõ các thông tin người được ủy quyền, thời hạn ủy quyền, nội dung ủy quyền về việc giao dịch và vận chuyển tiền mặt;\".<br>\"c) Việc thực hiện giao dịch nộp tiền mặt tại Ngân hàng Nhà nước chi nhánh Khu vực: chi nhánh tổ chức tín dụng trên địa bàn lập Giấy nộp tiền theo mẫu quy định tại Chế độ kế toán giao nhận, điều chuyển, phát hành, thu hồi và tiêu hủy tiền mặt tại Ngân hàng Nhà nước, Ngân hàng Nhà nước chi nhánh Khu vực trên địa bàn căn cứ nội dung Giấy nộp tiền, lập Lệnh chuyển tiền qua Hệ thống thanh toán điện tử liên ngân hàng Quốc gia gửi ngân hàng nhận lệnh là Trụ sở chính tổ chức tín dụng để ghi Có vào tài khoản thanh toán của Trụ sở chính tổ chức tín dụng mở tại Sở Giao dịch Ngân hàng Nhà nước. Trường hợp Ngân hàng Nhà nước chi nhánh Khu vực đã thực hiện thủ tục nhập tiền từ chi nhánh tổ chức tín dụng trên địa bàn nhưng hết thời gian gửi lệnh thanh toán của Hệ thống thanh toán điện tử liên ngân hàng Quốc gia, Ngân hàng Nhà nước chi nhánh Khu vực lập Lệnh chuyển tiền qua Hệ thống thanh toán điện tử liên ngân hàng Quốc gia để gửi Trụ sở chính tổ chức tín dụng vào ngày làm việc tiếp theo;\".<br>\"d) Định kỳ hàng tháng, Ngân hàng Nhà nước chi nhánh Khu vực xác định số phí phải thu của các chi nhánh tổ chức tín dụng trên địa bàn (phí rút tiền mặt, phí thanh toán từng lần) và lập Lệnh chuyển nợ qua Hệ thống thanh toán điện tử liên ngân hàng Quốc gia gửi Trụ sở chính tổ chức tín dụng để tiến hành thu phí theo quy định của Ngân hàng Nhà nước. Việc gửi Lệnh chuyển Nợ qua Hệ thống thanh toán điện tử liên ngân hàng Quốc gia để thu phí giữa Ngân hàng Nhà nước chi nhánh Khu vực và Trụ sở chính tổ chức tín dụng phải trên cơ sở văn bản thỏa thuận về việc thanh toán Nợ trong Hệ thống thanh toán điện tử liên ngân hàng do Trụ sở chính tổ chức tín dụng cung cấp theo quy định về quản lý, vận hành và sử dụng Hệ thống thanh toán điện tử liên ngân hàng Quốc gia;\".",
+   "bi_tac_dong": null,
+   "an": false,
+   "con": [
+    {
+     "id": "id_2323d7a8-eb83-11f0-98f1-1f3b4014ad4e",
+     "cap": "khoan",
+     "so": "1",
+     "tieu_de": "",
+     "text": "Sửa đổi, bổ sung điểm a khoản 2 Điều 7 như sau:",
+     "html": "1. Sửa đổi, bổ sung điểm a khoản 2 Điều 7 như sau:",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_2323d7b2-eb83-11f0-862d-57881ecf9f17",
+     "cap": "khoan",
+     "so": "2",
+     "tieu_de": "",
+     "text": "Sửa đổi, bổ sung điểm c khoản 2 Điều 7 như sau:",
+     "html": "2. Sửa đổi, bổ sung điểm c khoản 2 Điều 7 như sau:",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_2323d7bc-eb83-11f0-8645-1f5dd9f60740",
+     "cap": "khoan",
+     "so": "3",
+     "tieu_de": "",
+     "text": "Sửa đổi, bổ sung điểm d khoản 2 Điều 7 như sau:",
+     "html": "3. Sửa đổi, bổ sung điểm d khoản 2 Điều 7 như sau:",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_2323fe90-eb83-11f0-8cf4-f5f75204be38",
+     "cap": "khoan",
+     "so": "4",
+     "tieu_de": "",
+     "text": "Thay thế cụm từ \"Ngân hàng Nhà nước chi nhánh các tỉnh, thành phố\", \"Ngân hàng Nhà nước chi nhánh tỉnh, thành phố\" bằng cụm từ \"Ngân hàng Nhà nước chi nhánh Khu vực\" tại câu mũ khoản 2, điểm b, điểm đ khoản 2 Điều 7.",
+     "html": "4. Thay thế cụm từ \"Ngân hàng Nhà nước chi nhánh các tỉnh, thành phố\", \"Ngân hàng Nhà nước chi nhánh tỉnh, thành phố\" bằng cụm từ \"Ngân hàng Nhà nước chi nhánh Khu vực\" tại câu mũ khoản 2, điểm b, điểm đ khoản 2 Điều 7.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_2323fe9a-eb83-11f0-a61c-0103607d1730",
+     "cap": "khoan",
+     "so": "5",
+     "tieu_de": "",
+     "text": "Thay thế cụm từ \"Hệ thống thanh toán điện tử liên ngân hàng\" bằng cụm từ \"Hệ thống thanh toán điện tử liên ngân hàng Quốc gia\" tại câu mũ khoản 2, điểm b, điểm đ khoản 2 Điều 7.",
+     "html": "5. Thay thế cụm từ \"Hệ thống thanh toán điện tử liên ngân hàng\" bằng cụm từ \"Hệ thống thanh toán điện tử liên ngân hàng Quốc gia\" tại câu mũ khoản 2, điểm b, điểm đ khoản 2 Điều 7.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    }
+   ]
+  },
+  {
+   "id": "id_2323fea4-eb83-11f0-a3a1-9780c106d61f",
+   "cap": "dieu",
+   "so": "4",
+   "tieu_de": "Thay thế một số cụm từ của khoản 2 Điều 12",
+   "text": "",
+   "html": "",
+   "bi_tac_dong": null,
+   "an": false,
+   "con": [
+    {
+     "id": "id_2323feae-eb83-11f0-8ce8-e1382af34044",
+     "cap": "khoan",
+     "so": "1",
+     "tieu_de": "",
+     "text": "Thay thế cụm từ \"người chuyển tiền\" bằng cụm từ \"bên chuyển tiền\".",
+     "html": "1. Thay thế cụm từ \"người chuyển tiền\" bằng cụm từ \"bên chuyển tiền\".",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_2323feb8-eb83-11f0-a5c1-a522ceb99795",
+     "cap": "khoan",
+     "so": "2",
+     "tieu_de": "",
+     "text": "Thay thế cụm từ \"người thụ hưởng\" bằng cụm từ \"bên thụ hưởng\".",
+     "html": "2. Thay thế cụm từ \"người thụ hưởng\" bằng cụm từ \"bên thụ hưởng\".",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    }
+   ]
+  },
+  {
+   "id": "id_2323fec2-eb83-11f0-b221-cf109da4fe5a",
+   "cap": "dieu",
+   "so": "5",
+   "tieu_de": "Sửa đổi, bổ sung một số điểm, khoản của Điều 14",
+   "text": "\"(i) Khi khách hàng có nhu cầu nộp tiền mặt để yêu cầu doanh nghiệp cung ứng dịch vụ bưu chính công ích chuyển tiền cho bên thụ hưởng, doanh nghiệp cung ứng dịch vụ bưu chính công ích hướng dẫn khách hàng lập mẫu chuyển tiền theo quy định của doanh nghiệp cung ứng dịch vụ bưu chính công ích, đảm bảo đầy đủ thông tin cần thiết của bên chuyển tiền và bên thụ hưởng, bao gồm: tên, địa chỉ, số điện thoại, số giấy tờ tùy thân của cá nhân hoặc người đại diện của tổ chức, chữ ký của bên chuyển tiền; mã số doanh nghiệp (nếu có) và các thông tin khác;\nNếu bên chuyển tiền là cá nhân, khi chuyển tiền khách hàng phải xuất trình giấy tờ tùy thân. Trong trường hợp bên chuyển tiền là người được ủy quyền, người được ủy quyền phải xuất trình giấy tờ tùy thân và văn bản ủy quyền theo quy định của pháp luật. Nếu bên chuyển tiền là tổ chức, người đại diện của tổ chức khi chuyển tiền phải xuất trình giấy tờ tùy thân và giấy tờ chứng minh tư cách đại diện hợp pháp của tổ chức đó. Doanh nghiệp cung ứng dịch vụ bưu chính công ích có biện pháp kiểm tra, đối chiếu thông tin, dữ liệu định danh khách hàng và lưu trữ theo quy định của pháp luật;\nKhi nhận yêu cầu chuyển tiền, doanh nghiệp cung ứng dịch vụ bưu chính công ích có trách nhiệm kiểm soát các thông tin trên mẫu chuyển tiền. Sau khi kiểm soát, nếu chứng từ thanh toán do khách hàng lập hợp pháp, hợp lệ và số tiền khách hàng nộp khớp đúng với số tiền ghi trên lệnh chuyển tiền, nhân viên ký chứng từ, làm thủ tục chuyển tiền đi cho khách hàng. Chậm nhất trong 01 ngày làm việc kể từ thời điểm nhận được chứng từ thanh toán hợp pháp, hợp lệ của khách hàng, doanh nghiệp cung ứng dịch vụ bưu chính công ích phải xử lý và hoàn tất việc chuyển tiền đi cho khách hàng;\n(ii) Khi nhận được lệnh chuyển tiền đến, doanh nghiệp cung ứng dịch vụ bưu chính công ích phục vụ bên thụ hưởng phải kiểm tra chứng từ đảm bảo hợp pháp, hợp lệ và chậm nhất trong 01 ngày làm việc kể từ thời điểm nhận được lệnh chuyển tiền đến thực hiện hạch toán vào tài khoản thích hợp và thông báo cho bên thụ hưởng đến nhận tiền hoặc giao tiền tại địa chỉ bên chuyển tiền yêu cầu theo thỏa thuận;\nNếu bên thụ hưởng là cá nhân, khi đến nhận tiền khách hàng phải xuất trình giấy tờ tùy thân. Trong trường hợp người nhận tiền là người được ủy quyền, người được ủy quyền xuất trình giấy tờ tùy thân và văn bản ủy quyền theo quy định của pháp luật. Nếu bên thụ hưởng là tổ chức, người đại diện của tổ chức đến nhận tiền phải xuất trình giấy tờ tùy thân và giấy tờ chứng minh tư cách đại diện hợp pháp của tổ chức đó. Doanh nghiệp cung ứng dịch vụ bưu chính công ích có biện pháp kiểm tra, đối chiếu thông tin, dữ liệu định danh khách hàng và lưu trữ theo quy định của pháp luật;\".\n\"3a. Căn cứ vào từng loại hình dịch vụ thu hộ, chi hộ, Doanh nghiệp cung ứng dịch vụ bưu chính công ích ký kết thỏa thuận bằng văn bản với khách hàng sử dụng dịch vụ bao gồm tối thiểu các nội dung:\na) Số hợp đồng/văn bản thỏa thuận;\nb) Thời điểm (ngày, tháng, năm) lập;\nc) Tên, địa chỉ của các bên tham gia;\nd) Thỏa thuận về thời hạn xử lý các giao dịch thanh toán, quyết toán;\nđ) Phạm vi cung cấp dịch vụ;\ne) Đối tượng khách hàng;\ng) Địa điểm giao dịch;\nh) Việc thực hiện các biện pháp đảm bảo an toàn, bảo mật;\ni) Các nội dung về quyền và nghĩa vụ của các bên;\nk) Trách nhiệm phối hợp xử lý tra soát, khiếu nại, tranh chấp rủi ro trong quá trình thực hiện, trong đó quy định cụ thể trách nhiệm của các bên trong việc tiếp nhận thông tin từ khách hàng, thời gian xử lý, trách nhiệm và phương án đền bù các tổn thất phát sinh;\nl) Quy định về phí thu hộ, chi hộ;\nm) Hiệu lực của hợp đồng/văn bản thỏa thuận;\nCác bên được thỏa thuận các nội dung khác phù hợp với quy định của Thông tư này và quy định của pháp luật có liên quan.\".",
+   "html": "\"(i) Khi khách hàng có nhu cầu nộp tiền mặt để yêu cầu doanh nghiệp cung ứng dịch vụ bưu chính công ích chuyển tiền cho bên thụ hưởng, doanh nghiệp cung ứng dịch vụ bưu chính công ích hướng dẫn khách hàng lập mẫu chuyển tiền theo quy định của doanh nghiệp cung ứng dịch vụ bưu chính công ích, đảm bảo đầy đủ thông tin cần thiết của bên chuyển tiền và bên thụ hưởng, bao gồm: tên, địa chỉ, số điện thoại, số giấy tờ tùy thân của cá nhân hoặc người đại diện của tổ chức, chữ ký của bên chuyển tiền; mã số doanh nghiệp (nếu có) và các thông tin khác;<br>Nếu bên chuyển tiền là cá nhân, khi chuyển tiền khách hàng phải xuất trình giấy tờ tùy thân. Trong trường hợp bên chuyển tiền là người được ủy quyền, người được ủy quyền phải xuất trình giấy tờ tùy thân và văn bản ủy quyền theo quy định của pháp luật. Nếu bên chuyển tiền là tổ chức, người đại diện của tổ chức khi chuyển tiền phải xuất trình giấy tờ tùy thân và giấy tờ chứng minh tư cách đại diện hợp pháp của tổ chức đó. Doanh nghiệp cung ứng dịch vụ bưu chính công ích có biện pháp kiểm tra, đối chiếu thông tin, dữ liệu định danh khách hàng và lưu trữ theo quy định của pháp luật;<br>Khi nhận yêu cầu chuyển tiền, doanh nghiệp cung ứng dịch vụ bưu chính công ích có trách nhiệm kiểm soát các thông tin trên mẫu chuyển tiền. Sau khi kiểm soát, nếu chứng từ thanh toán do khách hàng lập hợp pháp, hợp lệ và số tiền khách hàng nộp khớp đúng với số tiền ghi trên lệnh chuyển tiền, nhân viên ký chứng từ, làm thủ tục chuyển tiền đi cho khách hàng. Chậm nhất trong 01 ngày làm việc kể từ thời điểm nhận được chứng từ thanh toán hợp pháp, hợp lệ của khách hàng, doanh nghiệp cung ứng dịch vụ bưu chính công ích phải xử lý và hoàn tất việc chuyển tiền đi cho khách hàng;<br>(ii) Khi nhận được lệnh chuyển tiền đến, doanh nghiệp cung ứng dịch vụ bưu chính công ích phục vụ bên thụ hưởng phải kiểm tra chứng từ đảm bảo hợp pháp, hợp lệ và chậm nhất trong 01 ngày làm việc kể từ thời điểm nhận được lệnh chuyển tiền đến thực hiện hạch toán vào tài khoản thích hợp và thông báo cho bên thụ hưởng đến nhận tiền hoặc giao tiền tại địa chỉ bên chuyển tiền yêu cầu theo thỏa thuận;<br>Nếu bên thụ hưởng là cá nhân, khi đến nhận tiền khách hàng phải xuất trình giấy tờ tùy thân. Trong trường hợp người nhận tiền là người được ủy quyền, người được ủy quyền xuất trình giấy tờ tùy thân và văn bản ủy quyền theo quy định của pháp luật. Nếu bên thụ hưởng là tổ chức, người đại diện của tổ chức đến nhận tiền phải xuất trình giấy tờ tùy thân và giấy tờ chứng minh tư cách đại diện hợp pháp của tổ chức đó. Doanh nghiệp cung ứng dịch vụ bưu chính công ích có biện pháp kiểm tra, đối chiếu thông tin, dữ liệu định danh khách hàng và lưu trữ theo quy định của pháp luật;\".<br>\"3a. Căn cứ vào từng loại hình dịch vụ thu hộ, chi hộ, Doanh nghiệp cung ứng dịch vụ bưu chính công ích ký kết thỏa thuận bằng văn bản với khách hàng sử dụng dịch vụ bao gồm tối thiểu các nội dung:<br>a) Số hợp đồng/văn bản thỏa thuận;<br>b) Thời điểm (ngày, tháng, năm) lập;<br>c) Tên, địa chỉ của các bên tham gia;<br>d) Thỏa thuận về thời hạn xử lý các giao dịch thanh toán, quyết toán;<br>đ) Phạm vi cung cấp dịch vụ;<br>e) Đối tượng khách hàng;<br>g) Địa điểm giao dịch;<br>h) Việc thực hiện các biện pháp đảm bảo an toàn, bảo mật;<br>i) Các nội dung về quyền và nghĩa vụ của các bên;<br>k) Trách nhiệm phối hợp xử lý tra soát, khiếu nại, tranh chấp rủi ro trong quá trình thực hiện, trong đó quy định cụ thể trách nhiệm của các bên trong việc tiếp nhận thông tin từ khách hàng, thời gian xử lý, trách nhiệm và phương án đền bù các tổn thất phát sinh;<br>l) Quy định về phí thu hộ, chi hộ;<br>m) Hiệu lực của hợp đồng/văn bản thỏa thuận;<br>Các bên được thỏa thuận các nội dung khác phù hợp với quy định của Thông tư này và quy định của pháp luật có liên quan.\".",
+   "bi_tac_dong": null,
+   "an": false,
+   "con": [
+    {
+     "id": "id_2323fecc-eb83-11f0-851f-3b138cd3e60a",
+     "cap": "khoan",
+     "so": "1",
+     "tieu_de": "",
+     "text": "Sửa đổi, bổ sung điểm b(i), (ii) khoản 2 Điều 14 như sau:",
+     "html": "1. Sửa đổi, bổ sung điểm b(i), (ii) khoản 2 Điều 14 như sau:",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_2323fed6-eb83-11f0-9c60-eb7007e4bf22",
+     "cap": "khoan",
+     "so": "2",
+     "tieu_de": "",
+     "text": "Bổ sung khoản 3a vào sau khoản 3 Điều 14 như sau:",
+     "html": "2. Bổ sung khoản 3a vào sau khoản 3 Điều 14 như sau:",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    }
+   ]
+  },
+  {
+   "id": "id_2323fee0-eb83-11f0-9885-19accfea8002",
+   "cap": "dieu",
+   "so": "6",
+   "tieu_de": "Thay thế cụm từ tại điểm b(ii) khoản 1 và điểm b(ii) khoản 2 Điều 15",
+   "text": "Thay thế cụm từ \"Cơ quan thực hiện chức năng phòng, chống rửa tiền\" bằng cụm từ \"Cục Phòng, chống rửa tiền\".",
+   "html": "Thay thế cụm từ \"Cơ quan thực hiện chức năng phòng, chống rửa tiền\" bằng cụm từ \"Cục Phòng, chống rửa tiền\".",
+   "bi_tac_dong": null,
+   "an": false,
+   "con": []
+  },
+  {
+   "id": "id_2323feea-eb83-11f0-a99a-1d4a43948e01",
+   "cap": "dieu",
+   "so": "7",
+   "tieu_de": "Sửa đổi, bổ sung một số điểm, khoản của Điều 19",
+   "text": "\"Trách nhiệm của tổ chức cung ứng dịch vụ thanh toán, tổ chức cung ứng dịch vụ trung gian thanh toán\".\n\"1. Tổ chức cung ứng dịch vụ thanh toán có trách nhiệm thông báo và hướng dẫn khách hàng sử dụng dịch vụ thanh toán mà mình cung cấp; trả lời hoặc xử lý kịp thời các thắc mắc, khiếu nại của tổ chức, cá nhân sử dụng dịch vụ thanh toán trong phạm vi nghĩa vụ và quyền hạn của mình.\".\n\"2. Tổ chức cung ứng dịch vụ thanh toán có trách nhiệm thực hiện giao dịch thanh toán kịp thời, an toàn, chính xác theo thỏa thuận với tổ chức, cá nhân sử dụng dịch vụ thanh toán; niêm yết công khai phí dịch vụ thanh toán.\".\n\"2a. Tổ chức cung ứng dịch vụ thanh toán, tổ chức cung ứng dịch vụ trung gian thanh toán có trách nhiệm thực hiện các biện pháp đảm bảo cung ứng dịch vụ thanh toán, dịch vụ trung gian thanh toán được thông suốt, liên tục. Tổng thời gian gián đoạn cung ứng toàn bộ dịch vụ thanh toán trực tuyến, dịch vụ trung gian thanh toán trực tuyến không vượt quá 04 giờ/năm, thời gian gián đoạn cung ứng dịch vụ không vượt quá 30 phút/lần trừ các trường hợp bất khả kháng hoặc bảo trì, nâng cấp hệ thống đã được thông báo trước 24 giờ cho khách hàng và gửi thông báo cho đơn vị giám sát (Ngân hàng Nhà nước) qua địa chỉ thư điện tử gshttt_vtt@sbv.gov.vn để nắm bắt và theo dõi.\n2b. Tổ chức cung ứng dịch vụ thanh toán, tổ chức cung ứng dịch vụ trung gian thanh toán có trách nhiệm báo cáo Ngân hàng Nhà nước trong thời hạn 04 giờ khi phát hiện sự cố gây gián đoạn quá 30 phút hoạt động cung ứng dịch vụ thanh toán trực tuyến, dịch vụ trung gian thanh toán trực tuyến (trong đó bao gồm trường hợp bất khả kháng hoặc trường hợp vượt quá thời hạn bảo trì, nâng cấp hệ thống đã được thông báo trước 24 giờ) theo Phụ lục 05 ban hành kèm theo Thông tư này. Trong thời hạn 03 ngày làm việc kể từ ngày hoàn thành khắc phục sự cố, tổ chức cung ứng dịch vụ thanh toán, tổ chức cung ứng dịch vụ trung gian thanh toán có trách nhiệm gửi báo cáo sự cố đầy đủ các nội dung theo Phụ lục số 05 ban hành kèm theo Thông tư này qua địa chỉ thư điện tử gshttt_vtt@sbv.gov.vn để nắm bắt và theo dõi tình hình xử lý sự cố.\".\n\"3a. Tổ chức cung ứng dịch vụ thanh toán có trách nhiệm kiểm tra, kiểm soát lệnh thanh toán hợp pháp, hợp lệ trong đó đảm bảo thể hiện đúng số hiệu tài khoản thanh toán, tên tài khoản thanh toán trong thỏa thuận mở và sử dụng tài khoản thanh toán của khách hàng khi thực hiện giao dịch thanh toán và hiển thị đầy đủ trên chứng từ thanh toán.\".\n\"3b. Khi thực hiện dịch vụ ủy nhiệm chi, dịch vụ chuyển tiền qua tài khoản thanh toán hoặc không qua tài khoản thanh toán, tổ chức cung ứng dịch vụ thanh toán phục vụ bên trả tiền có trách nhiệm cung cấp cho tổ chức cung ứng dịch vụ thanh toán phục vụ bên thụ hưởng khi được tổ chức cung ứng dịch vụ thanh toán phục vụ bên thụ hưởng yêu cầu các thông tin tối thiểu liên quan đến giao dịch và các tổ chức cung ứng dịch vụ thanh toán phải bảo đảm tuân thủ quy định pháp luật về cung cấp và bảo mật thông tin, gồm:\na) Thông tin về bên trả tiền, gồm: Tên của bên trả tiền, số hiệu tài khoản thanh toán của bên trả tiền hoặc số tham chiếu giao dịch (khi không có tài khoản thanh toán), Địa chỉ hoặc số định danh của bên trả tiền;\nb) Thông tin về bên thụ hưởng, gồm: Tên của bên thụ hưởng, Số hiệu tài khoản thanh toán của bên thụ hưởng hoặc số tham chiếu giao dịch (khi không có tài khoản thanh toán).\".\n\"8. Tổ chức cung ứng dịch vụ thanh toán có trách nhiệm áp dụng các biện pháp, giải pháp đảm bảo kiểm tra, đối chiếu khớp đúng thông tin xác minh khách hàng đã được xác thực chính xác là do cơ quan Công an cấp hoặc thông qua xác thực tài khoản định danh điện tử của người đó do Hệ thống định danh và xác thực điện tử tạo lập trong quá trình thực hiện giao dịch thanh toán.\".\n\"9. Các tổ chức cung ứng dịch vụ thanh toán căn cứ quy định tại Thông tư này và quy định của pháp luật có liên quan để ban hành, tổ chức thực hiện và tuân thủ đầy đủ quy trình nội bộ về cung ứng dịch vụ thanh toán không dùng tiền mặt tại đơn vị mình và chịu trách nhiệm trước pháp luật về quy trình nội bộ của đơn vị mình.\".",
+   "html": "\"Trách nhiệm của tổ chức cung ứng dịch vụ thanh toán, tổ chức cung ứng dịch vụ trung gian thanh toán\".<br>\"1. Tổ chức cung ứng dịch vụ thanh toán có trách nhiệm thông báo và hướng dẫn khách hàng sử dụng dịch vụ thanh toán mà mình cung cấp; trả lời hoặc xử lý kịp thời các thắc mắc, khiếu nại của tổ chức, cá nhân sử dụng dịch vụ thanh toán trong phạm vi nghĩa vụ và quyền hạn của mình.\".<br>\"2. Tổ chức cung ứng dịch vụ thanh toán có trách nhiệm thực hiện giao dịch thanh toán kịp thời, an toàn, chính xác theo thỏa thuận với tổ chức, cá nhân sử dụng dịch vụ thanh toán; niêm yết công khai phí dịch vụ thanh toán.\".<br>\"2a. Tổ chức cung ứng dịch vụ thanh toán, tổ chức cung ứng dịch vụ trung gian thanh toán có trách nhiệm thực hiện các biện pháp đảm bảo cung ứng dịch vụ thanh toán, dịch vụ trung gian thanh toán được thông suốt, liên tục. Tổng thời gian gián đoạn cung ứng toàn bộ dịch vụ thanh toán trực tuyến, dịch vụ trung gian thanh toán trực tuyến không vượt quá 04 giờ/năm, thời gian gián đoạn cung ứng dịch vụ không vượt quá 30 phút/lần trừ các trường hợp bất khả kháng hoặc bảo trì, nâng cấp hệ thống đã được thông báo trước 24 giờ cho khách hàng và gửi thông báo cho đơn vị giám sát (Ngân hàng Nhà nước) qua địa chỉ thư điện tử gshttt_vtt@sbv.gov.vn để nắm bắt và theo dõi.<br>2b. Tổ chức cung ứng dịch vụ thanh toán, tổ chức cung ứng dịch vụ trung gian thanh toán có trách nhiệm báo cáo Ngân hàng Nhà nước trong thời hạn 04 giờ khi phát hiện sự cố gây gián đoạn quá 30 phút hoạt động cung ứng dịch vụ thanh toán trực tuyến, dịch vụ trung gian thanh toán trực tuyến (trong đó bao gồm trường hợp bất khả kháng hoặc trường hợp vượt quá thời hạn bảo trì, nâng cấp hệ thống đã được thông báo trước 24 giờ) theo Phụ lục 05 ban hành kèm theo Thông tư này. Trong thời hạn 03 ngày làm việc kể từ ngày hoàn thành khắc phục sự cố, tổ chức cung ứng dịch vụ thanh toán, tổ chức cung ứng dịch vụ trung gian thanh toán có trách nhiệm gửi báo cáo sự cố đầy đủ các nội dung theo Phụ lục số 05 ban hành kèm theo Thông tư này qua địa chỉ thư điện tử gshttt_vtt@sbv.gov.vn để nắm bắt và theo dõi tình hình xử lý sự cố.\".<br>\"3a. Tổ chức cung ứng dịch vụ thanh toán có trách nhiệm kiểm tra, kiểm soát lệnh thanh toán hợp pháp, hợp lệ trong đó đảm bảo thể hiện đúng số hiệu tài khoản thanh toán, tên tài khoản thanh toán trong thỏa thuận mở và sử dụng tài khoản thanh toán của khách hàng khi thực hiện giao dịch thanh toán và hiển thị đầy đủ trên chứng từ thanh toán.\".<br>\"3b. Khi thực hiện dịch vụ ủy nhiệm chi, dịch vụ chuyển tiền qua tài khoản thanh toán hoặc không qua tài khoản thanh toán, tổ chức cung ứng dịch vụ thanh toán phục vụ bên trả tiền có trách nhiệm cung cấp cho tổ chức cung ứng dịch vụ thanh toán phục vụ bên thụ hưởng khi được tổ chức cung ứng dịch vụ thanh toán phục vụ bên thụ hưởng yêu cầu các thông tin tối thiểu liên quan đến giao dịch và các tổ chức cung ứng dịch vụ thanh toán phải bảo đảm tuân thủ quy định pháp luật về cung cấp và bảo mật thông tin, gồm:<br>a) Thông tin về bên trả tiền, gồm: Tên của bên trả tiền, số hiệu tài khoản thanh toán của bên trả tiền hoặc số tham chiếu giao dịch (khi không có tài khoản thanh toán), Địa chỉ hoặc số định danh của bên trả tiền;<br>b) Thông tin về bên thụ hưởng, gồm: Tên của bên thụ hưởng, Số hiệu tài khoản thanh toán của bên thụ hưởng hoặc số tham chiếu giao dịch (khi không có tài khoản thanh toán).\".<br>\"8. Tổ chức cung ứng dịch vụ thanh toán có trách nhiệm áp dụng các biện pháp, giải pháp đảm bảo kiểm tra, đối chiếu khớp đúng thông tin xác minh khách hàng đã được xác thực chính xác là do cơ quan Công an cấp hoặc thông qua xác thực tài khoản định danh điện tử của người đó do Hệ thống định danh và xác thực điện tử tạo lập trong quá trình thực hiện giao dịch thanh toán.\".<br>\"9. Các tổ chức cung ứng dịch vụ thanh toán căn cứ quy định tại Thông tư này và quy định của pháp luật có liên quan để ban hành, tổ chức thực hiện và tuân thủ đầy đủ quy trình nội bộ về cung ứng dịch vụ thanh toán không dùng tiền mặt tại đơn vị mình và chịu trách nhiệm trước pháp luật về quy trình nội bộ của đơn vị mình.\".",
+   "bi_tac_dong": null,
+   "an": false,
+   "con": [
+    {
+     "id": "id_2323fef4-eb83-11f0-9c57-5334f2368058",
+     "cap": "khoan",
+     "so": "1",
+     "tieu_de": "",
+     "text": "Sửa đổi, bổ sung tên Điều 19 như sau:",
+     "html": "1. Sửa đổi, bổ sung tên Điều 19 như sau:",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_2323fefe-eb83-11f0-a11e-4b1a7f079319",
+     "cap": "khoan",
+     "so": "2",
+     "tieu_de": "",
+     "text": "Sửa đổi, bổ sung khoản 1 Điều 19 như sau:",
+     "html": "2. Sửa đổi, bổ sung khoản 1 Điều 19 như sau:",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_2323ff08-eb83-11f0-8c44-c356fb75566f",
+     "cap": "khoan",
+     "so": "3",
+     "tieu_de": "",
+     "text": "Sửa đổi, bổ sung khoản 2 Điều 19 như sau:",
+     "html": "3. Sửa đổi, bổ sung khoản 2 Điều 19 như sau:",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_2323ff12-eb83-11f0-bd24-f3620d65b53a",
+     "cap": "khoan",
+     "so": "4",
+     "tieu_de": "",
+     "text": "Bổ sung khoản 2a, khoản 2b vào sau khoản 2 Điều 19 như sau:",
+     "html": "4. Bổ sung khoản 2a, khoản 2b vào sau khoản 2 Điều 19 như sau:",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_2323ff1c-eb83-11f0-ad7f-9dc484a239b1",
+     "cap": "khoan",
+     "so": "5",
+     "tieu_de": "",
+     "text": "Bổ sung khoản 3a vào sau khoản 3 Điều 19 như sau:",
+     "html": "5. Bổ sung khoản 3a vào sau khoản 3 Điều 19 như sau:",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_2323ff26-eb83-11f0-94b6-21c012c8e57d",
+     "cap": "khoan",
+     "so": "6",
+     "tieu_de": "",
+     "text": "Bổ sung khoản 3b vào sau khoản 3a Điều 19 như sau:",
+     "html": "6. Bổ sung khoản 3b vào sau khoản 3a Điều 19 như sau:",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_2323ff30-eb83-11f0-8591-95d19fc86256",
+     "cap": "khoan",
+     "so": "7",
+     "tieu_de": "",
+     "text": "Sửa đổi, bổ sung khoản 8 Điều 19 như sau:",
+     "html": "7. Sửa đổi, bổ sung khoản 8 Điều 19 như sau:",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_2323ff3a-eb83-11f0-9a02-5df3d5a6bcf9",
+     "cap": "khoan",
+     "so": "8",
+     "tieu_de": "",
+     "text": "Sửa đổi, bổ sung khoản 9 Điều 19 như sau:",
+     "html": "8. Sửa đổi, bổ sung khoản 9 Điều 19 như sau:",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    }
+   ]
+  },
+  {
+   "id": "id_2323ff44-eb83-11f0-8f89-31019d7c502d",
+   "cap": "dieu",
+   "so": "8",
+   "tieu_de": "Sửa đổi, bổ sung điểm a khoản 3 Điều 20",
+   "text": "\"a) Có hợp đồng hoặc thỏa thuận bằng văn bản với ĐVCNTT, trong đó phải quy định cụ thể các nội dung: quyền và trách nhiệm của các bên; quy định rõ việc ĐVCNTT phải chịu trách nhiệm về tính hợp pháp của các hàng hóa, dịch vụ cung ứng và cam kết không thực hiện các giao dịch bị cấm theo quy định của pháp luật; yêu cầu ĐVCNTT cam kết không được phân biệt giá hoặc thu thêm tiền, phụ phí đối với các giao dịch thanh toán tiền hàng hóa, dịch vụ bằng phương tiện thanh toán không dùng tiền mặt so với thanh toán bằng tiền mặt và phân biệt giá giữa các phương tiện tiện thanh toán không dùng tiền mặt; việc xử lý dữ liệu cá nhân của khách hàng hoặc dữ liệu cá nhân do khách hàng cung cấp, việc cung cấp thông tin cho bên thứ ba nhằm phục vụ việc nhận biết ĐVCNTT; các trường hợp chấm dứt hợp đồng;\".",
+   "html": "\"a) Có hợp đồng hoặc thỏa thuận bằng văn bản với ĐVCNTT, trong đó phải quy định cụ thể các nội dung: quyền và trách nhiệm của các bên; quy định rõ việc ĐVCNTT phải chịu trách nhiệm về tính hợp pháp của các hàng hóa, dịch vụ cung ứng và cam kết không thực hiện các giao dịch bị cấm theo quy định của pháp luật; yêu cầu ĐVCNTT cam kết không được phân biệt giá hoặc thu thêm tiền, phụ phí đối với các giao dịch thanh toán tiền hàng hóa, dịch vụ bằng phương tiện thanh toán không dùng tiền mặt so với thanh toán bằng tiền mặt và phân biệt giá giữa các phương tiện tiện thanh toán không dùng tiền mặt; việc xử lý dữ liệu cá nhân của khách hàng hoặc dữ liệu cá nhân do khách hàng cung cấp, việc cung cấp thông tin cho bên thứ ba nhằm phục vụ việc nhận biết ĐVCNTT; các trường hợp chấm dứt hợp đồng;\".",
+   "bi_tac_dong": null,
+   "an": false,
+   "con": []
+  },
+  {
+   "id": "id_2323ff4e-eb83-11f0-b720-b5ac416f1407",
+   "cap": "dieu",
+   "so": "9",
+   "tieu_de": "Sửa đổi, bổ sung Điều 23",
+   "text": "\"Điều 23. Trách nhiệm tổ chức thực hiện\n1. Vụ Thanh toán\na) Có trách nhiệm theo dõi và phối hợp với các đơn vị liên quan để xử lý những vướng mắc phát sinh trong quá trình thực hiện Thông tư này;\nb) Làm đầu mối, phối hợp với Thanh tra Ngân hàng Nhà nước, Cục Công nghệ thông tin trong công tác kiểm tra việc tuân thủ các quy định về hoạt động cung ứng dịch vụ thanh toán không qua tài khoản thanh toán của khách hàng của doanh nghiệp cung ứng dịch vụ bưu chính công ích.\n2. Thanh tra Ngân hàng Nhà nước, Cục Quản lý, giám sát tổ chức tín dụng, Ngân hàng Nhà nước chi nhánh Khu vực\na) Có trách nhiệm thanh tra, giám sát việc tuân thủ các quy định tại Thông tư này và xử lý các trường hợp vi phạm theo thẩm quyền, thông báo cho Vụ Thanh toán để theo dõi;\nb) Thực hiện thanh tra hoạt động cung ứng dịch vụ thanh toán không qua tài khoản thanh toán của doanh nghiệp cung ứng dịch vụ bưu chính công ích theo quy định của pháp luật, xử lý các trường hợp vi phạm theo thẩm quyền và thông báo kết quả cho Vụ Thanh toán, các đơn vị có liên quan.\n3. Thủ trưởng các đơn vị thuộc Ngân hàng Nhà nước, tổ chức cung ứng dịch vụ thanh toán, tổ chức cung ứng dịch vụ trung gian thanh toán và các tổ chức, cá nhân có liên quan chịu trách nhiệm tổ chức thực hiện Thông tư này.\".",
+   "html": "<strong>\"Điều 23. Trách nhiệm tổ chức thực hiện</strong><br>1. Vụ Thanh toán<br>a) Có trách nhiệm theo dõi và phối hợp với các đơn vị liên quan để xử lý những vướng mắc phát sinh trong quá trình thực hiện Thông tư này;<br>b) Làm đầu mối, phối hợp với Thanh tra Ngân hàng Nhà nước, Cục Công nghệ thông tin trong công tác kiểm tra việc tuân thủ các quy định về hoạt động cung ứng dịch vụ thanh toán không qua tài khoản thanh toán của khách hàng của doanh nghiệp cung ứng dịch vụ bưu chính công ích.<br>2. Thanh tra Ngân hàng Nhà nước, Cục Quản lý, giám sát tổ chức tín dụng, Ngân hàng Nhà nước chi nhánh Khu vực<br>a) Có trách nhiệm thanh tra, giám sát việc tuân thủ các quy định tại Thông tư này và xử lý các trường hợp vi phạm theo thẩm quyền, thông báo cho Vụ Thanh toán để theo dõi;<br>b) Thực hiện thanh tra hoạt động cung ứng dịch vụ thanh toán không qua tài khoản thanh toán của doanh nghiệp cung ứng dịch vụ bưu chính công ích theo quy định của pháp luật, xử lý các trường hợp vi phạm theo thẩm quyền và thông báo kết quả cho Vụ Thanh toán, các đơn vị có liên quan.<br>3. Thủ trưởng các đơn vị thuộc Ngân hàng Nhà nước, tổ chức cung ứng dịch vụ thanh toán, tổ chức cung ứng dịch vụ trung gian thanh toán và các tổ chức, cá nhân có liên quan chịu trách nhiệm tổ chức thực hiện Thông tư này.\".",
+   "bi_tac_dong": null,
+   "an": false,
+   "con": []
+  },
+  {
+   "id": "id_2323ff58-eb83-11f0-a9e0-9fcda4fa0134",
+   "cap": "dieu",
+   "so": "10",
+   "tieu_de": "Sửa đổi, bổ sung Phụ lục kèm theo Thông tư số 15/2024/TT-NHNN",
+   "text": "",
+   "html": "",
+   "bi_tac_dong": null,
+   "an": false,
+   "con": [
+    {
+     "id": "id_2323ff62-eb83-11f0-9602-3981b7a7b210",
+     "cap": "khoan",
+     "so": "1",
+     "tieu_de": "",
+     "text": "Thay thế Phụ lục số 01 ban hành kèm theo Thông tư số 15/2024/TT-NHNN bằng Phụ lục 01 ban hành kèm theo Thông tư này.",
+     "html": "1. Thay thế Phụ lục số 01 ban hành kèm theo Thông tư số 15/2024/TT-NHNN bằng Phụ lục 01 ban hành kèm theo Thông tư này.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_2323ff6c-eb83-11f0-bbcb-71f29abfa327",
+     "cap": "khoan",
+     "so": "2",
+     "tieu_de": "",
+     "text": "Thay thế Phụ lục số 02 ban hành kèm theo Thông tư số 15/2024/TT-NHNN bằng Phụ lục 02 ban hành kèm theo Thông tư này.",
+     "html": "2. Thay thế Phụ lục số 02 ban hành kèm theo Thông tư số 15/2024/TT-NHNN bằng Phụ lục 02 ban hành kèm theo Thông tư này.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_2323ff76-eb83-11f0-a717-c98f4501c689",
+     "cap": "khoan",
+     "so": "3",
+     "tieu_de": "",
+     "text": "Thay thế Phụ lục số 04 ban hành kèm theo Thông tư 15/2024/TT-NHNN bằng Phụ lục 04 ban hành kèm theo Thông tư này.",
+     "html": "3. Thay thế Phụ lục số 04 ban hành kèm theo Thông tư 15/2024/TT-NHNN bằng Phụ lục 04 ban hành kèm theo Thông tư này.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_2323ff80-eb83-11f0-ad61-73e52b9a5933",
+     "cap": "khoan",
+     "so": "4",
+     "tieu_de": "",
+     "text": "Bổ sung Phụ lục 05.",
+     "html": "4. Bổ sung Phụ lục 05.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    }
+   ]
+  },
+  {
+   "id": "id_2323ff8a-eb83-11f0-8cab-730b2a37edcb",
+   "cap": "dieu",
+   "so": "11",
+   "tieu_de": "Trách nhiệm tổ chức thực hiện",
+   "text": "Thủ trưởng các đơn vị thuộc Ngân hàng Nhà nước, tổ chức cung ứng dịch vụ thanh toán, tổ chức cung ứng dịch vụ trung gian thanh toán và các tổ chức, cá nhân có liên quan chịu trách nhiệm tổ chức thực hiện Thông tư này.",
+   "html": "Thủ trưởng các đơn vị thuộc Ngân hàng Nhà nước, tổ chức cung ứng dịch vụ thanh toán, tổ chức cung ứng dịch vụ trung gian thanh toán và các tổ chức, cá nhân có liên quan chịu trách nhiệm tổ chức thực hiện Thông tư này.",
+   "bi_tac_dong": null,
+   "an": false,
+   "con": []
+  },
+  {
+   "id": "id_2323ff94-eb83-11f0-8715-7b4aa315ef2b",
+   "cap": "dieu",
+   "so": "12",
+   "tieu_de": "Điều khoản thi hành",
+   "text": "",
+   "html": "",
+   "bi_tac_dong": null,
+   "an": false,
+   "con": [
+    {
+     "id": "id_2323ff9e-eb83-11f0-b76e-8d20ca9b57c3",
+     "cap": "khoan",
+     "so": "1",
+     "tieu_de": "",
+     "text": "Thông tư này có hiệu lực thi hành từ ngày 18 tháng 11 năm 2025, trừ quy định tại khoản 2 Điều này.",
+     "html": "1. Thông tư này có hiệu lực thi hành từ ngày 18 tháng 11 năm 2025, trừ quy định tại khoản 2 Điều này.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_2323ffa8-eb83-11f0-87f8-af7669f7e6e9",
+     "cap": "khoan",
+     "so": "2",
+     "tieu_de": "",
+     "text": "Khoản 5 Điều 7 Thông tư này có hiệu lực thi hành từ ngày 01 tháng 4 năm 2026.",
+     "html": "2. Khoản 5 Điều 7 Thông tư này có hiệu lực thi hành từ ngày 01 tháng 4 năm 2026.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_2323ffb2-eb83-11f0-8b57-a9d550e00f54",
+     "cap": "khoan",
+     "so": "3",
+     "tieu_de": "",
+     "text": "Bãi bỏ khoản 2 Điều 17 Thông tư số 41/2024/TT-NHNN ngày 17 tháng 7 năm 2024 của Thống đốc Ngân hàng Nhà nước Việt Nam quy định về giám sát và thực hiện giám sát các hệ thống thanh toán quan trọng, hoạt động cung ứng dịch vụ trung gian thanh toán.",
+     "html": "3. Bãi bỏ khoản 2 Điều 17 Thông tư số 41/2024/TT-NHNN ngày 17 tháng 7 năm 2024 của Thống đốc Ngân hàng Nhà nước Việt Nam quy định về giám sát và thực hiện giám sát các hệ thống thanh toán quan trọng, hoạt động cung ứng dịch vụ trung gian thanh toán.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    }
+   ]
+  }
+ ],
+ "trich_dan": [
+  {
+   "char_start": 1009,
+   "char_end": 1699
+  },
+  {
+   "char_start": 1741,
+   "char_end": 2556
+  },
+  {
+   "char_start": 2664,
+   "char_end": 3318
+  },
+  {
+   "char_start": 3371,
+   "char_end": 4361
+  },
+  {
+   "char_start": 4414,
+   "char_end": 5176
+  },
+  {
+   "char_start": 5197,
+   "char_end": 5247
+  },
+  {
+   "char_start": 5249,
+   "char_end": 5295
+  },
+  {
+   "char_start": 5308,
+   "char_end": 5346
+  },
+  {
+   "char_start": 5417,
+   "char_end": 5461
+  },
+  {
+   "char_start": 5474,
+   "char_end": 5527
+  },
+  {
+   "char_start": 5649,
+   "char_end": 5668
+  },
+  {
+   "char_start": 5681,
+   "char_end": 5698
+  },
+  {
+   "char_start": 5719,
+   "char_end": 5736
+  },
+  {
+   "char_start": 5749,
+   "char_end": 5764
+  },
+  {
+   "char_start": 5883,
+   "char_end": 8573
+  },
+  {
+   "char_start": 8628,
+   "char_end": 9655
+  },
+  {
+   "char_start": 9750,
+   "char_end": 9801
+  },
+  {
+   "char_start": 9814,
+   "char_end": 9841
+  },
+  {
+   "char_start": 9940,
+   "char_end": 10041
+  },
+  {
+   "char_start": 10088,
+   "char_end": 10368
+  },
+  {
+   "char_start": 10415,
+   "char_end": 10638
+  },
+  {
+   "char_start": 10703,
+   "char_end": 12192
+  },
+  {
+   "char_start": 12247,
+   "char_end": 12589
+  },
+  {
+   "char_start": 12645,
+   "char_end": 13542
+  },
+  {
+   "char_start": 13589,
+   "char_end": 13961
+  },
+  {
+   "char_start": 14008,
+   "char_end": 14331
+  },
+  {
+   "char_start": 14381,
+   "char_end": 15174
+  },
+  {
+   "char_start": 15209,
+   "char_end": 16467
+  }
+ ]
+}
