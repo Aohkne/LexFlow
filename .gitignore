@@ -14,6 +14,12 @@ data/lancedb/
 # Cache sitemap vbpl.vn — không phải bản chụp nguồn, tải lại được, ~15-20 MB
 data/raw/vbpl/.sitemap_cache/
 
+# Bản thô 3 tab + log mẻ cào. Chỉ `corpus/` được version: diff của nó cho thấy nguồn đổi gì
+# hoặc parser đổi gì. Bản thô ~2,7 MB/lượt, không ai đọc diff, và dựng lại được từ
+# research/crawl_list.txt — file đó mới là nguồn tái tạo, phải luôn phủ đủ corpus/.
+data/raw/vbpl/raw/
+data/raw/vbpl/crawl-report.json
+
 # Cấu hình Claude Code riêng từng máy (chứa đường dẫn tuyệt đối của máy đó)
 .claude/settings.local.json
 

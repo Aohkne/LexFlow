@@ -2,6 +2,8 @@
 
 Dữ liệu vào là bản chụp thật từ Thông tư 15/2024/TT-NHNN (tab Thuộc tính và Lược đồ).
 """
+from pathlib import Path
+
 from app.ingestion.vbpl import (
     _dedupe_amendments,
     build_provision_tree,
@@ -14,6 +16,7 @@ from app.ingestion.vbpl import (
     parse_relations,
     sanitize_inline,
     sitemap_cache_dir,
+    slug_for,
     split_heading,
     to_corpus_document,
 )
@@ -413,3 +416,22 @@ def test_bien_moi_truong_rong_thi_coi_nhu_khong_dat(monkeypatch):
     hiểu thành Path("") tức là cwd."""
     monkeypatch.setenv("LEXFLOW_VBPL_OUT", "   ")
     assert default_out_dir().parts[-3:] == ("data", "raw", "vbpl")
+
+
+def test_crawl_list_khong_co_hai_url_trung_slug():
+    """Hai URL khác nhau mà ra cùng slug thì văn bản sau ĐÈ LÊN văn bản trước, im lặng.
+
+    Rủi ro thật: slug bị cắt còn 80 ký tự, mà tên văn bản NHNN hay trùng nhau ở đoạn đầu
+    rất dài. Từ khi `data/raw/vbpl/raw/` không còn được version, danh sách này là nguồn tái
+    tạo duy nhất — một vụ đè nhau ở đây là mất hẳn một văn bản.
+    """
+    danh_sach = Path(__file__).resolve().parents[1] / "research" / "crawl_list.txt"
+    urls = [
+        ln.strip()
+        for ln in danh_sach.read_text(encoding="utf-8-sig").splitlines()
+        if ln.strip() and not ln.startswith("#")
+    ]
+    slugs = [slug_for(u) for u in urls]
+    trung = {s for s in slugs if slugs.count(s) > 1}
+    assert not trung, f"slug trùng nhau: {trung}"
+    assert len(urls) == len(set(urls))
