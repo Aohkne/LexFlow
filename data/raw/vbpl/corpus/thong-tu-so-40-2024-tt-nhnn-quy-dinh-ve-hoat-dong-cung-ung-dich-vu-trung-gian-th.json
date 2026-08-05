@@ -6023,5 +6023,15 @@
     }
    ]
   }
+ ],
+ "trich_dan": [
+  {
+   "char_start": 113044,
+   "char_end": 113047
+  },
+  {
+   "char_start": 113071,
+   "char_end": 113074
+  }
  ]
 }

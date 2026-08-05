@@ -28,12 +28,6 @@
  ],
  "co_toan_van": true,
  "canh_bao": [
-  "Điều 1: khoản 5 xuất hiện 2 lần với nội dung KHÁC nhau — giữ cả hai, cần người đọc quyết bản nào là bản đang hiệu lực",
-  "Điều 1: khoản 6 xuất hiện 2 lần với nội dung KHÁC nhau — giữ cả hai, cần người đọc quyết bản nào là bản đang hiệu lực",
-  "Điều 1: khoản 7 xuất hiện 2 lần với nội dung KHÁC nhau — giữ cả hai, cần người đọc quyết bản nào là bản đang hiệu lực",
-  "Điều 1: khoản 8 xuất hiện 2 lần với nội dung KHÁC nhau — giữ cả hai, cần người đọc quyết bản nào là bản đang hiệu lực",
-  "cây điều khoản thiếu 4 Khoản so với toàn văn (10/14)",
-  "cây điều khoản thiếu 7 Điểm so với toàn văn (0/7)",
   "nguồn thừa dấu cách trong số hiệu: 'Thông tư số 21/2017/TT- NHNN Quy định về phương thức giải ngân vốn cho'",
   "nguồn thừa dấu cách trong số hiệu: 'Thông tư số 21/2017/TT- NHNN Quy định về phương thức giải ngân vốn cho'"
  ],
@@ -210,6 +204,44 @@
    "bi_tac_dong": null,
    "an": false,
    "con": []
+  }
+ ],
+ "trich_dan": [
+  {
+   "char_start": 1071,
+   "char_end": 2386
+  },
+  {
+   "char_start": 2422,
+   "char_end": 2500
+  },
+  {
+   "char_start": 2536,
+   "char_end": 2867
+  },
+  {
+   "char_start": 2904,
+   "char_end": 3324
+  },
+  {
+   "char_start": 3368,
+   "char_end": 3551
+  },
+  {
+   "char_start": 3622,
+   "char_end": 3738
+  },
+  {
+   "char_start": 3806,
+   "char_end": 5760
+  },
+  {
+   "char_start": 5806,
+   "char_end": 6239
+  },
+  {
+   "char_start": 6287,
+   "char_end": 6930
   }
  ]
 }

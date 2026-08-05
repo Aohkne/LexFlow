@@ -22,10 +22,7 @@
   }
  ],
  "co_toan_van": true,
- "canh_bao": [
-  "cây điều khoản thiếu 6 Khoản so với toàn văn (14/20)",
-  "cây điều khoản thiếu 22 Điểm so với toàn văn (3/25)"
- ],
+ "canh_bao": [],
  "articles": [
   {
    "article": "Điều 1",
@@ -540,6 +537,124 @@
    "bi_tac_dong": null,
    "an": false,
    "con": []
+  }
+ ],
+ "trich_dan": [
+  {
+   "char_start": 1384,
+   "char_end": 2592
+  },
+  {
+   "char_start": 2650,
+   "char_end": 2718
+  },
+  {
+   "char_start": 2731,
+   "char_end": 2769
+  },
+  {
+   "char_start": 2811,
+   "char_end": 3532
+  },
+  {
+   "char_start": 3620,
+   "char_end": 4254
+  },
+  {
+   "char_start": 4293,
+   "char_end": 4764
+  },
+  {
+   "char_start": 4818,
+   "char_end": 5413
+  },
+  {
+   "char_start": 5462,
+   "char_end": 9735
+  },
+  {
+   "char_start": 9824,
+   "char_end": 10397
+  },
+  {
+   "char_start": 10436,
+   "char_end": 10937
+  },
+  {
+   "char_start": 10972,
+   "char_end": 11790
+  },
+  {
+   "char_start": 11892,
+   "char_end": 12125
+  },
+  {
+   "char_start": 12171,
+   "char_end": 12404
+  },
+  {
+   "char_start": 12464,
+   "char_end": 12503
+  },
+  {
+   "char_start": 12516,
+   "char_end": 12556
+  },
+  {
+   "char_start": 12607,
+   "char_end": 13350
+  },
+  {
+   "char_start": 13446,
+   "char_end": 14782
+  },
+  {
+   "char_start": 14828,
+   "char_end": 15687
+  },
+  {
+   "char_start": 15726,
+   "char_end": 16940
+  },
+  {
+   "char_start": 16995,
+   "char_end": 17034
+  },
+  {
+   "char_start": 17047,
+   "char_end": 17087
+  },
+  {
+   "char_start": 17142,
+   "char_end": 17181
+  },
+  {
+   "char_start": 17194,
+   "char_end": 17234
+  },
+  {
+   "char_start": 17273,
+   "char_end": 18361
+  },
+  {
+   "char_start": 18452,
+   "char_end": 18759
+  },
+  {
+   "char_start": 18797,
+   "char_end": 18927
+  },
+  {
+   "char_start": 18965,
+   "char_end": 19249
+  },
+  {
+   "char_start": 19279,
+   "char_end": 20577
+  },
+  {
+   "char_start": 20613,
+   "char_end": 20836
   }
  ]
 }

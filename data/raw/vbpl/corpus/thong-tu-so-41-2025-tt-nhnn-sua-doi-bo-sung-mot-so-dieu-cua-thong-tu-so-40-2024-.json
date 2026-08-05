@@ -27,10 +27,7 @@
   }
  ],
  "co_toan_van": true,
- "canh_bao": [
-  "cây điều khoản thiếu 12 Khoản so với toàn văn (34/46)",
-  "cây điều khoản thiếu 13 Điểm so với toàn văn (0/13)"
- ],
+ "canh_bao": [],
  "articles": [
   {
    "article": "Điều 1",
@@ -966,6 +963,164 @@
      "con": []
     }
    ]
+  }
+ ],
+ "trich_dan": [
+  {
+   "char_start": 1087,
+   "char_end": 1309
+  },
+  {
+   "char_start": 1422,
+   "char_end": 2309
+  },
+  {
+   "char_start": 2339,
+   "char_end": 2645
+  },
+  {
+   "char_start": 2699,
+   "char_end": 3285
+  },
+  {
+   "char_start": 3334,
+   "char_end": 3807
+  },
+  {
+   "char_start": 3908,
+   "char_end": 4091
+  },
+  {
+   "char_start": 4140,
+   "char_end": 4413
+  },
+  {
+   "char_start": 4451,
+   "char_end": 4993
+  },
+  {
+   "char_start": 5081,
+   "char_end": 8751
+  },
+  {
+   "char_start": 8780,
+   "char_end": 8901
+  },
+  {
+   "char_start": 9002,
+   "char_end": 10015
+  },
+  {
+   "char_start": 10053,
+   "char_end": 10201
+  },
+  {
+   "char_start": 10368,
+   "char_end": 10711
+  },
+  {
+   "char_start": 10749,
+   "char_end": 11045
+  },
+  {
+   "char_start": 11090,
+   "char_end": 11330
+  },
+  {
+   "char_start": 11427,
+   "char_end": 11896
+  },
+  {
+   "char_start": 11953,
+   "char_end": 12774
+  },
+  {
+   "char_start": 12911,
+   "char_end": 13348
+  },
+  {
+   "char_start": 13393,
+   "char_end": 13596
+  },
+  {
+   "char_start": 13695,
+   "char_end": 13989
+  },
+  {
+   "char_start": 14040,
+   "char_end": 14338
+  },
+  {
+   "char_start": 14427,
+   "char_end": 15071
+  },
+  {
+   "char_start": 15100,
+   "char_end": 15730
+  },
+  {
+   "char_start": 15764,
+   "char_end": 15941
+  },
+  {
+   "char_start": 16043,
+   "char_end": 16610
+  },
+  {
+   "char_start": 16655,
+   "char_end": 17730
+  },
+  {
+   "char_start": 17770,
+   "char_end": 17980
+  },
+  {
+   "char_start": 18009,
+   "char_end": 18154
+  },
+  {
+   "char_start": 18183,
+   "char_end": 18583
+  },
+  {
+   "char_start": 18618,
+   "char_end": 22429
+  },
+  {
+   "char_start": 22472,
+   "char_end": 23332
+  },
+  {
+   "char_start": 23367,
+   "char_end": 24240
+  },
+  {
+   "char_start": 24329,
+   "char_end": 24640
+  },
+  {
+   "char_start": 24678,
+   "char_end": 24867
+  },
+  {
+   "char_start": 24910,
+   "char_end": 25099
+  },
+  {
+   "char_start": 25134,
+   "char_end": 25473
+  },
+  {
+   "char_start": 25508,
+   "char_end": 25717
+  },
+  {
+   "char_start": 25760,
+   "char_end": 25893
+  },
+  {
+   "char_start": 25928,
+   "char_end": 26601
   }
  ]
 }

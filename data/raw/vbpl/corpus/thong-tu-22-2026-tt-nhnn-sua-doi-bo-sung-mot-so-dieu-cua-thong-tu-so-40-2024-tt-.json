@@ -27,10 +27,7 @@
   }
  ],
  "co_toan_van": true,
- "canh_bao": [
-  "cây điều khoản thiếu 10 Khoản so với toàn văn (2/12)",
-  "cây điều khoản thiếu 19 Điểm so với toàn văn (0/19)"
- ],
+ "canh_bao": [],
  "articles": [
   {
    "article": "Điều 1",
@@ -176,6 +173,24 @@
      "con": []
     }
    ]
+  }
+ ],
+ "trich_dan": [
+  {
+   "char_start": 1067,
+   "char_end": 5312
+  },
+  {
+   "char_start": 5347,
+   "char_end": 7540
+  },
+  {
+   "char_start": 7575,
+   "char_end": 10469
+  },
+  {
+   "char_start": 10503,
+   "char_end": 10896
   }
  ]
 }

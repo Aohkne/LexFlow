@@ -22,9 +22,7 @@
   }
  ],
  "co_toan_van": true,
- "canh_bao": [
-  "cây điều khoản thiếu 1 Điểm so với toàn văn (0/1)"
- ],
+ "canh_bao": [],
  "articles": [
   {
    "article": "Điều 1",
@@ -325,6 +323,52 @@
    "bi_tac_dong": null,
    "an": false,
    "con": []
+  }
+ ],
+ "trich_dan": [
+  {
+   "char_start": 846,
+   "char_end": 1282
+  },
+  {
+   "char_start": 1340,
+   "char_end": 1834
+  },
+  {
+   "char_start": 1892,
+   "char_end": 2381
+  },
+  {
+   "char_start": 2432,
+   "char_end": 2772
+  },
+  {
+   "char_start": 2837,
+   "char_end": 3918
+  },
+  {
+   "char_start": 4244,
+   "char_end": 4297
+  },
+  {
+   "char_start": 4968,
+   "char_end": 5787
+  },
+  {
+   "char_start": 5845,
+   "char_end": 6426
+  },
+  {
+   "char_start": 7121,
+   "char_end": 7445
+  },
+  {
+   "char_start": 7741,
+   "char_end": 7981
+  },
+  {
+   "char_start": 8031,
+   "char_end": 8124
   }
  ]
 }
