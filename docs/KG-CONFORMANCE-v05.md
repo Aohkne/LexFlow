@@ -419,6 +419,14 @@ hệ thống **đang chạy**, chứ không chỉ trong code?
 đọng** — và cũng không có dữ liệu để chạy. Ngoài ra `push_corpus` mở đầu bằng
 `MATCH (d:Document) DETACH DELETE d`, nên kể cả còn sống thì lần nạp sau cũng xoá sạch.
 
+> **05/08 — chẩn đoán trên sai một nửa, đo lại được sau khi người dùng resume.** Instance không
+> chết: Aura free **tự pause** sau thời gian không hoạt động, và pause thì DNS của instance
+> ngừng phân giải — nhìn từ ngoài giống hệt "chết". Resume xong kết nối được ngay, và bên trong
+> là **đúng cái tồn đọng mà (a) kết luận là không có**: 15 node `Document` · 13 cạnh mang **tên
+> cũ** (`HUONG_DAN` 4 · `SUA_DOI` 2 · `THAY_THE` 4 · `DAN_CHIEU` 3) · **0 node có `so_hieu`** ·
+> thiếu cả 5 văn bản nạp 05/08. Không cần dọn tay: `push_corpus` xoá sạch rồi nạp lại — chạy
+> khi người dùng cho phép đụng dữ liệu chạy thật (#17).
+
 **(b) Web — còn sống ở BA file, và hỏng theo kiểu không ai thấy.** ✅ đã sửa.
 
 | chỗ | hỏng ra sao |
@@ -582,7 +590,7 @@ code**, và ba chỗ mâu thuẫn ở §3 là thứ phải xử lý trước khi
 | ~~**14**~~ | ~~Nạp 7 văn bản đã crawl vào corpus~~ — ✅ **xong 05/08** (`app/ingestion/nap_corpus.py`): 15→20 văn bản, đã đo từng điều trước khi thay; đúng như chẩn đoán, **corpus là bên sai ở TT15** (Điều 18 nuốt Điều 19, tách xong 22→23 điều). Mở khoá đủ ba thứ: `chapter` 115/338, ca `BAI_BO` §6.2, khoản về đúng chủ | — | 9 cạnh mới có căn cứ; TT22-`BAI_BO`→TT41 **cố ý không thêm**: lược đồ vbpl nói "bị bãi bỏ" nhưng toàn văn TT22 không có câu bãi bỏ và vbpl gắn TT41 "Hết hiệu lực một phần" — hai nguồn vbpl mâu thuẫn thì người quyết |
 | **15** | ~~Chạy `supabase/migrations/0006_quan_he_v05.sql`~~ — ✅ **user đã chạy 04/08** | — | xem §3.6c |
 | **16** | **Crawl tiếp `docs/CAN-CRAWL.md`** — còn **68 văn bản**; `30/2016/TT-NHNN` và `58/2021/NĐ-CP` ở mức GẤP vì mang `BAI_BO` | cao | phụ thuộc dữ liệu, không phụ thuộc code |
-| **17** | **Dựng lại instance Neo4j** — Aura `fd63789d…` **không phân giải DNS**; mọi truy vấn §6 hiện không chạy được ở đâu cả | cao | tạo instance mới + `push_corpus`; xem §3.6a |
+| **17** | **Đẩy corpus mới lên Neo4j** — instance hoá ra chỉ bị Aura **tự pause**, người dùng resume 05/08, kết nối lại được; trong đó còn nguyên bản cũ (13 cạnh tên cũ, 0 `so_hieu`, thiếu 5 văn bản — xem §3.6a). Chờ người dùng cho phép đụng dữ liệu chạy thật rồi `push_corpus` (tự xoá sạch trước khi nạp) | cao | một lệnh; đã hết phần "dựng lại" |
 | **18** | **Nhận `source_url`/`source_files` vào `DocumentMeta`** (§2.6) — bản ghi crawl đã có, `doc_file` đọc xong rồi bỏ đi | trung bình | rất nhỏ; là tiền đề của `da_xac_minh_nguon`, không thay thế nó |
 
 > **Hai mục 10–11 làm đổi thứ tự phụ thuộc của #8.** Bản 03/08 xếp `Chuong`/`Muc` sau #4 (thống

@@ -30,6 +30,24 @@ from app.ingestion.pipeline import load_corpus
 from app.ingestion.vbpl_corpus import doc_thu_muc, file_tho
 from app.ingestion.vbpl_luoc_do import UNG_VIEN_RE, doc_luoc_do, tieu_de_theo_so_hieu
 
+#: Rác lược đồ đã KIỂM TAY — mỗi mục bắt buộc kèm lý do truy được. Bỏ ở tầng sinh danh
+#: sách, KHÔNG sửa bản ghi thô: lần đối chiếu sau còn phải thấy vbpl đã ghi gì.
+RAC_LUOC_DO: dict[str, str] = {
+    "19/2016/QĐ-UBND": (
+        "Quyết định quản lý thoát nước/xử lý nước thải tỉnh Khánh Hoà, vbpl xếp nhầm vào "
+        "incoming/'Văn bản áp dụng' của ND80/2016 — không liên quan thanh toán "
+        "(người dùng xác nhận bỏ, 05/08/2026)"
+    ),
+}
+
+
+def loc_rac(ds: list[CanCrawl]) -> tuple[list[CanCrawl], list[CanCrawl]]:
+    """→ (danh sách sạch, phần bị loại). Loại chỉ theo `RAC_LUOC_DO`, không suy diễn."""
+    con = [d for d in ds if d.so_hieu not in RAC_LUOC_DO]
+    bo = [d for d in ds if d.so_hieu in RAC_LUOC_DO]
+    return con, bo
+
+
 MUC_TEN = {0: "GẤP", 1: "cao", 2: "vừa", 3: "thấp"}
 MUC_VI_SAO = {
     0: "nghĩa vụ có thể BIẾN MẤT — huỷ/treo hiệu lực, ca kiểm chứng §6.2",
@@ -181,7 +199,9 @@ def main(argv: list[str] | None = None) -> int:
     if them:
         print(f"[đã crawl, chưa nạp corpus] {len(them)}: {', '.join(v.so_hieu for v in them)}")
     docs = docs + them
-    ds = thieu_toan_van(rels_corpus + canh_vbpl, docs, tieu_de)
+    ds, rac = loc_rac(thieu_toan_van(rels_corpus + canh_vbpl, docs, tieu_de))
+    for d in rac:
+        print(f"[rác lược đồ, đã loại] {d.so_hieu}: {RAC_LUOC_DO[d.so_hieu]}")
     sua = sua_doi_van_ban_ta_co(ds, docs)
 
     print(

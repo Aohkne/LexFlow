@@ -3,7 +3,7 @@
 **Sinh tự động** — `uv run python -m app.ingestion.can_crawl --md docs/CAN-CRAWL.md`.
 Đừng sửa tay: mỗi dòng truy được về một cạnh có thật trong lược đồ chính thống.
 
-68 văn bản xuất hiện trong đồ thị mà chưa có toàn văn.
+67 văn bản xuất hiện trong đồ thị mà chưa có toàn văn.
 
 | mức | số hiệu | quan hệ (vai của văn bản còn thiếu) | tiêu đề theo nguồn |
 |---|---|---|---|
@@ -48,7 +48,6 @@
 | thấp | `16/2020/TT-NHNN` | `CAN_CU` (nguồn) | Thông tư số 16/2020/TT-NHNN Sửa đổi, bổ sung một số điều của Thông tư số 23/2014/TT-NHNN ngày 19 tháng 8 năm 2014 của Thống đốc Ngân hàng Nhà nước Việt Nam hướng dẫn việc mở và sử dụng tài khoản thanh toán tại tổ chức cung ứng dịch vụ thanh toán |
 | thấp | `18/2019/TT-NHNN` | `CAN_CU` (nguồn) | Thông tư số 18/2019/TT-NHNN Sửa đổi, bổ sung một số điều của Thông tư số 43/2016/TT-NHNN ngày 30 tháng 12 năm 2016 của Thống đốc Ngân hàng Nhà nước Việt Nam quy định cho vay tiêu dùng của công ty tài chính |
 | thấp | `181/2025/NĐ-CP` | `DAN_CHIEU` (nguồn) | Nghị định số 181/2025/NĐ-CP Quy định chi tiết thi hành một số điều của Luật Thuế giá trị gia tăng |
-| thấp | `19/2016/QĐ-UBND` | `CAN_CU` (nguồn) | Quyết định số 19/2016/QĐ-UBND Ban hành Quy định quản lý hoạt động thoát nước và xử lý nước thải trên địa bàn tỉnh Khánh Hòa. |
 | thấp | `19/2020/TT-NHNN` | `CAN_CU` (nguồn) | Thông tư số 19/2020/TT-NHNN Sửa đổi, bổ sung một số điều của Thông tư số 26/2013/TT-NHNN ngày 05 tháng 12 năm 2013 của Ngân hàng Nhà nước Việt Nam ban hành Biểu phí dịch vụ thanh toán qua Ngân hàng Nhà nước Việt Nam |
 | thấp | `20/2018/TT-NHNN` | `CAN_CU` (nguồn) | Thông tư số 20/2018/TT-NHNN Quy định về giám sát các hệ thống thanh toán |
 | thấp | `20/2020/TT-NHNN` | `CAN_CU` (nguồn) | Thông tư số 20/2020/TT-NHNN Sửa đổi, bổ sung một số điều của Thông tư số 47/2014/TT-NHNN ngày 31 tháng 12 năm 2014 của Thống đốc Ngân hàng Nhà nước Việt Nam quy định các yêu cầu kỹ thuật về an toàn bảo mật đối với trang thiết bị phục vụ thanh toán thẻ ngân hàng |

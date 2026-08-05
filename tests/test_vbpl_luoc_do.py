@@ -259,3 +259,25 @@ def test_moi_canh_deu_dung_ma_trong_tap_dong(ket_qua):
     canh, _ = ket_qua
     assert Counter(c.rel_type for c in canh).keys() <= set(REL_TYPES)
     assert len(canh) == 35
+
+
+def test_rac_luoc_do_da_kiem_tay_khong_vao_danh_sach_crawl():
+    """vbpl xếp nhầm `19/2016/QĐ-UBND` (thoát nước, Khánh Hoà) vào `incoming/"Văn bản áp
+    dụng"` của ND80/2016 — không liên quan thanh toán. Người dùng xác nhận bỏ (05/08).
+
+    Bỏ ở tầng SINH DANH SÁCH, không sửa dữ liệu nguồn: bản ghi thô giữ nguyên vẹn để lần
+    đối chiếu sau còn thấy vbpl đã ghi gì; và mỗi mục loại trừ PHẢI mang lý do.
+    """
+    from app.ingestion.can_crawl import RAC_LUOC_DO, loc_rac
+
+    assert all(ly_do.strip() for ly_do in RAC_LUOC_DO.values()), "loại trừ không lý do là xoá lén"
+
+    from app.ingestion.bac_cau import CanCrawl
+
+    ds = [
+        CanCrawl(so_hieu="19/2016/QĐ-UBND", uu_tien=3, quan_he=[("CAN_CU", "nguồn")]),
+        CanCrawl(so_hieu="30/2016/TT-NHNN", uu_tien=0, quan_he=[("BAI_BO", "đích")]),
+    ]
+    con, bo = loc_rac(ds)
+    assert [d.so_hieu for d in con] == ["30/2016/TT-NHNN"]
+    assert [d.so_hieu for d in bo] == ["19/2016/QĐ-UBND"]
