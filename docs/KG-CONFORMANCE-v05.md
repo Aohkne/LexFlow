@@ -6,8 +6,20 @@
 §5 đánh số) thì code **đã thoả và có test canh**. Phần từ cấp Điều trở lên (VanBan, 13 quan hệ,
 tầng thời gian, độ tin cậy) **phần lớn chưa tồn tại dưới dạng code**.
 
-Ngày đối chiếu: 2026-08-03, **đo lại 2026-08-04** · v0.5 bản 29/07/2026 · mọi số trong tài liệu
-này kiểm lại được bằng §6.
+Ngày đối chiếu: 2026-08-03, đo lại 2026-08-04, **nạp corpus 2026-08-05** · v0.5 bản 29/07/2026 ·
+mọi số trong tài liệu này kiểm lại được bằng §6.
+
+> **05/08 — #14 đã xong: corpus 15 → 20 văn bản (278 → 338 điều), và lần đầu điểm nhích.**
+> Nạp 8 văn bản crawl (5 mới + 3 thay: ND52/TT15/TT40; `29/VBHN-NHNN` giữ làm node rỗng vì vbpl
+> không đăng toàn văn). Hệ quả đo được: `chapter` **115/338** điều (hết 0/278) · §6 lên **5/13
+> mã có instance** trong chính corpus (22 cạnh, `BAI_BO` đầu tiên: NĐ52 —Điều 37→ bãi bỏ Điều 3
+> NĐ16/2019, kèm neo) · ca kiểm chứng §6.2 hết bị chặn bởi "0 `BAI_BO`". Ba phát hiện dọc đường,
+> mỗi cái một bài: (1) `_KHOAN_RE` đòi dấu cách sau `1.` còn vbpl in `1.Việc` dính liền — **bảng
+> nghiệm thu cũ đo bằng thước hỏng** (TT15 97→98 khoản, TT40 216→221 điểm, khớp corpus cũ từng
+> khoản); (2) thuộc tính vbpl sai được: ND52 ghi hiệu lực `01/07/2027` trong khi Điều 37 của
+> chính nó ghi `01/07/2024` ⇒ quy tắc *chữ trong luật thắng metadata* (`nap_corpus.py`);
+> (3) đuôi `Nơi nhận:`/chữ ký/phụ lục vbpl dán vào điều cuối (TT40: 6 965 ký tự biểu mẫu) — cắt
+> có vết, phụ lục chờ nhánh `#phuluc_`.
 
 > **Đo lại 04/08 — điểm các khối KHÔNG đổi một ô nào**, qua **sáu đợt việc** trong ngày. Ba đợt
 > đầu ở tầng CU (`source_diem` suy từ parser · luật chapeau · bảng phân hoạch) không chạm tầng
@@ -21,6 +33,7 @@ này kiểm lại được bằng §6.
 > chiếu mà tự cải thiện điểm sau mỗi lần chạm code thì hết là thước đo.
 >
 > Đường găng nay là **một việc dữ liệu, không phải việc code**: nạp 7 văn bản đã crawl (#14).
+> *(05/08: #14 xong — xem khối đầu tài liệu; đường găng chuyển sang #16 crawl và #17 Neo4j.)*
 
 ---
 
@@ -113,6 +126,9 @@ là **khớp chuỗi con**, không phải định nghĩa node:
   > đều là văn bản sửa đổi ngắn, bản thân chúng không có Chương nào). Corpus vẫn **0/278** vì
   > 7 văn bản này **chưa được nạp**. Tức từ *"code không đọc được"* thành *"chưa nạp"* — vẫn
   > 0 điểm cho §3, nhưng việc còn lại là nạp dữ liệu, không phải viết code.
+  >
+  > **05/08 — nạp xong: 115/338 điều trong corpus có `chapter`.** Trường hết chết. 223 điều
+  > còn lại thuộc 12 văn bản chưa crawl lại (corpus cũ không giữ Chương) — theo #16.
 - `Gate.pham_vi` nhận `"chuong"` / `"muc"` (`schema.py:159`) — nhưng **luôn kèm
   `suy_ra_duoc=False`**, vì parser không có node tương ứng để quy về. Đây là cách xử lý
   **trung thực** (nói thẳng "có phạm vi nhưng chưa quy được về khoá node"), không phải một
@@ -121,7 +137,11 @@ là **khớp chuỗi con**, không phải định nghĩa node:
 Giới hạn có chủ đích của §3 (gạch đầu dòng không đánh số nằm lại trong nội dung của `Diem`):
 ✅ thoả **theo cấu trúc** — parser không tạo node nào dưới cấp Điểm.
 
-### 2.4 · §6 · 13 quan hệ giữa văn bản — **13/13 schema · 4/13 instance**
+### 2.4 · §6 · 13 quan hệ giữa văn bản — **13/13 schema · ~~4/13~~ 5/13 instance (05/08)**
+
+> **05/08:** nạp #14 đưa corpus lên **22 cạnh · 5/13 mã** — thêm `BAI_BO` (NĐ52 → NĐ16/2019,
+> neo `Điều 37 → Điều 3`) và nâng `CAN_CU` 4→7, `SUA_DOI_BO_SUNG` 2→6, `THAY_THE` 4→5.
+> `kiem_quan_he`: **0 cạnh sai**. Khối bên dưới giữ nguyên các mốc 03–04/08.
 
 > **Ba mốc trong một ngày, giữ lại cả ba vì chúng nói ba chuyện khác nhau.**
 > Bản 03/08 ghi **4/13**, đếm số `rel_type` có trong dữ liệu. Sửa xuống **2/13** sáng 04/08 sau
@@ -361,6 +381,11 @@ buộc**, kèm tiền lệ học thuật Colombo et al. Dựng đủ 13 cạnh c
 nhưng kết quả rỗng vì corpus không có quan hệ bãi bỏ nào. Ghi rõ để không ai nhầm "dựng xong 13
 cạnh" với "có demo": muốn demo phải **tìm một quan hệ bãi bỏ có thật** trong corpus mở rộng.
 
+> **✅ 05/08 — tìm được, và nó nằm ngay trong lời văn NĐ52 Điều 37:** *"bãi bỏ Điều 3 của Nghị
+> định số 16/2019/NĐ-CP"*. Nạp ND16 (#14) xong, corpus có cạnh `BAI_BO` đầu tiên kèm neo
+> `Điều 37 → Điều 3` — bãi bỏ **một phần**, khớp tình trạng vbpl "Hết hiệu lực một phần".
+> §6.2 hết bị chặn bởi dữ liệu; còn chờ #17 (Neo4j) để chạy trên đồ thị thật.
+
 **(d) `so_hieu` đã trích được rồi bị vứt — cầu nối hai không gian ID rẻ hơn §3.3 tưởng.**
 
 `_SO_HIEU_RE` (`extract.py:98`) kiểm lại **chạy đúng** trên cả ba dạng thử
@@ -408,12 +433,17 @@ Người dùng thấy một thay đổi hiện hai lần với hai động từ,
 ⇒ `supabase/migrations/0006_quan_he_v05.sql` (đổi tên + `check` chặn ở biên). **Chưa chạy** —
 cần bạn dán vào SQL Editor.
 
-### 3.7 · Node rỗng: 32 đầu mút chưa có toàn văn
+### 3.7 · Node rỗng: ~~32~~ 27 đầu mút chưa có toàn văn (05/08)
 
 **57 cạnh** (13 corpus + 44 từ hai bản ghi vbpl) quy hết về `doc_id`, **0 cạnh rơi, 0 cảnh báo**:
 21 nối hai văn bản có toàn văn, 36 chạm ít nhất một đầu mút chưa có. Ba lối cho 32 đầu mút ấy:
 bỏ cạnh · để tồn đọng · dựng **node rỗng**. Chọn lối thứ ba — bỏ đi thì mất luôn instance
 `BAI_BO` duy nhất có thật (NĐ52 → NĐ16/2019), tức mất đúng ca kiểm chứng bắt buộc §6.2.
+
+> **05/08, cùng phép đo trên corpus đã nạp:** 66 cạnh (22 corpus + 44 vbpl) vẫn quy hết,
+> **0 rơi**; node rỗng **32 → 27** (5 văn bản nạp đợt này rời tập stub), 37 cạnh đủ hai đầu
+> có toàn văn, 29 còn chạm stub. Đúng cơ chế thiết kế ở §3.6: node rỗng là *trạng thái chờ*,
+> mỗi đợt nạp rút bớt — không phải nợ vĩnh viễn.
 
 **Một lược đồ không đủ, và đây là bằng chứng chứ không phải suy đoán.** Lược đồ của một văn bản
 chỉ chứa quan hệ **với chính nó**. Trong lược đồ NĐ52, `41/2025/TT-NHNN` và `22/2026/TT-NHNN` chỉ
@@ -510,8 +540,8 @@ chưa có chỗ nào ghi *"câu luật này nói về mốc bắt đầu hay m�
 |---|---|
 | §4 · Khoá ba nhánh | **1/3** — `#than/` có, `#kemtheo_`/`#phuluc_` không sinh được |
 | §5 · Đánh số Điều/Khoản | **5/6** — thêm luật *phạm vi đánh số* (§3.8), v0.5 chưa có |
-| §3 · Node meta-schema | **4/15** — dữ liệu `Chuong`/`Muc` **đã có** ở 115/174 điều đã crawl, chưa nạp nên corpus vẫn 0/278 (§2.3) |
-| §6 · 13 quan hệ | **13/13 trong schema · 4/13 có instance trong corpus · 7/13 khi hợp nhất 2 lược đồ vbpl** (04/08) — thêm `BAI_BO` · `QUY_DINH_CHI_TIET_HUONG_DAN` · `HOP_NHAT`; cạnh đã CÓ KIỂU ⇒ Cypher của spec chạy được; 57 cạnh quy hết về `doc_id`, 32 đầu mút thành node rỗng (§3.7) |
+| §3 · Node meta-schema | **4/15** — dữ liệu `Chuong`/`Muc` ~~chưa nạp, corpus 0/278~~ → **nạp 05/08: 115/338 điều có `chapter`** (§2.3); vẫn là trường phẳng, chưa phải node nên điểm khối chưa nhích |
+| §6 · 13 quan hệ | **13/13 trong schema · ~~4/13~~ → 5/13 có instance trong corpus (05/08: thêm `BAI_BO`)** · 7/13 khi hợp nhất 2 lược đồ vbpl — cạnh đã CÓ KIỂU ⇒ Cypher của spec chạy được; sau nạp: **22 cạnh corpus + 35 vbpl = 57 quy hết về `doc_id`, 0 rơi, 25 đầu mút còn là node rỗng, 32 cạnh đủ hai đầu có toàn văn** (§3.7) |
 | §7 · Tầng thời gian | **0/5** |
 | §8 · Độ tin cậy | **0/2** |
 | §9 · Mười quyết định | 3 đạt · 2 không đạt · 1 một phần · 4 chưa áp dụng được |
@@ -535,7 +565,7 @@ code**, và ba chỗ mâu thuẫn ở §3 là thứ phải xử lý trước khi
 | 2 | `is_effective` sang nửa mở (§3.2) — **đo lại 04/08 vẫn ĐÓNG**: `valid_to=2024-07-01` hỏi đúng ngày 01/07 vẫn trả `True`, lệch v0.5 đúng **một ngày** | cao | một dấu `<` + test biên |
 | 3 | Chặn khoá `#than/` bịa (§3.4) | trung bình | nhỏ |
 | 4 | Thống nhất không gian ID (§3.3) | cao | lớn — quyết định kiến trúc |
-| ~~5~~ | ~~13 cạnh có kiểu thay `REL{rel_type}`~~ — ✅ **xong 04/08** | — | truy vấn §6.2 nay viết được (`khoang_trong_lap_phap()`); corpus 0 `BAI_BO` nên trả rỗng, nhưng vbpl CÓ (NĐ52 → NĐ16/2019) |
+| ~~5~~ | ~~13 cạnh có kiểu thay `REL{rel_type}`~~ — ✅ **xong 04/08** | — | truy vấn §6.2 nay viết được (`khoang_trong_lap_phap()`); ~~corpus 0 `BAI_BO` nên trả rỗng~~ → **05/08 corpus đã có cạnh đó** (NĐ52 → NĐ16/2019, neo Điều 37→Điều 3) |
 | 6 | `la_vbhn`, `nguon_hieu_luc_den`, `da_xac_minh_nguon` (§2.5, §2.6) | trung bình | nhỏ mỗi cái, nhưng cần quy trình nhập liệu đi kèm |
 | 7 | `nhanh` thành trường, `Khoan.ten` nullable (§2.2, §2.7) | thấp | rất nhỏ |
 | 8 | `PhienBanDieu`, `Chuong`/`Muc`, `VanBanKemTheo`, `PhuLuc` | — | ~~phụ thuộc #4~~ → **xem #10**: `Chuong`/`Muc` KHÔNG phụ thuộc #4 |
@@ -544,7 +574,7 @@ code**, và ba chỗ mâu thuẫn ở §3 là thứ phải xử lý trước khi
 | ~~11~~ | ~~Bắc cầu `so_hieu` trên `DocumentMeta`~~ — ✅ **xong 04/08**: 15/15 văn bản có `so_hieu`, `doc_id` không đổi một dòng | — | `app/ingestion/bac_cau.py` · 16 test |
 | ~~12~~ | ~~Chuẩn hoá 4 tên quan hệ~~ — ✅ **xong 04/08**: `SUA_DOI`→`SUA_DOI_BO_SUNG`, `HUONG_DAN`→`CAN_CU` | — | `kiem_quan_he` báo **0 cạnh sai** |
 | ~~13~~ | ~~Nạp lược đồ vbpl thành cạnh~~ — ✅ **xong 04/08**: 48 cạnh quy được về `doc_id`, **0 cạnh rơi**; 30 đầu mút thành **node rỗng** | — | xem §3.6 |
-| **14** | **Nạp 7 văn bản đã crawl vào corpus** — mở khoá ba thứ cùng lúc: `Chuong`/`Muc` (#10), ca `BAI_BO` của §6.2, và sửa 75 khoản gán nhầm chủ (§3.8). **Đường găng hiện tại** | cao | vừa; TT15 khác corpus 9/22 điều và **corpus mới là bên sai** (Điều 18 nuốt Điều 19) ⇒ phải đo từng điều |
+| ~~**14**~~ | ~~Nạp 7 văn bản đã crawl vào corpus~~ — ✅ **xong 05/08** (`app/ingestion/nap_corpus.py`): 15→20 văn bản, đã đo từng điều trước khi thay; đúng như chẩn đoán, **corpus là bên sai ở TT15** (Điều 18 nuốt Điều 19, tách xong 22→23 điều). Mở khoá đủ ba thứ: `chapter` 115/338, ca `BAI_BO` §6.2, khoản về đúng chủ | — | 9 cạnh mới có căn cứ; TT22-`BAI_BO`→TT41 **cố ý không thêm**: lược đồ vbpl nói "bị bãi bỏ" nhưng toàn văn TT22 không có câu bãi bỏ và vbpl gắn TT41 "Hết hiệu lực một phần" — hai nguồn vbpl mâu thuẫn thì người quyết |
 | **15** | ~~Chạy `supabase/migrations/0006_quan_he_v05.sql`~~ — ✅ **user đã chạy 04/08** | — | xem §3.6c |
 | **16** | **Crawl tiếp `docs/CAN-CRAWL.md`** — còn **68 văn bản**; `30/2016/TT-NHNN` và `58/2021/NĐ-CP` ở mức GẤP vì mang `BAI_BO` | cao | phụ thuộc dữ liệu, không phụ thuộc code |
 | **17** | **Dựng lại instance Neo4j** — Aura `fd63789d…` **không phân giải DNS**; mọi truy vấn §6 hiện không chạy được ở đâu cả | cao | tạo instance mới + `push_corpus`; xem §3.6a |
@@ -571,14 +601,14 @@ foreach ($n in $names) { "{0,-24} {1}" -f $n, (Select-String -Path $py -SimpleMa
 # 'Chuong' 'Muc' 'CAN_CU' 'ThucTheChiuDieuChinh' CÓ hit — đọc từng dòng để thấy
 # cả bốn đều là khớp chuỗi con (regex / enum / docstring), không phải định nghĩa node.
 
-# --- 0/278 chapter · 0/278 valid_to · 4 loại quan hệ · 13 instance ---
+# --- corpus: TRƯỚC nạp 05/08 các số là 278 · 0 chapter · 13 quan hệ (giữ làm mốc §3.5) ---
 $c = Get-Content data\corpus.real.json -Raw | ConvertFrom-Json
 $a = $c.documents | ForEach-Object { $_.articles }
-$a.Count                                        # 278
-($a | Where-Object { $_.chapter }).Count        # 0
-($a | Where-Object { $_.valid_to }).Count       # 0
-$c.relationships.Count                          # 13
-$c.relationships | Group-Object rel_type        # THAY_THE 4 · SUA_DOI 2 · HUONG_DAN 4 · DAN_CHIEU 3
+$a.Count                                        # 338   (trước 05/08: 278)
+($a | Where-Object { $_.chapter }).Count        # 115   (trước 05/08: 0)
+($a | Where-Object { $_.valid_to }).Count       # 0 — hết hiệu lực chỉ ghi ở CẤP VĂN BẢN (ND101, ND80…), cấp điều vẫn trống (§2.5 chưa đổi)
+$c.relationships.Count                          # 22    (trước 05/08: 13)
+$c.relationships | Group-Object rel_type        # CAN_CU 7 · SUA_DOI_BO_SUNG 6 · THAY_THE 5 · DAN_CHIEU 3 · BAI_BO 1
 
 # --- KhoanNode không có trường `ten` (rỗng = không có) ---
 Select-String -Path app\ontology\schema.py -Pattern "^\s*ten\s*:"
@@ -613,9 +643,9 @@ V = {'HUONG_DAN_AP_DUNG','QUY_DINH_CHI_TIET_HUONG_DAN','HOP_NHAT','SUA_DOI_BO_SU
      'BAI_BO','DAN_CHIEU','CAN_CU','GIAI_THICH','DINH_CHI_THI_HANH','TAM_NGUNG_HIEU_LUC',
      'CONG_BO','THAY_THE'}
 co = {x['rel_type'] for x in r}
-print('khớp tên v0.5 :', sorted(co & V))        # THAY_THE, DAN_CHIEU  → 2/13
-print('KHÔNG khớp    :', sorted(co - V))        # HUONG_DAN, SUA_DOI
-print('BAI_BO        :', sum(1 for x in r if x['rel_type'] == 'BAI_BO'))   # 0
+print('khớp tên v0.5 :', sorted(co & V))        # lúc đo 04/08: THAY_THE, DAN_CHIEU → 2/13; sau nạp 05/08 in đủ 5 mã
+print('KHÔNG khớp    :', sorted(co - V))        # lúc đo 04/08: HUONG_DAN, SUA_DOI; nay rỗng
+print('BAI_BO        :', sum(1 for x in r if x['rel_type'] == 'BAI_BO'))   # 04/08: 0 → 05/08: 1
 "@
 
 # --- (d) so_hieu: đọc được, và KHÔNG cắt cụt khi gặp homoglyph ---
@@ -627,7 +657,7 @@ for s in ['Số: 52/2024/NĐ-CP', 'Số: 51/2025/TT-BTС', 'Số: 123/QĐ-NHNN',
 
 # --- §3.6/§3.7: cầu số hiệu → doc_id, node rỗng, danh sách cần crawl ---
 uv run pytest -q tests\test_bac_cau.py tests\test_quan_he_web.py
-uv run python -m app.ingestion.can_crawl        # 20 có toàn văn · 147 cạnh · 68 cần crawl
+uv run python -m app.ingestion.can_crawl        # 20 có toàn văn · 22 cạnh corpus + 134 vbpl · 68 cần crawl (04/08: 13+134; 68 giữ nguyên vì 8 văn bản nạp đợt này vốn đã crawl xong)
 
 # --- §3.8: khối trích dẫn — ND80 Điều 1 phải ra 10 khoản, KHÔNG phải 14 ---
 uv run pytest -q tests\test_ontology_trich_dan.py
@@ -660,6 +690,25 @@ uv run python -m app.ontology --classify data/fixtures
 # 94 đơn vị: 45 premise · 9 meta_cu · 40 actor_cu
 ```
 
-Hai số ở §4 **không đo lại trong đợt này**, lấy từ số đo đã ghi trong code:
+Hai số ở §4 **không đo lại trong đợt 04/08**, lấy từ số đo đã ghi trong code:
 4/586 viện dẫn tới cấp tiết (`app/ontology/citation.py:9-16`) và 25/267 điều không chẻ khoản
 (`app/ontology/parser.py:176-186`). Cả hai đo trên corpus 15 văn bản, không phải trên 18 fixture.
+
+### Lệnh thêm ngày 05/08 (#14 — nạp corpus)
+
+```powershell
+# Nạp lặp lại được (idempotent): chạy thêm lần nữa phải in đúng cùng bộ số, không nhân đôi
+uv run python -m app.ingestion.nap_corpus --kho   # → 20 văn bản · 338 điều · 22 quan hệ
+
+# 0 cạnh sai, BAI_BO=1, hết cảnh báo "trả RỖNG"
+uv run python -m app.ingestion.kiem_quan_he
+
+# Toàn bộ phép đo của đợt nạp nằm dưới dạng test: bảng nghiệm thu mới (TT15 23/98/57),
+# đuôi hành chính bị cắt, cạnh thiếu đầu mút bị chặn, 57/25/32 của tầng bắc cầu,
+# ca BAI_BO có neo Điều 37→Điều 3, và 17 viện dẫn cấp tiết (4 cũ + 5 TT41 + 8 TT66)
+uv run pytest -q tests\test_nap_corpus.py tests\test_vbpl_corpus.py tests\test_bac_cau.py tests\test_ontology_citation.py tests\test_ontology_parser.py
+```
+
+Viện dẫn cấp tiết 4/586 nói trên nay là **17** (đo 05/08, xem
+`tests/test_ontology_citation.py::test_bao_phu_corpus_that`) — tăng đúng ở TT41/TT66, hai thông
+tư sửa đổi nhắm vào tiết.

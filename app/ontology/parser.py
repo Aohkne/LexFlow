@@ -43,7 +43,9 @@ ROMAN_ORDER = {r: i + 1 for i, r in enumerate(
 _ROMAN_ALT = "|".join(ROMAN)
 
 _DIEU_RE = re.compile(rf"^Điều\s+(\d+)([{_LC}])?\s*\.\s*(.*)$")
-_KHOAN_RE = re.compile(rf"^(\d{{1,3}})([{_LC}])?\s*\.\s+(.*)$")
+# Sau dấu chấm: có dấu cách (dạng chuẩn `1. Việc`), hoặc dính liền chữ (`1.Việc` — vbpl
+# hay in thiếu cách). KHÔNG nhận khi kế tiếp là chữ số: `1.000.000 đồng` là số nghìn.
+_KHOAN_RE = re.compile(rf"^(\d{{1,3}})([{_LC}])?\s*\.(?:\s+|(?=[^\d\s]))(.*)$")
 _DIEM_RE = re.compile(rf"^([{_LC}])\)\s*(.*)$")
 _CHUONG_RE = re.compile(r"^(Chương|Mục|Phần|Phụ lục)\s+[IVXLC\d]")
 # Tiết "(i) ..." bên trong một Điểm. KHÔNG được cấp địa chỉ node (xem TietSpan) —

@@ -60,11 +60,15 @@ def test_articles_giu_du_danh_so():
     """Lượt crawl đầu cho **0 khoản / 0 điểm** ở đây — làm phẳng cây làm mất đánh số.
 
     Test cũ khoá con số 0 đó lại và ghi *"ngày nào bộ crawl sửa được thì test này sẽ đỏ, và đỏ
-    ở đây là tin tốt"*. Ngày đó đã tới; con số nghiệm thu 23/97/57 nay là hợp đồng với nguồn.
+    ở đây là tin tốt"*. Ngày đó đã tới; con số nghiệm thu 23/98/57 nay là hợp đồng với nguồn.
+
+    (98, không phải 97 như nghiệm thu đầu: con số 97 đo bằng thước hỏng — `_KHOAN_RE` đòi dấu
+    cách sau chấm, còn vbpl in `3.Dịch vụ thu hộ` dính liền, nên khoản 3 Điều 14 bị nuốt vào
+    khoản 2. Cây sau sửa khớp corpus cũ từng khoản.)
     """
     kq = doc_file(_TT15)
     assert kq.van_ban is not None
-    assert (len(kq.van_ban.articles), *_dem(kq.van_ban.articles)) == (23, 97, 57)
+    assert (len(kq.van_ban.articles), *_dem(kq.van_ban.articles)) == (23, 98, 57)
 
 
 def test_char_span_la_thu_lam_articles_DANG_TIN():
@@ -114,6 +118,37 @@ def test_doi_chung_bat_lai_dung_khuyet_tat_cu():
     dieu, cb = dieu_tu_ban_ghi(raw, nd + "\n" + mat_so + "\nĐối tượng")
     assert len(dieu) == 2, "char_span vẫn khớp nên lớp 1 cho qua"
     assert any("0 khoản" in c for c in cb), "lớp 2 phải bắt được"
+
+
+def test_duoi_hanh_chinh_khong_vao_dieu_cuoi():
+    """vbpl dán khối `Nơi nhận:` + chữ ký (TT40 còn cả 7k ký tự phụ lục biểu mẫu) vào sau
+    điều cuối. Phần đó không thuộc điều nào — v0.5 dành nhánh `#phuluc_` riêng cho phụ lục —
+    nên phải cắt trước khi thành `CorpusDocument`, và cắt CÓ VẾT (cảnh báo nói rõ cắt bao nhiêu).
+    """
+    kq = doc_file(_TT15)
+    cuoi = kq.van_ban.articles[-1]
+    assert "Nơi nhận" not in cuoi.text
+    assert "(Đã ký)" not in cuoi.text
+    assert cuoi.text.endswith("chịu trách nhiệm thi hành Thông tư này.")
+    assert any("đuôi hành chính" in c for c in kq.canh_bao)
+
+
+def test_cat_duoi_chi_dong_vao_dieu_cuoi():
+    """Đuôi thật ở cả 5/8 văn bản crawl là **dòng đúng bằng** `Nơi nhận:` — danh sách nơi
+    nhận nằm các dòng sau. `Nơi nhận: …` có nội dung cùng dòng là chữ trong thân, không cắt."""
+    from app.core.schemas import Article
+    from app.ingestion.vbpl_corpus import cat_duoi_hanh_chinh
+
+    giua = Article(article="Điều 1", text="Thân điều.\nNơi nhận:\n-Bẫy: y hệt đuôi nhưng KHÔNG ở điều cuối.")
+    cuoi = Article(article="Điều 2", text="Hiệu lực./.\nNơi nhận:\n-Lưu VT.\nTHỐNG ĐỐC\n(Đã ký)")
+    dieu, bo = cat_duoi_hanh_chinh([giua, cuoi])
+    assert dieu[0].text == giua.text, "điều giữa không được đụng"
+    assert dieu[1].text == "Hiệu lực./."
+    assert bo == len(cuoi.text) - len("Hiệu lực./.")
+
+    trong_cau = Article(article="Điều 9", text="Thân.\nNơi nhận: hồ sơ nộp về Vụ Thanh toán.")
+    sach, bo0 = cat_duoi_hanh_chinh([trong_cau])
+    assert bo0 == 0 and sach[0].text == trong_cau.text
 
 
 # --- 2. Chương/Mục: việc duy nhất cây provisions làm được ---------------------

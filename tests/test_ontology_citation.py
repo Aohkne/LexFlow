@@ -143,7 +143,13 @@ def test_chu_dieu_phai_viet_hoa():
 
 
 def test_bao_phu_corpus_that():
-    """Chạy trên toàn corpus: không nổ, và bắt được đúng 4 viện dẫn có tiết."""
+    """Chạy trên toàn corpus: không nổ, và bắt được đúng 17 viện dẫn có tiết.
+
+    Trước đợt nạp 05/08 là 4 (cả 4 của TT23/2019). Số tăng đo từng văn bản: TT41/2025 thêm 5,
+    TT66/2025 thêm 8 — hai thông tư sửa đổi nhắm vào các tiết (`điểm b (ii) khoản 4 Điều 11`,
+    `điểm c (i) khoản 2`…), tức viện dẫn hẹp hơn node đến từ chính loại văn bản mà tầng địa
+    chỉ hoá phải đỡ được.
+    """
     corpus = Path("data/corpus.real.json")
     if not corpus.exists():
         pytest.skip("chưa có corpus thật")
@@ -152,7 +158,7 @@ def test_bao_phu_corpus_that():
     refs = parse_citations(blob)
     assert len(refs) > 400
     co_tiet = [r for r in refs if r.co_tiet]
-    assert len(co_tiet) == 4, [r.raw for r in co_tiet]
+    assert len(co_tiet) == 17, [r.raw for r in co_tiet]
     # Mọi span phải cắt đúng chuỗi gốc.
     for r in refs:
         assert blob[r.span[0] : r.span[1]] == r.raw

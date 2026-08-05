@@ -166,20 +166,24 @@ def test_ghi_ro_vai_cua_van_ban_con_thieu():
 
 @pytest.mark.skipif(_thieu(_ND52), reason="chưa crawl bản ghi vbpl của ND52")
 def test_corpus_that_cong_luoc_do_that():
-    """Con số đóng lại toàn bộ việc này: 48 cạnh vào, 18 nối hai văn bản có toàn văn,
-    30 nối vào node rỗng, **0 cạnh bị mất**."""
+    """Con số đóng lại toàn bộ việc này: 57 cạnh vào, 32 nối hai văn bản có toàn văn,
+    25 nối vào node rỗng, **0 cạnh bị mất**.
+
+    Trước đợt nạp 05/08 là 48/18/30. Số học của bước nạp phải khớp từng phần: +9 cạnh
+    curated mới (48→57), 5 văn bản rời tập node rỗng vì đã có toàn văn (30→25: ND16, ND80,
+    TT22, TT41, TT66), và 18 + 9 cạnh mới + 5 cạnh vbpl vừa đủ hai đầu = 32."""
     docs, rels_corpus = load_corpus("data/corpus.real.json")
     mau = _tho(_ND52)
     canh_vbpl, _ = doc_luoc_do(mau)
     rels = rels_corpus + canh_vbpl
     canh, rong, cb = quy_ve_doc_id(rels, docs, tieu_de_theo_so_hieu(mau))
 
-    assert len(rels) == 48 and len(canh) == 48, "không cạnh nào được phép rơi"
-    assert len(rong) == 30
+    assert len(rels) == 57 and len(canh) == 57, "không cạnh nào được phép rơi"
+    assert len(rong) == 25
     assert cb == []
 
     co = {d.doc_id for d in docs}
-    assert sum(1 for c in canh if c.source_doc in co and c.target_doc in co) == 18
+    assert sum(1 for c in canh if c.source_doc in co and c.target_doc in co) == 32
 
 
 def test_moi_van_ban_corpus_deu_khai_so_hieu():
@@ -189,28 +193,34 @@ def test_moi_van_ban_corpus_deu_khai_so_hieu():
 
 
 @pytest.mark.skipif(_thieu(_ND52), reason="chưa crawl bản ghi vbpl của ND52")
-def test_ca_BAI_BO_that_dung_dau_danh_sach_crawl():
-    """`16/2019/NĐ-CP` là instance `BAI_BO` DUY NHẤT có thật, và **corpus** chưa có toàn văn —
-    tức ca kiểm chứng §6.2 (*khoảng trống lập pháp*) đang chờ đúng một văn bản này.
-
-    Chỉ tính corpus, cố ý: `data/raw/vbpl/` nay ĐÃ có bản crawl của ND16/2019, nhưng chừng nào
-    nó chưa được nạp vào corpus thì truy vấn §6.2 vẫn trả rỗng. Test canh cái chặn thật.
+def test_ca_BAI_BO_that_da_vao_corpus():
+    """Tiền thân của test này canh một cái chặn: ND16/2019 là instance `BAI_BO` duy nhất có
+    thật mà corpus chưa có toàn văn, nên truy vấn §6.2 (*khoảng trống lập pháp*) trả rỗng.
+    Nó được viết để **đỏ đúng ngày ND16 được nạp** — ngày đó là 05/08, và đây là mặt sau
+    của nó: cái chặn phải BIẾN MẤT, kèm cạnh `BAI_BO` mang neo `Điều 3`.
     """
     docs, rels_corpus = load_corpus("data/corpus.real.json")
     mau = _tho(_ND52)
     canh_vbpl, _ = doc_luoc_do(mau)
     ds = thieu_toan_van(rels_corpus + canh_vbpl, docs, tieu_de_theo_so_hieu(mau))
-    assert ds[0].so_hieu == "16/2019/NĐ-CP"
-    assert ds[0].uu_tien == 0
+    assert all(d.so_hieu != "16/2019/NĐ-CP" for d in ds), "ND16 đã có toàn văn, hết thiếu"
+
+    bai_bo = [r for r in rels_corpus if r.rel_type == "BAI_BO"]
+    assert [(r.source_doc, r.target_doc) for r in bai_bo] == [("ND52-2024", "ND16-2019")]
+    assert [(a.source_article, a.target_article) for a in bai_bo[0].anchors] == [
+        ("Điều 37", "Điều 3")
+    ], "bãi bỏ MỘT PHẦN: đúng Điều 3 (phần sửa ND101), ND16 sống các điều còn lại"
 
 
-@pytest.mark.skipif(_thieu(_ND52, _TT40), reason="cần bản ghi vbpl của cả ND52 và TT40")
+@pytest.mark.skipif(_thieu(_ND52, "66/2025/TT-NHNN"),
+                    reason="cần bản ghi vbpl của cả ND52 và TT66")
 def test_mot_luoc_do_KHONG_du_de_biet_van_ban_da_bi_sua_chua():
     """Lược đồ của một văn bản chỉ chứa quan hệ **với chính nó** — và điều đó che mất sự thật.
 
-    Trong lược đồ NĐ52, `41/2025/TT-NHNN` chỉ hiện ra là `CAN_CU` (ưu tiên *thấp*). Thêm lược đồ
-    của **chính TT40/2024** thì nó lộ ra ở `incoming / "Văn bản sửa đổi bổ sung"`: nó **sửa đổi
-    TT40/2024**, tức corpus đang ghi TT40/2024 là *chưa sửa đổi* — sai.
+    Ca phát hiện ra bài học này (TT41/2025 qua lược đồ TT40) đã được nạp vào corpus 05/08 nên
+    hết dùng làm bằng chứng; ca thay thế cùng hình dạng: trong lược đồ NĐ52, `34/2024/TT-NHNN`
+    chỉ hiện ra là văn bản *quy định chi tiết* (ưu tiên 2). Thêm lược đồ của **TT66/2025** thì
+    nó lộ ra là văn bản **bị sửa đổi** — và còn bị `THAY_THE` — ưu tiên nhảy lên 1.
 
     Test này khoá lại kết luận rút ra từ đó: **crawl từng văn bản corpus**, không chỉ đầu mút.
     """
@@ -219,15 +229,15 @@ def test_mot_luoc_do_KHONG_du_de_biet_van_ban_da_bi_sua_chua():
     # Neo vào ĐÚNG hai văn bản, không phải cả thư mục: thư mục lớn dần theo mỗi đợt crawl, và
     # một test đổi kết quả theo số file thì không còn kiểm được điều nó định kiểm.
     chi_nd52, _ = doc_luoc_do(_tho(_ND52))
-    tt40, _ = doc_luoc_do(_tho(_TT40))
+    tt66, _ = doc_luoc_do(_tho("66/2025/TT-NHNN"))
 
     ds1 = {d.so_hieu: d for d in thieu_toan_van(rels_corpus + chi_nd52, docs)}
-    assert [m for m, _ in ds1["41/2025/TT-NHNN"].quan_he] == ["CAN_CU"]
-    assert ds1["41/2025/TT-NHNN"].uu_tien == 3, "một lược đồ ⇒ tưởng chỉ là xuất xứ"
+    assert [m for m, _ in ds1["34/2024/TT-NHNN"].quan_he] == ["QUY_DINH_CHI_TIET_HUONG_DAN"]
+    assert ds1["34/2024/TT-NHNN"].uu_tien == 2, "một lược đồ ⇒ tưởng chỉ là văn bản hướng dẫn"
 
-    ds2 = {d.so_hieu: d for d in thieu_toan_van(rels_corpus + chi_nd52 + tt40, docs)}
-    assert "SUA_DOI_BO_SUNG" in [m for m, _ in ds2["41/2025/TT-NHNN"].quan_he]
-    assert ds2["41/2025/TT-NHNN"].uu_tien == 1, "hai lược đồ ⇒ hoá ra nó SỬA ĐỔI corpus"
+    ds2 = {d.so_hieu: d for d in thieu_toan_van(rels_corpus + chi_nd52 + tt66, docs)}
+    assert "SUA_DOI_BO_SUNG" in [m for m, _ in ds2["34/2024/TT-NHNN"].quan_he]
+    assert ds2["34/2024/TT-NHNN"].uu_tien == 1, "hai lược đồ ⇒ hoá ra nó BỊ SỬA ĐỔI"
 
 
 @pytest.mark.skipif(_thieu(_ND52), reason="chưa crawl bản ghi vbpl của ND52")

@@ -176,6 +176,31 @@ def _dem_khoan_diem(dieu: list[Article], so_hieu: str) -> tuple[int, int]:
     return kh, di
 
 
+def cat_duoi_hanh_chinh(dieu: list[Article]) -> tuple[list[Article], int]:
+    """Cắt khối `Nơi nhận:`/chữ ký/phụ lục vbpl dán sau điều cuối. → (điều đã cắt, số ký tự bỏ).
+
+    vbpl không có nút riêng cho đuôi văn bản, nên toàn bộ phần sau điều cuối — danh sách nơi
+    nhận, chức danh, `(Đã ký)`, và ở TT40/2024 là cả **7k ký tự biểu mẫu phụ lục** — nằm trong
+    `articles[-1].text`. Phần đó không thuộc điều nào; phụ lục theo v0.5 có nhánh `#phuluc_`
+    riêng, dán vào `#than/dieu_cuoi` là sai chỗ chứ không phải "thêm dữ liệu".
+
+    Ranh giới: **dòng đúng bằng** `Nơi nhận:` — cả 5/8 văn bản có đuôi đều in vậy, danh sách
+    nơi nhận nằm các dòng sau. `Nơi nhận: <nội dung cùng dòng>` là chữ trong thân, không cắt.
+    Chỉ đụng điều cuối, và chỉ SAU khi `char_span` đã kiểm xong — Article của corpus không
+    mang offset nên vết neo vào `noi_dung` không bị phá.
+    """
+    if not dieu:
+        return dieu, 0
+    cuoi = dieu[-1]
+    vi_tri = 0
+    for dong in cuoi.text.splitlines(keepends=True):
+        if dong.strip() == "Nơi nhận:":
+            moi = cuoi.model_copy(update={"text": cuoi.text[:vi_tri].rstrip()})
+            return [*dieu[:-1], moi], len(cuoi.text) - len(moi.text)
+        vi_tri += len(dong)
+    return dieu, 0
+
+
 class KetQuaDoc(BaseModel):
     """Một file `*.corpus.json` đã đọc. `van_ban is None` ⇒ chưa dùng được, xem `canh_bao`."""
 
@@ -237,6 +262,12 @@ def doc_file(p: Path) -> KetQuaDoc:
         )
         return KetQuaDoc(duong_dan=str(p), so_hieu=sh.chuan,
                          doc_id_trong_file=raw.get("doc_id"), canh_bao=cb)
+    dieu, bo = cat_duoi_hanh_chinh(dieu)
+    if bo:
+        cb.append(
+            f"cắt {bo} ký tự đuôi hành chính (Nơi nhận/chữ ký/phụ lục) khỏi "
+            f"{dieu[-1].article} — phần này không thuộc điều nào; phụ lục chờ nhánh #phuluc_"
+        )
     thieu_ch = sum(1 for a in dieu if not a.chapter)
     if thieu_ch and thieu_ch < len(dieu):
         cb.append(f"{thieu_ch}/{len(dieu)} điều không suy được Chương từ cây provisions")

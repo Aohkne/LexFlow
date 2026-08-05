@@ -6,6 +6,24 @@
 
 ---
 
+## 2026-08-05 (T4) — #14: nạp 8 văn bản crawl vào corpus (15 → 20 văn bản)
+
+- **Done (kiểm trước nạp — và phép đo từng điều tóm được lỗi của chính bộ tách).** Cả 8 văn bản có toàn văn qua kiểm `char_span` từng ký tự; đo từng điều 3 văn bản trùng (ND52/TT15/TT40) thay vì tin tổng. Ba chỗ tưởng là lỗi crawl hoá ra ngược lại:
+  - **`_KHOAN_RE` đòi dấu cách sau chấm, vbpl in `1.Việc` dính liền** ⇒ TT40 Đ25 mất trọn khoản 1 (5 điểm), TT15 Đ14 khoản 3 bị nuốt vào khoản 2. Tức **bảng nghiệm thu cũ (97 khoản/216 điểm) đo bằng thước hỏng**. Sửa regex có lá chắn: chỉ nhận thiếu-cách khi ký tự kế **không phải chữ số** — `1.000.000 đồng` vẫn không thành khoản, có test canh cả hai chiều. Sau sửa: TT15 **98** khoản, TT40 **194/221** — khớp corpus cũ **từng khoản một**.
+  - **Thuộc tính vbpl sai được:** trang ND52 ghi hiệu lực `01/07/2027 — Chưa có hiệu lực`, trong khi Điều 37 của chính nó viết *"có hiệu lực thi hành từ ngày 01 tháng 7 năm 2024"*. Thành quy tắc 1 của bộ nạp: **chữ trong luật thắng metadata** — văn bản đã có trong corpus thì giữ ngày corpus khi lệch, kèm cảnh báo.
+  - **Đuôi hành chính dán vào điều cuối:** `Nơi nhận:` + chữ ký, và ở TT40 là **6 965 ký tự biểu mẫu phụ lục** nằm trong `Điều 54`. Cắt tại dòng đúng bằng `Nơi nhận:` (5/8 văn bản có, 3 văn bản còn lại đuôi sạch), chỉ đụng điều cuối, cắt **sau** khi `char_span` đã kiểm, có vết trong cảnh báo. Phụ lục chờ nhánh `#phuluc_`.
+- **Done (`app/ingestion/nap_corpus.py` + 6 test).** Trộn có vết, **idempotent** (chạy hai lần cùng bộ số, không nhân đôi), cạnh mới chỉ vào khi **cả hai đầu trong corpus** — cạnh nửa vời sẽ bị `MATCH…MATCH` của Neo4j nuốt im lặng. Kết quả: **20 văn bản · 338 điều · 1 036 khoản · 821 điểm · `chapter` 115/338 · 22 quan hệ, `kiem_quan_he` 0 cạnh sai**.
+  - **Ca `BAI_BO` đầu tiên vào corpus, đúng như #14 hứa:** ND52 Điều 37 *"bãi bỏ Điều 3 của Nghị định số 16/2019/NĐ-CP"* — cạnh mang neo `Điều 37 → Điều 3`, bãi bỏ **một phần** (khớp tình trạng vbpl "Hết hiệu lực một phần"). Truy vấn §6.2 hết bị chặn bởi dữ liệu.
+  - **Một cạnh cố ý KHÔNG thêm:** lược đồ vbpl ghi TT41/2025 là *"Văn bản bị bãi bỏ"* của TT22/2026, nhưng toàn văn TT22 **không có câu bãi bỏ nào** và vbpl gắn TT41 *"Hết hiệu lực một phần"*. Hai nguồn của vbpl mâu thuẫn ⇒ không nguồn nào đủ làm căn cứ; ghi lại, để người quyết.
+  - TT41 có **27 điều thật** (mỗi điều sửa đúng một điều TT40) — nghi vấn "điều giả từ khối trích dẫn" kiểm xong, không phải.
+- **Done (4 test đo dữ liệu sống viết lại theo hiện thực sau nạp, số nào cũng đo tay trước).** Bắc cầu 48/18/30 → **57/32/25** (số học khớp từng phần: +9 cạnh, 5 văn bản rời tập stub); test canh-cái-chặn `BAI_BO` **đỏ đúng ngày ND16 được nạp** như thiết kế, viết lại thành mặt sau (cạnh phải tồn tại, neo phải đúng); bài học "một lược đồ không đủ" chuyển bằng chứng từ TT41 (đã nạp) sang **TT34/2024 qua lược đồ TT66** (ưu tiên 2 → 1, lộ thêm `THAY_THE`); viện dẫn cấp tiết 4 → **17** (TT41 +5, TT66 +8 — đo từng văn bản trước khi ghi vào docstring).
+- **Ship:** không deploy; `data/corpus.real.json` mới nằm trong repo, LanceDB/web chưa nạp lại.
+- **Decision:** `29/VBHN-NHNN` tiếp tục là node rỗng (vbpl không đăng toàn văn — nhiều khả năng nằm trong tệp đính kèm); ND80 nhận `valid_to=2024-07-01` theo lời văn ND52 dù vbpl gắn "Còn hiệu lực".
+- **Next:** #16 crawl 68 văn bản còn lại (`30/2016/TT-NHNN`, `58/2021/NĐ-CP` mức GẤP vì mang `BAI_BO`); #17 dựng lại Neo4j rồi `push_corpus` bản 20 văn bản; #18 nhận `source_url`/`source_files`; nạp lại LanceDB khi corpus ổn định.
+- **Kiểm:** `uv run pytest -q` **516 passed** · `ruff` sạch · `--classify` giữ 94 đơn vị 45/9/40 · `nap_corpus --kho` lặp lại cùng bộ số.
+
+---
+
 ## 2026-08-04 (T3) — đợt 3: khối trích dẫn trong văn bản sửa đổi
 
 - **Done (`parse_dieu` học đọc ngoặc kép — `app/ontology/parser.py`).** Bộ crawl cảnh báo *"ND80 Điều 1: khoản 5, 6, 7, 8 xuất hiện 2 lần với nội dung KHÁC nhau — cần người đọc quyết bản nào đang hiệu lực"*. Truy ra thì **không có gì để quyết**: một văn bản sửa đổi chép nguyên văn nội dung mới vào giữa hai dấu ngoặc kép, và phần chép mang **đánh số của văn bản BỊ sửa**. Khoản 5 lần một là của **ND101**, lần hai là của **ND80** — hai văn bản khác nhau, không phải hai phiên bản.
