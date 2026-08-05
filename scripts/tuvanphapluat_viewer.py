@@ -362,6 +362,11 @@ def index() -> str:
     return _INDEX_HTML
 
 
+@app.get("/review", response_class=HTMLResponse)
+def review() -> str:
+    return _REVIEW_HTML
+
+
 _INDEX_HTML = r"""<!doctype html>
 <html lang="vi">
 <head>
@@ -449,6 +454,7 @@ _INDEX_HTML = r"""<!doctype html>
   </div>
   <div id="meta" style="font-size:12px; opacity:.7; line-height:1.6;"></div>
   <button id="cartBtn" class="cartbtn">Giỏ chọn eval (0)</button>
+  <a href="/review" style="display:block; text-align:center; margin-top:8px; font-size:12.5px;">Xem lại danh sách đã chọn ↗</a>
 </aside>
 <main>
   <div class="toolbar">
@@ -701,6 +707,221 @@ async function loadSelectedTotal() {
 loadMeta();
 loadSelectedTotal();
 loadList();
+</script>
+</body>
+</html>
+"""
+
+# Standalone review page for eval/tuvanphapluat_selected.jsonl. Fetches /api/selection
+# ONCE (it already returns every selected item, unpaginated — the file is a curation
+# pool sized in the hundreds/low thousands, not the full 169k split) and does all
+# filtering/paging client-side. Remove/clear reuse the same endpoints the cart panel
+# in the main page uses, so there is exactly one source of truth for the selection.
+_REVIEW_HTML = r"""<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>tuvanphapluat — đã chọn cho eval</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root { color-scheme: light dark; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    margin: 0; background: light-dark(#f7f7f8, #17181c); color: light-dark(#1a1a1a, #e6e6e6);
+  }
+  a { color: light-dark(#2563eb,#6ea8fe); }
+  header { position: sticky; top: 0; z-index: 5; background: light-dark(#f7f7f8, #17181c);
+    border-bottom: 1px solid light-dark(#ddd,#333); padding: 12px 20px; }
+  .headrow { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  h1 { font-size: 16px; margin: 0; flex: none; }
+  .count { font-size: 12.5px; opacity: .65; }
+  .spacer { flex: 1; }
+  button { padding: 7px 12px; border-radius: 6px; border: 1px solid light-dark(#ccc,#444);
+    background: light-dark(#fff,#222); color: inherit; cursor: pointer; font-size: 13px; }
+  button:disabled { opacity: .4; cursor: default; }
+  button.sm { padding: 3px 8px; font-size: 12px; }
+  input[type=text] { padding: 7px 10px; border-radius: 6px; border: 1px solid light-dark(#ccc,#444);
+    background: light-dark(#fff,#222); color: inherit; font-size: 13px; }
+  .filters { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 10px; }
+  .splitseg { display: flex; gap: 4px; }
+  .splitseg button.on { background: light-dark(#2563eb,#3b82f6); color: #fff; border-color: transparent; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .chip { font-size: 12px; padding: 4px 8px; border-radius: 12px; cursor: pointer; border: none;
+    background: light-dark(#eef,#28304a); color: light-dark(#3040a0,#a9bbff); }
+  .chip:hover { background: light-dark(#dde,#334066); }
+  .chip.active { background: light-dark(#2563eb,#3b82f6); color: #fff; }
+  main { max-width: 880px; margin: 0 auto; padding: 16px 20px 60px; }
+  .card { background: light-dark(#fff,#1f2024); border: 1px solid light-dark(#e5e5e5,#2a2b30);
+    border-radius: 8px; padding: 12px 14px; margin-bottom: 10px; }
+  .card .top { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 6px; }
+  .badge { display: inline-block; font-size: 11px; background: light-dark(#eef,#28304a);
+    color: light-dark(#3040a0,#a9bbff); border-radius: 4px; padding: 2px 6px; }
+  .badge.split { background: light-dark(#e6f7ee,#0f3324); color: light-dark(#0a7a43,#5fd996); font-weight: 600; }
+  .q { font-size: 14px; font-weight: 600; margin: 2px 0 4px; }
+  .a { font-size: 13px; line-height: 1.5; opacity: .85; }
+  .more { background: light-dark(#fafafa,#232429); border-radius: 6px; padding: 8px 10px; margin-top: 8px;
+    font-size: 12.5px; line-height: 1.5; white-space: pre-wrap; }
+  .more h4 { font-size: 11px; text-transform: uppercase; opacity: .6; margin: 8px 0 4px; }
+  .more h4:first-child { margin-top: 0; }
+  .card .actions { margin-top: 8px; display: flex; gap: 8px; }
+  .empty { opacity: .5; padding: 60px 0; text-align: center; }
+  .pager { display: flex; align-items: center; gap: 10px; justify-content: center; margin-top: 14px; font-size: 13px; }
+  #toast { position: fixed; bottom: 16px; right: 16px; background: light-dark(#1a1a1a,#e6e6e6);
+    color: light-dark(#fff,#1a1a1a); padding: 8px 14px; border-radius: 8px; font-size: 12.5px;
+    opacity: 0; transition: opacity .2s; pointer-events: none; z-index: 30; }
+  #toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+<header>
+  <div class="headrow">
+    <h1>Đã chọn cho eval</h1>
+    <span class="count" id="count"></span>
+    <span class="spacer"></span>
+    <a href="/">← Quay lại duyệt dữ liệu</a>
+    <a href="/api/selection/download" download>Tải JSONL</a>
+    <button id="clearBtn">Xoá tất cả</button>
+  </div>
+  <div class="filters">
+    <input id="q" type="text" placeholder="Tìm trong câu hỏi/trả lời đã chọn...">
+    <div class="splitseg" id="splitSeg">
+      <button data-split="" class="on">Tất cả</button>
+      <button data-split="train">Train</button>
+      <button data-split="test">Test</button>
+    </div>
+  </div>
+  <div class="chips" id="catChips"></div>
+</header>
+<main>
+  <div id="list"><div class="empty">Đang tải...</div></div>
+  <div class="pager" id="pager" style="display:none">
+    <button id="prev">&larr; Trước</button>
+    <span id="pageInfo"></span>
+    <button id="next">Sau &rarr;</button>
+  </div>
+</main>
+<div id="toast"></div>
+<script>
+const PAGE_SIZE = 30;
+let all = [];               // every selected item, fetched once
+let cat = "", split = "", q = "", page = 1, expanded = new Set();
+
+function esc(s) {
+  return (s ?? "").toString().replace(/[&<>]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+}
+function truncate(s, n) { s = s ?? ""; return s.length > n ? s.slice(0, n) + "…" : s; }
+function toast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg; t.classList.add("show");
+  clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove("show"), 2200);
+}
+
+function filtered() {
+  return all.filter(it => {
+    if (split && it.split !== split) return false;
+    if (cat && !(it.category || []).includes(cat)) return false;
+    if (q) {
+      const hay = (it.question + " " + (it.answer || "")).toLowerCase();
+      if (!hay.includes(q.toLowerCase())) return false;
+    }
+    return true;
+  });
+}
+
+function renderChips() {
+  // Facet built from the CURRENT split scope, so switching to Train doesn't leave
+  // Test-only category chips clickable to a filter that would show zero results.
+  const scope = split ? all.filter(it => it.split === split) : all;
+  const counts = new Map();
+  scope.forEach(it => (it.category || []).forEach(c => counts.set(c, (counts.get(c) || 0) + 1)));
+  const top = [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 24);
+  const chipsEl = document.getElementById("catChips");
+  const activeChip = cat ? `<span class="chip active" data-cat="">${esc(cat)} ✕</span>` : "";
+  chipsEl.innerHTML = activeChip + top
+    .filter(([c]) => c !== cat)
+    .map(([c, n]) => `<span class="chip" data-cat="${esc(c)}">${esc(c)} (${n})</span>`).join("");
+  chipsEl.querySelectorAll(".chip").forEach(chip => {
+    chip.onclick = () => { cat = chip.dataset.cat; page = 1; renderChips(); render(); };
+  });
+}
+
+async function removeItem(sp, qid) {
+  await fetch(`/api/selection/${sp}/${qid}`, { method: "DELETE" });
+  all = all.filter(it => !(it.split === sp && it.questionoid === qid));
+  renderChips();
+  render();
+  toast("Đã bỏ chọn.");
+}
+
+function card(it) {
+  const key = it.split + ":" + it.questionoid;
+  const isOpen = expanded.has(key);
+  return `<div class="card">
+    <div class="top">
+      <span class="badge split">${esc(it.split)}</span>
+      ${(it.category || []).map(c => `<span class="badge">${esc(c)}</span>`).join("")}
+    </div>
+    <div class="q">${esc(it.question)}</div>
+    <div class="a">${esc(truncate(it.answer, 220))}</div>
+    ${isOpen ? `<div class="more">
+        ${it.long_answer ? `<h4>Trả lời chi tiết</h4>${esc(it.long_answer)}` : ""}
+        ${(it.reference || []).length ? `<h4>Tham chiếu</h4>${it.reference.map(esc).join("<br>")}` : ""}
+        ${it.url ? `<h4>Nguồn</h4><a href="${esc(it.url)}" target="_blank" rel="noopener">${esc(it.url)}</a>` : ""}
+      </div>` : ""}
+    <div class="actions">
+      <button class="sm" onclick="toggleExpand('${key}')">${isOpen ? "Thu gọn" : "Xem đầy đủ"}</button>
+      <button class="sm" onclick="removeItem('${it.split}', ${it.questionoid})">Bỏ chọn</button>
+    </div>
+  </div>`;
+}
+
+function toggleExpand(key) {
+  if (expanded.has(key)) expanded.delete(key); else expanded.add(key);
+  render();
+}
+
+function render() {
+  const items = filtered();
+  document.getElementById("count").textContent =
+    `${items.length.toLocaleString()} / ${all.length.toLocaleString()} mục`;
+  const pages = Math.max(1, Math.ceil(items.length / PAGE_SIZE));
+  page = Math.min(page, pages);
+  const pageItems = items.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const listEl = document.getElementById("list");
+  listEl.innerHTML = pageItems.length
+    ? pageItems.map(card).join("")
+    : '<div class="empty">Không có mục nào khớp bộ lọc</div>';
+  document.getElementById("pager").style.display = items.length > PAGE_SIZE ? "flex" : "none";
+  document.getElementById("pageInfo").textContent = `Trang ${page}/${pages}`;
+  document.getElementById("prev").disabled = page <= 1;
+  document.getElementById("next").disabled = page >= pages;
+}
+
+document.getElementById("q").addEventListener("input", e => { q = e.target.value.trim(); page = 1; render(); });
+document.querySelectorAll("#splitSeg button").forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll("#splitSeg button").forEach(b => b.classList.remove("on"));
+    btn.classList.add("on");
+    split = btn.dataset.split; cat = ""; page = 1;
+    renderChips(); render();
+  };
+});
+document.getElementById("prev").onclick = () => { if (page > 1) { page--; render(); } };
+document.getElementById("next").onclick = () => { page++; render(); };
+document.getElementById("clearBtn").onclick = async () => {
+  await fetch("/api/selection", { method: "DELETE" });
+  all = []; renderChips(); render();
+  toast("Đã xoá toàn bộ giỏ chọn.");
+};
+
+async function load() {
+  const r = await fetch("/api/selection"); const d = await r.json();
+  all = d.items;
+  renderChips();
+  render();
+}
+load();
 </script>
 </body>
 </html>
