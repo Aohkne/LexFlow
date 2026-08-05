@@ -16,6 +16,9 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
+from app.ingestion.vbpl_luoc_do import so_hieu_tu_tieu_de
+from app.ontology.citation import parse_citations, to_node_ids
+
 _BANG_THAO_TAC: list[tuple[str, str]] = [
     (r"thay\s*thế\s+cụm\s+từ", "thay_cum_tu"),
     (r"thay\s*thế\s+(?:một\s+số\s+)?phụ\s+lục", "thay_phu_luc"),
@@ -44,3 +47,29 @@ def thao_tac_tu_cau(cau: str) -> str | None:
         if re.match(mau, dau, re.IGNORECASE):
             return ma
     return None
+
+
+def so_hieu_nen(tieu_de_dieu: str, mac_dinh: str) -> str:
+    """Văn bản nền của MỘT điều lệnh. ND16 là lý do hàm này tồn tại: năm điều, năm nghị
+    định nền khác nhau — lấy theo văn bản thì gán nhầm cả năm."""
+    sh, _ = so_hieu_tu_tieu_de(tieu_de_dieu)
+    return sh or mac_dinh
+
+
+def dich_tu_menh_lenh(
+    menh_lenh: str, so_hieu_nen: str, ctx_dieu: str | None
+) -> tuple[list[str], list[str]]:
+    """Câu lệnh → khoá node đích trong không gian văn bản NỀN.
+
+    Dùng lại citation.py nguyên vẹn — nó đã thuộc 23 ca tiết của corpus. Không giải được
+    thì BÁO chứ không đoán: một khoá sai trỏ vào node thật khác là kiểu hỏng im lặng nhất.
+    """
+    refs = parse_citations(menh_lenh)
+    ra: list[str] = []
+    for r in refs:
+        for khoa in to_node_ids(r, ctx_so_hieu=so_hieu_nen, ctx_dieu=ctx_dieu):
+            if khoa not in ra:
+                ra.append(khoa)
+    if ra:
+        return ra, []
+    return [], [f"không giải được đích từ mệnh lệnh: {menh_lenh[:80]!r}"]
