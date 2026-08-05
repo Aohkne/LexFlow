@@ -395,13 +395,24 @@ _JS_PROVISION_NODES = r"""() => {
       continue;
     }
 
-    // Khối CÓ markup prov-* bên trong: các phần tử đó tự vào vòng lặp này rồi, ở đây chỉ
-    // cần bù tiêu đề Điều — trang không gắn class cho nó (23 Điều nhưng chỉ 20 prov-article).
+    // Khối CÓ markup prov-* bên trong: các phần tử đó tự vào vòng lặp này rồi. Còn thiếu là
+    // những dòng MỞ ĐẦU khối mà trang không gắn class — không riêng tiêu đề Điều (23 Điều mà
+    // chỉ 20 prov-article), mà cả dòng Khoản khi khối sửa đúng một Khoản và chỉ các Điểm bên
+    // dưới được gắn class. TT34/2024 Điều 10 mất Khoản 1 và 2 đúng theo kiểu này: khối chứa
+    // 3 thẻ prov-item a/b/c nhưng dòng "1." thì không có thẻ nào.
+    // Dừng ngay khi gặp dòng đã có markup, để nút tự sinh luôn đứng TRƯỚC phần tử thật của nó
+    // và thứ tự tài liệu không bị đảo.
     if (el.querySelector('[class*="prov-"]')) {
-      if (lines.length && capOf(lines[0]) === 'prov-article') {
+      const daCoTrongKhoi = [...el.querySelectorAll('[class*="prov-"]')].map(e => norm(e.innerText));
+      for (const line of lines) {
+        const nl = norm(line);
+        // startsWith chứ không bằng: innerText của một thẻ prov-* có thể gộp nhiều dòng.
+        if (daCoTrongKhoi.some(x => x.startsWith(nl))) break;
+        const c = capOf(line);
+        if (!c) break;
         out.push({
-          id: null, cls: 'prov-article', parent_id: null, tu_sinh: true, hidden,
-          amend_type: t, amend_badges: badges, text: lines[0], html: '',
+          id: null, cls: c, parent_id: null, tu_sinh: true, hidden,
+          amend_type: t, amend_badges: badges, text: line, html: '',
         });
       }
       continue;
