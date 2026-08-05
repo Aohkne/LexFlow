@@ -3101,6 +3101,30 @@
    "rel_type": "CAN_CU",
    "valid_from": "2026-02-15",
    "note": "Căn cứ ban hành (lược đồ vbpl). Quan hệ chính của TT66 — sửa TT 34/2024 — KHÔNG vào corpus: TT34 chưa có toàn văn, tầng bắc cầu giữ cạnh đó"
+  },
+  {
+   "source_doc": "TT22-2026",
+   "target_doc": "TT41-2025",
+   "rel_type": "BAI_BO",
+   "valid_from": "2026-05-19",
+   "note": "TT 22/2026 Điều 6 khoản 2: 'Bãi bỏ Điều 16, Điều 17, Điều 18 Thông tư số 41/2025/TT-NHNN…' — bãi bỏ MỘT PHẦN (3/27 điều: các điều sửa Điều 41/42/43 của TT40), khớp tình trạng vbpl 'Hết hiệu lực một phần'",
+   "anchors": [
+    {
+     "source_article": "Điều 6",
+     "target_article": "Điều 16",
+     "detail": "Bãi bỏ Điều 16 (sửa đổi, bổ sung Điều 41 TT 40/2024)"
+    },
+    {
+     "source_article": "Điều 6",
+     "target_article": "Điều 17",
+     "detail": "Bãi bỏ Điều 17 (sửa đổi, bổ sung khoản 1 Điều 42 TT 40/2024)"
+    },
+    {
+     "source_article": "Điều 6",
+     "target_article": "Điều 18",
+     "detail": "Bãi bỏ Điều 18 (sửa đổi, bổ sung Điều 43 TT 40/2024)"
+    }
+   ]
   }
  ]
 }

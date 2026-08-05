@@ -166,24 +166,26 @@ def test_ghi_ro_vai_cua_van_ban_con_thieu():
 
 @pytest.mark.skipif(_thieu(_ND52), reason="chưa crawl bản ghi vbpl của ND52")
 def test_corpus_that_cong_luoc_do_that():
-    """Con số đóng lại toàn bộ việc này: 57 cạnh vào, 32 nối hai văn bản có toàn văn,
+    """Con số đóng lại toàn bộ việc này: 58 cạnh vào, 33 nối hai văn bản có toàn văn,
     25 nối vào node rỗng, **0 cạnh bị mất**.
 
-    Trước đợt nạp 05/08 là 48/18/30. Số học của bước nạp phải khớp từng phần: +9 cạnh
-    curated mới (48→57), 5 văn bản rời tập node rỗng vì đã có toàn văn (30→25: ND16, ND80,
-    TT22, TT41, TT66), và 18 + 9 cạnh mới + 5 cạnh vbpl vừa đủ hai đầu = 32."""
+    Trước đợt nạp 05/08 là 48/18/30. Số học của bước nạp phải khớp từng phần: +10 cạnh
+    curated mới (48→58 — cạnh thứ 10, TT22-BAI_BO→TT41, vào sau khi người dùng chỉ ra câu
+    bãi bỏ ở Điều 6 khoản 2 mà grep chữ thường đã bỏ sót), 5 văn bản rời tập node rỗng vì
+    đã có toàn văn (30→25: ND16, ND80, TT22, TT41, TT66), và 18 + 10 cạnh mới + 5 cạnh
+    vbpl vừa đủ hai đầu = 33."""
     docs, rels_corpus = load_corpus("data/corpus.real.json")
     mau = _tho(_ND52)
     canh_vbpl, _ = doc_luoc_do(mau)
     rels = rels_corpus + canh_vbpl
     canh, rong, cb = quy_ve_doc_id(rels, docs, tieu_de_theo_so_hieu(mau))
 
-    assert len(rels) == 57 and len(canh) == 57, "không cạnh nào được phép rơi"
+    assert len(rels) == 58 and len(canh) == 58, "không cạnh nào được phép rơi"
     assert len(rong) == 25
     assert cb == []
 
     co = {d.doc_id for d in docs}
-    assert sum(1 for c in canh if c.source_doc in co and c.target_doc in co) == 32
+    assert sum(1 for c in canh if c.source_doc in co and c.target_doc in co) == 33
 
 
 def test_moi_van_ban_corpus_deu_khai_so_hieu():
@@ -205,11 +207,19 @@ def test_ca_BAI_BO_that_da_vao_corpus():
     ds = thieu_toan_van(rels_corpus + canh_vbpl, docs, tieu_de_theo_so_hieu(mau))
     assert all(d.so_hieu != "16/2019/NĐ-CP" for d in ds), "ND16 đã có toàn văn, hết thiếu"
 
-    bai_bo = [r for r in rels_corpus if r.rel_type == "BAI_BO"]
-    assert [(r.source_doc, r.target_doc) for r in bai_bo] == [("ND52-2024", "ND16-2019")]
-    assert [(a.source_article, a.target_article) for a in bai_bo[0].anchors] == [
+    bai_bo = {(r.source_doc, r.target_doc): r for r in rels_corpus if r.rel_type == "BAI_BO"}
+    assert set(bai_bo) == {("ND52-2024", "ND16-2019"), ("TT22-2026", "TT41-2025")}
+
+    nd16 = bai_bo[("ND52-2024", "ND16-2019")]
+    assert [(a.source_article, a.target_article) for a in nd16.anchors] == [
         ("Điều 37", "Điều 3")
     ], "bãi bỏ MỘT PHẦN: đúng Điều 3 (phần sửa ND101), ND16 sống các điều còn lại"
+
+    # Cạnh thứ hai vào 05/08 sau khi người dùng chỉ ra TT22 Điều 6 khoản 2 — câu mở đầu
+    # bằng 'Bãi bỏ' viết hoa nên grep chữ thường không thấy. TT41 chỉ chết 3/27 điều.
+    tt41 = bai_bo[("TT22-2026", "TT41-2025")]
+    assert [a.target_article for a in tt41.anchors] == ["Điều 16", "Điều 17", "Điều 18"]
+    assert all(a.source_article == "Điều 6" for a in tt41.anchors)
 
 
 @pytest.mark.skipif(_thieu(_ND52, "66/2025/TT-NHNN"),

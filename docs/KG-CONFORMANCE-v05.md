@@ -12,8 +12,8 @@ mọi số trong tài liệu này kiểm lại được bằng §6.
 > **05/08 — #14 đã xong: corpus 15 → 20 văn bản (278 → 338 điều), và lần đầu điểm nhích.**
 > Nạp 8 văn bản crawl (5 mới + 3 thay: ND52/TT15/TT40; `29/VBHN-NHNN` giữ làm node rỗng vì vbpl
 > không đăng toàn văn). Hệ quả đo được: `chapter` **115/338** điều (hết 0/278) · §6 lên **5/13
-> mã có instance** trong chính corpus (22 cạnh, `BAI_BO` đầu tiên: NĐ52 —Điều 37→ bãi bỏ Điều 3
-> NĐ16/2019, kèm neo) · ca kiểm chứng §6.2 hết bị chặn bởi "0 `BAI_BO`". Ba phát hiện dọc đường,
+> mã có instance** trong chính corpus (23 cạnh, **hai** cạnh `BAI_BO` kèm neo: NĐ52 —Điều 37→
+> bãi bỏ Điều 3 NĐ16/2019; TT22 —Điều 6 k2→ bãi bỏ Điều 16/17/18 TT41/2025) · ca kiểm chứng §6.2 hết bị chặn bởi "0 `BAI_BO`". Ba phát hiện dọc đường,
 > mỗi cái một bài: (1) `_KHOAN_RE` đòi dấu cách sau `1.` còn vbpl in `1.Việc` dính liền — **bảng
 > nghiệm thu cũ đo bằng thước hỏng** (TT15 97→98 khoản, TT40 216→221 điểm, khớp corpus cũ từng
 > khoản); (2) thuộc tính vbpl sai được: ND52 ghi hiệu lực `01/07/2027` trong khi Điều 37 của
@@ -139,9 +139,11 @@ Giới hạn có chủ đích của §3 (gạch đầu dòng không đánh số 
 
 ### 2.4 · §6 · 13 quan hệ giữa văn bản — **13/13 schema · ~~4/13~~ 5/13 instance (05/08)**
 
-> **05/08:** nạp #14 đưa corpus lên **22 cạnh · 5/13 mã** — thêm `BAI_BO` (NĐ52 → NĐ16/2019,
-> neo `Điều 37 → Điều 3`) và nâng `CAN_CU` 4→7, `SUA_DOI_BO_SUNG` 2→6, `THAY_THE` 4→5.
-> `kiem_quan_he`: **0 cạnh sai**. Khối bên dưới giữ nguyên các mốc 03–04/08.
+> **05/08:** nạp #14 đưa corpus lên **23 cạnh · 5/13 mã** — thêm `BAI_BO` ×2 (NĐ52 → NĐ16/2019
+> neo `Điều 37 → Điều 3`; TT22 → TT41/2025 neo `Điều 6 → Điều 16/17/18` — cạnh này vào sau khi
+> người dùng chỉ ra câu bãi bỏ mà grep chữ thường bỏ sót) và nâng `CAN_CU` 4→7,
+> `SUA_DOI_BO_SUNG` 2→6, `THAY_THE` 4→5. `kiem_quan_he`: **0 cạnh sai**. Khối bên dưới giữ
+> nguyên các mốc 03–04/08.
 
 > **Ba mốc trong một ngày, giữ lại cả ba vì chúng nói ba chuyện khác nhau.**
 > Bản 03/08 ghi **4/13**, đếm số `rel_type` có trong dữ liệu. Sửa xuống **2/13** sáng 04/08 sau
@@ -384,6 +386,9 @@ cạnh" với "có demo": muốn demo phải **tìm một quan hệ bãi bỏ c�
 > **✅ 05/08 — tìm được, và nó nằm ngay trong lời văn NĐ52 Điều 37:** *"bãi bỏ Điều 3 của Nghị
 > định số 16/2019/NĐ-CP"*. Nạp ND16 (#14) xong, corpus có cạnh `BAI_BO` đầu tiên kèm neo
 > `Điều 37 → Điều 3` — bãi bỏ **một phần**, khớp tình trạng vbpl "Hết hiệu lực một phần".
+> Cùng ngày thêm cạnh thứ hai: TT22/2026 Điều 6 khoản 2 bãi bỏ Điều 16/17/18 của TT41/2025 —
+> câu này grep `bãi bỏ` chữ thường KHÔNG thấy vì nó mở câu bằng "Bãi bỏ" viết hoa (người dùng
+> chỉ ra); tìm mệnh đề trong văn bản pháp lý phải IGNORECASE.
 > §6.2 hết bị chặn bởi dữ liệu; còn chờ #17 (Neo4j) để chạy trên đồ thị thật.
 
 **(d) `so_hieu` đã trích được rồi bị vứt — cầu nối hai không gian ID rẻ hơn §3.3 tưởng.**
@@ -440,8 +445,8 @@ cần bạn dán vào SQL Editor.
 bỏ cạnh · để tồn đọng · dựng **node rỗng**. Chọn lối thứ ba — bỏ đi thì mất luôn instance
 `BAI_BO` duy nhất có thật (NĐ52 → NĐ16/2019), tức mất đúng ca kiểm chứng bắt buộc §6.2.
 
-> **05/08, cùng phép đo trên corpus đã nạp:** 66 cạnh (22 corpus + 44 vbpl) vẫn quy hết,
-> **0 rơi**; node rỗng **32 → 27** (5 văn bản nạp đợt này rời tập stub), 37 cạnh đủ hai đầu
+> **05/08, cùng phép đo trên corpus đã nạp:** 67 cạnh (23 corpus + 44 vbpl) vẫn quy hết,
+> **0 rơi**; node rỗng **32 → 27** (5 văn bản nạp đợt này rời tập stub), 38 cạnh đủ hai đầu
 > có toàn văn, 29 còn chạm stub. Đúng cơ chế thiết kế ở §3.6: node rỗng là *trạng thái chờ*,
 > mỗi đợt nạp rút bớt — không phải nợ vĩnh viễn.
 
@@ -541,7 +546,7 @@ chưa có chỗ nào ghi *"câu luật này nói về mốc bắt đầu hay m�
 | §4 · Khoá ba nhánh | **1/3** — `#than/` có, `#kemtheo_`/`#phuluc_` không sinh được |
 | §5 · Đánh số Điều/Khoản | **5/6** — thêm luật *phạm vi đánh số* (§3.8), v0.5 chưa có |
 | §3 · Node meta-schema | **4/15** — dữ liệu `Chuong`/`Muc` ~~chưa nạp, corpus 0/278~~ → **nạp 05/08: 115/338 điều có `chapter`** (§2.3); vẫn là trường phẳng, chưa phải node nên điểm khối chưa nhích |
-| §6 · 13 quan hệ | **13/13 trong schema · ~~4/13~~ → 5/13 có instance trong corpus (05/08: thêm `BAI_BO`)** · 7/13 khi hợp nhất 2 lược đồ vbpl — cạnh đã CÓ KIỂU ⇒ Cypher của spec chạy được; sau nạp: **22 cạnh corpus + 35 vbpl = 57 quy hết về `doc_id`, 0 rơi, 25 đầu mút còn là node rỗng, 32 cạnh đủ hai đầu có toàn văn** (§3.7) |
+| §6 · 13 quan hệ | **13/13 trong schema · ~~4/13~~ → 5/13 có instance trong corpus (05/08: thêm `BAI_BO`)** · 7/13 khi hợp nhất 2 lược đồ vbpl — cạnh đã CÓ KIỂU ⇒ Cypher của spec chạy được; sau nạp: **23 cạnh corpus + 35 vbpl = 58 quy hết về `doc_id`, 0 rơi, 25 đầu mút còn là node rỗng, 33 cạnh đủ hai đầu có toàn văn** (§3.7) |
 | §7 · Tầng thời gian | **0/5** |
 | §8 · Độ tin cậy | **0/2** |
 | §9 · Mười quyết định | 3 đạt · 2 không đạt · 1 một phần · 4 chưa áp dụng được |
@@ -607,8 +612,8 @@ $a = $c.documents | ForEach-Object { $_.articles }
 $a.Count                                        # 338   (trước 05/08: 278)
 ($a | Where-Object { $_.chapter }).Count        # 115   (trước 05/08: 0)
 ($a | Where-Object { $_.valid_to }).Count       # 0 — hết hiệu lực chỉ ghi ở CẤP VĂN BẢN (ND101, ND80…), cấp điều vẫn trống (§2.5 chưa đổi)
-$c.relationships.Count                          # 22    (trước 05/08: 13)
-$c.relationships | Group-Object rel_type        # CAN_CU 7 · SUA_DOI_BO_SUNG 6 · THAY_THE 5 · DAN_CHIEU 3 · BAI_BO 1
+$c.relationships.Count                          # 23    (trước 05/08: 13)
+$c.relationships | Group-Object rel_type        # CAN_CU 7 · SUA_DOI_BO_SUNG 6 · THAY_THE 5 · DAN_CHIEU 3 · BAI_BO 2
 
 # --- KhoanNode không có trường `ten` (rỗng = không có) ---
 Select-String -Path app\ontology\schema.py -Pattern "^\s*ten\s*:"
@@ -657,7 +662,7 @@ for s in ['Số: 52/2024/NĐ-CP', 'Số: 51/2025/TT-BTС', 'Số: 123/QĐ-NHNN',
 
 # --- §3.6/§3.7: cầu số hiệu → doc_id, node rỗng, danh sách cần crawl ---
 uv run pytest -q tests\test_bac_cau.py tests\test_quan_he_web.py
-uv run python -m app.ingestion.can_crawl        # 20 có toàn văn · 22 cạnh corpus + 134 vbpl · 68 cần crawl (04/08: 13+134; 68 giữ nguyên vì 8 văn bản nạp đợt này vốn đã crawl xong)
+uv run python -m app.ingestion.can_crawl        # 20 có toàn văn · 23 cạnh corpus + 134 vbpl · 68 cần crawl (04/08: 13+134; 68 giữ nguyên vì 8 văn bản nạp đợt này vốn đã crawl xong)
 
 # --- §3.8: khối trích dẫn — ND80 Điều 1 phải ra 10 khoản, KHÔNG phải 14 ---
 uv run pytest -q tests\test_ontology_trich_dan.py
@@ -698,7 +703,7 @@ Hai số ở §4 **không đo lại trong đợt 04/08**, lấy từ số đo đ
 
 ```powershell
 # Nạp lặp lại được (idempotent): chạy thêm lần nữa phải in đúng cùng bộ số, không nhân đôi
-uv run python -m app.ingestion.nap_corpus --kho   # → 20 văn bản · 338 điều · 22 quan hệ
+uv run python -m app.ingestion.nap_corpus --kho   # → 20 văn bản · 338 điều · 23 quan hệ
 
 # 0 cạnh sai, BAI_BO=1, hết cảnh báo "trả RỖNG"
 uv run python -m app.ingestion.kiem_quan_he

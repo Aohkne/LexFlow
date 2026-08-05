@@ -16,10 +16,12 @@ Ba quy tắc, mỗi quy tắc trả lời một ca đã gặp thật:
    `MATCH…MATCH` bỏ **im lặng** (bài học `push_corpus`); đầu mút chưa crawl là việc của tầng
    bắc cầu (`bac_cau.py`), không phải của file corpus.
 
-Vì sao `TT22 -BAI_BO-> TT41` KHÔNG có trong `CANH_MOI` dù lược đồ vbpl ghi TT41 là *"Văn bản
-bị bãi bỏ"* của TT22: toàn văn TT22 không có câu bãi bỏ nào, và chính vbpl gắn TT41
-*"Hết hiệu lực một phần"* (không phải toàn bộ). Hai nguồn của vbpl mâu thuẫn nhau thì không
-nguồn nào đủ làm căn cứ; thêm cạnh là phán định pháp lý, để người quyết.
+Cạnh `TT22 -BAI_BO-> TT41` từng bị TỪ CHỐI với lý do "toàn văn TT22 không có câu bãi bỏ nào" —
+lý do đó SAI, và sai vì phép tìm: grep `bãi bỏ` chữ thường trong khi TT22 Điều 6 khoản 2 mở câu
+bằng chữ hoa: *"Bãi bỏ Điều 16, Điều 17, Điều 18 Thông tư số 41/2025/TT-NHNN…"* (người dùng
+chỉ ra, 05/08). Bài học đắt: **tìm mệnh đề trong văn bản pháp lý phải IGNORECASE** — mệnh đề
+đứng đầu khoản luôn viết hoa. Với câu đó, cả ba nguồn vbpl nhất quán với nhau: lược đồ ghi
+TT41 "bị bãi bỏ", tình trạng ghi "Hết hiệu lực một phần", lời văn bãi bỏ đúng 3/27 điều.
 """
 from __future__ import annotations
 
@@ -88,6 +90,23 @@ CANH_MOI: list[dict] = [
         "source_doc": "TT22-2026", "target_doc": "TT40-2024",
         "rel_type": "SUA_DOI_BO_SUNG", "valid_from": "2026-05-19",
         "note": "Sửa đổi, bổ sung một số điều của TT 40/2024 (tiêu đề + lược đồ vbpl)",
+    },
+    {
+        "source_doc": "TT22-2026", "target_doc": "TT41-2025",
+        "rel_type": "BAI_BO", "valid_from": "2026-05-19",
+        "note": (
+            "TT 22/2026 Điều 6 khoản 2: 'Bãi bỏ Điều 16, Điều 17, Điều 18 Thông tư số "
+            "41/2025/TT-NHNN…' — bãi bỏ MỘT PHẦN (3/27 điều: các điều sửa Điều 41/42/43 "
+            "của TT40), khớp tình trạng vbpl 'Hết hiệu lực một phần'"
+        ),
+        "anchors": [
+            {"source_article": "Điều 6", "target_article": "Điều 16",
+             "detail": "Bãi bỏ Điều 16 (sửa đổi, bổ sung Điều 41 TT 40/2024)"},
+            {"source_article": "Điều 6", "target_article": "Điều 17",
+             "detail": "Bãi bỏ Điều 17 (sửa đổi, bổ sung khoản 1 Điều 42 TT 40/2024)"},
+            {"source_article": "Điều 6", "target_article": "Điều 18",
+             "detail": "Bãi bỏ Điều 18 (sửa đổi, bổ sung Điều 43 TT 40/2024)"},
+        ],
     },
     {
         "source_doc": "TT22-2026", "target_doc": "ND52-2024",
