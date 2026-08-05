@@ -21,3 +21,29 @@ https://vbpl.vn/van-ban/chi-tiet/thong-tu-so-66-2025-tt-nhnn-sua-doi-bo-sung-mot
 https://vbpl.vn/van-ban/chi-tiet/thong-tu-so-15-2024-tt-nhnn-quy-dinh-ve-cung-ung-dich-vu-thanh-toan-khong-dung-tien-mat--168089
 https://vbpl.vn/van-ban/chi-tiet/thong-tu-so-40-2024-tt-nhnn-quy-dinh-ve-hoat-dong-cung-ung-dich-vu-trung-gian-thanh-toan--168578
 https://vbpl.vn/van-ban/chi-tiet/nghi-dinh-so-52-2024-nd-cp-quy-dinh-ve-thanh-toan-khong-dung-tien-mat--167087
+
+# --- Bổ sung 05/08/2026 (research/crawl_list_new.md, đã gộp vào đây rồi bỏ) ---
+
+# Văn bản nền mới: một TT sửa nhiều TT thanh toán/TGTT, một NĐ về thông tin tín dụng,
+# và TT34/2024 — bản gốc mà TT66/2025 ở trên sửa đổi (trước chỉ có bản sửa, thiếu bản gốc).
+https://vbpl.vn/van-ban/chi-tiet/thong-tu-so-30-2016-tt-nhnn-su-a-do-i-bo-sung-mo-t-so-thong-tu-quy-di-nh-ve-hoa-t-do-ng-cung-u-ng-di-ch-vu-thanh-toa-n-va-di-ch-vu-trung-gian-thanh-toa-n--114612
+https://vbpl.vn/van-ban/chi-tiet/nghi-dinh-so-58-2021-nd-cp-quy-dinh-ve-hoat-dong-cung-ung-dich-vu-thong-tin-tin-dung--148075
+https://vbpl.vn/van-ban/chi-tiet/thong-tu-so-34-2024-tt-nhnn-quy-dinh-viec-cap-doi-giay-phep-cap-bo-sung-noi-dung-hoat-dong-vao-giay-phep-va-to-chuc-hoat-dong-cua-ngan-hang-thuong-mai-chi-nhanh-ngan-hang-nuoc-ngoai-van-phong-dai-dien-tai-viet-nam-cua-to-chuc-tin-dung-nuoc-ngoai-to-chuc-nuoc-ngoai-khac-co-hoat-dong-ngan-hang--168422
+
+# Hai văn bản sửa đổi TT15/2024 (bổ sung cho TT22/2026 + TT41/2025 vốn sửa TT40/2024),
+# và TT38/2019 về thanh toán không qua tài khoản tại doanh nghiệp bưu chính công ích.
+https://vbpl.vn/van-ban/chi-tiet/thong-tu-21-2026-tt-nhnn-sua-doi-bo-sung-dieu-15-thong-tu-so-15-2024-tt-nhnn-quy-dinh-ve-cung-ung-dich-vu-thanh-toan-khong-dung-tien-mat--4a08e160-54f6-11f1-b6e0-f5c216e3d3c0
+https://vbpl.vn/van-ban/chi-tiet/thong-tu-so-30-2025-tt-nhnn-sua-doi-bo-sung-cua-thong-tu-so-15-2024-tt-nhnn-quy-dinh-ve-cung-ung-dich-vu-thanh-toan-khong-dung-tien-mat--182565
+https://vbpl.vn/van-ban/chi-tiet/thong-tu-so-38-2019-tt-nhnn-quy-dinh-ve-viec-cung-ung-dich-vu-thanh-toan-khong-qua-tai-khoan-thanh-toan-cua-khach-hang-tai-doanh-nghiep-cung-ung-dich-vu-buu-chinh-cong-ich--140177
+
+# Văn bản hợp nhất. CẢNH BÁO: vbpl.vn KHÔNG đăng toàn văn nhóm này — đã kiểm chứng trên
+# VBHN 29 ở trên: co_toan_van=False, noi_dung rỗng, articles=[]. Cào về chỉ được thuộc tính,
+# lược đồ và link PDF (thân văn bản nằm trong PDF). Giữ trong corpus vì lược đồ hợp nhất là
+# thứ nối các văn bản sửa đổi lại với nhau, KHÔNG phải vì nội dung.
+https://vbpl.vn/van-ban/chi-tiet/van-ban-hop-nhat-so-08-vbhn-nhnn-quy-dinh-ve-dau-tu-gian-tiep-ra-nuoc-ngoai--134318
+https://vbpl.vn/van-ban/chi-tiet/van-ban-hop-nhat-so-09-vbhn-nhnn-ve-hoat-dong-cua-cong-ty-tai-chinh-va-cong-ty-cho-thue-tai-chinh--134321
+https://vbpl.vn/van-ban/chi-tiet/van-ban-hop-nhat-so-10-vbhn-nhnn-ve-thanh-toan-khong-dung-tien-mat--134323
+https://vbpl.vn/van-ban/chi-tiet/van-ban-hop-nhat-so-11-vbhn-nhnn-ve-hoat-dong-thong-tin-tin-dung--134354
+https://vbpl.vn/van-ban/chi-tiet/van-ban-hop-nhat-so-12-vbhn-nhnn-quy-dinh-dieu-kien-doi-voi-hoat-dong-dai-ly-doi-ngoai-te-hoat-dong-cung-ung-dich-vu-nhan-va-chi-tra-ngoai-te-cua-to-chuc-kinh-te--134356
+https://vbpl.vn/van-ban/chi-tiet/van-ban-hop-nhat-so-26-vbhn-nhnn-quy-dinh-ve-cung-ung-dich-vu-thanh-toan-khong-dung-tien-mat--183743
+https://vbpl.vn/van-ban/chi-tiet/van-ban-hop-nhat-so-43-vbhn-nhnn-ve-thanh-toan-khong-dung-tien-mat--112049
