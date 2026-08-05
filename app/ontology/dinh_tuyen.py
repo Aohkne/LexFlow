@@ -25,6 +25,7 @@ from pydantic import BaseModel
 from app.ingestion.vbpl_corpus import doc_id_theo_corpus
 from app.ontology.hien_hanh import phien_ban_hien_hanh
 from app.ontology.tac_dong import CanhTacDong
+from app.ontology.tac_dong import _DICH_RE as _KHOA_RE
 
 #: Nhãn chunk `"Điều 8"` hoặc `"Điều 8 Khoản 7"` — đúng dạng `_khoan_label` của
 #: `app/ingestion/pipeline.py` sinh ra cho chunk KHÔNG gộp nhiều khoản (gộp "Khoản 1-3" hay
@@ -32,11 +33,9 @@ from app.ontology.tac_dong import CanhTacDong
 #: khoá bên dưới do brief chỉ định, không mở rộng).
 _NHAN_RE = re.compile(r"^Điều\s+(\d+[a-zđ]?)(?:\s+Khoản\s+(\S+))?$")
 
-#: Bóc một khoá overlay `{so_hieu}#than/dieu_N[#khoan_M[#diem_x]]` thành các phần để render
-#: trích dẫn người đọc — cùng khuôn `_DICH_RE` của `app/ontology/tac_dong.py`.
-_KHOA_RE = re.compile(
-    r"^(?P<sh>.+?)#than/dieu_(?P<dieu>[^#]+)(?:#khoan_(?P<khoan>[^#]+))?(?:#diem_(?P<diem>[^#]+))?$"
-)
+# `_KHOA_RE` = `app.ontology.tac_dong._DICH_RE` — cùng bóc một khoá overlay
+# `{so_hieu}#than/dieu_N[#khoan_M[#diem_x]]` thành các phần, tái dùng thay vì khai lại
+# byte-for-byte (review round 1, minor 1).
 
 
 def khoa_tu_chunk_id(chunk_id: str, so_hieu_theo_doc: dict[str, str]) -> str | None:
@@ -99,17 +98,27 @@ def _canh_deeper_ap_duoc(
 
     `phien_ban_hien_hanh(khoa, ...)` chỉ xét cạnh mà `dich` là chính `khoa` hoặc TIỀN TỐ của
     nó (điều bị bãi kéo khoản con). Chiều ngược lại — chunk là khoản, cạnh sửa một điểm BÊN
-    TRONG khoản đó — không thuộc phạm vi hàm đó, nên kiểm riêng ở đây.
+    TRONG khoản đó — không thuộc phạm vi hàm đó, nên lọc ứng cử riêng ở đây; nhưng luật
+    cạnh-chết (một cạnh chết nếu chính điều/khoản đã PHÁT ra nó bị bãi bỏ) vẫn phải là luật
+    THẬT của `phien_ban_hien_hanh`, không viết lại: gọi `phien_ban_hien_hanh(c.nguon, canh,
+    hom_nay)` cho từng ứng cử — nếu trạng thái của NGUỒN cạnh đó là `bi_bai_bo` tại `hom_nay`
+    thì cạnh không còn áp được, dù `valid_from` riêng của nó vẫn `<= hom_nay` (review round 1,
+    important fix — route công khai thay vì mô phỏng lại luật cạnh-chết).
 
-    Giới hạn đã biết (ghi rõ, không giấu): chỉ lọc `valid_from <= hom_nay`, KHÔNG áp lại luật
-    cạnh-chết của `phien_ban_hien_hanh` (cạnh có nguồn đã bị bãi bỏ vẫn được tính là áp được
-    ở đây). Đủ cho phạm vi Task 7 (không có test nào phủ luật cạnh-chết kết hợp mục tiêu sâu
-    hơn khoá); mở lại nếu có ca thật cần.
+    Nhiều cạnh sâu-hơn cùng còn sống (hiếm nhưng có thể) → lấy cạnh có `valid_from` MỚI NHẤT,
+    nhất quán với cách `phien_ban_hien_hanh` sắp `cac_lan` và lấy `[-1]`.
     """
-    for c in canh:
-        if c.dich.startswith(khoa + "#") and c.valid_from is not None and c.valid_from <= hom_nay:
-            return c
-    return None
+    ung_cu = [
+        c for c in canh
+        if c.dich.startswith(khoa + "#")
+        and c.valid_from is not None
+        and c.valid_from <= hom_nay
+        and phien_ban_hien_hanh(c.nguon, canh, hom_nay).trang_thai != "bi_bai_bo"
+    ]
+    if not ung_cu:
+        return None
+    ung_cu.sort(key=lambda c: c.valid_from)
+    return ung_cu[-1]
 
 
 def dinh_tuyen(
