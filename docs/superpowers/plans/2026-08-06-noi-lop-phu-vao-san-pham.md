@@ -356,7 +356,13 @@ EOF
 - Produces:
   - `class ChuThichHieuLuc(BaseModel)` — `nhanh: str`, `trang_thai: Literal["nguyen_ven","da_sua","bi_bai_bo","la_loi_sua"]`, `trich_dan_dung_chu: str`, `khoa_goc: str`, `khoa_dich: str | None`, `sua_boi_doc_id: str | None`, `sua_boi_article: str | None`, `ban_hien_hanh: str | None`, `xuat_xu_doc_id: str | None`, `xuat_xu_article: str | None`
   - `tai_lop_phu(duong_dan: str = "data/overlay/lop_phu.json") -> LopPhuRuntime | None` (lru_cache)
-  - `chu_thich_chunk(chunk: dict, as_of: str, lp: LopPhuRuntime | None = None) -> ChuThichHieuLuc | None`
+  - `chu_thich_chunk(chunk: dict, as_of: str, lp=_CHUA_TRUYEN) -> ChuThichHieuLuc | None`
+
+**Mặc định phải là SENTINEL, không phải `None`.** `lp=None` là một giá trị THẬT mà người gọi
+truyền vào — chính là thứ `tai_lop_phu()` trả về khi artefact hỏng. Nếu mặc định là `None` thì
+`lp if lp is not None else tai_lop_phu()` không phân biệt được "không truyền" với "truyền None",
+và một ca fail-open sẽ âm thầm nạp lại artefact THẬT thay vì chịu tắt. Dùng
+`_CHUA_TRUYEN = object()` làm mặc định, kiểm bằng `if lp is _CHUA_TRUYEN: lp = tai_lop_phu()`.
 
 `KetQuaTuyen` nhận thêm `canh: CanhTacDong | None = None` — cạnh CHỦ đã quyết định nhánh.
 Không có nó thì `lop_phu` phải mô phỏng lại luật chọn cạnh của `dinh_tuyen` (kể cả nhánh
@@ -713,7 +719,7 @@ EOF
 **Interfaces:**
 - Consumes: `chu_thich_chunk` (Task 2)
 - Produces:
-  - `chu_thich_ket_qua(chunks: list[dict], as_of: str, lp=None) -> tuple[list[dict], dict[str, ChuThichHieuLuc]]` — trả (danh sách đã lọc/mở rộng, map `chunk id` → chú thích)
+  - `chu_thich_ket_qua(chunks: list[dict], as_of: str, lp=_CHUA_TRUYEN) -> tuple[list[dict], dict[str, ChuThichHieuLuc]]` — trả (danh sách đã lọc/mở rộng, map `chunk id` → chú thích). **Mặc định là sentinel `_CHUA_TRUYEN`, KHÔNG phải `None`** — cùng lý do đã ghi ở Task 2: `None` là giá trị thật mà `tai_lop_phu()` trả về khi artefact hỏng, nên `lp=None` phải nghĩa là "tắt lớp phủ", không phải "tự nạp lại".
   - `retrieval.lay_chunk_theo_id(ids: list[str]) -> list[dict]`
 
 - [ ] **Step 1: Write the failing test**
@@ -772,14 +778,15 @@ def lay_chunk_theo_id(ids: list[str]) -> list[dict]:
 
 ```python
 def chu_thich_ket_qua(
-    chunks: list[dict], as_of: str, lp: LopPhuRuntime | None = None
+    chunks: list[dict], as_of: str, lp=_CHUA_TRUYEN  # type: ignore[assignment]
 ) -> tuple[list[dict], dict[str, ChuThichHieuLuc]]:
     """Chú thích cả mẻ hit: loại cái đã bị bãi bỏ, kéo thêm lời văn mới khi cần.
 
     Trả `(danh sách dùng để trả lời, map id → chú thích)`. Map giữ CẢ hit đã bị loại — tầng
     trên vẫn cần chữ để nói "điều này đã bị bãi bỏ".
     """
-    lp = lp if lp is not None else tai_lop_phu()
+    if lp is _CHUA_TRUYEN:
+        lp = tai_lop_phu()
     if lp is None:
         return chunks, {}
 
