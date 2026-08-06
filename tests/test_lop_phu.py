@@ -30,6 +30,18 @@ def _goi() -> GoiLopPhu:
                 valid_from="2025-07-01",
                 menh_lenh="Bãi bỏ Điều 9.",
             ),
+            # `bo_sung` KHÔNG có `ban_hien_hanh` (chỉ `sua_doi` trọn đơn vị mới có — xem
+            # `chu_thich_chunk`) dù cùng trỏ trọn khoá gốc: đúng ca `chu_thich_ket_qua` phải
+            # kéo lời văn mới về qua `lay_chunk_theo_id`.
+            CanhGoi(
+                nguon="41/2025/TT-NHNN#than/dieu_3",
+                dich="40/2024/TT-NHNN#than/dieu_10",
+                thao_tac="bo_sung",
+                valid_from="2025-07-01",
+                xuat_xu_doc_id="TT41-2025",
+                xuat_xu_article="Điều 3",
+                menh_lenh="Bổ sung Điều 10 như sau:",
+            ),
         ],
     )
 
@@ -130,3 +142,79 @@ def test_khong_co_lop_phu_thi_tra_nguyen_danh_sach():
     chunks = [_chunk("TT40-2024::Điều 9")]
     con, ct = chu_thich_ket_qua(chunks, "2026-08-06", None)
     assert con == chunks and ct == {}
+
+
+def test_da_sua_khong_co_ban_hien_hanh_thi_keo_chunk_xuat_xu(lp, monkeypatch):
+    """`bo_sung` không có `ban_hien_hanh` đóng gói sẵn → phải tra chunk xuất xứ về."""
+    goi_voi: list[list[str]] = []
+
+    def gia_lay_chunk_theo_id(ids: list[str]) -> list[dict]:
+        goi_voi.append(ids)
+        return [_chunk("TT41-2025::Điều 3", "Bổ sung Điều 10 như sau: ...")]
+
+    monkeypatch.setattr(
+        "app.knowledge.retrieval.lay_chunk_theo_id", gia_lay_chunk_theo_id
+    )
+
+    con, ct = chu_thich_ket_qua([_chunk("TT40-2024::Điều 10")], "2026-08-06", lp)
+
+    assert ct["TT40-2024::Điều 10"].trang_thai == "da_sua"
+    assert ct["TT40-2024::Điều 10"].ban_hien_hanh is None
+    assert goi_voi == [["TT41-2025::Điều 3"]]  # gọi đúng id "xuất_xứ_doc::xuất_xứ_điều"
+    assert [c["id"] for c in con] == ["TT40-2024::Điều 10", "TT41-2025::Điều 3"]
+
+
+def test_da_sua_co_san_ban_hien_hanh_thi_khong_keo(lp, monkeypatch):
+    """Có `ban_hien_hanh` đóng gói sẵn (sửa trọn đơn vị) → không cần tra thêm."""
+    da_goi = False
+
+    def gia_lay_chunk_theo_id(ids: list[str]) -> list[dict]:
+        nonlocal da_goi
+        da_goi = True
+        return []
+
+    monkeypatch.setattr(
+        "app.knowledge.retrieval.lay_chunk_theo_id", gia_lay_chunk_theo_id
+    )
+
+    con, ct = chu_thich_ket_qua([_chunk("TT40-2024::Điều 8 Khoản 7")], "2026-08-06", lp)
+
+    assert ct["TT40-2024::Điều 8 Khoản 7"].ban_hien_hanh == _MOI
+    assert da_goi is False
+    assert [c["id"] for c in con] == ["TT40-2024::Điều 8 Khoản 7"]
+
+
+def test_khong_keo_trung_khi_chunk_xuat_xu_da_co_san(lp, monkeypatch):
+    """Chunk xuất xứ đã có sẵn trong danh sách hit gốc → không tra lại, không nối trùng."""
+    da_goi = False
+
+    def gia_lay_chunk_theo_id(ids: list[str]) -> list[dict]:
+        nonlocal da_goi
+        da_goi = True
+        return [_chunk("TT41-2025::Điều 3")]
+
+    monkeypatch.setattr(
+        "app.knowledge.retrieval.lay_chunk_theo_id", gia_lay_chunk_theo_id
+    )
+
+    chunks = [_chunk("TT40-2024::Điều 10"), _chunk("TT41-2025::Điều 3")]
+    con, ct = chu_thich_ket_qua(chunks, "2026-08-06", lp)
+
+    assert da_goi is False
+    assert [c["id"] for c in con] == ["TT40-2024::Điều 10", "TT41-2025::Điều 3"]
+
+
+def test_tra_chunk_xuat_xu_loi_thi_khong_nem(lp, monkeypatch):
+    """`lay_chunk_theo_id` hỏng (lỗi tầng LanceDB) → vẫn trả danh sách bình thường, không ném."""
+
+    def gia_lay_chunk_theo_id(ids: list[str]) -> list[dict]:
+        raise RuntimeError("LanceDB lỗi")
+
+    monkeypatch.setattr(
+        "app.knowledge.retrieval.lay_chunk_theo_id", gia_lay_chunk_theo_id
+    )
+
+    con, ct = chu_thich_ket_qua([_chunk("TT40-2024::Điều 10")], "2026-08-06", lp)
+
+    assert [c["id"] for c in con] == ["TT40-2024::Điều 10"]
+    assert ct["TT40-2024::Điều 10"].trang_thai == "da_sua"

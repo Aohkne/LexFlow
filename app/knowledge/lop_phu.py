@@ -212,5 +212,9 @@ def chu_thich_ket_qua(
     if can_them:
         from app.knowledge.retrieval import lay_chunk_theo_id
 
-        con = con + [c for c in lay_chunk_theo_id(can_them) if c["id"] not in co_san]
+        try:
+            them = lay_chunk_theo_id(can_them)
+        except Exception:  # noqa: BLE001 — fail-open: kéo thêm hỏng thì bớt đi, không ném
+            them = []
+        con = con + [c for c in them if c["id"] not in co_san]
     return con, ct
