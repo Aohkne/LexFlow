@@ -19,3 +19,8 @@ README.md
 compose.yml
 
 data/raw/
+.superpowers/
+anotate/
+eval/ontology/html/
+eval/ontology/reports/
+data/tuvanphapluat/
