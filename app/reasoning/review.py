@@ -12,10 +12,12 @@ from __future__ import annotations
 
 from concurrent.futures import ThreadPoolExecutor
 
+from app.core.config import settings
 from app.core.llm import chat_json
 from app.core.schemas import CorpusDocument, ReviewFinding, ReviewResponse
 from app.core.tracing import observe
 from app.ingestion.versioning import today_iso
+from app.knowledge.lop_phu import chu_thich_ket_qua
 from app.knowledge.retrieval import search_in_docs
 
 _SYSTEM = (
@@ -93,6 +95,11 @@ def _review_article(
     chunks = search_in_docs(
         f"{article_label}: {article_text}", against_ids, top_k=4, as_of=as_of, effective_only=True
     )
+    ct = {}
+    if settings.overlay_router:
+        # Không đối chiếu quy định nội bộ với điều luật đã bị bãi bỏ ở cấp khoản — kết luận
+        # "vi phạm" dựa trên một căn cứ đã chết là sai nguy hiểm hơn là không kết luận.
+        chunks, ct = chu_thich_ket_qua(chunks, as_of)
     if not chunks:
         return ReviewFinding(
             verdict=NOT_ASSESSED,
@@ -119,6 +126,10 @@ def _review_article(
 
     by_id = {c["id"]: c for c in chunks}
     legal = by_id.get(data.get("legal_chunk_id")) or chunks[0]
+    t = ct.get(legal["id"])
+    legal_ref = f"{legal['doc_title']} — {legal['article']}"
+    if t is not None and t.trang_thai not in (None, "nguyen_ven"):
+        legal_ref += f" ({t.trich_dan_dung_chu})"
     return ReviewFinding(
         verdict=_normalize_verdict(data),
         article=article_label,
@@ -126,9 +137,9 @@ def _review_article(
         summary=data.get("summary") or "",
         internal_quote=data.get("internal_quote") or article_text[:280],
         legal_doc_id=legal["doc_id"],
-        legal_ref=f"{legal['doc_title']} — {legal['article']}",
+        legal_ref=legal_ref,
         legal_quote=data.get("legal_quote") or legal["text"][:280],
-        legal_live=not legal.get("valid_to"),
+        legal_live=not legal.get("valid_to") and (t is None or t.trang_thai != "bi_bai_bo"),
         suggestion=data.get("suggestion") or None,
     )
 
