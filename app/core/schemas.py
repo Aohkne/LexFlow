@@ -170,6 +170,14 @@ class Citation(BaseModel):
     valid_from: str | None = None
     valid_to: str | None = None
     snippet: str
+    # --- Lớp phủ dưới-văn-bản (optional: FE cũ và corpus chưa chú thích vẫn hợp lệ) ---
+    #: nguyen_ven | da_sua | bi_bai_bo | la_loi_sua
+    trang_thai: str | None = None
+    #: Trích dẫn đúng chủ, vd "TT40-2024 Điều 8 Khoản 7 (đã sửa bởi TT41-2025 Điều 1 Khoản 2)"
+    chu_thich: str | None = None
+    sua_boi_doc_id: str | None = None
+    sua_boi_article: str | None = None
+    ban_hien_hanh: str | None = None
 
 
 class ConflictAlert(BaseModel):

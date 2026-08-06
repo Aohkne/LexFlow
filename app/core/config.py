@@ -47,6 +47,9 @@ class Settings(BaseSettings):
     # Graph-augmented retrieval: mở rộng context 1-hop qua knowledge graph
     graph_augment: bool = True
 
+    # Lớp phủ dưới-văn-bản: chú thích hiệu lực cấp khoản sau retrieval
+    overlay_router: bool = True
+
     # Paths
     data_raw_path: str = "data/raw"
 
