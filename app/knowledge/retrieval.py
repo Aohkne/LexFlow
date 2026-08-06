@@ -125,6 +125,22 @@ def graph_augmented_search(
     return merged, edges
 
 
+def lay_chunk_theo_id(ids: list[str]) -> list[dict]:
+    """Tra chunk theo id — không tìm kiếm, không embedding.
+
+    Lớp phủ cần kéo đúng chunk mang lời văn mới về; đi qua `hybrid_search` là tốn một lượt
+    embedding cho một thứ ta đã biết chính xác địa chỉ. Lỗi (bảng chưa có, cú pháp filter của
+    LanceDB Cloud khác) ⇒ trả rỗng: đây là phần THÊM cho câu trả lời, không được làm hỏng nó.
+    """
+    if not ids:
+        return []
+    trong = ", ".join("'" + i.replace("'", "''") + "'" for i in ids)
+    try:
+        return _open_table().search().where(f"id IN ({trong})").limit(len(ids)).to_list()
+    except Exception:  # noqa: BLE001 — xem docstring
+        return []
+
+
 def baseline_vector_search(query: str, *, top_k: int = 6) -> list[dict]:
     """RAG vector thuần (KHÔNG lọc hiệu lực, KHÔNG hybrid) — dùng cho benchmark."""
     tbl = _open_table()

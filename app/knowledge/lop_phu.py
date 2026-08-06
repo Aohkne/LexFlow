@@ -169,3 +169,48 @@ def chu_thich_chunk(
         xuat_xu_doc_id=xx_doc,
         xuat_xu_article=xx_art,
     )
+
+
+def chu_thich_ket_qua(
+    chunks: list[dict], as_of: str, lp=_CHUA_TRUYEN  # type: ignore[assignment]
+) -> tuple[list[dict], dict[str, ChuThichHieuLuc]]:
+    """Chú thích cả mẻ hit: loại cái đã bị bãi bỏ, kéo thêm lời văn mới khi cần.
+
+    Trả `(danh sách dùng để trả lời, map id → chú thích)`. Map giữ CẢ hit đã bị loại — tầng
+    trên vẫn cần chữ để nói "điều này đã bị bãi bỏ".
+    """
+    if lp is _CHUA_TRUYEN:
+        lp = tai_lop_phu()
+    if lp is None:
+        return chunks, {}
+
+    ct: dict[str, ChuThichHieuLuc] = {}
+    for c in chunks:
+        t = chu_thich_chunk(c, as_of, lp)
+        if t is not None:
+            ct[c["id"]] = t
+
+    con = [c for c in chunks if (t := ct.get(c["id"])) is None or t.trang_thai != "bi_bai_bo"]
+    if not con:
+        # Loại hết: người hỏi đang hỏi đúng một điều đã bị bãi bỏ. Trả lại kèm nhãn còn thật
+        # hơn là "chưa tìm thấy quy định phù hợp".
+        con = list(chunks)
+
+    # Kéo lời văn mới về cho hit đã sửa mà KHÔNG có sẵn bản hiện hành (bổ sung, thay cụm từ…).
+    co_san = {c["id"] for c in con}
+    can_them = sorted(
+        {
+            f"{t.xuat_xu_doc_id}::{t.xuat_xu_article}"
+            for t in ct.values()
+            if t.trang_thai == "da_sua"
+            and t.ban_hien_hanh is None
+            and t.xuat_xu_doc_id
+            and t.xuat_xu_article
+        }
+        - co_san
+    )
+    if can_them:
+        from app.knowledge.retrieval import lay_chunk_theo_id
+
+        con = con + [c for c in lay_chunk_theo_id(can_them) if c["id"] not in co_san]
+    return con, ct

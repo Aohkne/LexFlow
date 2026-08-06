@@ -1,7 +1,7 @@
 """Cổng runtime của lớp phủ: chunk retrieval → chú thích hiệu lực cấp khoản."""
 import pytest
 
-from app.knowledge.lop_phu import chu_thich_chunk, tai_lop_phu
+from app.knowledge.lop_phu import chu_thich_chunk, chu_thich_ket_qua, tai_lop_phu
 from app.ontology.dong_goi import CanhGoi, GoiLopPhu
 
 _MOI = '"7. Hạn mức mới là 200 triệu đồng."'
@@ -110,3 +110,23 @@ def test_artefact_that_tai_duoc():
     lp = tai_lop_phu()
     tai_lop_phu.cache_clear()
     assert lp is not None and len(lp.canh) == 178
+
+
+def test_loai_hit_bi_bai_bo_nhung_giu_hit_con_lai(lp):
+    chunks = [_chunk("TT40-2024::Điều 9"), _chunk("TT40-2024::Điều 3")]
+    con, ct = chu_thich_ket_qua(chunks, "2026-08-06", lp)
+    assert [c["id"] for c in con] == ["TT40-2024::Điều 3"]
+    assert ct["TT40-2024::Điều 9"].trang_thai == "bi_bai_bo"  # vẫn chú thích, chỉ không dùng
+
+
+def test_loai_het_thi_giu_lai_kem_nhan(lp):
+    """Hỏi đúng một điều đã bị bãi bỏ: phải nghe 'đã bị bãi bỏ', không phải 'chưa tìm thấy'."""
+    con, ct = chu_thich_ket_qua([_chunk("TT40-2024::Điều 9")], "2026-08-06", lp)
+    assert [c["id"] for c in con] == ["TT40-2024::Điều 9"]
+    assert ct["TT40-2024::Điều 9"].trang_thai == "bi_bai_bo"
+
+
+def test_khong_co_lop_phu_thi_tra_nguyen_danh_sach():
+    chunks = [_chunk("TT40-2024::Điều 9")]
+    con, ct = chu_thich_ket_qua(chunks, "2026-08-06", None)
+    assert con == chunks and ct == {}
