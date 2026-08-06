@@ -88,6 +88,9 @@ class KetQuaTuyen(BaseModel):
     khoa_goc: str
     khoa_dich: str | None
     trich_dan_dung_chu: str
+    #: Cạnh đã QUYẾT ĐỊNH nhánh này (None ở nhánh nguyên vẹn). Người gọi cần biết chính xác
+    #: cạnh nào để tra lời văn mới mà không phải mô phỏng lại luật chọn cạnh ở đây.
+    canh: CanhTacDong | None = None
 
 
 def _cite(khoa: str) -> str:
@@ -203,6 +206,7 @@ def dinh_tuyen(
                     khoa_goc=khoa_goc,
                     khoa_dich=c.dich,
                     trich_dan_dung_chu=trich,
+                    canh=c,
                 )
 
     # --- Nhánh 2: chunk thuộc văn bản NỀN, đã bị sửa/bãi bỏ — rộng-hơn-hoặc-bằng trước.
@@ -215,7 +219,7 @@ def dinh_tuyen(
             trich = f"{_cite(khoa_goc)} (đã sửa bởi {_cite(c.nguon)})"
         return KetQuaTuyen(
             nhanh="nen_da_sua", khoa_goc=khoa_goc, khoa_dich=c.dich,
-            trich_dan_dung_chu=trich,
+            trich_dan_dung_chu=trich, canh=c,
         )
 
     sau_hon = _canh_deeper_ap_duoc(khoa_goc, canh, hom_nay)
@@ -229,7 +233,7 @@ def dinh_tuyen(
             trich = f"{_cite(sau_hon.dich)} (sửa bởi {_cite(sau_hon.nguon)})"
         return KetQuaTuyen(
             nhanh="nen_da_sua", khoa_goc=khoa_goc, khoa_dich=sau_hon.dich,
-            trich_dan_dung_chu=trich,
+            trich_dan_dung_chu=trich, canh=sau_hon,
         )
 
     # --- Nhánh 1: không cạnh nào chạm — nguyên vẹn.

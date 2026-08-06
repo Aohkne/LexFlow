@@ -1,0 +1,112 @@
+"""Cổng runtime của lớp phủ: chunk retrieval → chú thích hiệu lực cấp khoản."""
+import pytest
+
+from app.knowledge.lop_phu import chu_thich_chunk, tai_lop_phu
+from app.ontology.dong_goi import CanhGoi, GoiLopPhu
+
+_MOI = '"7. Hạn mức mới là 200 triệu đồng."'
+
+
+def _goi() -> GoiLopPhu:
+    return GoiLopPhu(
+        sinh_luc="2026-08-06",
+        so_hieu_theo_doc={"TT40-2024": "40/2024/TT-NHNN", "TT41-2025": "41/2025/TT-NHNN"},
+        canh=[
+            CanhGoi(
+                nguon="41/2025/TT-NHNN#than/dieu_1#khoan_2",
+                dich="40/2024/TT-NHNN#than/dieu_8#khoan_7",
+                thao_tac="sua_doi",
+                valid_from="2025-07-01",
+                loi_van_moi=(100, 100 + len(_MOI)),
+                loi_van_moi_text=_MOI,
+                xuat_xu_doc_id="TT41-2025",
+                xuat_xu_article="Điều 1",
+                menh_lenh="Sửa đổi khoản 7 Điều 8 như sau:",
+            ),
+            CanhGoi(
+                nguon="41/2025/TT-NHNN#than/dieu_2",
+                dich="40/2024/TT-NHNN#than/dieu_9",
+                thao_tac="bai_bo",
+                valid_from="2025-07-01",
+                menh_lenh="Bãi bỏ Điều 9.",
+            ),
+        ],
+    )
+
+
+@pytest.fixture
+def lp(tmp_path):
+    p = tmp_path / "lop_phu.json"
+    p.write_text(_goi().model_dump_json(), encoding="utf-8")
+    tai_lop_phu.cache_clear()
+    ra = tai_lop_phu(str(p))
+    yield ra
+    tai_lop_phu.cache_clear()
+
+
+def _chunk(cid: str, text: str = "nội dung nền") -> dict:
+    return {"id": cid, "doc_id": cid.partition("::")[0], "text": text}
+
+
+def test_nguyen_ven(lp):
+    ct = chu_thich_chunk(_chunk("TT40-2024::Điều 3"), "2026-08-06", lp)
+    assert ct.trang_thai == "nguyen_ven" and ct.ban_hien_hanh is None
+
+
+def test_da_sua_co_ban_hien_hanh_va_xuat_xu(lp):
+    ct = chu_thich_chunk(_chunk("TT40-2024::Điều 8 Khoản 7"), "2026-08-06", lp)
+    assert ct.trang_thai == "da_sua"
+    assert ct.ban_hien_hanh == _MOI
+    assert (ct.sua_boi_doc_id, ct.sua_boi_article) == ("TT41-2025", "Điều 1 Khoản 2")
+    assert (ct.xuat_xu_doc_id, ct.xuat_xu_article) == ("TT41-2025", "Điều 1")
+
+
+def test_bi_bai_bo(lp):
+    ct = chu_thich_chunk(_chunk("TT40-2024::Điều 9"), "2026-08-06", lp)
+    assert ct.trang_thai == "bi_bai_bo"
+    assert "đã bị bãi bỏ bởi" in ct.trich_dan_dung_chu
+    assert ct.ban_hien_hanh is None  # bãi bỏ thì KHÔNG có bản hiện hành
+
+
+def test_chua_toi_ngay_hieu_luc_thi_van_nguyen_ven(lp):
+    ct = chu_thich_chunk(_chunk("TT40-2024::Điều 8 Khoản 7"), "2025-01-01", lp)
+    assert ct.trang_thai == "nguyen_ven"
+
+
+def test_nhanh_3_nhan_dien_bang_chu_khong_can_toa_do(lp):
+    """Chunk của văn bản SỬA mang đúng khối lời văn mới → trích dẫn về đúng chủ (TT40)."""
+    ct = chu_thich_chunk(
+        _chunk("TT41-2025::Điều 1", f"Sửa đổi khoản 7 Điều 8 như sau:\n{_MOI}"),
+        "2026-08-06",
+        lp,
+    )
+    assert ct.trang_thai == "la_loi_sua"
+    assert ct.khoa_dich == "40/2024/TT-NHNN#than/dieu_8#khoan_7"
+    assert "TT40-2024" in ct.trich_dan_dung_chu
+
+
+def test_chunk_van_ban_la_tra_None(lp):
+    assert chu_thich_chunk(_chunk("LA-XYZ::Điều 1"), "2026-08-06", lp) is None
+
+
+def test_artefact_hong_thi_fail_open(tmp_path):
+    p = tmp_path / "hong.json"
+    p.write_text("{ không phải json", encoding="utf-8")
+    tai_lop_phu.cache_clear()
+    assert tai_lop_phu(str(p)) is None
+    assert chu_thich_chunk(_chunk("TT40-2024::Điều 9"), "2026-08-06", tai_lop_phu(str(p))) is None
+    tai_lop_phu.cache_clear()
+
+
+def test_artefact_thieu_thi_fail_open(tmp_path):
+    tai_lop_phu.cache_clear()
+    assert tai_lop_phu(str(tmp_path / "khong-co.json")) is None
+    tai_lop_phu.cache_clear()
+
+
+def test_artefact_that_tai_duoc():
+    """Artefact do Task 1 sinh phải nạp được và cho ra cạnh."""
+    tai_lop_phu.cache_clear()
+    lp = tai_lop_phu()
+    tai_lop_phu.cache_clear()
+    assert lp is not None and len(lp.canh) == 178
