@@ -218,3 +218,20 @@ def test_tra_chunk_xuat_xu_loi_thi_khong_nem(lp, monkeypatch):
 
     assert [c["id"] for c in con] == ["TT40-2024::Điều 10"]
     assert ct["TT40-2024::Điều 10"].trang_thai == "da_sua"
+
+
+def test_chunk_thieu_hoac_rong_id_thi_khong_nem(lp):
+    """Chunk hiểm (thiếu hẳn khoá `id`, hoặc `id` rỗng) không được làm sập `chu_thich_ket_qua`.
+
+    `chu_thich_chunk` đã phòng bằng `chunk.get("id") or ""`; hàm này phải giữ đúng cùng hợp
+    đồng — không index thẳng `c["id"]`.
+    """
+    thieu_id = {"doc_id": "TT40-2024", "text": "nội dung nền"}  # không có khoá "id"
+    id_rong = _chunk("")
+
+    con, ct = chu_thich_ket_qua([thieu_id, id_rong, _chunk("TT40-2024::Điều 3")], "2026-08-06", lp)
+
+    assert thieu_id in con
+    assert id_rong in con
+    assert "TT40-2024::Điều 3" in [c.get("id") for c in con]
+    assert None not in ct and "" not in ct  # không bịa khoá rác vào map

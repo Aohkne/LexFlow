@@ -187,17 +187,23 @@ def chu_thich_ket_qua(
     ct: dict[str, ChuThichHieuLuc] = {}
     for c in chunks:
         t = chu_thich_chunk(c, as_of, lp)
-        if t is not None:
-            ct[c["id"]] = t
+        cid = c.get("id")
+        # Nhất quán với `chu_thich_chunk` (`chunk.get("id") or ""`): id thiếu/rỗng thì không
+        # có gì để làm khoá — coi như không có chú thích, không bịa khoá rác vào `ct`.
+        if t is not None and cid:
+            ct[cid] = t
 
-    con = [c for c in chunks if (t := ct.get(c["id"])) is None or t.trang_thai != "bi_bai_bo"]
+    con = [
+        c for c in chunks
+        if (t := ct.get(c.get("id"))) is None or t.trang_thai != "bi_bai_bo"
+    ]
     if not con:
         # Loại hết: người hỏi đang hỏi đúng một điều đã bị bãi bỏ. Trả lại kèm nhãn còn thật
         # hơn là "chưa tìm thấy quy định phù hợp".
         con = list(chunks)
 
     # Kéo lời văn mới về cho hit đã sửa mà KHÔNG có sẵn bản hiện hành (bổ sung, thay cụm từ…).
-    co_san = {c["id"] for c in con}
+    co_san = {c.get("id") for c in con}
     can_them = sorted(
         {
             f"{t.xuat_xu_doc_id}::{t.xuat_xu_article}"
