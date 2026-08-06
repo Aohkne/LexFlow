@@ -153,6 +153,19 @@ class DocumentSummary(BaseModel):
     status: str = "con_hieu_luc"  # con_hieu_luc | het_hieu_luc
 
 
+class TacDongDonVi(BaseModel):
+    """Một đơn vị (điều/khoản/điểm) của văn bản đang bị một văn bản khác chạm tới."""
+
+    article: str
+    khoan: str | None = None
+    diem: str | None = None
+    #: da_sua | bi_bai_bo
+    trang_thai: str
+    boi_doc_id: str | None = None
+    boi_article: str | None = None
+    tu_ngay: str | None = None
+
+
 class DocumentDetail(DocumentMeta):
     """Toàn văn + quan hệ hai chiều của một văn bản (GET /documents/{doc_id})."""
 
@@ -160,6 +173,8 @@ class DocumentDetail(DocumentMeta):
     relationships_out: list[Relationship] = Field(default_factory=list)  # doc là source
     relationships_in: list[Relationship] = Field(default_factory=list)  # doc là target
     doc_titles: dict[str, str] = Field(default_factory=dict)  # doc_id -> title các doc liên quan
+    #: Lớp phủ dưới-văn-bản mức khoản (optional: FE cũ và văn bản chưa chú thích vẫn hợp lệ)
+    tac_dong: list[TacDongDonVi] = Field(default_factory=list)
 
 
 class Citation(BaseModel):

@@ -11,7 +11,7 @@ import json
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
 from pydantic import BaseModel
 
@@ -21,6 +21,9 @@ from app.ontology.dong_goi import CanhGoi, GoiLopPhu
 from app.ontology.hien_hanh import phien_ban_hien_hanh
 from app.ontology.tac_dong import CanhTacDong
 from app.ontology.tac_dong import _DICH_RE as _KHOA_RE  # cùng cách dinh_tuyen.py đã mượn
+
+if TYPE_CHECKING:
+    from app.core.schemas import TacDongDonVi
 
 DUONG_DAN_MAC_DINH = "data/overlay/lop_phu.json"
 
@@ -114,6 +117,47 @@ def _span_loi_van(chunk: dict, lp: LopPhuRuntime) -> tuple[int, int] | None:
         if lv and (lv in text or text in lv):
             return c.loi_van_moi
     return None
+
+
+def tac_dong_cua_van_ban(
+    doc_id: str, as_of: str, lp: LopPhuRuntime | None = _CHUA_TRUYEN  # type: ignore[assignment]
+) -> list["TacDongDonVi"]:
+    """Mọi đơn vị của `doc_id` đang bị chạm tại `as_of` — cho trình xem toàn văn.
+
+    Đi từ ĐÍCH của cạnh (đơn vị bị tác động) chứ không quét từng điều của văn bản: lớp phủ
+    thưa, chỉ đơn vị "có chuyện để nói" mới có mặt, nên duyệt cạnh là đủ và rẻ.
+    """
+    from app.core.schemas import TacDongDonVi
+
+    if lp is _CHUA_TRUYEN:
+        lp = tai_lop_phu()
+    if lp is None:
+        return []
+    ra: list[TacDongDonVi] = []
+    for khoa in sorted({c.dich for c in lp.canh}):
+        d_id, _nhan = tach_khoa(khoa)
+        if d_id != doc_id:
+            continue
+        pb = phien_ban_hien_hanh(khoa, lp.canh, as_of)
+        if pb.trang_thai == "nguyen_ven":
+            continue
+        m = _KHOA_RE.match(khoa)
+        if m is None:
+            continue
+        c = pb.cac_lan[-1]
+        boi_doc, boi_art = tach_khoa(c.nguon)
+        ra.append(
+            TacDongDonVi(
+                article=f"Điều {m.group('dieu')}",
+                khoan=m.group("khoan"),
+                diem=m.group("diem"),
+                trang_thai=pb.trang_thai,
+                boi_doc_id=boi_doc,
+                boi_article=boi_art,
+                tu_ngay=c.valid_from,
+            )
+        )
+    return ra
 
 
 def chu_thich_chunk(

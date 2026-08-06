@@ -17,6 +17,7 @@ from pydantic import BaseModel
 
 from app.core import appdb, corpus as corpus_store
 from app.core.auth import AuthUser, get_current_user, require_admin
+from app.core.config import settings
 from app.core.schemas import CorpusDocument, DocumentDetail, DocumentSummary, Relationship
 from app.ingestion.versioning import is_effective
 
@@ -68,12 +69,21 @@ def get_document_detail(doc_id: str, user: AuthUser = Depends(get_current_user))
     titles = {i: docs[i].get("title", i) for i in related_ids if i in docs}
 
     doc = CorpusDocument.model_validate(raw)
+
+    tac_dong = []
+    if settings.overlay_router:
+        from app.ingestion.versioning import today_iso
+        from app.knowledge.lop_phu import tac_dong_cua_van_ban
+
+        tac_dong = tac_dong_cua_van_ban(doc_id, today_iso())
+
     return DocumentDetail(
         **doc.model_dump(exclude={"articles"}),
         articles=doc.articles,
         relationships_out=rels_out,
         relationships_in=rels_in,
         doc_titles=titles,
+        tac_dong=tac_dong,
     )
 
 
