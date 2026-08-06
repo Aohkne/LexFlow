@@ -607,6 +607,11 @@ function ReviewScreen() {
                                     Đang hiệu lực
                                   </span>
                                 )}
+                                {f.legal_ref && f.legal_live === false && (
+                                  <span className="rounded-full border border-red-bd bg-red-bg px-1.5 py-px text-[9.5px] text-red">
+                                    Căn cứ không còn hiệu lực
+                                  </span>
+                                )}
                               </div>
                               {f.legal_quote && (
                                 <p className="serif mt-1.5 text-[13px] italic leading-relaxed text-fg-strong">

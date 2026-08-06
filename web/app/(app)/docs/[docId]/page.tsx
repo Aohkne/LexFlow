@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import PageShell from "@/components/page-shell";
-import { getDocument, type DocumentDetail } from "@/lib/api";
+import { getDocument, type DocumentDetail, type TacDongDonVi } from "@/lib/api";
 import {
   articleAnchor,
   buildAmendmentMap,
@@ -139,6 +139,13 @@ function ContentTab({
   doc: DocumentDetail;
   amendments: Map<string, AmendmentInfo[]>;
 }) {
+  const theoDieu = new Map<string, TacDongDonVi[]>();
+  for (const t of doc.tac_dong ?? []) {
+    const ds = theoDieu.get(t.article) ?? [];
+    ds.push(t);
+    theoDieu.set(t.article, ds);
+  }
+
   return (
     <div className="mt-4 space-y-3">
       {withHeadings(doc.articles).map(({ a, chapterHeading, sectionHeading }) => {
@@ -178,6 +185,21 @@ function ContentTab({
                   </span>
                 )}
               </div>
+              {(theoDieu.get(a.article) ?? []).length > 0 && (
+                <ul className="mt-2 space-y-1">
+                  {(theoDieu.get(a.article) ?? []).map((t, i) => (
+                    <li key={i} className="text-[11.5px] text-dim">
+                      <span className={t.trang_thai === "bi_bai_bo" ? "text-red" : "text-accent-dim"}>
+                        {t.khoan ? `Khoản ${t.khoan}` : "Cả điều"}
+                        {t.diem ? ` Điểm ${t.diem}` : ""} —{" "}
+                        {t.trang_thai === "bi_bai_bo" ? "đã bị bãi bỏ" : "đã bị sửa đổi"}
+                      </span>
+                      {t.boi_doc_id ? ` bởi ${t.boi_doc_id} ${t.boi_article ?? ""}` : ""}
+                      {t.tu_ngay ? ` (từ ${t.tu_ngay})` : ""}
+                    </li>
+                  ))}
+                </ul>
+              )}
               {hits.length > 0 && (
                 <div className="mt-2 space-y-1 rounded-md bg-inset px-3 py-2 text-xs">
                   {hits.map((h, i) => (

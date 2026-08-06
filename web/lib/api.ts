@@ -20,6 +20,12 @@ export type Citation = {
   valid_from: string | null;
   valid_to: string | null;
   snippet: string;
+  // Lớp phủ dưới-văn-bản (optional — backend cũ không trả)
+  trang_thai?: "nguyen_ven" | "da_sua" | "bi_bai_bo" | "la_loi_sua" | null;
+  chu_thich?: string | null;
+  sua_boi_doc_id?: string | null;
+  sua_boi_article?: string | null;
+  ban_hien_hanh?: string | null;
 };
 
 export type ConflictAlert = {
@@ -206,6 +212,16 @@ export type DocumentSummary = {
   status: "con_hieu_luc" | "het_hieu_luc";
 };
 
+export type TacDongDonVi = {
+  article: string;
+  khoan: string | null;
+  diem: string | null;
+  trang_thai: "da_sua" | "bi_bai_bo";
+  boi_doc_id: string | null;
+  boi_article: string | null;
+  tu_ngay: string | null;
+};
+
 export type DocumentDetail = {
   doc_id: string;
   title: string;
@@ -217,6 +233,7 @@ export type DocumentDetail = {
   relationships_out: Relationship[];
   relationships_in: Relationship[];
   doc_titles: Record<string, string>;
+  tac_dong?: TacDongDonVi[];
 };
 
 export async function listDocuments(): Promise<DocumentSummary[]> {
