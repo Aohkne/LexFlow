@@ -21,6 +21,7 @@ from __future__ import annotations
 import json
 from contextlib import contextmanager
 from functools import lru_cache
+from typing import TYPE_CHECKING
 
 from neo4j import GraphDatabase
 
@@ -34,6 +35,9 @@ from app.core.schemas import (
     Relationship,
     VanBanRong,
 )
+
+if TYPE_CHECKING:
+    from app.ontology.dong_goi import GoiLopPhu
 
 #: Khớp mọi cạnh quan hệ. Liệt kê tường minh thay vì `[e]` trần: một cạnh không thuộc 13
 #: mã sẽ **không** lọt vào kết quả đọc, thay vì lặng lẽ đi tiếp như hồi còn `[:REL]`.
@@ -132,6 +136,53 @@ def push_corpus(
                 src=r.source_doc, tgt=r.target_doc, rt=ma,
                 vf=r.valid_from, note=r.note, anchors=anchors_json,
             )
+
+
+def push_overlay(goi: "GoiLopPhu") -> tuple[int, int]:
+    """Đẩy node/cạnh lớp phủ lên Neo4j — chỉ để XEM, KHÔNG nằm trên đường trả lời.
+
+    `MERGE` trên `khoa` nên chạy lại nhiều lần không nhân đôi. Cạnh `TAC_DONG` khoá theo bộ
+    ba (nguồn, đích, thao_tac) — cùng một cặp đơn vị có thể vừa bị sửa vừa bị bãi bỏ ở hai
+    thời điểm khác nhau, gộp chung thành một cạnh là mất thông tin.
+
+    Cạnh `THUOC` nối `(:DonVi)` vào `(:Document)` chỉ khớp nếu văn bản đó đã có node
+    `Document` (đã nằm trong corpus qua `push_corpus`). `MATCH ... MATCH ... MERGE` mà vế
+    `MATCH` không khớp thì Neo4j **bỏ qua trong im lặng** — không lỗi, không cảnh báo. Nên
+    hàm này đếm số cạnh `THUOC` MERGE được so với số nút overlay có `doc_id`, và in ra
+    khoảng chênh thay vì để người chạy đoán.
+    """
+    from app.ontology.hien_hanh import dung_overlay
+
+    ensure_constraints()
+    canh = [c.thanh_canh() for c in goi.canh]
+    nodes = dung_overlay(canh)
+    co_doc_id = sum(1 for n in nodes if n.doc_id)
+    thuoc_tao_duoc = 0
+    with session() as s:
+        for n in nodes:
+            s.run(
+                "MERGE (d:DonVi {khoa: $khoa}) SET d.doc_id = $doc_id, d.vai = $vai",
+                khoa=n.khoa, doc_id=n.doc_id, vai=n.vai,
+            )
+            if n.doc_id:
+                rec = s.run(
+                    "MATCH (d:DonVi {khoa: $khoa}) MATCH (v:Document {doc_id: $doc_id}) "
+                    "MERGE (d)-[r:THUOC]->(v) RETURN count(r) AS n",
+                    khoa=n.khoa, doc_id=n.doc_id,
+                ).single()
+                thuoc_tao_duoc += rec["n"] if rec else 0
+        for c in canh:
+            s.run(
+                "MATCH (a:DonVi {khoa: $nguon}) MATCH (b:DonVi {khoa: $dich}) "
+                "MERGE (a)-[r:TAC_DONG {thao_tac: $thao_tac}]->(b) "
+                "SET r.valid_from = $valid_from",
+                nguon=c.nguon, dich=c.dich, thao_tac=c.thao_tac, valid_from=c.valid_from,
+            )
+    print(
+        f"[push_overlay] THUOC: {thuoc_tao_duoc}/{co_doc_id} nút overlay có doc_id "
+        f"nối được vào Document đã có trong corpus (chênh lệch = văn bản chưa crawl)."
+    )
+    return len(nodes), len(canh)
 
 
 def get_graph() -> GraphData:
