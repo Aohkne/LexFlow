@@ -111,6 +111,21 @@ def _review_article(
             ),
             internal_quote=article_text[:280],
         )
+    if all((t := ct.get(c["id"])) is not None and t.trang_thai == "bi_bai_bo" for c in chunks):
+        # `chu_thich_ket_qua` có fallback trả nguyên danh sách khi lọc hết còn 0 (đúng cho chat:
+        # người hỏi trúng điều đã bãi bỏ xứng đáng nghe điều đó). Nhưng /reviews không được coi
+        # "còn hit" là "còn căn cứ" — kết luận trên luật chết là sai nguy hiểm hơn không kết luận.
+        ghi_chu = "; ".join(sorted({ct[c["id"]].trich_dan_dung_chu for c in chunks}))
+        return ReviewFinding(
+            verdict=NOT_ASSESSED,
+            article=article_label,
+            title="Chưa đối chiếu được — căn cứ tìm được đều đã bị bãi bỏ",
+            summary=(
+                f"Các điều luật tìm được đều đã bị bãi bỏ ({ghi_chu}) — "
+                "cần pháp chế xác nhận điều nội bộ này còn cơ sở nào khác không."
+            ),
+            internal_quote=article_text[:280],
+        )
 
     listing = "\n".join(
         f"- id={c['id']} | {c['doc_title']} — {c['article']}"

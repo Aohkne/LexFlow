@@ -2,7 +2,7 @@
 from unittest.mock import patch
 
 from app.knowledge.lop_phu import ChuThichHieuLuc
-from app.reasoning.review import _review_article
+from app.reasoning.review import NOT_ASSESSED, _review_article
 
 _SONG = {
     "id": "TT40-2024::Điều 3", "doc_id": "TT40-2024", "doc_title": "Thông tư 40/2024",
@@ -59,3 +59,18 @@ def test_can_cu_da_sua_thi_legal_live_van_dung_nhung_co_ghi_chu():
         f = _review_article("Điều 1", "nội dung nội bộ", ["TT40-2024"], "2026-08-06")
     assert f.legal_live is True
     assert "đã sửa bởi TT41-2025" in (f.legal_ref or "")
+
+
+def test_moi_can_cu_deu_bi_bai_bo_thi_khong_phan_dinh():
+    """Fallback của chu_thich_ket_qua trả nguyên danh sách khi loại hết — /reviews không được
+    coi đó là "còn căn cứ để phán": phải dừng ở not_assessed, không tốn lượt gọi LLM."""
+    with (
+        patch("app.reasoning.review.search_in_docs", return_value=[_CHET]),
+        patch("app.reasoning.review.chu_thich_ket_qua", return_value=([_CHET], _CT)),
+        patch("app.reasoning.review._judge") as gia_judge,
+    ):
+        f = _review_article("Điều 1", "nội dung nội bộ", ["TT40-2024"], "2026-08-06")
+
+    gia_judge.assert_not_called()
+    assert f.verdict == NOT_ASSESSED
+    assert "TT40-2024 Điều 9 (đã bị bãi bỏ bởi TT41-2025 Điều 2)" in f.summary
