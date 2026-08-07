@@ -211,6 +211,26 @@ def test_nhanh_3_chi_ke_canh_con_ap_duoc():
     assert "ND57-2016 Điều 1" in v.trich_dan_dung_chu
 
 
+def test_nhanh_3_gop_diem_cung_khoan_theo_thu_tu_bang_chu_cai_viet():
+    """Ca thật ND80-2016 Điều 1 Khoản 8 → ND101-2012 Điều 15 Khoản 2 điểm a, b, đ, e, g, h.
+
+    Không lặp `"Khoản 2"` trước mỗi điểm, và `"đ"` phải đứng TRƯỚC `"e"` (bảng chữ cái tiếng
+    Việt), không phải sau `"h"` như thứ tự Unicode.
+    """
+    canh = [
+        CanhTacDong(nguon="80/2016/NĐ-CP#than/dieu_1#khoan_8",
+                    dich=f"101/2012/NĐ-CP#than/dieu_15#khoan_2#diem_{d}",
+                    thao_tac="sua_doi", menh_lenh="x", loi_van_moi=(3806, 5760),
+                    valid_from="2016-07-01")
+        for d in ("h", "đ", "a", "g", "e", "b")  # cố tình xáo thứ tự đầu vào
+    ]
+    v = dinh_tuyen("ND80-2016::Điều 1 Khoản 8", (3806, 5760), canh, _SH_ND80, "2026-08-05")
+    assert v.trich_dan_dung_chu == (
+        "ND101-2012 Điều 15 Khoản 2 Điểm a, b, đ, e, g, h "
+        "(sửa bởi ND80-2016 Điều 1 Khoản 8)"
+    )
+
+
 def test_nhanh_3_danh_sach_dai_thi_cat_va_noi_ro_da_cat():
     """Không bao giờ cắt trong im lặng — cắt thì phải nói là đã cắt."""
     canh = [

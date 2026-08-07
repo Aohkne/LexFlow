@@ -141,13 +141,27 @@ def _tu_nhien(v: str | None) -> tuple:
     return (1, int(so) if so else 0, hau)
 
 
+#: Thứ tự chữ cái ký hiệu ĐIỂM trong văn bản pháp luật Việt Nam (a, b, c, d, đ, e, g, h, …) —
+#: không phải thứ tự Unicode: `"đ"` (U+0111) đứng SAU `"h"` theo Unicode nhưng trước `"e"` theo
+#: bảng chữ cái, và điểm là thứ người đọc dò bằng mắt theo đúng thứ tự đó.
+_THU_TU_DIEM = "aăâbcdđeêghiklmnoôơpqrstuưvxy"
+
+
+def _sap_diem(diem: str | None) -> tuple:
+    if not diem:
+        return (0, 0, "")
+    d = diem[0].lower()
+    i = _THU_TU_DIEM.find(d)
+    return (1, i if i >= 0 else len(_THU_TU_DIEM), diem)
+
+
 def _sap(khoa: str) -> tuple:
     """Thứ tự TẤT ĐỊNH giữa các khoá overlay — dùng cả để chọn cạnh chủ lẫn để in danh sách."""
     p = _tach_khoa(khoa)
     if p is None:
-        return (1, khoa, (0, 0, ""), (0, 0, ""), "")
+        return (1, khoa, (0, 0, ""), (0, 0, ""), (0, 0, ""))
     doc_id, dieu, khoan, diem = p
-    return (0, doc_id, _tu_nhien(dieu), _tu_nhien(khoan), diem or "")
+    return (0, doc_id, _tu_nhien(dieu), _tu_nhien(khoan), _sap_diem(diem))
 
 
 def _cite_nhieu(khoas: list[str]) -> str:
@@ -165,32 +179,39 @@ def _cite_nhieu(khoas: list[str]) -> str:
     if du > 0:
         rieng = rieng[:_TOI_DA_KE_DICH]
 
-    nhom: dict[tuple[str, str], list[str]] = {}
+    # Gom HAI TẦNG — (văn bản, điều) rồi khoản → danh sách điểm — để câu trích không lặp lại
+    # "Khoản 2" trước mỗi điểm: `"Điều 15 Khoản 2 Điểm a, b, đ, e, g, h"` chứ không phải
+    # `"Khoản 2 Điểm a, Khoản 2 Điểm b, …"` (ca thật ND80-2016 → ND101-2012 Điều 15).
+    nhom: dict[tuple[str, str], dict[str | None, list[str]]] = {}
     for k in rieng:
         p = _tach_khoa(k)
         if p is None:
-            nhom.setdefault((k, ""), [])  # khoá lạ: giữ nguyên chữ thô, không bịa
+            nhom.setdefault((k, ""), {})  # khoá lạ: giữ nguyên chữ thô, không bịa
             continue
         doc_id, dieu, khoan, diem = p
-        phan = ""
-        if khoan:
-            phan = f"Khoản {khoan}" + (f" Điểm {diem}" if diem else "")
-        nhom.setdefault((doc_id, dieu), []).append(phan)
+        theo_khoan = nhom.setdefault((doc_id, dieu), {})
+        diems = theo_khoan.setdefault(khoan, [])
+        if diem:
+            diems.append(diem)
 
     manh: list[str] = []
-    for (doc_id, dieu), phan in nhom.items():
+    for (doc_id, dieu), theo_khoan in nhom.items():
         if not dieu:
             manh.append(doc_id)
             continue
         dau = f"{doc_id} Điều {dieu}"
-        con = [p for p in phan if p]
-        if not con or len(con) < len(phan):
-            # Có cạnh trỏ TRỌN điều ⇒ nói cấp điều là đã bao trùm các khoản còn lại, không giấu.
+        if None in theo_khoan:
+            # Có cạnh trỏ TRỌN điều ⇒ nói cấp điều đã bao trùm các khoản còn lại, không giấu.
             manh.append(dau)
-        elif all(" Điểm " not in p for p in con):
-            manh.append(f"{dau} Khoản " + ", ".join(p[len("Khoản "):] for p in con))
+            continue
+        phan = [
+            k if not d else f"{k} Điểm " + ", ".join(d)
+            for k, d in theo_khoan.items()
+        ]
+        if all(" Điểm " not in p for p in phan):
+            manh.append(f"{dau} Khoản " + ", ".join(phan))
         else:
-            manh.append(f"{dau} " + ", ".join(con))
+            manh.append(f"{dau} " + ", ".join(f"Khoản {p}" for p in phan))
 
     ra = " và ".join(manh)
     if du > 0:
