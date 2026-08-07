@@ -181,6 +181,119 @@ def test_storage_loi_fallback_file_local(client, fake_store, monkeypatch):
     assert len(r.json()) >= 10
 
 
+# --- Thuộc tính + tải bản gốc ---
+
+def test_get_document_tra_ve_thuoc_tinh(client, fake_store):
+    import json
+
+    doc = {
+        **_DOC,
+        "so_hieu": "99/2026/TT-NHNN",
+        "co_quan_ban_hanh": "Ngân hàng Nhà nước Việt Nam",
+        "nguoi_ky": "Phạm Tiến Dũng",
+        "chuc_danh": "Phó Thống đốc",
+        "nganh": "Ngân hàng",
+        "linh_vuc": "Thanh tra",
+        "ngay_ban_hanh": "2025-12-20",
+        "tinh_trang_hieu_luc": "Còn hiệu lực",
+        "source_url": "https://vbpl.vn/van-ban/chi-tiet/tt-99-2026--1",
+    }
+    fake_store["storage"]["corpus.json"] = json.dumps(
+        {"documents": [doc], "relationships": []}, ensure_ascii=False
+    ).encode("utf-8")
+
+    r = client.get("/documents/TT99-2026", headers={"Authorization": f"Bearer {_token('staff')}"})
+    assert r.status_code == 200, r.text
+    body = r.json()
+    assert body["so_hieu"] == "99/2026/TT-NHNN"
+    assert body["nguoi_ky"] == "Phạm Tiến Dũng"
+    assert body["tinh_trang_hieu_luc"] == "Còn hiệu lực"
+    assert body["source_url"].startswith("https://vbpl.vn/")
+
+
+def test_get_document_cu_khong_co_thuoc_tinh_van_doc_duoc(client, fake_store):
+    # corpus duyệt trước khi có nhóm trường này -> phải trả None, không được 500
+    _seed_canonical(fake_store)
+    r = client.get("/documents/TT99-2026", headers={"Authorization": f"Bearer {_token('staff')}"})
+    assert r.status_code == 200, r.text
+    body = r.json()
+    assert body["so_hieu"] is None
+    assert body["source_url"] is None
+    assert body["source_files"] == []
+
+
+def test_get_document_kem_file_goc_da_upload(client, fake_store):
+    _seed_canonical(fake_store)
+    fake_store["rows"]["TT99-2026"] = {
+        "doc_id": "TT99-2026", "storage_path": "uploads/Thông tư 99.pdf", "status": "approved",
+    }
+    r = client.get("/documents/TT99-2026", headers={"Authorization": f"Bearer {_token('staff')}"})
+    assert r.status_code == 200, r.text
+    files = r.json()["source_files"]
+    assert len(files) == 1
+    assert files[0]["ten"] == "Thông tư 99.pdf"
+    assert files[0]["url"] == "/documents/TT99-2026/download"
+
+
+def test_get_document_tra_ve_cay_dieu_khoan(client, fake_store):
+    import json
+
+    doc = {
+        **_DOC,
+        "provisions": [{
+            "id": "c1", "cap": "chuong", "so": "I", "tieu_de": "QUY ĐỊNH CHUNG",
+            "con": [{
+                "id": "a1", "cap": "dieu", "so": "1", "tieu_de": "Phạm vi",
+                "html": "<strong>Thông tư</strong> này quy định.",
+                "bi_tac_dong": ["sua_doi_bo_sung"],
+                "con": [],
+            }],
+        }],
+    }
+    fake_store["storage"]["corpus.json"] = json.dumps(
+        {"documents": [doc], "relationships": []}, ensure_ascii=False
+    ).encode("utf-8")
+
+    r = client.get("/documents/TT99-2026", headers={"Authorization": f"Bearer {_token('staff')}"})
+    assert r.status_code == 200, r.text
+    tree = r.json()["provisions"]
+    assert tree[0]["cap"] == "chuong" and tree[0]["so"] == "I"
+    dieu = tree[0]["con"][0]
+    assert dieu["html"] == "<strong>Thông tư</strong> này quy định."
+    assert dieu["bi_tac_dong"] == ["sua_doi_bo_sung"]
+
+
+def test_get_document_chua_co_cay_thi_provisions_rong(client, fake_store):
+    _seed_canonical(fake_store)
+    r = client.get("/documents/TT99-2026", headers={"Authorization": f"Bearer {_token('staff')}"})
+    assert r.status_code == 200
+    assert r.json()["provisions"] == []   # trang xem lùi về danh sách Điều phẳng
+
+
+def test_download_file_goc(client, fake_store):
+    fake_store["rows"]["TT99-2026"] = {
+        "doc_id": "TT99-2026", "storage_path": "uploads/Thông tư 99.pdf",
+    }
+    fake_store["storage"]["uploads/Thông tư 99.pdf"] = b"%PDF-1.7 noi dung gia"
+    r = client.get(
+        "/documents/TT99-2026/download", headers={"Authorization": f"Bearer {_token('staff')}"}
+    )
+    assert r.status_code == 200, r.text
+    assert r.content == b"%PDF-1.7 noi dung gia"
+    assert r.headers["content-type"] == "application/pdf"
+    # tên file có dấu -> phải mã hoá theo RFC 5987, không được rơi mất dấu
+    assert "filename*=UTF-8''" in r.headers["content-disposition"]
+    assert "99.pdf" in r.headers["content-disposition"]
+
+
+def test_download_khi_chua_co_file_goc_404(client, fake_store):
+    fake_store["rows"]["TT99-2026"] = {"doc_id": "TT99-2026", "storage_path": None}
+    r = client.get(
+        "/documents/TT99-2026/download", headers={"Authorization": f"Bearer {_token('staff')}"}
+    )
+    assert r.status_code == 404
+
+
 def test_approve_lam_moi_cache_doc(client, fake_store):
     _seed_canonical(fake_store)
     # đọc trước để cache

@@ -6,6 +6,15 @@ FastAPI app with a single-page vanilla-JS UI for browsing/searching the
 corpus and the train/test question-answer splits (with category-tag
 filtering, e.g. narrowing to banking/payment topics).
 
+Also doubles as a curation tool: pick QA pairs — one at a time via the
+checkbox on each row, or a whole topic at once via "Chọn cả chủ đề này"
+next to an active category/search filter — into an eval-candidate set.
+Selections are the server's source of truth (survive page reload/restart)
+and are written straight to eval/tuvanphapluat_selected.jsonl, one JSON
+object per pair. That file is a candidate pool, not eval/questions.jsonl
+itself — it still needs manual curation (expected_doc/as_of/group) before
+it can feed eval/run_benchmark.py.
+
 Setup (one-time, ~540MB download):
     uv run python scripts/download_tuvanphapluat.py
 
@@ -17,15 +26,19 @@ Then open http://127.0.0.1:8765
 
 from __future__ import annotations
 
+import json
+import threading
 from pathlib import Path
 
 import duckdb
 from fastapi import FastAPI, HTTPException, Query
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, PlainTextResponse
 
 DATA_DIR = Path(__file__).resolve().parent.parent / "data" / "tuvanphapluat"
+SELECTION_PATH = Path(__file__).resolve().parent.parent / "eval" / "tuvanphapluat_selected.jsonl"
 PAGE_SIZE_DEFAULT = 25
 PAGE_SIZE_MAX = 100
+BULK_SELECT_MAX = 5000
 
 app = FastAPI(title="tuvanphapluat viewer")
 
@@ -43,6 +56,60 @@ def _connect() -> duckdb.DuckDBPyConnection:
 _con = _connect()
 
 QA_SPLITS = {"train", "test"}
+
+# Selection ("giỏ chọn eval") state — a dict keyed by (split, questionoid), written
+# through to SELECTION_PATH on every mutation so the file is always the exact set
+# currently selected (no separate export step, no client-side-only state to lose).
+# Guarded by a lock: FastAPI runs sync endpoints in a threadpool, and the DuckDB
+# cursor-per-request fix earlier in this file was needed for the same reason —
+# concurrent writers to one shared dict need the same care.
+_selection_lock = threading.Lock()
+
+
+def _load_selection() -> dict[tuple[str, int], dict]:
+    if not SELECTION_PATH.exists():
+        return {}
+    sel: dict[tuple[str, int], dict] = {}
+    for line in SELECTION_PATH.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        row = json.loads(line)
+        sel[(row["split"], row["questionoid"])] = row
+    return sel
+
+
+_selection = _load_selection()
+
+
+def _save_selection() -> None:
+    SELECTION_PATH.parent.mkdir(parents=True, exist_ok=True)
+    rows = sorted(_selection.values(), key=lambda r: (r["split"], r["questionoid"]))
+    body = "\n".join(json.dumps(r, ensure_ascii=False) for r in rows)
+    SELECTION_PATH.write_text(body + ("\n" if rows else ""), encoding="utf-8")
+
+
+def _fetch_qa_rows(con: duckdb.DuckDBPyConnection, split: str, questionoids: list[int]) -> list[dict]:
+    if not questionoids:
+        return []
+    placeholders = ",".join("?" * len(questionoids))
+    rows = con.execute(
+        f"""SELECT questionoid, question, answer, long_answer, category, reference, url
+            FROM {split} WHERE questionoid IN ({placeholders})""",
+        questionoids,
+    ).fetchall()
+    return [
+        {
+            "split": split,
+            "questionoid": r[0],
+            "question": r[1],
+            "answer": r[2],
+            "long_answer": r[3],
+            "category": r[4],
+            "reference": r[5],
+            "url": r[6],
+        }
+        for r in rows
+    ]
 
 
 def _paginate(page: int, page_size: int) -> tuple[int, int]:
@@ -128,8 +195,17 @@ def list_qa(
             ORDER BY questionoid LIMIT ? OFFSET ?""",
         [*params, limit, offset],
     ).fetchall()
+    with _selection_lock:
+        selected_ids = {qid for (sp, qid) in _selection if sp == split}
     items = [
-        {"questionoid": r[0], "question": r[1], "answer": r[2], "category": r[3], "url": r[4]}
+        {
+            "questionoid": r[0],
+            "question": r[1],
+            "answer": r[2],
+            "category": r[3],
+            "url": r[4],
+            "selected": r[0] in selected_ids,
+        }
         for r in rows
     ]
     return {"total": total, "page": page, "page_size": limit, "items": items}
@@ -174,6 +250,8 @@ def get_qa_item(split: str, questionoid: int) -> dict:
             list(contextoid),
         ).fetchall()
         linked = [{"oid": r[0], "dataset": r[1], "text": r[2]} for r in linked_rows]
+    with _selection_lock:
+        is_selected = (split, questionoid) in _selection
     return {
         "questionoid": row[0],
         "question": row[1],
@@ -186,12 +264,107 @@ def get_qa_item(split: str, questionoid: int) -> dict:
         "contextoid": contextoid,
         "url": row[9],
         "linked_corpus": linked,
+        "selected": is_selected,
     }
+
+
+@app.get("/api/selection")
+def list_selection() -> dict:
+    with _selection_lock:
+        items = sorted(_selection.values(), key=lambda r: (r["split"], r["questionoid"]))
+    return {"total": len(items), "items": items}
+
+
+@app.delete("/api/selection")
+def clear_selection() -> dict:
+    with _selection_lock:
+        _selection.clear()
+        _save_selection()
+    return {"total": 0}
+
+
+@app.get("/api/selection/download")
+def download_selection() -> PlainTextResponse:
+    body = SELECTION_PATH.read_text(encoding="utf-8") if SELECTION_PATH.exists() else ""
+    return PlainTextResponse(
+        body,
+        media_type="application/x-ndjson",
+        headers={"Content-Disposition": "attachment; filename=tuvanphapluat_selected.jsonl"},
+    )
+
+
+@app.post("/api/selection/bulk")
+def bulk_add_selection(
+    split: str = Query(...),
+    q: str = Query(""),
+    category: str = Query(""),
+    limit: int = Query(2000, le=BULK_SELECT_MAX),
+) -> dict:
+    """Add every QA pair matching the current filter — "chọn cả chủ đề" in one call.
+
+    Re-runs the same WHERE clause list_qa uses, so "select this topic" always matches
+    exactly what the list currently shows. Capped at `limit` (hard ceiling
+    BULK_SELECT_MAX) so a filter left empty by mistake can't vacuum in the whole split.
+    """
+    if split not in QA_SPLITS:
+        raise HTTPException(404, "unknown split")
+    con = _con.cursor()
+    where, params = [], []
+    if q:
+        where.append("(question ILIKE ? OR answer ILIKE ?)")
+        params += [f"%{q}%", f"%{q}%"]
+    if category:
+        where.append("EXISTS (SELECT 1 FROM unnest(category) t(c) WHERE lower(c) = lower(?))")
+        params.append(category)
+    clause = f"WHERE {' AND '.join(where)}" if where else ""
+    matched = con.execute(f"SELECT count(*) FROM {split} {clause}", params).fetchone()[0]
+    ids = [
+        r[0]
+        for r in con.execute(
+            f"SELECT questionoid FROM {split} {clause} ORDER BY questionoid LIMIT ?",
+            [*params, limit],
+        ).fetchall()
+    ]
+    rows = _fetch_qa_rows(con, split, ids)
+    with _selection_lock:
+        for row in rows:
+            _selection[(row["split"], row["questionoid"])] = row
+        _save_selection()
+        total = len(_selection)
+    return {"added": len(rows), "matched": matched, "capped": matched > limit, "total": total}
+
+
+@app.post("/api/selection/{split}/{questionoid}")
+def add_selection(split: str, questionoid: int) -> dict:
+    if split not in QA_SPLITS:
+        raise HTTPException(404, "unknown split")
+    rows = _fetch_qa_rows(_con.cursor(), split, [questionoid])
+    if not rows:
+        raise HTTPException(404, "not found")
+    with _selection_lock:
+        _selection[(split, questionoid)] = rows[0]
+        _save_selection()
+        total = len(_selection)
+    return {"total": total}
+
+
+@app.delete("/api/selection/{split}/{questionoid}")
+def remove_selection(split: str, questionoid: int) -> dict:
+    with _selection_lock:
+        _selection.pop((split, questionoid), None)
+        _save_selection()
+        total = len(_selection)
+    return {"total": total}
 
 
 @app.get("/", response_class=HTMLResponse)
 def index() -> str:
     return _INDEX_HTML
+
+
+@app.get("/review", response_class=HTMLResponse)
+def review() -> str:
+    return _REVIEW_HTML
 
 
 _INDEX_HTML = r"""<!doctype html>
@@ -250,6 +423,25 @@ _INDEX_HTML = r"""<!doctype html>
   .chip:hover { background: light-dark(#dde,#334066); }
   .chip.active { background: light-dark(#2563eb,#3b82f6); color: #fff; }
   .chip .x { margin-left: 4px; opacity: .7; }
+  .row.qa { display: flex; gap: 10px; align-items: flex-start; }
+  .row.qa .selchk { margin-top: 3px; flex: none; width: 15px; height: 15px; }
+  .row.qa .rowbody { flex: 1; min-width: 0; }
+  .cartbtn { margin-top: 14px; width: 100%; }
+  .bulkbtn { display: none; margin-top: 8px; }
+  .cartpanel { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.35); z-index: 20; }
+  .cartpanel.show { display: flex; align-items: center; justify-content: center; }
+  .cartinner { width: min(680px, 92vw); max-height: 80vh; background: light-dark(#fff,#1f2024);
+    border-radius: 10px; display: flex; flex-direction: column; overflow: hidden; }
+  .carthead { display: flex; align-items: center; gap: 10px; padding: 10px 14px;
+    border-bottom: 1px solid light-dark(#ddd,#333); }
+  .cartbody { overflow-y: auto; padding: 8px 14px; }
+  .cartrow { padding: 8px 0; border-bottom: 1px solid light-dark(#eee,#2a2b30); font-size: 13px;
+    display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .cartrow .cq { flex-basis: 100%; }
+  #toast { position: fixed; bottom: 16px; right: 16px; background: light-dark(#1a1a1a,#e6e6e6);
+    color: light-dark(#fff,#1a1a1a); padding: 8px 14px; border-radius: 8px; font-size: 12.5px;
+    opacity: 0; transition: opacity .2s; pointer-events: none; z-index: 30; }
+  #toast.show { opacity: 1; }
 </style>
 </head>
 <body>
@@ -261,6 +453,8 @@ _INDEX_HTML = r"""<!doctype html>
     <div class="tab" data-split="test">Test</div>
   </div>
   <div id="meta" style="font-size:12px; opacity:.7; line-height:1.6;"></div>
+  <button id="cartBtn" class="cartbtn">Giỏ chọn eval (0)</button>
+  <a href="/review" style="display:block; text-align:center; margin-top:8px; font-size:12.5px;">Xem lại danh sách đã chọn ↗</a>
 </aside>
 <main>
   <div class="toolbar">
@@ -270,6 +464,7 @@ _INDEX_HTML = r"""<!doctype html>
   <div id="catbar" class="catbar">
     <input id="catQ" type="text" placeholder="Lọc theo danh mục (vd: ngân hàng, thanh toán)...">
     <div id="catChips" class="chips"></div>
+    <button id="bulkSelectBtn" class="bulkbtn">Chọn cả chủ đề này vào giỏ</button>
   </div>
   <div class="content">
     <div id="list" class="list"><div class="empty">Đang tải...</div></div>
@@ -281,13 +476,108 @@ _INDEX_HTML = r"""<!doctype html>
     <button id="next">Sau &rarr;</button>
   </div>
 </main>
+<div id="cartPanel" class="cartpanel">
+  <div class="cartinner">
+    <div class="carthead">
+      <b>Giỏ chọn eval</b>
+      <span style="flex:1"></span>
+      <a href="/api/selection/download" download>Tải JSONL</a>
+      <button id="cartClearBtn">Xoá tất cả</button>
+      <button id="cartCloseBtn">Đóng</button>
+    </div>
+    <div id="cartBody" class="cartbody"></div>
+  </div>
+</div>
+<div id="toast"></div>
 <script>
 const state = { split: "corpus", q: "", category: "", page: 1, pageSize: 25, total: 0 };
+let selectedTotal = 0;
 
 function esc(s) {
   return (s ?? "").toString().replace(/[&<>]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
 }
 function truncate(s, n) { s = s ?? ""; return s.length > n ? s.slice(0, n) + "…" : s; }
+
+function toast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg; t.classList.add("show");
+  clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove("show"), 2200);
+}
+
+function updateCartBtn() {
+  document.getElementById("cartBtn").textContent = `Giỏ chọn eval (${selectedTotal})`;
+}
+
+async function toggleSelect(qid, checked, fromDetail) {
+  try {
+    const r = await fetch(`/api/selection/${state.split}/${qid}`, { method: checked ? "POST" : "DELETE" });
+    if (!r.ok) throw new Error(await r.text());
+    const d = await r.json();
+    selectedTotal = d.total;
+    updateCartBtn();
+    if (fromDetail) loadDetail(qid);
+  } catch (e) { toast("Lỗi chọn: " + e); }
+}
+
+function updateBulkBtn() {
+  const btn = document.getElementById("bulkSelectBtn");
+  const active = state.split !== "corpus" && (state.category || state.q);
+  btn.style.display = active ? "block" : "none";
+  btn.textContent = state.category
+    ? `Chọn cả chủ đề "${state.category}" vào giỏ`
+    : `Chọn tất cả kết quả tìm kiếm vào giỏ`;
+}
+
+document.getElementById("bulkSelectBtn").onclick = async () => {
+  const btn = document.getElementById("bulkSelectBtn");
+  btn.disabled = true;
+  try {
+    const params = new URLSearchParams({ split: state.split, q: state.q, category: state.category });
+    const r = await fetch(`/api/selection/bulk?${params}`, { method: "POST" });
+    if (!r.ok) throw new Error(await r.text());
+    const d = await r.json();
+    selectedTotal = d.total;
+    updateCartBtn();
+    loadList();
+    toast(`Đã thêm ${d.added} câu vào giỏ` + (d.capped ? ` (khớp ${d.matched}, đã giới hạn ${d.added})` : "") + ".");
+  } catch (e) { toast("Lỗi thêm cả chủ đề: " + e); }
+  btn.disabled = false;
+};
+
+async function renderCart() {
+  const r = await fetch("/api/selection"); const d = await r.json();
+  selectedTotal = d.total; updateCartBtn();
+  const body = document.getElementById("cartBody");
+  if (!d.items.length) { body.innerHTML = '<div class="empty">Chưa chọn cặp nào</div>'; return; }
+  body.innerHTML = d.items.map(it => `
+    <div class="cartrow">
+      <span class="badge">${esc(it.split)}</span>
+      <div class="cq"><b>${esc(truncate(it.question, 140))}</b></div>
+      ${(it.category || []).map(c => `<span class="badge">${esc(c)}</span>`).join("")}
+      <span style="flex:1"></span>
+      <button class="sm" onclick="removeFromCart('${it.split}', ${it.questionoid})">Bỏ chọn</button>
+    </div>`).join("");
+}
+
+async function removeFromCart(split, qid) {
+  await fetch(`/api/selection/${split}/${qid}`, { method: "DELETE" });
+  await renderCart();
+  if (state.split !== "corpus") loadList();
+}
+
+async function clearCart() {
+  await fetch("/api/selection", { method: "DELETE" });
+  await renderCart();
+  if (state.split !== "corpus") loadList();
+  toast("Đã xoá giỏ chọn.");
+}
+
+document.getElementById("cartBtn").onclick = async () => {
+  document.getElementById("cartPanel").classList.add("show");
+  await renderCart();
+};
+document.getElementById("cartCloseBtn").onclick = () => document.getElementById("cartPanel").classList.remove("show");
+document.getElementById("cartClearBtn").onclick = clearCart;
 
 async function loadMeta() {
   const r = await fetch("/api/meta"); const d = await r.json();
@@ -313,9 +603,13 @@ async function loadList() {
           <div class="meta">#${item.oid} · ${esc(item.dataset)}</div>
           <div class="preview">${esc(truncate(item.text, 220))}</div></div>`;
       }
-      return `<div class="row" data-id="${item.questionoid}">
-        <div class="meta">#${item.questionoid}${item.category?.length ? " · " + item.category.map(esc).join(", ") : ""}</div>
-        <div class="preview"><b>${esc(truncate(item.question, 160))}</b><br>${esc(truncate(item.answer, 160))}</div></div>`;
+      return `<div class="row qa" data-id="${item.questionoid}">
+        <input type="checkbox" class="selchk" ${item.selected ? "checked" : ""}
+          onclick="event.stopPropagation()" onchange="toggleSelect(${item.questionoid}, this.checked)">
+        <div class="rowbody">
+          <div class="meta">#${item.questionoid}${item.category?.length ? " · " + item.category.map(esc).join(", ") : ""}</div>
+          <div class="preview"><b>${esc(truncate(item.question, 160))}</b><br>${esc(truncate(item.answer, 160))}</div>
+        </div></div>`;
     }).join("");
     listEl.querySelectorAll(".row").forEach(row => row.onclick = () => loadDetail(row.dataset.id));
   }
@@ -336,6 +630,8 @@ async function loadDetail(id) {
   }
   const r = await fetch(`/api/qa/${state.split}/${id}`); const d = await r.json();
   detailEl.innerHTML = `
+    <button onclick="toggleSelect(${d.questionoid}, ${!d.selected}, true)">${
+      d.selected ? "✓ Đã chọn — bỏ khỏi giỏ eval" : "+ Thêm vào giỏ eval"}</button>
     <h2>${esc(d.question)}</h2>
     ${(d.category || []).map(c => `<span class="badge">${esc(c)}</span>`).join("")}
     <h3>Trả lời ngắn</h3><div class="ctx">${esc(d.answer)}</div>
@@ -369,6 +665,7 @@ async function loadCategoryChips() {
       state.page = 1;
       document.getElementById("catQ").value = "";
       loadCategoryChips();
+      updateBulkBtn();
       loadList();
     };
   });
@@ -389,16 +686,242 @@ document.querySelectorAll(".tab").forEach(tab => {
     document.getElementById("catbar").classList.toggle("show", state.split !== "corpus");
     document.getElementById("detail").innerHTML = '<div class="empty">Chọn một dòng để xem chi tiết</div>';
     loadCategoryChips();
+    updateBulkBtn();
     loadList();
   };
 });
-document.getElementById("searchBtn").onclick = () => { state.q = document.getElementById("q").value.trim(); state.page = 1; loadList(); };
+document.getElementById("searchBtn").onclick = () => {
+  state.q = document.getElementById("q").value.trim(); state.page = 1;
+  updateBulkBtn();
+  loadList();
+};
 document.getElementById("q").addEventListener("keydown", e => { if (e.key === "Enter") document.getElementById("searchBtn").click(); });
 document.getElementById("prev").onclick = () => { if (state.page > 1) { state.page--; loadList(); } };
 document.getElementById("next").onclick = () => { state.page++; loadList(); };
 
+async function loadSelectedTotal() {
+  const r = await fetch("/api/selection"); const d = await r.json();
+  selectedTotal = d.total; updateCartBtn();
+}
+
 loadMeta();
+loadSelectedTotal();
 loadList();
+</script>
+</body>
+</html>
+"""
+
+# Standalone review page for eval/tuvanphapluat_selected.jsonl. Fetches /api/selection
+# ONCE (it already returns every selected item, unpaginated — the file is a curation
+# pool sized in the hundreds/low thousands, not the full 169k split) and does all
+# filtering/paging client-side. Remove/clear reuse the same endpoints the cart panel
+# in the main page uses, so there is exactly one source of truth for the selection.
+_REVIEW_HTML = r"""<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>tuvanphapluat — đã chọn cho eval</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root { color-scheme: light dark; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    margin: 0; background: light-dark(#f7f7f8, #17181c); color: light-dark(#1a1a1a, #e6e6e6);
+  }
+  a { color: light-dark(#2563eb,#6ea8fe); }
+  header { position: sticky; top: 0; z-index: 5; background: light-dark(#f7f7f8, #17181c);
+    border-bottom: 1px solid light-dark(#ddd,#333); padding: 12px 20px; }
+  .headrow { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  h1 { font-size: 16px; margin: 0; flex: none; }
+  .count { font-size: 12.5px; opacity: .65; }
+  .spacer { flex: 1; }
+  button { padding: 7px 12px; border-radius: 6px; border: 1px solid light-dark(#ccc,#444);
+    background: light-dark(#fff,#222); color: inherit; cursor: pointer; font-size: 13px; }
+  button:disabled { opacity: .4; cursor: default; }
+  button.sm { padding: 3px 8px; font-size: 12px; }
+  input[type=text] { padding: 7px 10px; border-radius: 6px; border: 1px solid light-dark(#ccc,#444);
+    background: light-dark(#fff,#222); color: inherit; font-size: 13px; }
+  .filters { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 10px; }
+  .splitseg { display: flex; gap: 4px; }
+  .splitseg button.on { background: light-dark(#2563eb,#3b82f6); color: #fff; border-color: transparent; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .chip { font-size: 12px; padding: 4px 8px; border-radius: 12px; cursor: pointer; border: none;
+    background: light-dark(#eef,#28304a); color: light-dark(#3040a0,#a9bbff); }
+  .chip:hover { background: light-dark(#dde,#334066); }
+  .chip.active { background: light-dark(#2563eb,#3b82f6); color: #fff; }
+  main { max-width: 880px; margin: 0 auto; padding: 16px 20px 60px; }
+  .card { background: light-dark(#fff,#1f2024); border: 1px solid light-dark(#e5e5e5,#2a2b30);
+    border-radius: 8px; padding: 12px 14px; margin-bottom: 10px; }
+  .card .top { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 6px; }
+  .badge { display: inline-block; font-size: 11px; background: light-dark(#eef,#28304a);
+    color: light-dark(#3040a0,#a9bbff); border-radius: 4px; padding: 2px 6px; }
+  .badge.split { background: light-dark(#e6f7ee,#0f3324); color: light-dark(#0a7a43,#5fd996); font-weight: 600; }
+  .q { font-size: 14px; font-weight: 600; margin: 2px 0 4px; }
+  .a { font-size: 13px; line-height: 1.5; opacity: .85; }
+  .more { background: light-dark(#fafafa,#232429); border-radius: 6px; padding: 8px 10px; margin-top: 8px;
+    font-size: 12.5px; line-height: 1.5; white-space: pre-wrap; }
+  .more h4 { font-size: 11px; text-transform: uppercase; opacity: .6; margin: 8px 0 4px; }
+  .more h4:first-child { margin-top: 0; }
+  .card .actions { margin-top: 8px; display: flex; gap: 8px; }
+  .empty { opacity: .5; padding: 60px 0; text-align: center; }
+  .pager { display: flex; align-items: center; gap: 10px; justify-content: center; margin-top: 14px; font-size: 13px; }
+  #toast { position: fixed; bottom: 16px; right: 16px; background: light-dark(#1a1a1a,#e6e6e6);
+    color: light-dark(#fff,#1a1a1a); padding: 8px 14px; border-radius: 8px; font-size: 12.5px;
+    opacity: 0; transition: opacity .2s; pointer-events: none; z-index: 30; }
+  #toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+<header>
+  <div class="headrow">
+    <h1>Đã chọn cho eval</h1>
+    <span class="count" id="count"></span>
+    <span class="spacer"></span>
+    <a href="/">← Quay lại duyệt dữ liệu</a>
+    <a href="/api/selection/download" download>Tải JSONL</a>
+    <button id="clearBtn">Xoá tất cả</button>
+  </div>
+  <div class="filters">
+    <input id="q" type="text" placeholder="Tìm trong câu hỏi/trả lời đã chọn...">
+    <div class="splitseg" id="splitSeg">
+      <button data-split="" class="on">Tất cả</button>
+      <button data-split="train">Train</button>
+      <button data-split="test">Test</button>
+    </div>
+  </div>
+  <div class="chips" id="catChips"></div>
+</header>
+<main>
+  <div id="list"><div class="empty">Đang tải...</div></div>
+  <div class="pager" id="pager" style="display:none">
+    <button id="prev">&larr; Trước</button>
+    <span id="pageInfo"></span>
+    <button id="next">Sau &rarr;</button>
+  </div>
+</main>
+<div id="toast"></div>
+<script>
+const PAGE_SIZE = 30;
+let all = [];               // every selected item, fetched once
+let cat = "", split = "", q = "", page = 1, expanded = new Set();
+
+function esc(s) {
+  return (s ?? "").toString().replace(/[&<>]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+}
+function truncate(s, n) { s = s ?? ""; return s.length > n ? s.slice(0, n) + "…" : s; }
+function toast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg; t.classList.add("show");
+  clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove("show"), 2200);
+}
+
+function filtered() {
+  return all.filter(it => {
+    if (split && it.split !== split) return false;
+    if (cat && !(it.category || []).includes(cat)) return false;
+    if (q) {
+      const hay = (it.question + " " + (it.answer || "")).toLowerCase();
+      if (!hay.includes(q.toLowerCase())) return false;
+    }
+    return true;
+  });
+}
+
+function renderChips() {
+  // Facet built from the CURRENT split scope, so switching to Train doesn't leave
+  // Test-only category chips clickable to a filter that would show zero results.
+  const scope = split ? all.filter(it => it.split === split) : all;
+  const counts = new Map();
+  scope.forEach(it => (it.category || []).forEach(c => counts.set(c, (counts.get(c) || 0) + 1)));
+  const top = [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 24);
+  const chipsEl = document.getElementById("catChips");
+  const activeChip = cat ? `<span class="chip active" data-cat="">${esc(cat)} ✕</span>` : "";
+  chipsEl.innerHTML = activeChip + top
+    .filter(([c]) => c !== cat)
+    .map(([c, n]) => `<span class="chip" data-cat="${esc(c)}">${esc(c)} (${n})</span>`).join("");
+  chipsEl.querySelectorAll(".chip").forEach(chip => {
+    chip.onclick = () => { cat = chip.dataset.cat; page = 1; renderChips(); render(); };
+  });
+}
+
+async function removeItem(sp, qid) {
+  await fetch(`/api/selection/${sp}/${qid}`, { method: "DELETE" });
+  all = all.filter(it => !(it.split === sp && it.questionoid === qid));
+  renderChips();
+  render();
+  toast("Đã bỏ chọn.");
+}
+
+function card(it) {
+  const key = it.split + ":" + it.questionoid;
+  const isOpen = expanded.has(key);
+  return `<div class="card">
+    <div class="top">
+      <span class="badge split">${esc(it.split)}</span>
+      ${(it.category || []).map(c => `<span class="badge">${esc(c)}</span>`).join("")}
+    </div>
+    <div class="q">${esc(it.question)}</div>
+    <div class="a">${esc(truncate(it.answer, 220))}</div>
+    ${isOpen ? `<div class="more">
+        ${it.long_answer ? `<h4>Trả lời chi tiết</h4>${esc(it.long_answer)}` : ""}
+        ${(it.reference || []).length ? `<h4>Tham chiếu</h4>${it.reference.map(esc).join("<br>")}` : ""}
+        ${it.url ? `<h4>Nguồn</h4><a href="${esc(it.url)}" target="_blank" rel="noopener">${esc(it.url)}</a>` : ""}
+      </div>` : ""}
+    <div class="actions">
+      <button class="sm" onclick="toggleExpand('${key}')">${isOpen ? "Thu gọn" : "Xem đầy đủ"}</button>
+      <button class="sm" onclick="removeItem('${it.split}', ${it.questionoid})">Bỏ chọn</button>
+    </div>
+  </div>`;
+}
+
+function toggleExpand(key) {
+  if (expanded.has(key)) expanded.delete(key); else expanded.add(key);
+  render();
+}
+
+function render() {
+  const items = filtered();
+  document.getElementById("count").textContent =
+    `${items.length.toLocaleString()} / ${all.length.toLocaleString()} mục`;
+  const pages = Math.max(1, Math.ceil(items.length / PAGE_SIZE));
+  page = Math.min(page, pages);
+  const pageItems = items.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const listEl = document.getElementById("list");
+  listEl.innerHTML = pageItems.length
+    ? pageItems.map(card).join("")
+    : '<div class="empty">Không có mục nào khớp bộ lọc</div>';
+  document.getElementById("pager").style.display = items.length > PAGE_SIZE ? "flex" : "none";
+  document.getElementById("pageInfo").textContent = `Trang ${page}/${pages}`;
+  document.getElementById("prev").disabled = page <= 1;
+  document.getElementById("next").disabled = page >= pages;
+}
+
+document.getElementById("q").addEventListener("input", e => { q = e.target.value.trim(); page = 1; render(); });
+document.querySelectorAll("#splitSeg button").forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll("#splitSeg button").forEach(b => b.classList.remove("on"));
+    btn.classList.add("on");
+    split = btn.dataset.split; cat = ""; page = 1;
+    renderChips(); render();
+  };
+});
+document.getElementById("prev").onclick = () => { if (page > 1) { page--; render(); } };
+document.getElementById("next").onclick = () => { page++; render(); };
+document.getElementById("clearBtn").onclick = async () => {
+  await fetch("/api/selection", { method: "DELETE" });
+  all = []; renderChips(); render();
+  toast("Đã xoá toàn bộ giỏ chọn.");
+};
+
+async function load() {
+  const r = await fetch("/api/selection"); const d = await r.json();
+  all = d.items;
+  renderChips();
+  render();
+}
+load();
 </script>
 </body>
 </html>

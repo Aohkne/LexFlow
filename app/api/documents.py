@@ -9,16 +9,24 @@ khởi điểm từ `data/corpus.real.json` đóng gói trong image.
 from __future__ import annotations
 
 import json
+import mimetypes
 import tempfile
 from pathlib import Path
+from urllib.parse import quote
 
-from fastapi import APIRouter, Depends, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, HTTPException, Response, UploadFile
 from pydantic import BaseModel
 
 from app.core import appdb, corpus as corpus_store
 from app.core.auth import AuthUser, get_current_user, require_admin
 from app.core.config import settings
-from app.core.schemas import CorpusDocument, DocumentDetail, DocumentSummary, Relationship
+from app.core.schemas import (
+    CorpusDocument,
+    DocumentDetail,
+    DocumentSummary,
+    Relationship,
+    SourceFile,
+)
 from app.ingestion.versioning import is_effective
 
 router = APIRouter(prefix="/documents", tags=["documents"])
@@ -69,6 +77,7 @@ def get_document_detail(doc_id: str, user: AuthUser = Depends(get_current_user))
     titles = {i: docs[i].get("title", i) for i in related_ids if i in docs}
 
     doc = CorpusDocument.model_validate(raw)
+    meta = doc.model_dump(exclude={"articles", "provisions", "source_files"})
 
     tac_dong = []
     if settings.overlay_router:
@@ -78,12 +87,57 @@ def get_document_detail(doc_id: str, user: AuthUser = Depends(get_current_user))
         tac_dong = tac_dong_cua_van_ban(doc_id, today_iso())
 
     return DocumentDetail(
-        **doc.model_dump(exclude={"articles"}),
+        **meta,
+        source_files=doc.source_files + _uploaded_original(user, doc_id),
         articles=doc.articles,
+        provisions=doc.provisions,
         relationships_out=rels_out,
         relationships_in=rels_in,
         doc_titles=titles,
         tac_dong=tac_dong,
+    )
+
+
+def _uploaded_original(user: AuthUser, doc_id: str) -> list[SourceFile]:
+    """File gốc đã upload qua luồng duyệt (nếu có) — trỏ về endpoint tải của chính API này.
+
+    Không có Supabase thì bỏ qua: thư viện vẫn xem được, chỉ là không có bản gốc để tải.
+    """
+    if not appdb.enabled():
+        return []
+    try:
+        row = appdb.get_document(user.token, doc_id)
+    except Exception:  # noqa: BLE001 — thiếu bản ghi không được làm hỏng trang xem
+        return []
+    path = (row or {}).get("storage_path")
+    if not path:
+        return []
+    return [
+        SourceFile(
+            ten=Path(path).name,
+            url=f"/documents/{quote(doc_id, safe='')}/download",
+        )
+    ]
+
+
+@router.get("/{doc_id}/download")
+def download_original(doc_id: str, user: AuthUser = Depends(get_current_user)) -> Response:
+    """Tải file gốc đã upload cho văn bản này."""
+    _require_supabase()
+    row = appdb.get_document(user.token, doc_id)
+    path = (row or {}).get("storage_path")
+    if not path:
+        raise HTTPException(status_code=404, detail=f"Văn bản {doc_id} chưa có file gốc")
+    content = appdb.download_storage(user.token, path)
+    if content is None:
+        raise HTTPException(status_code=404, detail=f"Không đọc được file gốc của {doc_id}")
+    name = Path(path).name
+    media_type = mimetypes.guess_type(name)[0] or "application/octet-stream"
+    return Response(
+        content=content,
+        media_type=media_type,
+        # filename* (RFC 5987) vì tên file văn bản luật hay có dấu tiếng Việt
+        headers={"Content-Disposition": f"attachment; filename*=UTF-8''{quote(name)}"},
     )
 
 

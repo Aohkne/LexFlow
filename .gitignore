@@ -14,7 +14,7 @@ data/lancedb/
 # Downloaded HF datasets (large binaries, re-downloadable)
 data/tuvanphapluat/
 
-# Cache sitemap vbpl.vn (không phải source snapshot — tải lại được, ~15-20 MB)
+# Cache sitemap vbpl.vn — không phải bản chụp nguồn, tải lại được, ~15-20 MB
 data/raw/vbpl/.sitemap_cache/
 
 # Bản thô 3 tab + log mẻ cào. Chỉ `corpus/` được version: diff của nó cho thấy nguồn đổi gì

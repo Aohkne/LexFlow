@@ -212,6 +212,22 @@ export type DocumentSummary = {
   status: "con_hieu_luc" | "het_hieu_luc";
 };
 
+export type Provision = {
+  id: string | null;
+  cap: "chuong" | "muc" | "dieu" | "khoan" | "diem";
+  so: string | null;
+  tieu_de: string;
+  text: string;
+  // HTML inline ĐÃ lọc whitelist ở backend — render qua renderInline, không đổ thẳng vào DOM
+  html: string;
+  bi_tac_dong: string[] | null;
+  an: boolean;
+  con: Provision[];
+};
+
+// Tác động cấp khoản/điểm do lớp phủ dưới-văn-bản suy ra (`GET /documents/{id}.tac_dong`).
+// Khác `Provision.bi_tac_dong` — cái kia là cờ thô của nguồn vbpl, cái này mang cả trạng thái
+// hiện hành, ai sửa và từ ngày nào.
 export type TacDongDonVi = {
   article: string;
   khoan: string | null;
@@ -222,6 +238,13 @@ export type TacDongDonVi = {
   tu_ngay: string | null;
 };
 
+export type SourceFile = {
+  ten: string;
+  kich_thuoc: string | null;
+  // null = biết là có file nhưng chưa lấy được link tải
+  url: string | null;
+};
+
 export type DocumentDetail = {
   doc_id: string;
   title: string;
@@ -229,12 +252,51 @@ export type DocumentDetail = {
   source: string;
   valid_from: string | null;
   valid_to: string | null;
+  // Thuộc tính — corpus duyệt từ trước không có, nên đều có thể null
+  so_hieu: string | null;
+  co_quan_ban_hanh: string | null;
+  nguoi_ky: string | null;
+  chuc_danh: string | null;
+  nganh: string | null;
+  linh_vuc: string | null;
+  ngay_ban_hanh: string | null;
+  tinh_trang_hieu_luc: string | null;
+  source_url: string | null;
+  // Backend chưa deploy bản mới sẽ không trả khoá này -> phải chịu được undefined
+  source_files?: SourceFile[];
   articles: Article[];
+  // Cây điều khoản đầy đủ; backend cũ / văn bản chưa crawl lại sẽ không có
+  provisions?: Provision[];
   relationships_out: Relationship[];
   relationships_in: Relationship[];
   doc_titles: Record<string, string>;
   tac_dong?: TacDongDonVi[];
 };
+
+/**
+ * Tải file gốc về máy.
+ *
+ * Không dùng thẻ <a download> trực tiếp được: endpoint tải nằm sau xác thực Bearer mà thẻ
+ * <a> không gửi được header. Nên fetch kèm header rồi lưu qua blob URL.
+ * Link tuyệt đối (bản gốc trên vbpl.vn) thì mở thẳng, không cần đi qua API.
+ */
+export async function downloadSourceFile(file: SourceFile): Promise<void> {
+  if (!file.url) throw new Error("File này chưa có link tải");
+  if (file.url.startsWith("http")) {
+    window.open(file.url, "_blank", "noopener");
+    return;
+  }
+  const res = await fetch(`${API_BASE}${file.url}`, { headers: await authHeaders() });
+  if (!res.ok) {
+    throw new Error((await res.json().catch(() => null))?.detail ?? res.statusText);
+  }
+  const blobUrl = URL.createObjectURL(await res.blob());
+  const a = document.createElement("a");
+  a.href = blobUrl;
+  a.download = file.ten;
+  a.click();
+  URL.revokeObjectURL(blobUrl);
+}
 
 export async function listDocuments(): Promise<DocumentSummary[]> {
   const res = await fetch(`${API_BASE}/documents`, { headers: await authHeaders() });

@@ -87,8 +87,20 @@ class Relationship(BaseModel):
         return v
 
 
+class SourceFile(BaseModel):
+    """Một file bản gốc kèm theo văn bản (PDF scan, .doc, phụ lục...)."""
+
+    ten: str  # tên file hiển thị
+    kich_thuoc: str | None = None  # "10.79MB" — giữ chuỗi vì nguồn cho sẵn dạng này
+    url: str | None = None  # None = biết có file nhưng chưa lấy được link tải
+
+
 class DocumentMeta(BaseModel):
-    """Metadata một văn bản pháp lý (hoặc tài liệu nội bộ)."""
+    """Metadata một văn bản pháp lý (hoặc tài liệu nội bộ).
+
+    Nhóm thuộc tính và bản gốc bên dưới đều optional: corpus đã duyệt từ trước không có
+    các trường này, thêm vào không được làm hỏng bản ghi cũ.
+    """
 
     doc_id: str
     title: str
@@ -101,6 +113,20 @@ class DocumentMeta(BaseModel):
     #: chính thống (lược đồ vbpl, dẫn chiếu trong chính văn bản) khoá bằng SỐ HIỆU, nên không
     #: có trường này thì mọi cạnh đọc từ nguồn đều không quy về được node nào.
     so_hieu: str | None = None
+
+    # --- Thuộc tính (khớp bảng Thuộc tính của vbpl.vn) ---
+    so_hieu: str | None = None  # "15/2024/TT-NHNN"
+    co_quan_ban_hanh: str | None = None
+    nguoi_ky: str | None = None
+    chuc_danh: str | None = None
+    nganh: str | None = None
+    linh_vuc: str | None = None
+    ngay_ban_hanh: str | None = None  # ISO date
+    tinh_trang_hieu_luc: str | None = None  # "Còn hiệu lực" | "Hết hiệu lực một phần" | ...
+
+    # --- Bản gốc ---
+    source_url: str | None = None  # trang gốc (vbpl.vn) để đối chiếu
+    source_files: list[SourceFile] = Field(default_factory=list)  # file gốc đính kèm
 
 
 class Article(BaseModel):
@@ -115,12 +141,54 @@ class Article(BaseModel):
     # Nhãn phân cấp phẳng (không dựng cây) — hiển thị heading trong trình xem
     chapter: str | None = None  # ví dụ "Chương II. Mở và sử dụng tài khoản thanh toán"
     section: str | None = None  # ví dụ "Mục 1. Mở tài khoản"
+    # Vị trí của `text` trong toàn văn nguồn: `noi_dung[char_start:char_end] == text`.
+    # Cho phép phía sau neo trích dẫn ở mức ký tự về đúng bản gốc.
+    char_start: int | None = None
+    char_end: int | None = None
+
+
+class Provision(BaseModel):
+    """Một nút trong cây điều khoản (Chương → Mục → Điều → Khoản → Điểm).
+
+    Song song với `articles` chứ không thay thế: `articles` vẫn là đơn vị chunk cho RAG,
+    còn cây này để trình xem dựng lại đúng phân cấp và định dạng như nguồn.
+    """
+
+    id: str | None = None  # id gốc bên nguồn, giữ để đối chiếu khi crawl lại
+    cap: str  # chuong | muc | dieu | khoan | diem
+    so: str | None = None  # "I", "1", "a"
+    tieu_de: str = ""  # tiêu đề Chương/Mục/Điều
+    text: str = ""  # text thuần của Khoản/Điểm
+    # HTML inline ĐÃ lọc whitelist (chỉ b/strong/i/em/u/sup/sub/br, không attribute).
+    # Không bao giờ nhận HTML thô từ nguồn vào đây.
+    html: str = ""
+    bi_tac_dong: list[str] | None = None  # sua_doi_bo_sung | thay_the | bo_sung | ...
+    an: bool = False
+    con: list[Provision] = Field(default_factory=list)
+
+
+class QuoteSpan(BaseModel):
+    """Một khối trích dẫn trong `noi_dung`: `noi_dung[char_start:char_end]`, kể cả dấu ngoặc.
+
+    Văn bản sửa đổi chép nguyên văn nội dung mới vào giữa hai dấu ngoặc kép, và phần chép mang
+    ĐÁNH SỐ CỦA VĂN BẢN BỊ SỬA. Ai đọc `articles[].text` mà muốn tách đâu là điều khoản của
+    văn bản này, đâu là đoạn trích, thì neo vào đây.
+    """
+
+    char_start: int
+    char_end: int
 
 
 class CorpusDocument(DocumentMeta):
     """Văn bản kèm danh sách điều khoản — đầu vào của ingest."""
 
     articles: list[Article] = Field(default_factory=list)
+    provisions: list[Provision] = Field(default_factory=list)
+    trich_dan: list[QuoteSpan] = Field(default_factory=list)
+    # Nguồn có đăng toàn văn hay không. `False` = chỉ có thuộc tính/lược đồ (hay gặp ở văn
+    # bản hợp nhất): `articles` rỗng vì KHÔNG CÓ, chứ không phải vì bóc hỏng.
+    co_toan_van: bool = True
+    canh_bao: list[str] = Field(default_factory=list)
 
 
 class VanBanRong(BaseModel):
@@ -170,6 +238,7 @@ class DocumentDetail(DocumentMeta):
     """Toàn văn + quan hệ hai chiều của một văn bản (GET /documents/{doc_id})."""
 
     articles: list[Article] = Field(default_factory=list)
+    provisions: list[Provision] = Field(default_factory=list)  # [] = chưa crawl được cây
     relationships_out: list[Relationship] = Field(default_factory=list)  # doc là source
     relationships_in: list[Relationship] = Field(default_factory=list)  # doc là target
     doc_titles: dict[str, str] = Field(default_factory=dict)  # doc_id -> title các doc liên quan
