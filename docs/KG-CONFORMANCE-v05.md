@@ -50,6 +50,43 @@ mọi số trong tài liệu này kiểm lại được bằng §6.
 > `dinh_tuyen` **13/13** (12 khi nghiệm thu Task 8; +1 hàng khoản-gộp sau đợt sửa của final review — vá luôn khoá giả `#khoan_1-3` từng làm 14 chunk trả `nguyen_ven` sai). Cạnh sửa đổi giờ nối con↔con (khoản/điểm chạm khoản/điểm), cạnh văn
 > bản (Điều X sửa đổi Điều Y) chỉ còn làm tầng hiệu lực, không phải nơi tra lời văn mới.
 
+> **P4 (06/08) — lớp phủ đã CHẠM SẢN PHẨM, không còn là artefact offline.** 10 task
+> subagent-driven TDD, 17 commit `e21c50f..a78a62e`, 588 test xanh.
+>
+> **Đường đi:** artefact **tự chứa** `data/overlay/lop_phu.json` (178 cạnh, span `loi_van_moi`
+> giải thành chữ **lúc build** — `data/raw/vbpl/` gitignored nên runtime không bao giờ giải được)
+> → cổng runtime **duy nhất** `app/knowledge/lop_phu.py` bọc `dinh_tuyen`/`phien_ban_hien_hanh`,
+> fail-open → `answer.py` (nhãn hiệu lực cấp khoản vào prompt + `Citation`) · `review.py` (không
+> phán tuân thủ trên luật đã chết) · `GET /documents/{id}.tac_dong` · badge ở 3 màn web.
+>
+> **Số đo trên hệ thống chạy thật:** LanceDB Cloud **449 → 661 chunk**, 15 → **26 văn bản**;
+> Neo4j **293 `DonVi`** · **178 `TAC_DONG`** · **255/293 `THUOC`** (38 đầu mút chưa có node
+> `Document` — đúng dải node rỗng §3.7, và `push_overlay` **in ra** khoảng chênh thay vì để
+> `MATCH` trượt trong im lặng); Cloud Run rev `00016-n6k`, Vercel production.
+>
+> **Verify e2e qua `_prepare` thật** (không phải mock): `TT41-2025::Điều 10` → `la_loi_sua` →
+> trích dẫn nắn về **đúng chủ** *"TT40-2024 Điều 26 Khoản 1 (sửa bởi TT41-2025 Điều 10 Khoản 1)"*;
+> `TT41-2025::Điều 16` → `bi_bai_bo` (cạnh TT22 Điều 6 Khoản 2) — **ca cạnh-chết chạy thật trên
+> production**; `TT40-2024::Điều 26/37/25` → `da_sua` kèm nguồn sửa.
+>
+> **Benchmark 36 câu (`eval/results/20260806-072821.json`, 0 câu lỗi) — và đây là chỗ phải đọc
+> kỹ:** citation 36/36 cả ba cột; stale-avoidance baseline 21/36 → LexFlow **36/36**; mâu thuẫn
+> 6/7. Nhưng **router OFF vs ON: 0/36 câu khác nhau**, 0 hit bị loại vì bãi bỏ, **8** hit được
+> nắn trích dẫn. Dự đoán ghi TRƯỚC khi chạy là 0–3 và 10–25 ⇒ **sai ở vế nắn trích dẫn**.
+> Kết luận thẳng: **bộ 36 câu này không đo được lớp phủ** — nó chấm ở mức `doc_id`, lớp phủ làm
+> việc ở mức khoản; "0/36" là giới hạn của **thước đo**, không phải bằng chứng lớp phủ vô dụng
+> (giá trị của nó nằm ở verify e2e trên và ở bộ nhãn cấp khoản 13/13). Muốn có số trình hội đồng
+> thì cần **bộ câu hỏi chấm ở mức điều/khoản** — việc riêng, chưa làm. Không được trích bảng
+> "0/36" mà bỏ đoạn giải thích này.
+>
+> **Hai sự cố hạ tầng đáng ghi, vì cả hai đều là hỏng-trong-im-lặng.** (1) `Dockerfile` không
+> copy `data/overlay/` ⇒ image thiếu artefact ⇒ `tai_lop_phu()` trả `None` ⇒ **lớp phủ tắt hoàn
+> toàn mà fail-open nuốt luôn dấu vết** (vá `35031dd`) — đúng cái giá của fail-open: nó đổi lỗi
+> ồn ào lấy lỗi câm. (2) `.gcloudignore` bỏ sót `data/tuvanphapluat/` (516 MB) ⇒ upload không bao
+> giờ tới bước build, mà `gcloud … | grep | tail` trả exit **0** (mã thoát của `tail`) ⇒ hai lần
+> "deploy thành công" giả, revision cũ vẫn `ACTIVE`, `/health` vẫn `ok`. ⇒ **Tiêu chí nghiệm thu
+> deploy từ nay = OpenAPI của bản ĐANG PHỤC VỤ có trường mới**, không phải exit code.
+
 ---
 
 ## 1. Repo có HAI schema văn bản, v0.5 mô tả MỘT
@@ -526,6 +563,14 @@ khoản khớp cây**, `char_span` không khoản nào lệch, ND52/TT15/TT40 kh
 > ⇒ **Đề nghị cho v0.6:** §5 nên có một mục *"phạm vi đánh số"* — số thứ tự chỉ thuộc về văn bản
 > đang đọc khi nó nằm **ngoài** khối trích dẫn. Đây là mục thứ 8 trong §4 (PoC đi trước v0.5).
 
+> **06/08 — lỗ này đã đóng ở TẦNG TRUY HỒI (P4), không chỉ ở parser.** `parser.trong_trich_dan()`
+> chặn nhập nhằng lúc *dựng* khoá; nhưng chunk retrieval vẫn có thể là một khối trích dẫn nằm
+> trong văn bản sửa, và trước P4 nó bị trích dưới tên văn bản sửa. Nhánh 3 của `dinh_tuyen`
+> (`la_loi_sua`) nay map ngược về đích và trả câu trích dẫn đúng chủ. Đo trên production:
+> `TT41-2025::Điều 10` → *"TT40-2024 Điều 26 Khoản 1 (sửa bởi TT41-2025 Điều 10 Khoản 1)"*.
+> Nhận diện bằng **chữ chứa nhau**, không bằng toạ độ — hàng LanceDB không mang `char_start`, và
+> thêm toạ độ vào chunk nghĩa là đổi ingest + re-embed toàn bộ.
+
 ---
 
 ## 4. Chín chỗ PoC đã đi TRƯỚC v0.5 — v0.6 nên hấp thụ
@@ -608,8 +653,9 @@ code**, và ba chỗ mâu thuẫn ở §3 là thứ phải xử lý trước khi
 | ~~13~~ | ~~Nạp lược đồ vbpl thành cạnh~~ — ✅ **xong 04/08**: 48 cạnh quy được về `doc_id`, **0 cạnh rơi**; 30 đầu mút thành **node rỗng** | — | xem §3.6 |
 | ~~**14**~~ | ~~Nạp 7 văn bản đã crawl vào corpus~~ — ✅ **xong 05/08** (`app/ingestion/nap_corpus.py`): 15→20 văn bản, đã đo từng điều trước khi thay; đúng như chẩn đoán, **corpus là bên sai ở TT15** (Điều 18 nuốt Điều 19, tách xong 22→23 điều). Mở khoá đủ ba thứ: `chapter` 115/338, ca `BAI_BO` §6.2, khoản về đúng chủ | — | 9 cạnh mới có căn cứ; TT22-`BAI_BO`→TT41 **cố ý không thêm**: lược đồ vbpl nói "bị bãi bỏ" nhưng toàn văn TT22 không có câu bãi bỏ và vbpl gắn TT41 "Hết hiệu lực một phần" — hai nguồn vbpl mâu thuẫn thì người quyết |
 | **15** | ~~Chạy `supabase/migrations/0006_quan_he_v05.sql`~~ — ✅ **user đã chạy 04/08** | — | xem §3.6c |
-| **16** | **Crawl tiếp `docs/CAN-CRAWL.md`** — còn **68 văn bản**; `30/2016/TT-NHNN` và `58/2021/NĐ-CP` ở mức GẤP vì mang `BAI_BO` | cao | phụ thuộc dữ liệu, không phụ thuộc code |
-| **17** | **Đẩy corpus mới lên Neo4j** — instance hoá ra chỉ bị Aura **tự pause**, người dùng resume 05/08, kết nối lại được; trong đó còn nguyên bản cũ (13 cạnh tên cũ, 0 `so_hieu`, thiếu 5 văn bản — xem §3.6a). Chờ người dùng cho phép đụng dữ liệu chạy thật rồi `push_corpus` (tự xoá sạch trước khi nạp) | cao | một lệnh; đã hết phần "dựng lại" |
+| **16** | **Crawl tiếp** — danh sách tự lớn 67→**89 văn bản** (`research/crawl_68_urls.txt`, thứ tự GẤP→thấp); `30/2016/TT-NHNN` và `58/2021/NĐ-CP` đã nạp ở đợt 2 05/08 | cao | phụ thuộc dữ liệu, không phụ thuộc code |
+| ~~**17**~~ | ~~Đẩy corpus mới lên Neo4j~~ — ✅ **xong 06/08**: `push_corpus` 26 node + 35 cạnh, và `push_overlay` thêm **293 `DonVi` · 178 `TAC_DONG` · 255/293 `THUOC`**. Aura chỉ bị **tự pause** chứ không chết (đã resume 05/08). Rớt kết nối một lần giữa ~470 round-trip — `MERGE` idempotent nên chạy lại là đủ; đó cũng đúng minor N+1 mà reviewer Task 8 đã nêu (chưa `UNWIND`) | — | xem khối P4 đầu tài liệu |
+| **19** | **Bộ câu hỏi eval chấm ở mức điều/khoản** — bộ 36 câu hiện tại chấm ở `doc_id` nên **không đo được** lớp phủ (router OFF/ON: 0/36 khác nhau). Đây là việc mở khoá con số trình hội đồng | cao | viết bộ câu hỏi mới, không sửa code |
 | **18** | **Nhận `source_url`/`source_files` vào `DocumentMeta`** (§2.6) — bản ghi crawl đã có, `doc_file` đọc xong rồi bỏ đi | trung bình | rất nhỏ; là tiền đề của `da_xac_minh_nguon`, không thay thế nó |
 
 > **Hai mục 10–11 làm đổi thứ tự phụ thuộc của #8.** Bản 03/08 xếp `Chuong`/`Muc` sau #4 (thống
@@ -744,3 +790,46 @@ uv run pytest -q tests\test_nap_corpus.py tests\test_vbpl_corpus.py tests\test_b
 Viện dẫn cấp tiết 4/586 nói trên nay là **17** (đo 05/08, xem
 `tests/test_ontology_citation.py::test_bao_phu_corpus_that`) — tăng đúng ở TT41/TT66, hai thông
 tư sửa đổi nhắm vào tiết.
+
+### Lệnh thêm ngày 06/08 (P4 — nối lớp phủ vào sản phẩm)
+
+```powershell
+# --- artefact tự chứa: 178 cạnh, khớp đúng nguồn JSONL của P1 ---
+$env:PYTHONIOENCODING="utf-8"; uv run python -m app.ontology.dong_goi
+uv run python -c "import json,pathlib; g=json.loads(pathlib.Path('data/overlay/lop_phu.json').read_text(encoding='utf-8')); n=sum(1 for _ in open('eval/overlay/canh_tac_dong.jsonl',encoding='utf-8')); print(len(g['canh']), n, len(g['canh'])==n)"
+# 178 178 True   -- lệch ⇒ ĐIỀU TRA, không chỉnh test cho khớp
+
+# --- LanceDB production: 661 chunk / 26 văn bản ---
+$env:PYTHONPATH="."; uv run python -c "from app.core import vectordb; from app.core.config import LANCEDB_TABLE; t=vectordb.connect().open_table(LANCEDB_TABLE); r=t.search().limit(10000).to_list(); print(t.count_rows(), len(set(x['doc_id'] for x in r)))"
+# 661 26
+
+# --- Neo4j: 293 DonVi · 178 TAC_DONG · 255 THUOC ---
+$env:PYTHONPATH="."; uv run python -c "from app.knowledge.graph import session
+with session() as s:
+    print(s.run('MATCH (n:DonVi) RETURN count(n) AS c').single()['c'],
+          s.run('MATCH ()-[r:TAC_DONG]->() RETURN count(r) AS c').single()['c'],
+          s.run('MATCH ()-[r:THUOC]->() RETURN count(r) AS c').single()['c'])"
+
+# --- NGHIỆM THU DEPLOY: OpenAPI của bản ĐANG PHỤC VỤ, không phải exit code ---
+uv run python -c "import httpx; sch=httpx.get('https://lexflow-api-puuthweg3q-as.a.run.app/openapi.json',timeout=60).json()['components']['schemas']; print('tac_dong' in sch['DocumentDetail']['properties'], 'trang_thai' in sch['Citation']['properties'], 'TacDongDonVi' in sch)"
+# True True True
+
+# --- verify e2e: trích dẫn đúng chủ + ca cạnh-chết, chạy qua _prepare THẬT ---
+$env:PYTHONPATH="."; uv run python -c "from app.knowledge.lop_phu import tai_lop_phu, chu_thich_chunk
+lp=tai_lop_phu()
+for cid in ['TT41-2025::Điều 10','TT41-2025::Điều 16']:
+    t=chu_thich_chunk({'id':cid,'text':''},'2026-08-06',lp); print(cid,'->',t.trang_thai)"
+# TT41-2025::Điều 10 -> nguyen_ven (cần text thật mới ra la_loi_sua — nhánh 3 nhận diện bằng CHỮ)
+# TT41-2025::Điều 16 -> bi_bai_bo
+
+# --- benchmark router ON/OFF (cần PYTHONPATH, và -u để thấy tiến độ) ---
+$env:PYTHONIOENCODING="utf-8"; $env:PYTHONPATH="."; uv run python -u eval/run_benchmark.py
+# 36 câu, 0 lỗi; stale-avoidance 21/36 -> 36/36; router OFF|ON khác nhau 0/36; 8 hit được nắn
+```
+
+**Đọc kỹ ba chỗ dễ hiểu sai trong bộ lệnh trên.** (1) `chu_thich_chunk` với `text` rỗng trả
+`nguyen_ven` cho `Điều 10` — không phải sai, vì nhánh 3 nhận diện bằng **chữ chứa nhau**; muốn
+thấy `la_loi_sua` phải truyền text thật của chunk. (2) `PYTHONPATH="."` là bắt buộc khi chạy
+`eval/run_benchmark.py` trực tiếp — thiếu nó ra `ModuleNotFoundError: No module named 'app'`.
+(3) Deploy: **đừng** đọc exit code qua pipe (`gcloud … | grep | tail` trả mã thoát của `tail`);
+ghi thẳng ra log rồi bắt `$?`, và nghiệm thu bằng OpenAPI của bản đang phục vụ.
