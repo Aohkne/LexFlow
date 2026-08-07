@@ -87,6 +87,31 @@ mọi số trong tài liệu này kiểm lại được bằng §6.
 > "deploy thành công" giả, revision cũ vẫn `ACTIVE`, `/health` vẫn `ok`. ⇒ **Tiêu chí nghiệm thu
 > deploy từ nay = OpenAPI của bản ĐANG PHỤC VỤ có trường mới**, không phải exit code.
 
+> **Final review toàn nhánh (06/08, model mạnh nhất) — 1 Critical + 6 Important, đo TRÊN ARTEFACT
+> ĐÃ SHIP chứ không đọc code rồi suy.** Mười vòng review cấp task đều bỏ lọt. Ba cái nặng nhất:
+>
+> 1. **Critical — nhánh 3 lấy cạnh khớp ĐẦU TIÊN rồi tuyên bố như sự thật.** 46 cặp cạnh chung
+>    span, 17 nhóm (văn bản, lời văn) trùng khít. `ND80` span `[1071,2386]` là đích của `ND101`
+>    Điều 4 **khoản 4, 5, 6, 7, 8** — năm cạnh một span, chỉ khoản 4 được nêu. Một span của `ND16`
+>    còn trỏ sang **hai văn bản nền khác nhau**. Vi phạm thẳng "không bịa".
+> 2. **Important — fallback kéo lời văn hiện hành hỏi id CẤP ĐIỀU** (`f"{doc}::{article}"`) trong
+>    khi `pipeline.py` mint nhãn `"Điều N Khoản a-b"` cho điều >2000 ký tự ⇒ **31/40 ca trả `[]`**,
+>    fail-open che mất. **Đây là lỗi trong PLAN**, và mọi test đều mock đúng hàm bị hỏng nên nó
+>    sống sót qua mười cổng review.
+> 3. **Important — chunk kéo thêm không qua chú thích / lọc hiệu lực / phạm vi người dùng** ⇒ hiện
+>    lên như `Citation` không nhãn, và ở `/reviews` có thể thành `legal_doc_id` ngoài `against_ids`.
+>
+> Sửa trong 7 commit `ec41c13..87b2e1d`; **620 test** xanh, classify 94 (45/9/40) giữ. Đợt sửa tự
+> gây một hồi quy (gộp điểm dưới khoản làm mất cạnh trỏ *cả khoản* — in "Khoản 2 Điểm b, đ" trong
+> khi thật ra sửa cả Khoản 2, bắn ở 2/15 nhóm span thật), bắt được ở vòng re-review và sửa thêm
+> một vòng. Luật chốt cho `_cite_nhieu`: **không chắc thì NỚI RỘNG, đừng THU HẸP** — nói rộng hơn
+> là phiền, nói hẹp hơn là claim sai phạm vi sửa đổi. Đo lại sau khi sửa:
+> `ND101-2012 Điều 4 Khoản 4, 5, 6, 7, 8` và `TT15-2024 Điều 7 Khoản 2`. Deploy rev `00017-cqc`.
+>
+> **Bài học về quy trình, không phải về code:** plan nhúng sẵn cả code lẫn test, nên test chỉ lặp
+> lại giả định của người viết plan thay vì dò chúng. Đợt sau nên giữ **hợp đồng giao diện** trong
+> plan và để implementer tự viết test đối chiếu với index thật.
+
 ---
 
 ## 1. Repo có HAI schema văn bản, v0.5 mô tả MỘT

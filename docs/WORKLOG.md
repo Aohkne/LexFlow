@@ -39,8 +39,18 @@
   luôn) — vá ở `35031dd`. (3) Subagent kết luận `.where()` treo trên LanceDB Cloud và đề xuất né;
   đo trực tiếp thì `.where()` chạy tốt (1.85s/5.19s), lỗi thật là thoáng qua ngay sau khi ghi đè
   bảng — bác bỏ bằng số, không đổi cột nền.
-- **Next.** Cập nhật `docs/KG-CONFORMANCE-v05.md` khối P4; final review toàn nhánh; bộ câu hỏi
-  eval chấm ở mức điều/khoản; cào 89 văn bản tồn đọng.
+- **Final review toàn nhánh (bước cuối của quy trình) — 1 Critical + 6 Important.** Chạy trên
+  model mạnh nhất, đo **trên artefact đã ship**: (1) nhánh 3 lấy cạnh khớp đầu tiên rồi tuyên bố
+  như sự thật — 46 cặp cạnh chung span, ca `ND80→ND101` sửa **5 khoản** mà chỉ nêu 1; (2) fallback
+  kéo lời văn hiện hành hỏi id cấp điều nên **31/40 ca trả rỗng** — **lỗi trong plan**, và mọi test
+  đều mock đúng hàm bị hỏng nên sống sót qua 10 cổng review; (3) chunk kéo thêm không qua chú
+  thích/hiệu lực/phạm vi. Sửa 7 commit `ec41c13..87b2e1d`, **620 test** xanh, classify 94 giữ,
+  deploy rev `00017-cqc`. Đợt sửa tự gây một hồi quy (thu hẹp "cả Khoản 2" xuống "Điểm b, đ", bắn
+  ở 2/15 nhóm span thật) — bắt ở re-review, đi thêm một vòng ngoài mặc định quy trình vì cái giá
+  của việc bỏ qua là một trích dẫn pháp lý sai. Luật chốt: **không chắc thì nới rộng, đừng thu hẹp**.
+- **Next.** Bộ câu hỏi eval chấm ở mức điều/khoản (#19 — mở khoá con số trình hội đồng); tín hiệu
+  runtime báo lớp phủ đã nạp (`/health`, parked); `so_hieu_theo_doc` đóng băng lúc build sẽ mục
+  ruỗng khi corpus lớn (parked); cào 89 văn bản tồn đọng.
 
 ---
 
