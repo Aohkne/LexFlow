@@ -173,6 +173,17 @@ def _cite_nhieu(khoas: list[str]) -> str:
     `101/2012/NĐ-CP`; `16/2019/NĐ-CP` (7121, 7445) chạm cả `10/2010/NĐ-CP` lẫn `57/2016/NĐ-CP`.
     Nói tên MỘT đích rồi im về phần còn lại là trích dẫn tự tin mà thiếu — với sản phẩm pháp lý
     đó tệ hơn không trích.
+
+    **Luật chung khi gộp: không chắc thì NỚI RỘNG, đừng thu hẹp.** Hai cạnh trong cùng nhóm có
+    thể nói về cùng một đơn vị ở hai ĐỘ SÂU khác nhau (một cạnh trỏ trọn Khoản 2, một cạnh trỏ
+    Điểm b bên trong nó). In cấp rộng hơn: nói "Khoản 2" khi thật ra chỉ sửa điểm b là phiền,
+    còn nói "Điểm b" khi thật ra sửa cả Khoản 2 là **sai phạm vi sửa đổi** — đúng loại lỗi cả
+    hàm này sinh ra để chặn. Áp ở cả hai cấp: cạnh trỏ trọn ĐIỀU nuốt danh sách khoản, cạnh trỏ
+    trọn KHOẢN nuốt danh sách điểm của chính khoản đó.
+
+    Trần `_TOI_DA_KE_DICH` cắt cuối danh sách đã sắp theo `_sap`, mà `_sap` xếp mục RỘNG hơn
+    lên trước (khoản `None` trước khoản có số, điểm `None` trước điểm có chữ) — nên phép cắt
+    không bao giờ bỏ mất chính mục đang nới rộng.
     """
     rieng = sorted(dict.fromkeys(khoas), key=_sap)
     du = len(rieng) - _TOI_DA_KE_DICH
@@ -182,7 +193,11 @@ def _cite_nhieu(khoas: list[str]) -> str:
     # Gom HAI TẦNG — (văn bản, điều) rồi khoản → danh sách điểm — để câu trích không lặp lại
     # "Khoản 2" trước mỗi điểm: `"Điều 15 Khoản 2 Điểm a, b, đ, e, g, h"` chứ không phải
     # `"Khoản 2 Điểm a, Khoản 2 Điểm b, …"` (ca thật ND80-2016 → ND101-2012 Điều 15).
-    nhom: dict[tuple[str, str], dict[str | None, list[str]]] = {}
+    # `None` trong danh sách điểm là SENTINEL "có cạnh trỏ trọn khoản này", không phải "chưa có
+    # điểm nào". Thiếu nó thì một cạnh cả-khoản đứng chung nhóm với cạnh cấp điểm sẽ bị nuốt và
+    # câu trích thu hẹp xuống mấy điểm đó (ca thật `30/2025/TT-NHNN` span (5197, 5346): cả
+    # Khoản 2 Điều 7 `15/2024/TT-NHNN` lẫn điểm b, đ bên trong — 2/15 nhóm span nhiều cạnh).
+    nhom: dict[tuple[str, str], dict[str | None, list[str | None]]] = {}
     for k in rieng:
         p = _tach_khoa(k)
         if p is None:
@@ -190,9 +205,7 @@ def _cite_nhieu(khoas: list[str]) -> str:
             continue
         doc_id, dieu, khoan, diem = p
         theo_khoan = nhom.setdefault((doc_id, dieu), {})
-        diems = theo_khoan.setdefault(khoan, [])
-        if diem:
-            diems.append(diem)
+        theo_khoan.setdefault(khoan, []).append(diem or None)
 
     manh: list[str] = []
     for (doc_id, dieu), theo_khoan in nhom.items():
@@ -205,7 +218,8 @@ def _cite_nhieu(khoas: list[str]) -> str:
             manh.append(dau)
             continue
         phan = [
-            k if not d else f"{k} Điểm " + ", ".join(d)
+            # `None in d` ⇒ có cạnh trỏ TRỌN khoản này ⇒ nói cấp khoản, bỏ danh sách điểm.
+            k if None in d else f"{k} Điểm " + ", ".join(d)
             for k, d in theo_khoan.items()
         ]
         if all(" Điểm " not in p for p in phan):

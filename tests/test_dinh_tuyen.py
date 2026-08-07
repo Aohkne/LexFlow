@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 
 from app.ingestion.pipeline import build_chunks, load_corpus
-from app.ontology.dinh_tuyen import dinh_tuyen, khoa_tu_chunk_id
+from app.ontology.dinh_tuyen import _cite_nhieu, dinh_tuyen, khoa_tu_chunk_id
 from app.ontology.tac_dong import CanhTacDong
 
 _SH = {"TT40-2024": "40/2024/TT-NHNN", "TT41-2025": "41/2025/TT-NHNN"}
@@ -229,6 +229,59 @@ def test_nhanh_3_gop_diem_cung_khoan_theo_thu_tu_bang_chu_cai_viet():
         "ND101-2012 Điều 15 Khoản 2 Điểm a, b, đ, e, g, h "
         "(sửa bởi ND80-2016 Điều 1 Khoản 8)"
     )
+
+
+# --- Re-review 07/08: gộp danh sách KHÔNG được thu hẹp phạm vi -----------------------------
+#
+# Luật của cả `_cite_nhieu`: khi hai cạnh trong cùng nhóm nói về cùng một đơn vị ở hai ĐỘ SÂU
+# khác nhau, in ra cấp RỘNG hơn. Nói "Khoản 2" trong khi thật ra chỉ sửa điểm b là phiền; nói
+# "Điểm b" trong khi thật ra sửa cả Khoản 2 là SAI PHẠM VI — cùng loại lỗi CRITICAL 1.
+
+_D7 = "15/2024/TT-NHNN#than/dieu_7"
+
+
+def test_cite_nhieu_khong_thu_hep_ca_khoan_thanh_diem():
+    """Cạnh trỏ CẢ khoản đứng chung nhóm với cạnh trỏ điểm ⇒ phải in cấp khoản."""
+    assert _cite_nhieu([f"{_D7}#khoan_2", f"{_D7}#khoan_2#diem_b"]) == "TT15-2024 Điều 7 Khoản 2"
+
+
+def test_cite_nhieu_khong_thu_hep_ca_dieu_thanh_khoan():
+    """Cùng luật ở một cấp trên — đã đúng sẵn, giữ làm chốt chặn hồi quy."""
+    assert _cite_nhieu([_D7, f"{_D7}#khoan_2"]) == "TT15-2024 Điều 7"
+    assert _cite_nhieu([_D7, f"{_D7}#khoan_2#diem_b"]) == "TT15-2024 Điều 7"
+
+
+def test_cite_nhieu_khoan_khac_van_giu_diem_rieng():
+    """Nới rộng chỉ áp cho ĐÚNG khoản có cạnh bare — khoản khác vẫn kể điểm của nó."""
+    assert _cite_nhieu(
+        [f"{_D7}#khoan_2", f"{_D7}#khoan_2#diem_b", f"{_D7}#khoan_3#diem_a"]
+    ) == "TT15-2024 Điều 7 Khoản 2, Khoản 3 Điểm a"
+
+
+def test_nhanh_3_nhom_span_that_khong_thu_hep_pham_vi():
+    """Ca THẬT: `30/2025/TT-NHNN` span (5197, 5346) mang ba cạnh — cả Khoản 2 Điều 7
+    `15/2024/TT-NHNN` lẫn hai điểm b, đ bên trong nó. Câu trích phải nói CẢ KHOẢN."""
+    canh = [
+        CanhTacDong(nguon="30/2025/TT-NHNN#than/dieu_3#khoan_4", dich=dich,
+                    thao_tac="sua_doi", menh_lenh="x", loi_van_moi=(5197, 5346),
+                    valid_from="2025-07-01")
+        for dich in (f"{_D7}#khoan_2", f"{_D7}#khoan_2#diem_b", f"{_D7}#khoan_2#diem_đ")
+    ]
+    sh = {"TT30-2025": "30/2025/TT-NHNN", "TT15-2024": "15/2024/TT-NHNN"}
+    v = dinh_tuyen("TT30-2025::Điều 3 Khoản 4", (5197, 5346), canh, sh, "2026-08-05")
+    assert v.trich_dan_dung_chu == (
+        "TT15-2024 Điều 7 Khoản 2 (sửa bởi TT30-2025 Điều 3 Khoản 4)"
+    )
+    assert "Điểm" not in v.trich_dan_dung_chu  # không thu hẹp xuống hai điểm
+    # `khoa_dich` (máy đọc) vốn đã đúng — giữ nguyên, câu chữ nay khớp với nó.
+    assert v.khoa_dich == f"{_D7}#khoan_2"
+
+
+def test_cite_nhieu_cat_danh_sach_khong_bao_gio_bo_muc_rong_hon():
+    """Mục RỘNG hơn luôn sắp trước theo `_sap` nên không bị trần `_TOI_DA_KE_DICH` cắt mất."""
+    khoas = [_D7] + [f"{_D7}#khoan_{i}" for i in range(1, 20)]
+    assert _cite_nhieu(khoas).startswith("TT15-2024 Điều 7")
+    assert "Khoản" not in _cite_nhieu(khoas).split(" và ")[0]
 
 
 def test_nhanh_3_danh_sach_dai_thi_cat_va_noi_ro_da_cat():
