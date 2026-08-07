@@ -6,6 +6,44 @@
 
 ---
 
+## 2026-08-06 (T5) — đợt 5: nối lớp phủ vào sản phẩm (P4), 10 task subagent-driven TDD
+
+- **Done.** Lớp phủ dưới-văn-bản đi hết đường từ artefact tới UI: `app/ontology/dong_goi.py`
+  đóng gói 178 cạnh thành `data/overlay/lop_phu.json` **tự chứa** (giải span `loi_van_moi` thành
+  chữ ngay lúc build, vì `data/raw/vbpl/` gitignored nên runtime không bao giờ giải được);
+  `app/knowledge/lop_phu.py` là **cổng runtime duy nhất** bọc `dinh_tuyen`/`phien_ban_hien_hanh`,
+  fail-open; `answer.py` gắn nhãn hiệu lực cấp khoản vào prompt + `Citation`; `review.py` không
+  còn phán tuân thủ trên luật đã chết; `GET /documents/{id}` trả `tac_dong` cấp khoản; web hiện
+  badge ở 3 màn; `push_overlay` đẩy bản sao lên Neo4j để xem.
+- **Ship.** 16 commit `e21c50f..14b2901`. **Ingest:** LanceDB Cloud 449→**661 chunk**, 15→**26
+  văn bản**. **Neo4j:** 293 `DonVi`, 178 `TAC_DONG`, 255/293 `THUOC`. **Cloud Run** rev
+  `00016-n6k`, **Vercel** production + alias `lexflow-taupe`. 588 test xanh, ruff sạch.
+- **Verify prod (e2e qua `_prepare` thật).** `TT41-2025::Điều 10` → `la_loi_sua` → trích dẫn nắn
+  về **đúng chủ**: *"TT40-2024 Điều 26 Khoản 1 (sửa bởi TT41-2025 Điều 10 Khoản 1)"* — vá lỗ
+  §3.8 ở tầng retrieval. `TT41-2025::Điều 16` → `bi_bai_bo` (cạnh TT22 Điều 6 Khoản 2), ca
+  cạnh-chết chạy thật. `TT40-2024::Điều 26/37/25` → `da_sua` kèm nguồn sửa.
+- **Benchmark 36 câu (`eval/results/20260806-072821.json`), 0 câu lỗi.** Citation 36/36 ở cả ba
+  cột; stale-avoidance baseline 21/36 → LexFlow **36/36**; mâu thuẫn 6/7; retrieval p50 5028 ms.
+  **Router OFF vs ON: 0/36 câu khác nhau**, 0 hit bị loại vì bãi bỏ, 8 hit được nắn trích dẫn.
+- **Decision.** Ghi **dự đoán trước khi chạy** benchmark (0–3 hit bị loại; 10–25 hit được nắn) —
+  thực tế 0 và 8, tức **dự đoán sai phía nắn trích dẫn**. Kết luận thẳng: **bộ 36 câu này không
+  đo được lớp phủ**, vì nó chấm ở mức `doc_id` còn lớp phủ làm việc ở mức khoản; "0/36 khác nhau"
+  là giới hạn của thước đo, không phải bằng chứng lớp phủ vô dụng (giá trị của nó hiện ra ở
+  verify e2e và ở bộ nhãn cấp khoản). Muốn đo được thì cần bộ câu hỏi chấm ở mức điều/khoản —
+  việc riêng, chưa làm.
+- **Sự cố đáng ghi.** (1) `.gcloudignore` bỏ sót `data/tuvanphapluat/` (516 MB) ⇒ upload không
+  bao giờ tới bước build, mà `gcloud … | grep | tail` lại trả exit 0 (mã thoát của `tail`) ⇒ hai
+  lần "deploy thành công" giả. Chốt tiêu chí nghiệm thu deploy = **OpenAPI của bản đang phục vụ
+  có trường mới**, không phải exit code. (2) `Dockerfile` không copy `data/overlay/` ⇒ image
+  thiếu artefact ⇒ `tai_lop_phu()` trả `None` ⇒ lớp phủ **tắt trong im lặng** (fail-open nuốt
+  luôn) — vá ở `35031dd`. (3) Subagent kết luận `.where()` treo trên LanceDB Cloud và đề xuất né;
+  đo trực tiếp thì `.where()` chạy tốt (1.85s/5.19s), lỗi thật là thoáng qua ngay sau khi ghi đè
+  bảng — bác bỏ bằng số, không đổi cột nền.
+- **Next.** Cập nhật `docs/KG-CONFORMANCE-v05.md` khối P4; final review toàn nhánh; bộ câu hỏi
+  eval chấm ở mức điều/khoản; cào 89 văn bản tồn đọng.
+
+---
+
 ## 2026-08-05 (T4) — đợt 4: overlay dưới-văn-bản (P1–P3), 8 task subagent-driven TDD
 
 - **Done (P1–P3 qua 8 task, mỗi task TDD đỏ→xanh, 2 vòng fix sau review).** `CanhTacDong` (cạnh
