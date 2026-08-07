@@ -10,14 +10,24 @@ Chỉ **bổ sung**, không xoá: văn bản nào chỉ có trên canonical (duy
 đưa vào corpus commit) vẫn giữ nguyên; `articles` / `title` / hiệu lực không bị đụng vì đó
 là bản curate tay và là đầu vào chunking.
 
-Cách dùng (cần tài khoản admin):
+Cách dùng (cần quyền admin — hai lối, chọn một):
+
+    # 1. Đăng nhập bằng email/mật khẩu của tài khoản admin trong app
     uv run python scripts/sync_corpus_storage.py --email you@x.com --password '...'
-    uv run python scripts/sync_corpus_storage.py --email … --password … --dry-run
+
+    # 2. Không nhớ mật khẩu (đăng nhập bằng OAuth, hoặc chỉ có phiên trên trình duyệt):
+    #    mở web đã đăng nhập → DevTools → Application → Local Storage → khoá
+    #    `sb-<ref>-auth-token` → chép giá trị `access_token` (JWT, sống ~1 giờ)
+    uv run python scripts/sync_corpus_storage.py --token 'eyJ...'
+
+Thêm `--dry-run` để xem trước, không ghi gì lên Storage.
 """
 from __future__ import annotations
 
 import argparse
+import base64
 import json
+import time
 from pathlib import Path
 
 import httpx
@@ -96,10 +106,55 @@ def _login(email: str, password: str) -> str:
     return r.json()["access_token"]
 
 
+def _mo_ta_token(token: str) -> str:
+    """Đọc `sub`/`email`/`exp` trong payload JWT để in ra đang dùng danh tính nào.
+
+    Chỉ giải mã, KHÔNG xác thực chữ ký — việc đó là của Supabase; ở đây chỉ để người chạy
+    thấy mình cầm nhầm token thì biết ngay, thay vì nhận 403 khó hiểu.
+    """
+    try:
+        than = token.split(".")[1]
+        than += "=" * (-len(than) % 4)
+        claims = json.loads(base64.urlsafe_b64decode(than))
+    except Exception:  # noqa: BLE001 — token không phải JWT: cứ thử, Storage sẽ từ chối
+        return "không đọc được payload (vẫn thử gọi Storage)"
+    con = int(claims.get("exp", 0)) - int(time.time())
+    het = f"còn {con // 60} phút" if con > 0 else "ĐÃ HẾT HẠN — lấy token mới"
+    return f"{claims.get('email') or claims.get('sub', '?')} · {het}"
+
+
+def _ma_loi_storage(resp: httpx.Response) -> str | None:
+    """Mã lỗi Supabase Storage (`NoSuchKey`, `NoSuchBucket`…) trong thân JSON, nếu có."""
+    try:
+        body = resp.json()
+    except Exception:  # noqa: BLE001 — thân không phải JSON thì coi như không có mã
+        return None
+    return body.get("code") or body.get("error")
+
+
+def _kiem_token(token: str) -> None:
+    """Dừng ngay nếu token không đăng nhập được — đỡ đoán mò khi Storage trả 400."""
+    r = httpx.get(
+        settings.supabase_url.rstrip("/") + "/auth/v1/user",
+        headers={"apikey": settings.supabase_anon_key, "Authorization": f"Bearer {token}"},
+        timeout=30,
+    )
+    if r.status_code != 200:
+        raise SystemExit(
+            f"Token không dùng được (HTTP {r.status_code}): {r.text[:200]}\n"
+            "Lấy lại `access_token` trong Local Storage của web đã đăng nhập."
+        )
+    print(f"Đăng nhập với: {r.json().get('email') or r.json().get('id')}")
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--email", required=True)
-    ap.add_argument("--password", required=True)
+    ap.add_argument("--email")
+    ap.add_argument("--password")
+    ap.add_argument(
+        "--token",
+        help="access_token lấy từ phiên trình duyệt, thay cho --email/--password",
+    )
     ap.add_argument("--dry-run", action="store_true", help="chỉ in ra, không ghi Storage")
     ap.add_argument(
         "--backup",
@@ -109,15 +164,34 @@ def main() -> None:
     )
     args = ap.parse_args()
 
-    token = _login(args.email, args.password)
+    if bool(args.token) == bool(args.email or args.password):
+        raise SystemExit("Chọn một trong hai: --email + --password HOẶC --token")
+    if args.token:
+        token = args.token.strip().strip("'\"")
+        print(f"Dùng token phiên: {_mo_ta_token(token)}")
+    else:
+        if not (args.email and args.password):
+            raise SystemExit("--email đi kèm --password.")
+        token = _login(args.email, args.password)
     headers = {"apikey": settings.supabase_anon_key, "Authorization": f"Bearer {token}"}
     base = settings.supabase_url.rstrip("/") + "/storage/v1/object/"
 
+    _kiem_token(token)
+
     r = httpx.get(base + _OBJECT, headers=headers, timeout=60)
     if r.status_code in (400, 404):
-        print("Canonical chưa tồn tại trên Storage — backend đang dùng file đóng gói, "
-              "không cần sync.")
-        return
+        # Storage trả 400 cho cả "không có object" lẫn "RLS chặn" — phân biệt bằng mã lỗi,
+        # nếu không thì token hỏng cũng ra thông điệp "không cần sync" và ta tưởng xong việc.
+        ma = _ma_loi_storage(r)
+        if ma == "NoSuchKey":
+            print("Canonical chưa tồn tại trên Storage — backend đang dùng file đóng gói "
+                  "trong image. Muốn production đổi theo bản local thì DEPLOY LẠI, "
+                  "sync không giải quyết được.")
+            return
+        raise SystemExit(
+            f"Không đọc được canonical (HTTP {r.status_code}, mã {ma or '?'}): {r.text[:200]}\n"
+            "Mã NoSuchBucket/Unauthorized nghĩa là RLS chặn — tài khoản này chưa phải admin."
+        )
     r.raise_for_status()
     canonical = r.json()
 

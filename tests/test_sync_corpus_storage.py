@@ -82,3 +82,34 @@ def test_anchors_chi_dien_khi_canonical_con_thieu() -> None:
     assert sync_anchors(canonical, _local()) == 1
     assert canonical["relationships"][0]["anchors"] == ["Điều 1 Khoản 2"]
     assert sync_anchors(canonical, _local()) == 0
+
+
+def test_mo_ta_token_doc_duoc_email_va_han() -> None:
+    import base64
+    import json
+    import time
+
+    from scripts.sync_corpus_storage import _mo_ta_token
+
+    payload = {"email": "admin@x.com", "exp": int(time.time()) + 1800}
+    than = base64.urlsafe_b64encode(json.dumps(payload).encode()).decode().rstrip("=")
+    mo_ta = _mo_ta_token(f"eyJhbGciOiJIUzI1NiJ9.{than}.chu-ky-gia")
+    assert "admin@x.com" in mo_ta
+    assert "còn 29 phút" in mo_ta or "còn 30 phút" in mo_ta
+
+    het = {"email": "admin@x.com", "exp": int(time.time()) - 60}
+    than = base64.urlsafe_b64encode(json.dumps(het).encode()).decode().rstrip("=")
+    assert "ĐÃ HẾT HẠN" in _mo_ta_token(f"eyJ.{than}.x")
+    assert "không đọc được payload" in _mo_ta_token("khong-phai-jwt")
+
+
+def test_ma_loi_storage_phan_biet_thieu_object_voi_rls_chan() -> None:
+    import httpx
+
+    from scripts.sync_corpus_storage import _ma_loi_storage
+
+    thieu = httpx.Response(400, json={"statusCode": "404", "code": "NoSuchKey"})
+    chan = httpx.Response(400, json={"statusCode": "404", "code": "NoSuchBucket"})
+    assert _ma_loi_storage(thieu) == "NoSuchKey"
+    assert _ma_loi_storage(chan) == "NoSuchBucket"
+    assert _ma_loi_storage(httpx.Response(400, text="<html>proxy</html>")) is None
