@@ -111,6 +111,93 @@ def _cite(khoa: str) -> str:
     return f"{doc_id} {phan}"
 
 
+#: Số đơn vị đích tối đa liệt kê trong MỘT câu trích dẫn. Một khối lời văn mới có thể là lời
+#: văn của rất nhiều đơn vị cùng lúc (đo trên `data/overlay/lop_phu.json`: tối đa 6); ngưỡng 8
+#: để câu trích còn đọc được. Vượt ngưỡng thì cắt **kèm lời báo** — cắt trong im lặng là đúng
+#: cái khuyết tật hàm này sinh ra để chặn.
+_TOI_DA_KE_DICH = 8
+
+_SO_RE = re.compile(r"^(\d*)(.*)$")
+
+
+def _tach_khoa(khoa: str) -> tuple[str, str, str | None, str | None] | None:
+    """Khoá overlay → (`doc_id` hiển thị, số điều, khoản, điểm). Không giải được ⇒ None."""
+    m = _KHOA_RE.match(khoa)
+    if not m:
+        return None
+    return (
+        doc_id_theo_corpus(m.group("sh")) or m.group("sh"),
+        m.group("dieu"),
+        m.group("khoan"),
+        m.group("diem"),
+    )
+
+
+def _tu_nhien(v: str | None) -> tuple:
+    """Khoá sắp TỰ NHIÊN cho số điều/khoản: `"10"` sau `"9"`, `"5a"` sau `"5"`."""
+    if not v:
+        return (0, 0, "")
+    so, hau = _SO_RE.match(v).groups()
+    return (1, int(so) if so else 0, hau)
+
+
+def _sap(khoa: str) -> tuple:
+    """Thứ tự TẤT ĐỊNH giữa các khoá overlay — dùng cả để chọn cạnh chủ lẫn để in danh sách."""
+    p = _tach_khoa(khoa)
+    if p is None:
+        return (1, khoa, (0, 0, ""), (0, 0, ""), "")
+    doc_id, dieu, khoan, diem = p
+    return (0, doc_id, _tu_nhien(dieu), _tu_nhien(khoan), diem or "")
+
+
+def _cite_nhieu(khoas: list[str]) -> str:
+    """Nhiều khoá overlay → MỘT trích dẫn kể ĐỦ, gom theo (văn bản, điều).
+
+    Nhánh 3 khớp theo span, mà một span thường là lời văn mới của NHIỀU đơn vị: đo trên
+    artefact thật có 46 cặp cạnh cùng văn bản sửa giao span và 17 nhóm (văn bản, lời văn) trùng
+    khít — `80/2016/NĐ-CP` (1071, 2386) là lời văn của khoản 4, 5, 6, 7 **và** 8 Điều 4
+    `101/2012/NĐ-CP`; `16/2019/NĐ-CP` (7121, 7445) chạm cả `10/2010/NĐ-CP` lẫn `57/2016/NĐ-CP`.
+    Nói tên MỘT đích rồi im về phần còn lại là trích dẫn tự tin mà thiếu — với sản phẩm pháp lý
+    đó tệ hơn không trích.
+    """
+    rieng = sorted(dict.fromkeys(khoas), key=_sap)
+    du = len(rieng) - _TOI_DA_KE_DICH
+    if du > 0:
+        rieng = rieng[:_TOI_DA_KE_DICH]
+
+    nhom: dict[tuple[str, str], list[str]] = {}
+    for k in rieng:
+        p = _tach_khoa(k)
+        if p is None:
+            nhom.setdefault((k, ""), [])  # khoá lạ: giữ nguyên chữ thô, không bịa
+            continue
+        doc_id, dieu, khoan, diem = p
+        phan = ""
+        if khoan:
+            phan = f"Khoản {khoan}" + (f" Điểm {diem}" if diem else "")
+        nhom.setdefault((doc_id, dieu), []).append(phan)
+
+    manh: list[str] = []
+    for (doc_id, dieu), phan in nhom.items():
+        if not dieu:
+            manh.append(doc_id)
+            continue
+        dau = f"{doc_id} Điều {dieu}"
+        con = [p for p in phan if p]
+        if not con or len(con) < len(phan):
+            # Có cạnh trỏ TRỌN điều ⇒ nói cấp điều là đã bao trùm các khoản còn lại, không giấu.
+            manh.append(dau)
+        elif all(" Điểm " not in p for p in con):
+            manh.append(f"{dau} Khoản " + ", ".join(p[len("Khoản "):] for p in con))
+        else:
+            manh.append(f"{dau} " + ", ".join(con))
+
+    ra = " và ".join(manh)
+    if du > 0:
+        ra += f" và {du} đơn vị khác (đã rút gọn)"
+    return ra
+
+
 def _giao_nhau(a: tuple[int, int], b: tuple[int, int]) -> bool:
     return a[0] < b[1] and b[0] < a[1]
 
@@ -179,35 +266,62 @@ def dinh_tuyen(
     # mang) nên vẫn về nhánh `trich_trong_van_ban_sua` — chỉ câu trích dẫn phải nói thật là sửa
     # đổi đó không còn hiệu lực, kèm ai đã bãi bỏ nó (suy từ `phien_ban_hien_hanh(c.nguon, ...)`,
     # cùng cách `_canh_deeper_ap_duoc` đã làm cho nhánh 2).
+    # Gom TẤT CẢ cạnh khớp span, không lấy cạnh đầu tiên (fix wave 06/08, CRITICAL 1): một khối
+    # lời văn mới thường là lời văn của nhiều đơn vị, đôi khi ở nhiều VĂN BẢN NỀN khác nhau —
+    # xem `_cite_nhieu`. Lấy cạnh đầu rồi phát biểu như sự thật là giấu phần còn lại.
     if span_chunk is not None and so_hieu_doc is not None:
-        for c in canh:
-            if (
-                c.nguon.split("#", 1)[0] == so_hieu_doc
-                and c.loi_van_moi is not None
-                and _giao_nhau(span_chunk, c.loi_van_moi)
-            ):
-                pb_dich = phien_ban_hien_hanh(c.dich, canh, hom_nay)
-                if c in pb_dich.cac_lan:
-                    trich = f"{_cite(c.dich)} (sửa bởi {_cite(c.nguon)})"
-                else:
+        khop = [
+            c for c in canh
+            if c.nguon.split("#", 1)[0] == so_hieu_doc
+            and c.loi_van_moi is not None
+            and _giao_nhau(span_chunk, c.loi_van_moi)
+        ]
+        if khop:
+            khop.sort(key=lambda c: (_sap(c.dich), _sap(c.nguon), c.thao_tac, c.valid_from or ""))
+            # Cổng cạnh-chết giữ nguyên, chỉ áp cho TỪNG cạnh khớp: chỉ kể những cạnh còn áp
+            # được hôm nay. Không cạnh nào còn áp ⇒ vẫn phải nói về chúng, nhưng ở thì quá khứ.
+            con_ap = [c for c in khop if c in phien_ban_hien_hanh(c.dich, canh, hom_nay).cac_lan]
+            ke = con_ap or khop
+            chu = ke[0]  # cạnh CHỦ: nhỏ nhất theo `_sap` ⇒ tất định giữa các lần chạy
+            if con_ap:
+                trich = (
+                    f"{_cite_nhieu([c.dich for c in ke])} "
+                    f"(sửa bởi {_cite_nhieu([c.nguon for c in ke])})"
+                )
+            else:
+                # Các cạnh chết có thể chết vì những lý do KHÁC nhau (nguồn bị bãi bỏ bởi văn
+                # bản khác nhau, hoặc chưa tới ngày áp) — gom theo lý do rồi mới gộp câu chữ,
+                # không quy hết về lý do của một cạnh.
+                theo_ly_do: dict[str, list[CanhTacDong]] = {}
+                for c in ke:
                     pb_nguon = phien_ban_hien_hanh(c.nguon, canh, hom_nay)
-                    if pb_nguon.trang_thai == "bi_bai_bo":
-                        bai_bo_edge = pb_nguon.cac_lan[-1]
-                        trich = (
-                            f"{_cite(c.dich)} (từng được sửa bởi {_cite(c.nguon)} — đã bị "
-                            f"bãi bỏ bởi {_cite(bai_bo_edge.nguon)}, không còn áp dụng)"
+                    boi = (
+                        _cite(pb_nguon.cac_lan[-1].nguon)
+                        if pb_nguon.trang_thai == "bi_bai_bo" and pb_nguon.cac_lan
+                        else ""
+                    )
+                    theo_ly_do.setdefault(boi, []).append(c)
+                manh = []
+                for boi, cs in theo_ly_do.items():
+                    dich_s = _cite_nhieu([c.dich for c in cs])
+                    nguon_s = _cite_nhieu([c.nguon for c in cs])
+                    if boi:
+                        manh.append(
+                            f"{dich_s} (từng được sửa bởi {nguon_s} — đã bị bãi bỏ bởi "
+                            f"{boi}, không còn áp dụng)"
                         )
                     else:
                         # Chưa gặp trong dữ liệu thật (vd valid_from còn ở tương lai) — vẫn
                         # nói thẳng "không áp dụng" thay vì im lặng giữ nguyên "sửa bởi".
-                        trich = f"{_cite(c.dich)} (từng được sửa bởi {_cite(c.nguon)}, hiện không áp dụng)"
-                return KetQuaTuyen(
-                    nhanh="trich_trong_van_ban_sua",
-                    khoa_goc=khoa_goc,
-                    khoa_dich=c.dich,
-                    trich_dan_dung_chu=trich,
-                    canh=c,
-                )
+                        manh.append(f"{dich_s} (từng được sửa bởi {nguon_s}, hiện không áp dụng)")
+                trich = "; ".join(manh)
+            return KetQuaTuyen(
+                nhanh="trich_trong_van_ban_sua",
+                khoa_goc=khoa_goc,
+                khoa_dich=chu.dich,
+                trich_dan_dung_chu=trich,
+                canh=chu,
+            )
 
     # --- Nhánh 2: chunk thuộc văn bản NỀN, đã bị sửa/bãi bỏ — rộng-hơn-hoặc-bằng trước.
     pb = phien_ban_hien_hanh(khoa_goc, canh, hom_nay)

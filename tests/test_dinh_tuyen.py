@@ -145,6 +145,85 @@ def test_nhanh_3_gate_hieu_luc_hom_nay():
     assert "từng được sửa bởi T Điều 16" in v_sau.trich_dan_dung_chu
 
 
+# --- Fix wave 06/08, CRITICAL 1: nhánh 3 phải kể ĐỦ mọi đích chia chung một khối trích ----
+#
+# Đo trên `data/overlay/lop_phu.json` (178 cạnh): 46 CẶP cạnh cùng văn bản sửa có span giao
+# nhau, 17 nhóm (văn bản, lời văn) trùng khít. Lấy cạnh ĐẦU TIÊN rồi nói như sự thật nghĩa là
+# giấu phần còn lại — với một sản phẩm pháp lý, trích dẫn tự tin mà thiếu đích là hỏng nặng
+# hơn không trích. Hai ca dưới đây dựng lại bằng fixture (không đụng `data/raw/vbpl/`).
+
+# Ca 1 — MỘT khối trích, NĂM đích trong CÙNG văn bản nền: `80/2016/NĐ-CP` span (1071, 2386)
+# là lời văn mới của khoản 4, 5, 6, 7 và 8 Điều 4 `101/2012/NĐ-CP`.
+_SH_ND80 = {"ND80-2016": "80/2016/NĐ-CP", "ND101-2012": "101/2012/NĐ-CP"}
+_CANH_ND80 = [
+    CanhTacDong(
+        nguon="80/2016/NĐ-CP#than/dieu_1#khoan_1",
+        dich=f"101/2012/NĐ-CP#than/dieu_4#khoan_{k}",
+        thao_tac="sua_doi", menh_lenh="x", loi_van_moi=(1071, 2386), valid_from="2016-07-01",
+    )
+    for k in (4, 5, 6, 7, 8)
+]
+
+# Ca 2 — MỘT khối trích, hai đích ở HAI văn bản nền khác nhau: `16/2019/NĐ-CP` span
+# (7121, 7445) trỏ cả `10/2010/NĐ-CP` Điều 7 lẫn `57/2016/NĐ-CP` Điều 1.
+_SH_ND16 = {"ND16-2019": "16/2019/NĐ-CP"}
+_CANH_ND16 = [
+    CanhTacDong(nguon="16/2019/NĐ-CP#than/dieu_4", dich="10/2010/NĐ-CP#than/dieu_7",
+                thao_tac="sua_doi", menh_lenh="x", loi_van_moi=(7121, 7445),
+                valid_from="2019-03-20"),
+    CanhTacDong(nguon="16/2019/NĐ-CP#than/dieu_4", dich="57/2016/NĐ-CP#than/dieu_1",
+                thao_tac="sua_doi", menh_lenh="x", loi_van_moi=(7121, 7445),
+                valid_from="2019-03-20"),
+]
+
+
+def test_nhanh_3_ke_du_nam_khoan_cung_van_ban():
+    v = dinh_tuyen("ND80-2016::Điều 1 Khoản 1", (1071, 2386), _CANH_ND80, _SH_ND80, "2026-08-05")
+    assert v.nhanh == "trich_trong_van_ban_sua"
+    assert v.trich_dan_dung_chu == (
+        "ND101-2012 Điều 4 Khoản 4, 5, 6, 7, 8 (sửa bởi ND80-2016 Điều 1 Khoản 1)"
+    )
+    # `khoa_dich` giữ MỘT giá trị chính, chọn tất định (nhỏ nhất theo khoá).
+    assert v.khoa_dich == "101/2012/NĐ-CP#than/dieu_4#khoan_4"
+
+
+def test_nhanh_3_ke_du_hai_van_ban_nen_khac_nhau():
+    v = dinh_tuyen("ND16-2019::Điều 4", (7121, 7445), _CANH_ND16, _SH_ND16, "2026-08-05")
+    assert v.nhanh == "trich_trong_van_ban_sua"
+    assert "ND10-2010 Điều 7" in v.trich_dan_dung_chu
+    assert "ND57-2016 Điều 1" in v.trich_dan_dung_chu
+
+
+def test_nhanh_3_chi_ke_canh_con_ap_duoc():
+    """Cạnh chết (nguồn phát đã bị bãi bỏ) không được kể vào danh sách đích còn hiệu lực."""
+    canh = [
+        *_CANH_ND16,
+        CanhTacDong(nguon="99/2026/NĐ-CP#than/dieu_1", dich="16/2019/NĐ-CP#than/dieu_4",
+                    thao_tac="bai_bo", menh_lenh="y", valid_from="2026-01-01"),
+    ]
+    sh = {**_SH_ND16, "ND99-2026": "99/2026/NĐ-CP"}
+    v = dinh_tuyen("ND16-2019::Điều 4", (7121, 7445), canh, sh, "2026-08-05")
+    assert v.nhanh == "trich_trong_van_ban_sua"
+    # Cả hai cạnh đều chết ⇒ vẫn phải kể ĐỦ hai đích, nhưng nói rõ là không còn áp dụng.
+    assert "từng được sửa bởi" in v.trich_dan_dung_chu
+    assert "đã bị bãi bỏ bởi ND99-2026 Điều 1" in v.trich_dan_dung_chu
+    assert "ND10-2010 Điều 7" in v.trich_dan_dung_chu
+    assert "ND57-2016 Điều 1" in v.trich_dan_dung_chu
+
+
+def test_nhanh_3_danh_sach_dai_thi_cat_va_noi_ro_da_cat():
+    """Không bao giờ cắt trong im lặng — cắt thì phải nói là đã cắt."""
+    canh = [
+        CanhTacDong(nguon="80/2016/NĐ-CP#than/dieu_1#khoan_1",
+                    dich=f"101/2012/NĐ-CP#than/dieu_{d}", thao_tac="sua_doi", menh_lenh="x",
+                    loi_van_moi=(1071, 2386), valid_from="2016-07-01")
+        for d in range(1, 21)
+    ]
+    v = dinh_tuyen("ND80-2016::Điều 1 Khoản 1", (1071, 2386), canh, _SH_ND80, "2026-08-05")
+    assert "đơn vị khác" in v.trich_dan_dung_chu
+    assert "đã rút gọn" in v.trich_dan_dung_chu
+
+
 # --- Bộ câu hỏi gắn nhãn TAY trên dữ liệu THẬT (Task 8) --------------------------------
 #
 # `eval/overlay/cau_hoi_nhan.jsonl` gắn nhãn bằng cách ĐỌC từng chunk + cạnh liên quan

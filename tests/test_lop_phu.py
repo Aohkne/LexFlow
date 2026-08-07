@@ -220,6 +220,84 @@ def test_tra_chunk_xuat_xu_loi_thi_khong_nem(lp, monkeypatch):
     assert ct["TT40-2024::Điều 10"].trang_thai == "da_sua"
 
 
+# --- Fix wave 06/08, CRITICAL 1 (đi qua cả cổng runtime, không chỉ `dinh_tuyen`) ----------
+#
+# Cùng hai ca đã dựng ở `tests/test_dinh_tuyen.py`, nhưng vào bằng đường THẬT của sản phẩm:
+# chunk retrieval → `_span_loi_van` (so bằng CHỮ) → `dinh_tuyen`. Fixture, không đụng
+# `data/raw/vbpl/` (gitignored).
+
+_KHOI_ND80 = '"4. Lời văn mới của khoản 4 tới khoản 8 Điều 4."'
+_KHOI_ND16 = '"Điều 7 và Điều 1 nay được sửa như sau: ..."'
+
+
+def _goi_chung_span() -> GoiLopPhu:
+    return GoiLopPhu(
+        sinh_luc="2026-08-06",
+        so_hieu_theo_doc={
+            "ND80-2016": "80/2016/NĐ-CP",
+            "ND101-2012": "101/2012/NĐ-CP",
+            "ND16-2019": "16/2019/NĐ-CP",
+        },
+        canh=[
+            *[
+                CanhGoi(
+                    nguon="80/2016/NĐ-CP#than/dieu_1#khoan_1",
+                    dich=f"101/2012/NĐ-CP#than/dieu_4#khoan_{k}",
+                    thao_tac="sua_doi", valid_from="2016-07-01",
+                    loi_van_moi=(1071, 1071 + len(_KHOI_ND80)), loi_van_moi_text=_KHOI_ND80,
+                    xuat_xu_doc_id="ND80-2016", xuat_xu_article="Điều 1",
+                    menh_lenh="Sửa đổi khoản 4, 5, 6, 7, 8 Điều 4 như sau:",
+                )
+                for k in (4, 5, 6, 7, 8)
+            ],
+            *[
+                CanhGoi(
+                    nguon="16/2019/NĐ-CP#than/dieu_4", dich=dich,
+                    thao_tac="sua_doi", valid_from="2019-03-20",
+                    loi_van_moi=(7121, 7121 + len(_KHOI_ND16)), loi_van_moi_text=_KHOI_ND16,
+                    xuat_xu_doc_id="ND16-2019", xuat_xu_article="Điều 4",
+                    menh_lenh="Sửa đổi như sau:",
+                )
+                for dich in ("10/2010/NĐ-CP#than/dieu_7", "57/2016/NĐ-CP#than/dieu_1")
+            ],
+        ],
+    )
+
+
+@pytest.fixture
+def lp_chung_span(tmp_path):
+    p = tmp_path / "chung_span.json"
+    p.write_text(_goi_chung_span().model_dump_json(), encoding="utf-8")
+    tai_lop_phu.cache_clear()
+    ra = tai_lop_phu(str(p))
+    yield ra
+    tai_lop_phu.cache_clear()
+
+
+def test_nam_khoan_chung_mot_khoi_trich_deu_duoc_ke(lp_chung_span):
+    ct = chu_thich_chunk(
+        _chunk("ND80-2016::Điều 1 Khoản 1", f"1. Sửa đổi Điều 4 như sau:\n{_KHOI_ND80}"),
+        "2026-08-06",
+        lp_chung_span,
+    )
+    assert ct.trang_thai == "la_loi_sua"
+    assert ct.trich_dan_dung_chu == (
+        "ND101-2012 Điều 4 Khoản 4, 5, 6, 7, 8 (sửa bởi ND80-2016 Điều 1 Khoản 1)"
+    )
+    assert ct.khoa_dich == "101/2012/NĐ-CP#than/dieu_4#khoan_4"
+
+
+def test_hai_van_ban_nen_chung_mot_khoi_trich_deu_duoc_ke(lp_chung_span):
+    ct = chu_thich_chunk(
+        _chunk("ND16-2019::Điều 4", f"Điều 4. Sửa đổi\n{_KHOI_ND16}"),
+        "2026-08-06",
+        lp_chung_span,
+    )
+    assert ct.trang_thai == "la_loi_sua"
+    assert "ND10-2010 Điều 7" in ct.trich_dan_dung_chu
+    assert "ND57-2016 Điều 1" in ct.trich_dan_dung_chu
+
+
 def test_chunk_thieu_hoac_rong_id_thi_khong_nem(lp):
     """Chunk hiểm (thiếu hẳn khoá `id`, hoặc `id` rỗng) không được làm sập `chu_thich_ket_qua`.
 
