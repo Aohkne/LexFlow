@@ -1,4 +1,6 @@
 """Cổng runtime của lớp phủ: chunk retrieval → chú thích hiệu lực cấp khoản."""
+from pathlib import Path
+
 import pytest
 
 from app.knowledge.lop_phu import chu_thich_chunk, chu_thich_ket_qua, tai_lop_phu
@@ -153,7 +155,7 @@ def test_da_sua_khong_co_ban_hien_hanh_thi_keo_chunk_xuat_xu(lp, monkeypatch):
         return [_chunk("TT41-2025::Điều 3", "Bổ sung Điều 10 như sau: ...")]
 
     monkeypatch.setattr(
-        "app.knowledge.retrieval.lay_chunk_theo_id", gia_lay_chunk_theo_id
+        "app.knowledge.retrieval.lay_chunk_theo_tien_to", gia_lay_chunk_theo_id
     )
 
     con, ct = chu_thich_ket_qua([_chunk("TT40-2024::Điều 10")], "2026-08-06", lp)
@@ -174,7 +176,7 @@ def test_da_sua_co_san_ban_hien_hanh_thi_khong_keo(lp, monkeypatch):
         return []
 
     monkeypatch.setattr(
-        "app.knowledge.retrieval.lay_chunk_theo_id", gia_lay_chunk_theo_id
+        "app.knowledge.retrieval.lay_chunk_theo_tien_to", gia_lay_chunk_theo_id
     )
 
     con, ct = chu_thich_ket_qua([_chunk("TT40-2024::Điều 8 Khoản 7")], "2026-08-06", lp)
@@ -194,7 +196,7 @@ def test_khong_keo_trung_khi_chunk_xuat_xu_da_co_san(lp, monkeypatch):
         return [_chunk("TT41-2025::Điều 3")]
 
     monkeypatch.setattr(
-        "app.knowledge.retrieval.lay_chunk_theo_id", gia_lay_chunk_theo_id
+        "app.knowledge.retrieval.lay_chunk_theo_tien_to", gia_lay_chunk_theo_id
     )
 
     chunks = [_chunk("TT40-2024::Điều 10"), _chunk("TT41-2025::Điều 3")]
@@ -211,7 +213,7 @@ def test_tra_chunk_xuat_xu_loi_thi_khong_nem(lp, monkeypatch):
         raise RuntimeError("LanceDB lỗi")
 
     monkeypatch.setattr(
-        "app.knowledge.retrieval.lay_chunk_theo_id", gia_lay_chunk_theo_id
+        "app.knowledge.retrieval.lay_chunk_theo_tien_to", gia_lay_chunk_theo_id
     )
 
     con, ct = chu_thich_ket_qua([_chunk("TT40-2024::Điều 10")], "2026-08-06", lp)
@@ -296,6 +298,60 @@ def test_hai_van_ban_nen_chung_mot_khoi_trich_deu_duoc_ke(lp_chung_span):
     assert ct.trang_thai == "la_loi_sua"
     assert "ND10-2010 Điều 7" in ct.trich_dan_dung_chu
     assert "ND57-2016 Điều 1" in ct.trich_dan_dung_chu
+
+
+# --- Fix wave 06/08, IMPORTANT 2: kéo lời văn mới về phải TRÚNG khi điều bị chẻ ----------
+#
+# Ca thật: `ND80-2016 Điều 1` dài 6058 ký tự nên `_split_khoan` chẻ thành 4 mảnh — id
+# `"ND80-2016::Điều 1"` KHÔNG tồn tại. Đường kéo cũ hỏi đúng id đó và nhận rỗng ở 31/40 ca.
+# Test này đi qua bảng GIẢ dựng từ id thật (`tests/test_lay_chunk_tien_to.py` giữ bảng đó),
+# không mock hàm tra.
+
+_CORPUS_REAL = Path("data/corpus.real.json")
+
+
+def _goi_xuat_xu_dieu_dai() -> GoiLopPhu:
+    return GoiLopPhu(
+        sinh_luc="2026-08-06",
+        so_hieu_theo_doc={"ND101-2012": "101/2012/NĐ-CP", "ND80-2016": "80/2016/NĐ-CP"},
+        canh=[
+            CanhGoi(
+                nguon="80/2016/NĐ-CP#than/dieu_1#khoan_1",
+                dich="101/2012/NĐ-CP#than/dieu_4",
+                thao_tac="bo_sung",  # `bo_sung` ⇒ KHÔNG có `ban_hien_hanh` ⇒ phải kéo về
+                valid_from="2016-07-01",
+                xuat_xu_doc_id="ND80-2016",
+                xuat_xu_article="Điều 1",
+                menh_lenh="Bổ sung Điều 4 như sau:",
+            )
+        ],
+    )
+
+
+@pytest.mark.skipif(not _CORPUS_REAL.exists(), reason="thiếu data/corpus.real.json")
+def test_keo_duoc_manh_cua_dieu_bi_che_theo_khoan(tmp_path, monkeypatch):
+    from tests.test_lay_chunk_tien_to import _BangGia
+    from app.ingestion.pipeline import build_chunks, load_corpus
+    from app.knowledge import retrieval
+
+    docs, _rels = load_corpus(_CORPUS_REAL)
+    hang = [{k: v for k, v in r.items() if k != "vector"} for r in build_chunks(docs)]
+    assert not any(r["id"] == "ND80-2016::Điều 1" for r in hang)  # tiền đề của ca này
+    monkeypatch.setattr(retrieval, "_open_table", lambda: _BangGia(hang))
+
+    p = tmp_path / "dieu_dai.json"
+    p.write_text(_goi_xuat_xu_dieu_dai().model_dump_json(), encoding="utf-8")
+    tai_lop_phu.cache_clear()
+    lp_dai = tai_lop_phu(str(p))
+
+    con, ct = chu_thich_ket_qua([_chunk("ND101-2012::Điều 4")], "2026-08-06", lp_dai)
+    tai_lop_phu.cache_clear()
+
+    assert ct["ND101-2012::Điều 4"].trang_thai == "da_sua"
+    assert ct["ND101-2012::Điều 4"].ban_hien_hanh is None
+    keo = [c["id"] for c in con if c["id"] != "ND101-2012::Điều 4"]
+    assert keo, "điều xuất xứ bị chẻ theo khoản mà kéo về rỗng — đúng lỗi đang sửa"
+    assert all(k.startswith("ND80-2016::Điều 1 ") for k in keo)
 
 
 def test_chunk_thieu_hoac_rong_id_thi_khong_nem(lp):

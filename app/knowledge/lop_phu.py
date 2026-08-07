@@ -247,7 +247,12 @@ def chu_thich_ket_qua(
         con = list(chunks)
 
     # Kéo lời văn mới về cho hit đã sửa mà KHÔNG có sẵn bản hiện hành (bổ sung, thay cụm từ…).
-    co_san = {c.get("id") for c in con}
+    #
+    # Hỏi bằng TIỀN TỐ `"{doc_id}::Điều N"`, không phải id chính xác (fix wave 06/08,
+    # IMPORTANT 2): lớp phủ chỉ biết địa chỉ tới cấp ĐIỀU, còn `pipeline._split_khoan` chẻ mọi
+    # điều dài hơn `_MAX_CHUNK` thành `"Điều N Khoản a-b"` — id cấp điều KHÔNG tồn tại ở 31/40
+    # ca cần đường này, và fail-open nuốt mất. Xem `retrieval.lay_chunk_theo_tien_to`.
+    co_san = {c.get("id") for c in con if c.get("id")}
     can_them = sorted(
         {
             f"{t.xuat_xu_doc_id}::{t.xuat_xu_article}"
@@ -257,14 +262,18 @@ def chu_thich_ket_qua(
             and t.xuat_xu_doc_id
             and t.xuat_xu_article
         }
-        - co_san
     )
+    # Bỏ tiền tố mà danh sách hit ĐÃ phủ — cùng luật ranh giới dấu cách với hàm tra, để
+    # `"Điều 1"` không bị coi là đã phủ chỉ vì có sẵn `"Điều 10"`.
+    can_them = [
+        t for t in can_them if not any(i == t or i.startswith(t + " ") for i in co_san)
+    ]
     if can_them:
-        from app.knowledge.retrieval import lay_chunk_theo_id
+        from app.knowledge.retrieval import lay_chunk_theo_tien_to
 
         try:
-            them = lay_chunk_theo_id(can_them)
+            them = lay_chunk_theo_tien_to(can_them)
         except Exception:  # noqa: BLE001 — fail-open: kéo thêm hỏng thì bớt đi, không ném
             them = []
-        con = con + [c for c in them if c["id"] not in co_san]
+        con = con + [c for c in them if c.get("id") not in co_san]
     return con, ct
