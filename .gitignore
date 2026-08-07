@@ -23,6 +23,9 @@ data/raw/vbpl/.sitemap_cache/
 data/raw/vbpl/raw/
 data/raw/vbpl/crawl-report.json
 
+# Bản canonical tải về trước khi ghi đè Storage — ảnh chụp của môi trường, không phải nguồn
+data/backup/
+
 # Cấu hình Claude Code riêng từng máy (chứa đường dẫn tuyệt đối của máy đó)
 .claude/settings.local.json
 
