@@ -18,3 +18,19 @@ def test_merge_node_va_canh():
     cypher = " ".join(str(c) for c in phien.run.call_args_list)
     assert "MERGE" in cypher and "CREATE (" not in cypher  # không CREATE trần → không nhân đôi
     assert ":DonVi" in cypher and ":TAC_DONG" in cypher
+
+
+def test_ensure_constraints_phu_ca_DonVi_khoa():
+    """Fix wave 06/08, IMPORTANT 5: `push_overlay` gọi `ensure_constraints()`, đọc như đã có
+    ràng buộc — nhưng nó chỉ tạo ràng buộc trên `Document.doc_id`, nên MỌI
+    `MERGE (d:DonVi {khoa: …})` là một label scan (~470 lượt mỗi lần đẩy)."""
+    from app.knowledge.graph import ensure_constraints
+
+    phien = MagicMock()
+    with patch("app.knowledge.graph.session") as mo:
+        mo.return_value.__enter__.return_value = phien
+        ensure_constraints()
+
+    cypher = " ".join(str(c) for c in phien.run.call_args_list)
+    assert "(d:Document) REQUIRE d.doc_id IS UNIQUE" in cypher
+    assert "(d:DonVi) REQUIRE d.khoa IS UNIQUE" in cypher

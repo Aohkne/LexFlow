@@ -72,10 +72,22 @@ def session():
 
 
 def ensure_constraints() -> None:
+    """Ràng buộc duy nhất cho MỌI nhãn node được `MERGE` theo khoá — không chỉ `Document`.
+
+    `push_overlay` cũng gọi hàm này, và nó `MERGE (d:DonVi {khoa: …})` khoảng 470 lượt mỗi lần
+    đẩy. Không có ràng buộc trên `DonVi.khoa` thì mỗi lượt là một **label scan** toàn bộ node
+    `DonVi` — vừa chậm dần theo kích thước đồ thị, vừa là ứng viên rõ ràng cho lần rớt kết nối
+    Aura giữa chừng. Ràng buộc `IS UNIQUE` tự kèm index, nên đây vừa là tính đúng đắn vừa là
+    tốc độ.
+    """
     with session() as s:
         s.run(
             "CREATE CONSTRAINT doc_id IF NOT EXISTS "
             "FOR (d:Document) REQUIRE d.doc_id IS UNIQUE"
+        )
+        s.run(
+            "CREATE CONSTRAINT donvi_khoa IF NOT EXISTS "
+            "FOR (d:DonVi) REQUIRE d.khoa IS UNIQUE"
         )
 
 
@@ -150,6 +162,14 @@ def push_overlay(goi: "GoiLopPhu") -> tuple[int, int]:
     `MATCH` không khớp thì Neo4j **bỏ qua trong im lặng** — không lỗi, không cảnh báo. Nên
     hàm này đếm số cạnh `THUOC` MERGE được so với số nút overlay có `doc_id`, và in ra
     khoảng chênh thay vì để người chạy đoán.
+
+    **Phải chạy lại SAU MỖI `push_corpus`.** `push_corpus` mở đầu bằng
+    `MATCH (d:Document) DETACH DELETE d`, mà `DETACH` xoá **mọi** cạnh chạm các node đó — kể cả
+    `THUOC` phát từ `(:DonVi)`. Node `DonVi` và cạnh `TAC_DONG` thì KHÔNG bị xoá (chúng không
+    mang nhãn `Document`), nên đồ thị sau đó trông vẫn "có lớp phủ": đủ nút, đủ cạnh tác động,
+    chỉ mất hết đường nối về văn bản. Không lỗi, không cảnh báo — đúng kiểu hỏng phải đọc mới
+    thấy. (`push_corpus` không tự gọi hàm này trong đợt sửa 06/08; nối lại là việc của người
+    chạy hoặc của một đợt sau.)
     """
     from app.ontology.hien_hanh import dung_overlay
 
