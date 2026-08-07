@@ -119,7 +119,19 @@ def test_artefact_thieu_thi_fail_open(tmp_path):
 
 
 def test_artefact_that_tai_duoc():
-    """Artefact do Task 1 sinh phải nạp được và cho ra cạnh."""
+    """Artefact do Task 1 sinh phải nạp được và cho ra cạnh.
+
+    **`== 178` là CHIM HOÀNG YẾN canh `data/overlay/lop_phu.json`, không phải một con số cho
+    đẹp.** Artefact là dữ liệu tracked mà runtime sống bằng; nó chỉ dựng lại được từ
+    `data/raw/vbpl/raw/` — thư mục gitignored, không có trên checkout sạch hay CI. Một lần
+    `uv run python -m app.ontology.dong_goi` chạy ở nơi thiếu `raw/` từng ghi đè nó bằng
+    `canh: []` mà không ai chặn (`ly_do_tu_choi_ghi` nay chặn, xem `app/ontology/dong_goi.py`).
+    Test này là lớp bảo vệ thứ hai.
+
+    Số này ĐỔI ĐƯỢC — nhưng chỉ khi bạn vừa crawl thêm/bớt văn bản và đã đối chứng với
+    `eval/overlay/canh_tac_dong.jsonl` (tracked). Thấy nó đỏ mà không biết vì sao thì artefact
+    đã bị phá, ĐỪNG chỉnh con số cho xanh — khôi phục artefact bằng `git checkout` trước.
+    """
     tai_lop_phu.cache_clear()
     lp = tai_lop_phu()
     tai_lop_phu.cache_clear()

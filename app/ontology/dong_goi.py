@@ -106,13 +106,20 @@ def boi_dap(
     return ra, canh_bao
 
 
-def _ban_do_toan_van(thu_muc: Path) -> dict[str, tuple[str, list[dict]]]:
-    """`so_hieu` → (`noi_dung` thô, `articles` có char_start/char_end). Chỉ dùng lúc build."""
+def _ban_do_toan_van(thu_muc: Path) -> tuple[dict[str, tuple[str, list[dict]]], list[str]]:
+    """`so_hieu` → (`noi_dung` thô, `articles` có char_start/char_end). Chỉ dùng lúc build.
+
+    Trả kèm CẢNH BÁO cho từng file đọc không được. Trước đây chỗ này `continue` trong im lặng
+    — đó chính là cơ chế làm cho "đóng gói ra 0 cạnh" trở nên vô hình: nguồn hỏng hay nguồn
+    thiếu đều cho ra cùng một kết quả trống, không dòng nào nói vì sao.
+    """
     ra: dict[str, tuple[str, list[dict]]] = {}
+    canh_bao: list[str] = []
     for p in file_da_chuyen_khuon(thu_muc):
         try:
             corpus = json.loads(p.read_text(encoding="utf-8"))
-        except (json.JSONDecodeError, UnicodeDecodeError):
+        except (json.JSONDecodeError, UnicodeDecodeError, OSError) as e:
+            canh_bao.append(f"{p.name}: không đọc được file đã chuyển khuôn ({e}) — bỏ qua")
             continue
         so_hieu = corpus.get("so_hieu")
         p_tho = duong_dan_toan_van(p)
@@ -120,10 +127,11 @@ def _ban_do_toan_van(thu_muc: Path) -> dict[str, tuple[str, list[dict]]]:
             continue
         try:
             tho = json.loads(p_tho.read_text(encoding="utf-8"))
-        except (json.JSONDecodeError, UnicodeDecodeError):
+        except (json.JSONDecodeError, UnicodeDecodeError, OSError) as e:
+            canh_bao.append(f"{p_tho.name}: không đọc được bản ghi thô ({e}) — bỏ toàn văn")
             continue
         ra[so_hieu] = (tho.get("noi_dung") or "", corpus.get("articles") or [])
-    return ra
+    return ra, canh_bao
 
 
 def dong_goi(thu_muc: Path, corpus_path: Path, ngay: str) -> tuple[GoiLopPhu, list[str]]:
@@ -135,11 +143,56 @@ def dong_goi(thu_muc: Path, corpus_path: Path, ngay: str) -> tuple[GoiLopPhu, li
         if d.get("doc_id") and d.get("so_hieu")
     }
     doc_id_theo_so_hieu = {v: k for k, v in so_hieu_theo_doc.items()}
-    boi, cb = boi_dap(canh, _ban_do_toan_van(thu_muc), doc_id_theo_so_hieu)
+    ban_do, cb_ban_do = _ban_do_toan_van(thu_muc)
+    boi, cb = boi_dap(canh, ban_do, doc_id_theo_so_hieu)
     return (
         GoiLopPhu(sinh_luc=ngay, so_hieu_theo_doc=so_hieu_theo_doc, canh=boi),
-        canh_bao + cb,
+        canh_bao + cb_ban_do + cb,
     )
+
+
+#: Nơi artefact runtime nằm. Là hằng module (không chuỗi rời trong `main`) để test chĩa được
+#: sang `tmp_path` mà không phải chạy `main()` trên cây làm việc thật.
+DUONG_DAN_ARTEFACT = Path("data/overlay/lop_phu.json")
+
+#: Ngưỡng co ngót cho phép giữa hai lần đóng gói. Số cạnh là kết quả của một lần crawl ĐẦY ĐỦ;
+#: mất hơn 10% nghĩa là nguồn thiếu chứ không phải luật đổi. Ngưỡng thấp hơn thì một checkout
+#: chỉ crawl được nửa corpus vẫn lọt qua và ghi đè artefact tốt.
+_NGUONG_CO_NGOT = 0.9
+
+
+def _so_canh_da_co(dich: Path) -> int | None:
+    """Số cạnh của artefact đang nằm ở `dich`. Không có / không đọc được ⇒ None."""
+    try:
+        cu = json.loads(dich.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError, UnicodeDecodeError):
+        return None
+    canh = cu.get("canh") if isinstance(cu, dict) else None
+    return len(canh) if isinstance(canh, list) else None
+
+
+def ly_do_tu_choi_ghi(so_canh_moi: int, dich: Path) -> str | None:
+    """Vì sao KHÔNG được ghi đè artefact — `None` nghĩa là ghi được.
+
+    `main()` từng ghi vô điều kiện. Trên một checkout sạch `data/raw/vbpl/raw/` không tồn tại
+    (gitignored) nên `doc_tac_dong` bỏ qua mọi văn bản và lần chạy đó ghi đè artefact 178 cạnh
+    bằng `canh: []`: nó in `cạnh: 0` rồi đi tiếp, không gì chặn. Artefact là dữ liệu tracked mà
+    runtime SỐNG BẰNG — mất nó là cả lớp phủ tắt lặng lẽ trên sản phẩm.
+    """
+    if so_canh_moi == 0:
+        return (
+            "đóng gói ra 0 cạnh — KHÔNG ghi đè artefact. Nguyên nhân thường gặp: thiếu "
+            "`data/raw/vbpl/raw/` (gitignored, không có trên checkout sạch hay CI) nên "
+            "`doc_tac_dong` bỏ qua mọi văn bản."
+        )
+    cu = _so_canh_da_co(dich)
+    if cu and so_canh_moi < cu * _NGUONG_CO_NGOT:
+        return (
+            f"đóng gói ra {so_canh_moi} cạnh trong khi artefact đang có {cu} — co quá "
+            f"{1 - _NGUONG_CO_NGOT:.0%}, KHÔNG ghi đè. Kiểm `data/raw/vbpl/raw/` đã đủ văn "
+            f"bản chưa; nếu số giảm là ĐÚNG thì xoá tay artefact cũ rồi chạy lại."
+        )
+    return None
 
 
 def main() -> None:
@@ -150,7 +203,14 @@ def main() -> None:
         Path("data/corpus.real.json"),
         datetime.date.today().isoformat(),
     )
-    dich = Path("data/overlay/lop_phu.json")
+    dich = DUONG_DAN_ARTEFACT
+
+    ly_do = ly_do_tu_choi_ghi(len(goi.canh), dich)
+    if ly_do is not None:
+        for c in canh_bao[:10]:
+            print(f"cảnh báo: {c}")
+        raise SystemExit(f"[dong_goi] {ly_do}")
+
     dich.parent.mkdir(parents=True, exist_ok=True)
     dich.write_text(goi.model_dump_json(indent=1), encoding="utf-8")
 
