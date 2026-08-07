@@ -302,8 +302,8 @@ def test_hai_van_ban_nen_chung_mot_khoi_trich_deu_duoc_ke(lp_chung_span):
 
 # --- Fix wave 06/08, IMPORTANT 2: kéo lời văn mới về phải TRÚNG khi điều bị chẻ ----------
 #
-# Ca thật: `ND80-2016 Điều 1` dài 6058 ký tự nên `_split_khoan` chẻ thành 4 mảnh — id
-# `"ND80-2016::Điều 1"` KHÔNG tồn tại. Đường kéo cũ hỏi đúng id đó và nhận rỗng ở 31/40 ca.
+# Ca thật: `TT66-2025 Điều 12` dài 7217 ký tự nên `_split_khoan` chẻ thành 6 mảnh — id
+# `"TT66-2025::Điều 12"` KHÔNG tồn tại. Đường kéo cũ hỏi đúng id đó và nhận rỗng ở 31/40 ca.
 # Test này đi qua bảng GIẢ dựng từ id thật (`tests/test_lay_chunk_tien_to.py` giữ bảng đó),
 # không mock hàm tra.
 
@@ -313,45 +313,152 @@ _CORPUS_REAL = Path("data/corpus.real.json")
 def _goi_xuat_xu_dieu_dai() -> GoiLopPhu:
     return GoiLopPhu(
         sinh_luc="2026-08-06",
-        so_hieu_theo_doc={"ND101-2012": "101/2012/NĐ-CP", "ND80-2016": "80/2016/NĐ-CP"},
+        so_hieu_theo_doc={"TT34-2024": "34/2024/TT-NHNN", "TT66-2025": "66/2025/TT-NHNN"},
         canh=[
             CanhGoi(
-                nguon="80/2016/NĐ-CP#than/dieu_1#khoan_1",
-                dich="101/2012/NĐ-CP#than/dieu_4",
+                nguon="66/2025/TT-NHNN#than/dieu_12",
+                dich="34/2024/TT-NHNN#than/dieu_5",
                 thao_tac="bo_sung",  # `bo_sung` ⇒ KHÔNG có `ban_hien_hanh` ⇒ phải kéo về
-                valid_from="2016-07-01",
-                xuat_xu_doc_id="ND80-2016",
-                xuat_xu_article="Điều 1",
-                menh_lenh="Bổ sung Điều 4 như sau:",
+                valid_from="2025-07-01",
+                xuat_xu_doc_id="TT66-2025",
+                xuat_xu_article="Điều 12",
+                menh_lenh="Bổ sung Điều 5 như sau:",
             )
         ],
     )
 
 
-@pytest.mark.skipif(not _CORPUS_REAL.exists(), reason="thiếu data/corpus.real.json")
-def test_keo_duoc_manh_cua_dieu_bi_che_theo_khoan(tmp_path, monkeypatch):
+def _bang_corpus_that(monkeypatch) -> list[dict]:
     from tests.test_lay_chunk_tien_to import _BangGia
     from app.ingestion.pipeline import build_chunks, load_corpus
     from app.knowledge import retrieval
 
     docs, _rels = load_corpus(_CORPUS_REAL)
     hang = [{k: v for k, v in r.items() if k != "vector"} for r in build_chunks(docs)]
-    assert not any(r["id"] == "ND80-2016::Điều 1" for r in hang)  # tiền đề của ca này
     monkeypatch.setattr(retrieval, "_open_table", lambda: _BangGia(hang))
+    return hang
+
+
+@pytest.mark.skipif(not _CORPUS_REAL.exists(), reason="thiếu data/corpus.real.json")
+def test_keo_duoc_manh_cua_dieu_bi_che_theo_khoan(tmp_path, monkeypatch):
+    hang = _bang_corpus_that(monkeypatch)
+    assert not any(r["id"] == "TT66-2025::Điều 12" for r in hang)  # tiền đề của ca này
 
     p = tmp_path / "dieu_dai.json"
     p.write_text(_goi_xuat_xu_dieu_dai().model_dump_json(), encoding="utf-8")
     tai_lop_phu.cache_clear()
     lp_dai = tai_lop_phu(str(p))
 
-    con, ct = chu_thich_ket_qua([_chunk("ND101-2012::Điều 4")], "2026-08-06", lp_dai)
+    con, ct = chu_thich_ket_qua([_chunk("TT34-2024::Điều 5")], "2026-08-06", lp_dai)
     tai_lop_phu.cache_clear()
 
-    assert ct["ND101-2012::Điều 4"].trang_thai == "da_sua"
-    assert ct["ND101-2012::Điều 4"].ban_hien_hanh is None
-    keo = [c["id"] for c in con if c["id"] != "ND101-2012::Điều 4"]
+    assert ct["TT34-2024::Điều 5"].trang_thai == "da_sua"
+    assert ct["TT34-2024::Điều 5"].ban_hien_hanh is None
+    keo = [c["id"] for c in con if c["id"] != "TT34-2024::Điều 5"]
     assert keo, "điều xuất xứ bị chẻ theo khoản mà kéo về rỗng — đúng lỗi đang sửa"
-    assert all(k.startswith("ND80-2016::Điều 1 ") for k in keo)
+    assert all(k.startswith("TT66-2025::Điều 12 ") for k in keo)
+
+
+# --- Fix wave 06/08, IMPORTANT 3: chunk kéo thêm phải qua ĐỦ ba cổng như mọi hit khác ----
+#
+# Trước bản vá, chunk kéo thêm vào thẳng `con` mà (1) không có mục nào trong map chú thích nên
+# nổi lên UI như một `Citation` trần không nhãn, (2) không qua lọc hiệu lực như mọi đường truy
+# hồi khác, (3) không tôn trọng phạm vi văn bản người gọi đã giới hạn (`req.doc_ids` của chat,
+# `against_ids` của review) — tức trích một văn bản người dùng đã loại ra.
+
+
+def _keo_ve(monkeypatch, hang: list[dict]):
+    monkeypatch.setattr(
+        "app.knowledge.retrieval.lay_chunk_theo_tien_to", lambda ids, **kw: list(hang)
+    )
+
+
+def _hang_xuat_xu(**kw) -> dict:
+    goc = {
+        "id": "TT41-2025::Điều 3", "doc_id": "TT41-2025", "article": "Điều 3",
+        "text": "Bổ sung Điều 10 như sau: ...", "valid_from": "2025-07-01",
+        "valid_to": "", "superseded": False,
+    }
+    return {**goc, **kw}
+
+
+_KHOI_BO_SUNG = '"Điều 11. Nội dung bổ sung mới."'
+
+
+def _goi_bo_sung_co_loi_van() -> GoiLopPhu:
+    """`bo_sung` CÓ khối lời văn mới đóng gói — chunk kéo về phải nhận nhãn `la_loi_sua`."""
+    return GoiLopPhu(
+        sinh_luc="2026-08-06",
+        so_hieu_theo_doc={"TT40-2024": "40/2024/TT-NHNN", "TT41-2025": "41/2025/TT-NHNN"},
+        canh=[
+            CanhGoi(
+                nguon="41/2025/TT-NHNN#than/dieu_4",
+                dich="40/2024/TT-NHNN#than/dieu_11",
+                thao_tac="bo_sung",
+                valid_from="2025-07-01",
+                loi_van_moi=(300, 300 + len(_KHOI_BO_SUNG)),
+                loi_van_moi_text=_KHOI_BO_SUNG,
+                xuat_xu_doc_id="TT41-2025",
+                xuat_xu_article="Điều 4",
+                menh_lenh="Bổ sung Điều 11 như sau:",
+            )
+        ],
+    )
+
+
+def test_chunk_keo_them_duoc_chu_thich(tmp_path, monkeypatch):
+    p = tmp_path / "bo_sung.json"
+    p.write_text(_goi_bo_sung_co_loi_van().model_dump_json(), encoding="utf-8")
+    tai_lop_phu.cache_clear()
+    lp_bs = tai_lop_phu(str(p))
+    _keo_ve(monkeypatch, [
+        _hang_xuat_xu(
+            id="TT41-2025::Điều 4", article="Điều 4",
+            text=f"Bổ sung Điều 11 như sau:\n{_KHOI_BO_SUNG}",
+        )
+    ])
+
+    con, ct = chu_thich_ket_qua([_chunk("TT40-2024::Điều 11")], "2026-08-06", lp_bs)
+    tai_lop_phu.cache_clear()
+
+    assert [c["id"] for c in con] == ["TT40-2024::Điều 11", "TT41-2025::Điều 4"]
+    assert "TT41-2025::Điều 4" in ct, "chunk kéo thêm nổi lên UI mà không có nhãn"
+    assert ct["TT41-2025::Điều 4"].trang_thai == "la_loi_sua"
+    assert "TT40-2024 Điều 11" in ct["TT41-2025::Điều 4"].trich_dan_dung_chu
+
+
+def test_chunk_keo_them_bi_loc_hieu_luc(lp, monkeypatch):
+    """Chưa tới ngày hiệu lực / đã hết hiệu lực ⇒ không được kéo vào, như mọi đường truy hồi."""
+    _keo_ve(monkeypatch, [_hang_xuat_xu(valid_from="2027-01-01")])
+    con, _ct = chu_thich_ket_qua([_chunk("TT40-2024::Điều 10")], "2026-08-06", lp)
+    assert [c["id"] for c in con] == ["TT40-2024::Điều 10"]
+
+    _keo_ve(monkeypatch, [_hang_xuat_xu(superseded=True)])
+    con, _ct = chu_thich_ket_qua([_chunk("TT40-2024::Điều 10")], "2026-08-06", lp)
+    assert [c["id"] for c in con] == ["TT40-2024::Điều 10"]
+
+
+def test_chunk_keo_them_ton_trong_pham_vi(lp, monkeypatch):
+    """Người gọi đã giới hạn văn bản ⇒ không kéo về chunk của văn bản ngoài phạm vi."""
+    goi_voi: list[list[str]] = []
+
+    def _gia(ids, **kw):
+        goi_voi.append(ids)
+        return [_hang_xuat_xu()]
+
+    monkeypatch.setattr("app.knowledge.retrieval.lay_chunk_theo_tien_to", _gia)
+
+    con, _ct = chu_thich_ket_qua(
+        [_chunk("TT40-2024::Điều 10")], "2026-08-06", lp, pham_vi={"TT40-2024"}
+    )
+    assert [c["id"] for c in con] == ["TT40-2024::Điều 10"]
+    assert goi_voi == [], "không được hỏi chunk của văn bản ngoài phạm vi"
+
+    con, _ct = chu_thich_ket_qua(
+        [_chunk("TT40-2024::Điều 10")], "2026-08-06", lp,
+        pham_vi={"TT40-2024", "TT41-2025"},
+    )
+    assert [c["id"] for c in con] == ["TT40-2024::Điều 10", "TT41-2025::Điều 3"]
 
 
 def test_chunk_thieu_hoac_rong_id_thi_khong_nem(lp):

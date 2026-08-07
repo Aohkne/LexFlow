@@ -216,12 +216,22 @@ def chu_thich_chunk(
 
 
 def chu_thich_ket_qua(
-    chunks: list[dict], as_of: str, lp=_CHUA_TRUYEN  # type: ignore[assignment]
+    chunks: list[dict],
+    as_of: str,
+    lp=_CHUA_TRUYEN,  # type: ignore[assignment]
+    *,
+    pham_vi: set[str] | None = None,
 ) -> tuple[list[dict], dict[str, ChuThichHieuLuc]]:
     """Chú thích cả mẻ hit: loại cái đã bị bãi bỏ, kéo thêm lời văn mới khi cần.
 
     Trả `(danh sách dùng để trả lời, map id → chú thích)`. Map giữ CẢ hit đã bị loại — tầng
     trên vẫn cần chữ để nói "điều này đã bị bãi bỏ".
+
+    `pham_vi` là tập `doc_id` mà NGƯỜI GỌI cho phép (chat: `req.doc_ids`; review:
+    `against_ids`). Đặt thì chunk kéo thêm không bao giờ ra ngoài tập đó — người dùng đã chủ
+    động loại một văn bản ra thì lớp phủ không được lén đưa nó trở lại vào trích dẫn, còn
+    `/reviews` thì `legal_doc_id` không được rơi ra ngoài phạm vi đối chiếu. `None` = không
+    giới hạn (đường chat mở).
     """
     if lp is _CHUA_TRUYEN:
         lp = tai_lop_phu()
@@ -261,6 +271,9 @@ def chu_thich_ket_qua(
             and t.ban_hien_hanh is None
             and t.xuat_xu_doc_id
             and t.xuat_xu_article
+            # Phạm vi chặn NGAY Ở CHỖ HỎI, không chỉ ở chỗ nhận: không tốn một lượt tra
+            # LanceDB cho thứ chắc chắn sẽ bị loại.
+            and (pham_vi is None or t.xuat_xu_doc_id in pham_vi)
         }
     )
     # Bỏ tiền tố mà danh sách hit ĐÃ phủ — cùng luật ranh giới dấu cách với hàm tra, để
@@ -269,11 +282,34 @@ def chu_thich_ket_qua(
         t for t in can_them if not any(i == t or i.startswith(t + " ") for i in co_san)
     ]
     if can_them:
+        from app.ingestion.versioning import is_effective
         from app.knowledge.retrieval import lay_chunk_theo_tien_to
 
         try:
             them = lay_chunk_theo_tien_to(can_them)
         except Exception:  # noqa: BLE001 — fail-open: kéo thêm hỏng thì bớt đi, không ném
             them = []
-        con = con + [c for c in them if c.get("id") not in co_san]
+        for c in them:
+            cid = c.get("id")
+            if not cid or cid in co_san:
+                continue
+            if pham_vi is not None and c.get("doc_id") not in pham_vi:
+                continue
+            # `lay_chunk_theo_tien_to` không lọc hiệu lực (nó chỉ tra địa chỉ). Mọi đường truy
+            # hồi khác lọc bằng `is_effective` với đúng `as_of` — đường này phải giống, nếu
+            # không thì lớp phủ trở thành cửa hậu đưa điều đã hết hiệu lực vào câu trả lời.
+            if not is_effective(
+                c.get("valid_from"), c.get("valid_to"), c.get("superseded", False), as_of
+            ):
+                continue
+            # Chunk kéo thêm cũng là một hit sẽ nổi lên UI ⇒ phải mang nhãn như mọi hit khác
+            # (thường là `la_loi_sua`: nó là LỜI VĂN SỬA, không phải quy định độc lập). Không
+            # nhãn thì nó hiện ra như một `Citation` trần và người đọc tưởng đó là điều luật.
+            t = chu_thich_chunk(c, as_of, lp)
+            if t is not None:
+                if t.trang_thai == "bi_bai_bo":
+                    continue  # cùng luật với hit gốc: không kéo về căn cứ đã chết
+                ct.setdefault(cid, t)
+            co_san.add(cid)
+            con.append(c)
     return con, ct

@@ -61,6 +61,20 @@ def test_can_cu_da_sua_thi_legal_live_van_dung_nhung_co_ghi_chu():
     assert "đã sửa bởi TT41-2025" in (f.legal_ref or "")
 
 
+def test_pham_vi_against_ids_duoc_truyen_xuong_lop_phu():
+    """Fix wave 06/08, IMPORTANT 3: chunk lớp phủ kéo thêm vào `by_id` có thể làm `_judge`
+    đặt `legal_doc_id` ra NGOÀI phạm vi đối chiếu — chặn ngay ở chỗ kéo."""
+    with (
+        patch("app.reasoning.review.search_in_docs", return_value=[_SONG]),
+        patch("app.reasoning.review.chu_thich_ket_qua", return_value=([_SONG], {})) as gia,
+        patch("app.reasoning.review._judge", return_value={
+            "verdict": "pass", "legal_chunk_id": "TT40-2024::Điều 3", "title": "ok",
+            "summary": "", "internal_quote": "", "legal_quote": "", "suggestion": None}),
+    ):
+        _review_article("Điều 1", "nội dung nội bộ", ["TT40-2024", "TT41-2025"], "2026-08-06")
+    assert gia.call_args.kwargs["pham_vi"] == {"TT40-2024", "TT41-2025"}
+
+
 def test_moi_can_cu_deu_bi_bai_bo_thi_khong_phan_dinh():
     """Fallback của chu_thich_ket_qua trả nguyên danh sách khi loại hết — /reviews không được
     coi đó là "còn căn cứ để phán": phải dừng ở not_assessed, không tốn lượt gọi LLM."""

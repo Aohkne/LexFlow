@@ -44,6 +44,28 @@ def test_prompt_mang_nhan_va_ban_hien_hanh():
     assert ct == _CT
 
 
+def test_pham_vi_doc_ids_duoc_truyen_xuong_lop_phu():
+    """Fix wave 06/08, IMPORTANT 3: người dùng giới hạn văn bản ⇒ lớp phủ không được kéo
+    về chunk của một văn bản họ đã loại ra."""
+    with (
+        patch("app.reasoning.answer.search_in_docs", return_value=_CHUNKS),
+        patch("app.reasoning.answer.chu_thich_ket_qua", return_value=(_CHUNKS, _CT)) as gia,
+        patch("app.core.config.settings.graph_augment", False),
+    ):
+        _prepare(ChatRequest(query="hạn mức?", doc_ids=["TT40-2024"]))
+    assert gia.call_args.kwargs["pham_vi"] == {"TT40-2024"}
+
+
+def test_khong_gioi_han_thi_pham_vi_la_None():
+    with (
+        patch("app.reasoning.answer.hybrid_search", return_value=_CHUNKS),
+        patch("app.reasoning.answer.chu_thich_ket_qua", return_value=(_CHUNKS, _CT)) as gia,
+        patch("app.core.config.settings.graph_augment", False),
+    ):
+        _prepare(ChatRequest(query="hạn mức?"))
+    assert gia.call_args.kwargs["pham_vi"] is None
+
+
 def test_citation_mang_trang_thai():
     cits = _citations(_CHUNKS, _CT)
     assert cits[0].trang_thai == "da_sua"

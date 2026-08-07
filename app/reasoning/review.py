@@ -99,7 +99,13 @@ def _review_article(
     if settings.overlay_router:
         # Không đối chiếu quy định nội bộ với điều luật đã bị bãi bỏ ở cấp khoản — kết luận
         # "vi phạm" dựa trên một căn cứ đã chết là sai nguy hiểm hơn là không kết luận.
-        chunks, ct = chu_thich_ket_qua(chunks, as_of)
+        #
+        # `pham_vi=against_ids`: chunk lớp phủ kéo thêm cũng vào `by_id` bên dưới, nên nếu
+        # không chặn thì `_judge` có thể chọn nó và `legal_doc_id` rơi ra ngoài phạm vi đối
+        # chiếu người dùng đã chọn.
+        chunks, ct = chu_thich_ket_qua(
+            chunks, as_of, pham_vi=set(against_ids) if against_ids else None
+        )
     if not chunks:
         return ReviewFinding(
             verdict=NOT_ASSESSED,

@@ -65,7 +65,11 @@ def _prepare(req: ChatRequest) -> tuple[list[dict], dict[str, ChuThichHieuLuc], 
 
     ct: dict[str, ChuThichHieuLuc] = {}
     if settings.overlay_router:
-        chunks, ct = chu_thich_ket_qua(chunks, as_of)
+        # `pham_vi` = đúng phạm vi người dùng đã chọn: lớp phủ có thể KÉO THÊM chunk lời văn
+        # mới về, và chunk đó không được đến từ một văn bản người dùng vừa loại ra khỏi câu hỏi.
+        chunks, ct = chu_thich_ket_qua(
+            chunks, as_of, pham_vi=set(req.doc_ids) if req.doc_ids else None
+        )
 
     system = _CHECKLIST_SYSTEM if req.mode == "checklist" else _QA_SYSTEM
     prompt = (
