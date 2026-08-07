@@ -41,7 +41,18 @@ def _tim(so_hieu: str) -> Path | None:
 
 _TT15 = _tim("15/2024/TT-NHNN")
 _VBHN = _tim("29/VBHN-NHNN")
-pytestmark = pytest.mark.skipif(_TT15 is None, reason="chưa crawl TT15/2024")
+
+# Guard phải kiểm CẢ HAI bố cục, không chỉ `corpus/`. `_tim` tìm trong `corpus/` — thư mục
+# được version — nên trên CI nó LUÔN tìm thấy; nhưng mọi test dưới đây đọc tiếp bản ghi thô ở
+# `data/raw/vbpl/raw/`, vốn **gitignored**. Guard cũ chỉ hỏi vế đầu nên trên CI nó cho chạy rồi
+# vỡ bằng `FileNotFoundError` — CI đỏ liên tục từ 05/08 vì đúng chỗ này, trong khi ở máy có
+# thư mục `raw/` thì suite vẫn xanh. Đây là mặt trái của việc gitignore nguồn: cái chạy được
+# trên một máy không chạy được ở nơi khác, và test là chỗ đầu tiên lộ ra.
+_THIEU_TOAN_VAN = _TT15 is None or not duong_dan_toan_van(_TT15).exists()
+pytestmark = pytest.mark.skipif(
+    _THIEU_TOAN_VAN,
+    reason="chưa crawl TT15/2024, hoặc thiếu bản ghi thô data/raw/vbpl/raw/ (gitignored)",
+)
 
 
 def _dem(arts, so_hieu="15/2024/TT-NHNN") -> tuple[int, int]:
