@@ -20,6 +20,12 @@ export type Citation = {
   valid_from: string | null;
   valid_to: string | null;
   snippet: string;
+  // Lớp phủ dưới-văn-bản (optional — backend cũ không trả)
+  trang_thai?: "nguyen_ven" | "da_sua" | "bi_bai_bo" | "la_loi_sua" | null;
+  chu_thich?: string | null;
+  sua_boi_doc_id?: string | null;
+  sua_boi_article?: string | null;
+  ban_hien_hanh?: string | null;
 };
 
 export type ConflictAlert = {
@@ -44,6 +50,10 @@ export type GraphNode = {
   doc_type: string;
   valid_from: string | null;
   valid_to: string | null;
+  // `false` = node RỖNG: biết văn bản tồn tại và biết nó nối vào đâu, nhưng CHƯA có toàn văn.
+  // Xem app/ingestion/bac_cau.py. Node nạp trước khi có trường này thì thiếu — và chúng đều
+  // CÓ toàn văn, nên mọi chỗ đọc phải so với `false`, không phải so với falsy.
+  co_toan_van?: boolean;
 };
 
 export type GraphEdge = { source: string; target: string; rel_type: string };
@@ -215,6 +225,19 @@ export type Provision = {
   con: Provision[];
 };
 
+// Tác động cấp khoản/điểm do lớp phủ dưới-văn-bản suy ra (`GET /documents/{id}.tac_dong`).
+// Khác `Provision.bi_tac_dong` — cái kia là cờ thô của nguồn vbpl, cái này mang cả trạng thái
+// hiện hành, ai sửa và từ ngày nào.
+export type TacDongDonVi = {
+  article: string;
+  khoan: string | null;
+  diem: string | null;
+  trang_thai: "da_sua" | "bi_bai_bo";
+  boi_doc_id: string | null;
+  boi_article: string | null;
+  tu_ngay: string | null;
+};
+
 export type SourceFile = {
   ten: string;
   kich_thuoc: string | null;
@@ -247,6 +270,7 @@ export type DocumentDetail = {
   relationships_out: Relationship[];
   relationships_in: Relationship[];
   doc_titles: Record<string, string>;
+  tac_dong?: TacDongDonVi[];
 };
 
 /**

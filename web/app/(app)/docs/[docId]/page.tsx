@@ -10,6 +10,7 @@ import {
   type DocumentDetail,
   type Provision,
   type SourceFile,
+  type TacDongDonVi,
 } from "@/lib/api";
 import { renderInline } from "@/lib/inline-html";
 import {
@@ -160,8 +161,40 @@ function AmendBadge({ kind }: { kind: string }) {
   );
 }
 
+/** Tác động cấp khoản/điểm của một Điều — dùng chung cho cả đường cây lẫn đường danh sách phẳng.
+ *
+ * Hai đường render phải nói CÙNG một thứ: văn bản đã crawl lại (có `provisions`) đi đường cây,
+ * văn bản cũ đi đường phẳng, nhưng trạng thái hiệu lực cấp khoản là dữ liệu của lớp phủ chứ
+ * không phải của đường render. Tách ra đây để không có đường nào lặng lẽ thiếu nó. */
+function TacDongDieu({ muc }: { muc: TacDongDonVi[] }) {
+  if (muc.length === 0) return null;
+  return (
+    <ul className="mt-2 space-y-1">
+      {muc.map((t, i) => (
+        <li key={i} className="text-[11.5px] text-dim">
+          <span className={t.trang_thai === "bi_bai_bo" ? "text-red" : "text-accent-dim"}>
+            {t.khoan ? `Khoản ${t.khoan}` : "Cả điều"}
+            {t.diem ? ` Điểm ${t.diem}` : ""} —{" "}
+            {t.trang_thai === "bi_bai_bo" ? "đã bị bãi bỏ" : "đã bị sửa đổi"}
+          </span>
+          {t.boi_doc_id ? ` bởi ${t.boi_doc_id} ${t.boi_article ?? ""}` : ""}
+          {t.tu_ngay ? ` (từ ${t.tu_ngay})` : ""}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 /** Toàn văn dựng lại từ cây Chương → Mục → Điều → Khoản → Điểm. */
-function ProvisionNodes({ nodes, depth = 0 }: { nodes: Provision[]; depth?: number }) {
+function ProvisionNodes({
+  nodes,
+  tacDong,
+  depth = 0,
+}: {
+  nodes: Provision[];
+  tacDong: Map<string, TacDongDonVi[]>;
+  depth?: number;
+}) {
   return (
     <>
       {nodes.map((n, i) => {
@@ -202,9 +235,12 @@ function ProvisionNodes({ nodes, depth = 0 }: { nodes: Provision[]; depth?: numb
               {n.html && (
                 <p className="mt-2 text-sm leading-relaxed">{renderInline(n.html)}</p>
               )}
+              {n.cap === "dieu" && n.so && (
+                <TacDongDieu muc={tacDong.get(`Điều ${n.so}`) ?? []} />
+              )}
               {n.con.length > 0 && (
                 <div className={n.cap === "dieu" ? "mt-2 space-y-2" : "space-y-3"}>
-                  <ProvisionNodes nodes={n.con} depth={depth + 1} />
+                  <ProvisionNodes nodes={n.con} tacDong={tacDong} depth={depth + 1} />
                 </div>
               )}
             </section>
@@ -228,7 +264,7 @@ function ProvisionNodes({ nodes, depth = 0 }: { nodes: Provision[]; depth?: numb
             </p>
             {n.con.length > 0 && (
               <div className="mt-1 space-y-1">
-                <ProvisionNodes nodes={n.con} depth={depth + 1} />
+                <ProvisionNodes nodes={n.con} tacDong={tacDong} depth={depth + 1} />
               </div>
             )}
           </div>
@@ -245,15 +281,25 @@ function ContentTab({
   doc: DocumentDetail;
   amendments: Map<string, AmendmentInfo[]>;
 }) {
+  // Tác động cấp khoản dựng TRƯỚC nhánh rẽ: cả đường cây lẫn đường phẳng đều cần nó.
+  const theoDieu = new Map<string, TacDongDonVi[]>();
+  for (const t of doc.tac_dong ?? []) {
+    const ds = theoDieu.get(t.article) ?? [];
+    ds.push(t);
+    theoDieu.set(t.article, ds);
+  }
+
   // Có cây thì dựng toàn văn đúng phân cấp như bản gốc; chưa crawl lại thì vẫn dùng
   // danh sách Điều phẳng cũ, không để trang trống.
   if (doc.provisions && doc.provisions.length > 0) {
     return (
       <div className="mt-4 space-y-3">
-        <ProvisionNodes nodes={doc.provisions} />
+        <ProvisionNodes nodes={doc.provisions} tacDong={theoDieu} />
       </div>
     );
   }
+
+
   return (
     <div className="mt-4 space-y-3">
       {withHeadings(doc.articles).map(({ a, chapterHeading, sectionHeading }) => {
@@ -293,6 +339,7 @@ function ContentTab({
                   </span>
                 )}
               </div>
+              <TacDongDieu muc={theoDieu.get(a.article) ?? []} />
               {hits.length > 0 && (
                 <div className="mt-2 space-y-1 rounded-md bg-inset px-3 py-2 text-xs">
                   {hits.map((h, i) => (

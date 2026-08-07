@@ -130,6 +130,35 @@ def test_parse_tren_text_da_loc_rac():
     assert k2.diem[2].id == "52/2024/NĐ-CP#than/dieu_22#khoan_2#diem_đ"
 
 
+def test_khoan_dinh_lien_dau_cham():
+    """vbpl in `1.Việc` — thiếu dấu cách sau chấm. TT40 Đ25 mất cả khoản 1 (5 điểm),
+    TT15 Đ14 khoản 3 bị nuốt vào khoản 2, chỉ vì parser đòi `\\s+` sau dấu chấm."""
+    dieu = parse_dieu(
+        "Điều 25. Sử dụng dịch vụ ví điện tử\n"
+        "1.Việc nạp tiền vào ví điện tử được thực hiện thông qua:\n"
+        "a) Nộp tiền mặt;\n"
+        "2. Khoản có dấu cách vẫn nhận như cũ.",
+        "40/2024/TT-NHNN",
+    )
+    assert [k.so_hien_thi for k in dieu.khoan] == ["1", "2"]
+    assert dieu.khoan[0].text.startswith("1.Việc nạp tiền")
+    assert [d.so_hien_thi for d in dieu.khoan[0].diem] == ["a"]
+
+
+def test_so_nghin_khong_thanh_khoan():
+    """Lý do lịch sử của `\\s+`: `1.000.000 đồng` đầu dòng không phải khoản mới."""
+    dieu = parse_dieu(
+        "Điều 5. Mức phí\n"
+        "1. Mức phí tối đa:\n"
+        "1.000.000 đồng một giao dịch;\n"
+        "2.500 tỷ đồng là vốn điều lệ tối thiểu.",
+        "01/2026/TT-TEST",
+    )
+    assert [k.so_hien_thi for k in dieu.khoan] == ["1"]
+    assert "1.000.000 đồng" in dieu.khoan[0].text
+    assert "2.500 tỷ" in dieu.khoan[0].text
+
+
 def test_slice_dieu_cat_dung_khoi():
     doc = "Điều 21. Trước\nNội dung 21.\nĐiều 22. Sau\nNội dung 22.\nĐiều 23. Kế tiếp"
     assert slice_dieu(doc, 22) == "Điều 22. Sau\nNội dung 22."

@@ -1,0 +1,41 @@
+{
+ "doc_id": "VBHN43-NHNN",
+ "title": "Văn bản hợp nhất 43/VBHN-NHNN của Ngân hàng Nhà nước Việt Nam",
+ "doc_type": "Văn bản hợp nhất",
+ "source": "external",
+ "valid_from": "2016-07-15",
+ "valid_to": null,
+ "so_hieu": "43/VBHN-NHNN",
+ "co_quan_ban_hanh": "Ngân hàng Nhà nước Việt Nam",
+ "nguoi_ky": "Nguyễn Đồng Tiến",
+ "chuc_danh": "Phó Thống đốc",
+ "nganh": null,
+ "linh_vuc": "Chưa phân loại",
+ "ngay_ban_hanh": null,
+ "tinh_trang_hieu_luc": null,
+ "source_url": "https://vbpl.vn/van-ban/chi-tiet/van-ban-hop-nhat-so-43-vbhn-nhnn-ve-thanh-toan-khong-dung-tien-mat--112049",
+ "source_files": [
+  {
+   "ten": "43.2016.VBHN.pdf",
+   "kich_thuoc": "1.31MB",
+   "url": "https://vbpl-bientap-gateway.moj.gov.vn/api/qtdc/public/doc/minio/buckets/vbpl/112049/43.2016.VBHN.pdf/download"
+  },
+  {
+   "ten": "tvHienThiToanVan_43.2016.VBHN.pdf",
+   "kich_thuoc": "1.31MB",
+   "url": "https://vbpl-bientap-gateway.moj.gov.vn/api/qtdc/public/doc/minio/buckets/vbpl/112049/tvHienThiToanVan_43.2016.VBHN.pdf/download"
+  },
+  {
+   "ten": "tvVanBanGoc_43.2016.VBHN.pdf",
+   "kich_thuoc": "1.31MB",
+   "url": "https://vbpl-bientap-gateway.moj.gov.vn/api/qtdc/public/doc/minio/buckets/vbpl/112049/tvVanBanGoc_43.2016.VBHN.pdf/download"
+  }
+ ],
+ "co_toan_van": false,
+ "canh_bao": [
+  "nguồn không đăng toàn văn (chỉ có thuộc tính/lược đồ) — toàn văn nhiều khả năng chỉ nằm trong tệp đính kèm, cần tìm nguồn khác nếu muốn thân văn bản"
+ ],
+ "articles": [],
+ "provisions": [],
+ "trich_dan": []
+}

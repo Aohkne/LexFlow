@@ -9,6 +9,7 @@ from app.main import app
 from app.reasoning import answer as answer_mod
 
 _CHUNK = {
+    "id": "TT40-2024::Điều 12 Khoản 1",
     "doc_id": "TT40-2024", "doc_title": "Thông tư 40/2024", "doc_type": "Thông tư",
     "article": "Điều 12 Khoản 1", "text": "Hạn mức 100 triệu đồng/tháng.",
     "valid_from": "2024-07-01", "valid_to": "",

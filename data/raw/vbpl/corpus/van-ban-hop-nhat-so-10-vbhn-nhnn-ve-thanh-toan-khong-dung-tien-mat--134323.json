@@ -1,0 +1,41 @@
+{
+ "doc_id": "VBHN10-NHNN",
+ "title": "Văn bản hợp nhất 10/VBHN-NHNN của Ngân hàng Nhà nước Việt Nam",
+ "doc_type": "Văn bản hợp nhất",
+ "source": "external",
+ "valid_from": "2019-02-22",
+ "valid_to": null,
+ "so_hieu": "10/VBHN-NHNN",
+ "co_quan_ban_hanh": "Ngân hàng Nhà nước Việt Nam",
+ "nguoi_ky": "Đoàn Thái Sơn",
+ "chuc_danh": null,
+ "nganh": null,
+ "linh_vuc": "Chưa phân loại",
+ "ngay_ban_hanh": null,
+ "tinh_trang_hieu_luc": null,
+ "source_url": "https://vbpl.vn/van-ban/chi-tiet/van-ban-hop-nhat-so-10-vbhn-nhnn-ve-thanh-toan-khong-dung-tien-mat--134323",
+ "source_files": [
+  {
+   "ten": "10.2019.VBHN.NHNN.pdf",
+   "kich_thuoc": "1.01MB",
+   "url": "https://vbpl-bientap-gateway.moj.gov.vn/api/qtdc/public/doc/minio/buckets/vbpl/134323/10.2019.VBHN.NHNN.pdf/download"
+  },
+  {
+   "ten": "tvHienThiToanVan_10.2019.VBHN.NHNN.pdf",
+   "kich_thuoc": "1.01MB",
+   "url": "https://vbpl-bientap-gateway.moj.gov.vn/api/qtdc/public/doc/minio/buckets/vbpl/134323/tvHienThiToanVan_10.2019.VBHN.NHNN.pdf/download"
+  },
+  {
+   "ten": "tvVanBanGoc_10.2019.VBHN.NHNN.pdf",
+   "kich_thuoc": "1.01MB",
+   "url": "https://vbpl-bientap-gateway.moj.gov.vn/api/qtdc/public/doc/minio/buckets/vbpl/134323/tvVanBanGoc_10.2019.VBHN.NHNN.pdf/download"
+  }
+ ],
+ "co_toan_van": false,
+ "canh_bao": [
+  "nguồn không đăng toàn văn (chỉ có thuộc tính/lược đồ) — toàn văn nhiều khả năng chỉ nằm trong tệp đính kèm, cần tìm nguồn khác nếu muốn thân văn bản"
+ ],
+ "articles": [],
+ "provisions": [],
+ "trich_dan": []
+}

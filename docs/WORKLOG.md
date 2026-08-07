@@ -6,6 +6,174 @@
 
 ---
 
+## 2026-08-06 (T5) — đợt 5: nối lớp phủ vào sản phẩm (P4), 10 task subagent-driven TDD
+
+- **Done.** Lớp phủ dưới-văn-bản đi hết đường từ artefact tới UI: `app/ontology/dong_goi.py`
+  đóng gói 178 cạnh thành `data/overlay/lop_phu.json` **tự chứa** (giải span `loi_van_moi` thành
+  chữ ngay lúc build, vì `data/raw/vbpl/` gitignored nên runtime không bao giờ giải được);
+  `app/knowledge/lop_phu.py` là **cổng runtime duy nhất** bọc `dinh_tuyen`/`phien_ban_hien_hanh`,
+  fail-open; `answer.py` gắn nhãn hiệu lực cấp khoản vào prompt + `Citation`; `review.py` không
+  còn phán tuân thủ trên luật đã chết; `GET /documents/{id}` trả `tac_dong` cấp khoản; web hiện
+  badge ở 3 màn; `push_overlay` đẩy bản sao lên Neo4j để xem.
+- **Ship.** 16 commit `e21c50f..14b2901`. **Ingest:** LanceDB Cloud 449→**661 chunk**, 15→**26
+  văn bản**. **Neo4j:** 293 `DonVi`, 178 `TAC_DONG`, 255/293 `THUOC`. **Cloud Run** rev
+  `00016-n6k`, **Vercel** production + alias `lexflow-taupe`. 588 test xanh, ruff sạch.
+- **Verify prod (e2e qua `_prepare` thật).** `TT41-2025::Điều 10` → `la_loi_sua` → trích dẫn nắn
+  về **đúng chủ**: *"TT40-2024 Điều 26 Khoản 1 (sửa bởi TT41-2025 Điều 10 Khoản 1)"* — vá lỗ
+  §3.8 ở tầng retrieval. `TT41-2025::Điều 16` → `bi_bai_bo` (cạnh TT22 Điều 6 Khoản 2), ca
+  cạnh-chết chạy thật. `TT40-2024::Điều 26/37/25` → `da_sua` kèm nguồn sửa.
+- **Benchmark 36 câu (`eval/results/20260806-072821.json`), 0 câu lỗi.** Citation 36/36 ở cả ba
+  cột; stale-avoidance baseline 21/36 → LexFlow **36/36**; mâu thuẫn 6/7; retrieval p50 5028 ms.
+  **Router OFF vs ON: 0/36 câu khác nhau**, 0 hit bị loại vì bãi bỏ, 8 hit được nắn trích dẫn.
+- **Decision.** Ghi **dự đoán trước khi chạy** benchmark (0–3 hit bị loại; 10–25 hit được nắn) —
+  thực tế 0 và 8, tức **dự đoán sai phía nắn trích dẫn**. Kết luận thẳng: **bộ 36 câu này không
+  đo được lớp phủ**, vì nó chấm ở mức `doc_id` còn lớp phủ làm việc ở mức khoản; "0/36 khác nhau"
+  là giới hạn của thước đo, không phải bằng chứng lớp phủ vô dụng (giá trị của nó hiện ra ở
+  verify e2e và ở bộ nhãn cấp khoản). Muốn đo được thì cần bộ câu hỏi chấm ở mức điều/khoản —
+  việc riêng, chưa làm.
+- **Sự cố đáng ghi.** (1) `.gcloudignore` bỏ sót `data/tuvanphapluat/` (516 MB) ⇒ upload không
+  bao giờ tới bước build, mà `gcloud … | grep | tail` lại trả exit 0 (mã thoát của `tail`) ⇒ hai
+  lần "deploy thành công" giả. Chốt tiêu chí nghiệm thu deploy = **OpenAPI của bản đang phục vụ
+  có trường mới**, không phải exit code. (2) `Dockerfile` không copy `data/overlay/` ⇒ image
+  thiếu artefact ⇒ `tai_lop_phu()` trả `None` ⇒ lớp phủ **tắt trong im lặng** (fail-open nuốt
+  luôn) — vá ở `35031dd`. (3) Subagent kết luận `.where()` treo trên LanceDB Cloud và đề xuất né;
+  đo trực tiếp thì `.where()` chạy tốt (1.85s/5.19s), lỗi thật là thoáng qua ngay sau khi ghi đè
+  bảng — bác bỏ bằng số, không đổi cột nền.
+- **Final review toàn nhánh (bước cuối của quy trình) — 1 Critical + 6 Important.** Chạy trên
+  model mạnh nhất, đo **trên artefact đã ship**: (1) nhánh 3 lấy cạnh khớp đầu tiên rồi tuyên bố
+  như sự thật — 46 cặp cạnh chung span, ca `ND80→ND101` sửa **5 khoản** mà chỉ nêu 1; (2) fallback
+  kéo lời văn hiện hành hỏi id cấp điều nên **31/40 ca trả rỗng** — **lỗi trong plan**, và mọi test
+  đều mock đúng hàm bị hỏng nên sống sót qua 10 cổng review; (3) chunk kéo thêm không qua chú
+  thích/hiệu lực/phạm vi. Sửa 7 commit `ec41c13..87b2e1d`, **620 test** xanh, classify 94 giữ,
+  deploy rev `00017-cqc`. Đợt sửa tự gây một hồi quy (thu hẹp "cả Khoản 2" xuống "Điểm b, đ", bắn
+  ở 2/15 nhóm span thật) — bắt ở re-review, đi thêm một vòng ngoài mặc định quy trình vì cái giá
+  của việc bỏ qua là một trích dẫn pháp lý sai. Luật chốt: **không chắc thì nới rộng, đừng thu hẹp**.
+- **Next.** Bộ câu hỏi eval chấm ở mức điều/khoản (#19 — mở khoá con số trình hội đồng); tín hiệu
+  runtime báo lớp phủ đã nạp (`/health`, parked); `so_hieu_theo_doc` đóng băng lúc build sẽ mục
+  ruỗng khi corpus lớn (parked); cào 89 văn bản tồn đọng.
+
+---
+
+## 2026-08-05 (T4) — đợt 4: overlay dưới-văn-bản (P1–P3), 8 task subagent-driven TDD
+
+- **Done (P1–P3 qua 8 task, mỗi task TDD đỏ→xanh, 2 vòng fix sau review).** `CanhTacDong` (cạnh
+  con↔con: khoản/điểm chạm khoản/điểm) sinh từ mệnh lệnh sửa đổi → nút overlay thưa
+  (`dung_overlay`) → phiên bản hiện hành theo thời gian + luật cạnh-chết (`phien_ban_hien_hanh`)
+  → định tuyến sau truy hồi (`dinh_tuyen`, 3 nhánh: nguyen_ven/nen_da_sua/trich_trong_van_ban_sua).
+  Số đo thật (xem mục mới trong `docs/KG-CONFORMANCE-v05.md`): **178 cạnh**, đối chứng TT40
+  90.4% (75/83) · TT15 92.5% (37/40) · TT34 92.1% (35/38); **167 khoá đích — 126 da_sua · 36
+  bi_bai_bo · 5 nguyên_ven**; bộ nhãn tay `eval/overlay/cau_hoi_nhan.jsonl` (13 dòng — 12 lúc nghiệm thu + 1 hàng khoản-gộp thêm ở đợt sửa final review, cả 3
+  nhánh, gắn nhãn bằng đọc luật rồi mới chạy `dinh_tuyen` đối chiếu) khớp **13/13**. Final review toàn nhánh bắt 3 lỗi Important có ca tái hiện (khoá giả cho chunk khoản-gộp — 21.8% corpus; nhánh trích-dẫn không qua luật cạnh-chết; đuôi trích dẫn `bai_bo` in nhầm "sửa bởi") — một đợt sửa, re-review đủ 5/5, suite lên 555.
+- **Decision (hai lệch so với kế hoạch — đo rồi giữ số thật, không sửa cho khớp dự đoán).**
+  (1) Kế hoạch đoán TT40 Điều 41 sẽ về `nguyen_ven` "vì TT22 đã giết TT41 Đ16" — dữ liệu thật có
+  cạnh THỨ BA (TT22 Đ1 tự viết lại trực tiếp TT40 Đ41, không chỉ bãi TT41 Đ16) nên trạng thái
+  thật là `da_sua`; sửa test theo số đo, không sửa code cho khớp dự đoán mù.
+  (2) Kế hoạch giả định mỗi `loi_van_moi` nằm gọn trong MỘT khối `trich_dan` — đo thật thấy
+  13/142 cạnh là khối GỘP (nhiều khối trích không liền kề trong cùng mệnh lệnh, đúng luật
+  `canh_tu_dieu` Quy tắc 3), mỗi ca đều mang cảnh báo kèm theo — test đổi sang bất biến chính
+  xác hơn (biên span khớp đúng biên `trich_dan` thật) thay vì khẳng định hẹp ban đầu.
+- **Kiểm:** `uv run pytest -q` **551 passed** · `ruff check .` sạch · `--classify` giữ 94 đơn vị
+  45/9/40.
+
+---
+
+## 2026-08-05 (T4) — đợt 3: nạp lượt crawl 22 văn bản (20 → 26 văn bản, `BAI_BO` ×4)
+
+- **Done (kiểm độc lập báo cáo crawler trước khi tin).** 22 file corpus + 22 raw; 14 văn bản có toàn văn = đúng **261 điều** như báo cáo; cả 14 qua kiểm `char_span` lớp 1 của mình, 0 cảnh báo đối chứng; 8 VBHN rỗng đúng như đã đoán (giới hạn nguồn). Đuôi `Nơi nhận:` nguồn **vẫn dán** ở 7/14 — bộ cắt của loader xử lý, không lọt vào corpus. TT38 được crawler điền sẵn `valid_to=2024-07-01` — khớp bằng chứng TT15 Đ22 k4 độc lập tìm ra.
+- **Done (nạp đợt 2 — 6 văn bản mới, 12 cạnh mới, tất cả có căn cứ).** Corpus: **26 văn bản · 425 điều · 1 289 khoản · 1 053 điểm · `chapter` 180/425 · 35 quan hệ · `kiem_quan_he` 0 cạnh sai**. Quét IGNORECASE (bài học TT22 áp dụng từ đầu) ra hai ca `BAI_BO` mới: **ND58 Đ28 k2 bãi bỏ Đ4 NĐ16** (NĐ16 giờ mang hai vết cắt từ hai nghị định — mỗi nghị định thay một mảng thì gỡ đúng điều sửa mảng đó) và **TT15 Đ22 k4 bãi bỏ Đ3 TT30/2016** — ca đầu tiên **cả nguồn lẫn đích đều có toàn văn**, tức truy vấn §6.2 hết phụ thuộc node rỗng. `BAI_BO` 2 → **4**.
+- **Done (test đo dữ liệu sống theo kịp — và một bài học về test "bằng chứng sống").** Bắc cầu ba mốc cùng phép đo 48/18/30 → 58/33/25 → **70/48/22**, số học khớp từng phần. Test "một lược đồ không đủ" mất chuyên án lần thứ HAI trong ngày (TT41 rồi TT34 lần lượt được nạp) — test neo vào "văn bản còn thiếu" thì mỗi đợt crawl thành công lại phá nó, nên chuyển sang lược đồ dựng tối thiểu, lịch sử hai ca thật giữ trong docstring. Viện dẫn cấp tiết 4 → 17 → **23** (TT30-2025 +3, TT34 +2, TT38 +1 — đo từng văn bản).
+- **Done (danh sách crawl tự lớn 67 → 89 — đúng thiết kế).** 13 lược đồ mới trỏ tiếp ra nhánh thẻ (TT19/2016 + 5 bản sửa), IBPS, thông tin tín dụng… `research/crawl_68_urls.txt` sinh lại: **89/89 có URL vbpl**, xếp GẤP → cao → vừa → thấp.
+- **Ship (Neo4j — lần đầu đồ thị 13-kiểu-cạnh chạy trên server thật).** `push_corpus` bản 26 văn bản · 35 cạnh có kiểu lên Aura vừa resume. Lần chạy thật ĐẦU TIÊN lộ ngay hai lỗi Cypher mà mock không bắt được (code viết 04/08 khi instance còn pause): mẫu đa kiểu phải là `:A|B|C` một dấu hai chấm, và `IS NOT false` là Python lạc sang Cypher → `coalesce(x, true)`. Sửa xong: **truy vấn §6.2 trả 3 khoảng trống lập pháp thật** — NĐ16/2019 (bị bãi bỏ hai lần, không ai thay thế), TT30/2016, TT41/2025; `related_docs`/`related_edges`/`don_node_rong` đều đã chạy sống. LanceDB/web vẫn đợi theo quyết định của bạn.
+- **Next:** quyết chuyện `corpus/` tự đứng (3), thiết kế `PhienBanDieu` từ `trich_dan` + `dieu_khoan_bi_tac_dong` (4), crawl 89 văn bản theo `research/crawl_68_urls.txt`.
+
+---
+
+## 2026-08-05 (T4) — #14: nạp 8 văn bản crawl vào corpus (15 → 20 văn bản)
+
+- **Done (kiểm trước nạp — và phép đo từng điều tóm được lỗi của chính bộ tách).** Cả 8 văn bản có toàn văn qua kiểm `char_span` từng ký tự; đo từng điều 3 văn bản trùng (ND52/TT15/TT40) thay vì tin tổng. Ba chỗ tưởng là lỗi crawl hoá ra ngược lại:
+  - **`_KHOAN_RE` đòi dấu cách sau chấm, vbpl in `1.Việc` dính liền** ⇒ TT40 Đ25 mất trọn khoản 1 (5 điểm), TT15 Đ14 khoản 3 bị nuốt vào khoản 2. Tức **bảng nghiệm thu cũ (97 khoản/216 điểm) đo bằng thước hỏng**. Sửa regex có lá chắn: chỉ nhận thiếu-cách khi ký tự kế **không phải chữ số** — `1.000.000 đồng` vẫn không thành khoản, có test canh cả hai chiều. Sau sửa: TT15 **98** khoản, TT40 **194/221** — khớp corpus cũ **từng khoản một**.
+  - **Thuộc tính vbpl sai được:** trang ND52 ghi hiệu lực `01/07/2027 — Chưa có hiệu lực`, trong khi Điều 37 của chính nó viết *"có hiệu lực thi hành từ ngày 01 tháng 7 năm 2024"*. Thành quy tắc 1 của bộ nạp: **chữ trong luật thắng metadata** — văn bản đã có trong corpus thì giữ ngày corpus khi lệch, kèm cảnh báo.
+  - **Đuôi hành chính dán vào điều cuối:** `Nơi nhận:` + chữ ký, và ở TT40 là **6 965 ký tự biểu mẫu phụ lục** nằm trong `Điều 54`. Cắt tại dòng đúng bằng `Nơi nhận:` (5/8 văn bản có, 3 văn bản còn lại đuôi sạch), chỉ đụng điều cuối, cắt **sau** khi `char_span` đã kiểm, có vết trong cảnh báo. Phụ lục chờ nhánh `#phuluc_`.
+- **Done (`app/ingestion/nap_corpus.py` + 6 test).** Trộn có vết, **idempotent** (chạy hai lần cùng bộ số, không nhân đôi), cạnh mới chỉ vào khi **cả hai đầu trong corpus** — cạnh nửa vời sẽ bị `MATCH…MATCH` của Neo4j nuốt im lặng. Kết quả: **20 văn bản · 338 điều · 1 036 khoản · 821 điểm · `chapter` 115/338 · 23 quan hệ, `kiem_quan_he` 0 cạnh sai**.
+  - **Ca `BAI_BO` đầu tiên vào corpus, đúng như #14 hứa:** ND52 Điều 37 *"bãi bỏ Điều 3 của Nghị định số 16/2019/NĐ-CP"* — cạnh mang neo `Điều 37 → Điều 3`, bãi bỏ **một phần** (khớp tình trạng vbpl "Hết hiệu lực một phần"). Truy vấn §6.2 hết bị chặn bởi dữ liệu.
+  - **Cạnh `BAI_BO` thứ hai — và một lỗi grep của tôi bị bạn bắt.** Tôi từ chối thêm `TT22 -BAI_BO-> TT41` với lý do "toàn văn TT22 không có câu bãi bỏ nào" — **sai**: TT22 Điều 6 khoản 2 viết *"Bãi bỏ Điều 16, Điều 17, Điều 18 Thông tư số 41/2025/TT-NHNN…"*, mở câu bằng **"Bãi bỏ" viết hoa** nên grep `bãi bỏ` chữ thường không thấy. Bạn chỉ ra; quét lại IGNORECASE cả 8 văn bản thì không còn câu nào sót khác. Ba nguồn vbpl hoá ra **nhất quán**: lược đồ "bị bãi bỏ" + tình trạng "Hết hiệu lực một phần" + lời văn bãi bỏ đúng 3/27 điều (các điều sửa Điều 41/42/43 của TT40). Cạnh vào với neo `Điều 6 → Điều 16/17/18`; TT41 **không** nhận `valid_to` vì chỉ chết một phần. Bài học ghi thẳng vào docstring `nap_corpus`: **tìm mệnh đề trong văn bản pháp lý phải IGNORECASE — mệnh đề đứng đầu khoản luôn viết hoa.** Bạn cũng xác nhận hai phán định hôm nay: ND52 hiệu lực `01/07/2024`, ND80 hết hiệu lực `01/07/2024`.
+  - TT41 có **27 điều thật** (mỗi điều sửa đúng một điều TT40) — nghi vấn "điều giả từ khối trích dẫn" kiểm xong, không phải.
+- **Done (4 test đo dữ liệu sống viết lại theo hiện thực sau nạp, số nào cũng đo tay trước).** Bắc cầu 48/18/30 → **57/32/25** (số học khớp từng phần: +9 cạnh, 5 văn bản rời tập stub); test canh-cái-chặn `BAI_BO` **đỏ đúng ngày ND16 được nạp** như thiết kế, viết lại thành mặt sau (cạnh phải tồn tại, neo phải đúng); bài học "một lược đồ không đủ" chuyển bằng chứng từ TT41 (đã nạp) sang **TT34/2024 qua lược đồ TT66** (ưu tiên 2 → 1, lộ thêm `THAY_THE`); viện dẫn cấp tiết 4 → **17** (TT41 +5, TT66 +8 — đo từng văn bản trước khi ghi vào docstring).
+- **Done (đợt 2 — ba câu trả lời của bạn thành bốn việc).**
+  - **Danh sách crawl có URL:** rút từ chính các mục lược đồ đã crawl — **67/67 văn bản đều có URL vbpl**, ghi vào `research/crawl_68_urls.txt` theo thứ tự GẤP → cao → thấp, cùng format `crawl_list.txt`.
+  - **Rác lược đồ đầu tiên bị loại có căn cứ:** `19/2016/QĐ-UBND` (thoát nước Khánh Hoà) nằm ở `incoming/"Văn bản áp dụng"` của ND80 — bạn xác nhận bỏ. Loại ở tầng **sinh danh sách** (`RAC_LUOC_DO` + `loc_rac` trong `can_crawl.py`, có test), KHÔNG sửa bản ghi thô: lần đối chiếu sau còn phải thấy vbpl đã ghi gì. Danh sách 68 → **67**.
+  - **Neo4j: chẩn đoán "chết DNS" sai một nửa.** Instance chỉ bị Aura free **tự pause** — pause thì DNS ngừng phân giải, nhìn từ ngoài y hệt chết. Bạn resume, kết nối lại được ngay, và bên trong là **nguyên bản đồ thị cũ**: 15 node · 13 cạnh mang tên cũ (`HUONG_DAN` 4 · `SUA_DOI` 2) · 0 node có `so_hieu` — đúng cái "tồn đọng schema cũ trong hệ đang chạy" mà đợt soát 04/08 kết luận nhầm là không có. Không dọn tay: `push_corpus` xoá sạch trước khi nạp; **chưa push** theo quyết định của bạn.
+  - **Cả bốn cạnh TT15/TT17/TT18/TT40 → ND52 được bạn xác nhận là `CAN_CU`** (căn cứ ban hành; TT17/TT18 chốt sau khi đọc tiêu đề) — khớp dữ liệu hiện có, không đổi gì. Câu hỏi treo từ G3 về tách `HUONG_DAN` đóng lại cho 4 cạnh này.
+- **Ship:** không deploy; `data/corpus.real.json` mới nằm trong repo, LanceDB/web chưa nạp lại — **bạn chốt: đợi dữ liệu và schema ổn định**.
+- **Decision:** `29/VBHN-NHNN` tiếp tục là node rỗng (vbpl không đăng toàn văn — nhiều khả năng nằm trong tệp đính kèm); ND80 nhận `valid_to=2024-07-01` theo lời văn ND52 dù vbpl gắn "Còn hiệu lực" — **bạn đã xác nhận cả ND52 lẫn ND80**.
+- **Next:** #16 crawl 67 văn bản theo `research/crawl_68_urls.txt` (2 mức GẤP đứng đầu); #17 chỉ còn `push_corpus` khi bạn cho phép; #18 nhận `source_url`/`source_files`; nạp lại LanceDB khi corpus ổn định. 8 VBHN: đánh giá 05/08 — bỏ qua được trước mắt (VBHN không mang hiệu lực độc lập, bản sát đề nhất 29/VBHN đã lỗi thời vì chưa gồm TT22); giá trị thật là làm **bản đối chứng** cho phép tự hợp nhất khi dựng tầng thời gian §7.
+- **Kiểm:** `uv run pytest -q` **516 passed** · `ruff` sạch · `--classify` giữ 94 đơn vị 45/9/40 · `nap_corpus --kho` lặp lại cùng bộ số.
+
+---
+
+## 2026-08-04 (T3) — đợt 3: khối trích dẫn trong văn bản sửa đổi
+
+- **Done (`parse_dieu` học đọc ngoặc kép — `app/ontology/parser.py`).** Bộ crawl cảnh báo *"ND80 Điều 1: khoản 5, 6, 7, 8 xuất hiện 2 lần với nội dung KHÁC nhau — cần người đọc quyết bản nào đang hiệu lực"*. Truy ra thì **không có gì để quyết**: một văn bản sửa đổi chép nguyên văn nội dung mới vào giữa hai dấu ngoặc kép, và phần chép mang **đánh số của văn bản BỊ sửa**. Khoản 5 lần một là của **ND101**, lần hai là của **ND80** — hai văn bản khác nhau, không phải hai phiên bản.
+  - **Hậu quả thật không nằm ở con số** mà ở khoá: `80/2016/NĐ-CP#than/dieu_1#khoan_5` trỏ vào **hai thứ khác nhau**, một trong hai là nội dung của văn bản khác — đúng kiểu nhập nhằng cả lớp khoá này sinh ra để chặn.
+  - **Việc này là của bộ tách, không phải của bên crawl.** Ngoặc kép là chữ của chính đạo luật; bỏ nó đi là sửa văn bản gốc và làm mất nghĩa của một văn bản sửa đổi. Nên `trong_trich_dan()` dựng mặt nạ theo ký tự, và cả ba chỗ nhận diện (khoản · điểm · tiết) bỏ qua dòng nằm trong khối. Khối **ở lại trong `text` của khoản mẹ** — bỏ khoản-giả khác hẳn bỏ chữ, và không có nó thì khoản 1 chỉ còn câu lệnh trống nghĩa.
+  - **Ngoặc lệch ⇒ bỏ luật cho cả Điều đó**, không đoán chỗ đóng: đoán sai sẽ nuốt phần còn lại của Điều — hỏng nặng hơn hẳn cái nó định sửa, và hỏng im lặng.
+  - **Đo trước khi viết**, và chính phép đo quyết định là làm được: ngoặc **cân 100%** trên cả 9 bản ghi; **0/18 fixture** có khoản/điểm trong ngoặc ⇒ 94 đơn vị và nhãn vàng **không đổi một dòng**; corpus có **75 khoản** đang bị gán nhầm chủ, tất cả ở TT20-2016 và TT23-2019 — đúng hai văn bản sửa đổi.
+  - **Kết quả:** ND80 Điều 1 từ 14 → **10 khoản, khớp đúng cây `provisions` của nguồn**; `char_span` không khoản nào lệch; ND52/TT15/TT40 không đổi một con số. **506 test** (thêm 11), ruff sạch, `--classify` giữ 94 đơn vị 45/9/40.
+  - Một lỗi bắt được khi chạy: văn bản kết thúc bằng `\n` sinh dòng rỗng cuối có `start == len(text)` ⇒ tra mặt nạ ném `IndexError`. Mặt nạ nay dài `len(text) + 1`, có test canh riêng.
+- **Done (`docs/PROMPT-SUA-CRAWLER-2.md`).** Bên crawl **không phải sửa dữ liệu** — chỉ hai câu cảnh báo: (1) cảnh báo "cần người đọc quyết" tạo ra **việc rà soát giả**, chỉ nên bắn khi cả hai dòng trùng đều **ngoài** ngoặc; (2) `check_tree_coverage` nói **ngược** — *"cây thiếu 4 khoản (10/14)"* trong khi cây đúng là 10, còn 14 mới là số thừa. Ở TT15 thì cây thiếu nút thật, ở văn bản sửa đổi thì cây lại **đúng hơn** toàn văn, vì cây đọc theo cấu trúc HTML nên biết khối trích dẫn là con của khoản.
+  - Ghi rõ trong prompt rằng cột đối chiếu đếm bằng regex thô nên **không** bằng số khoản của bộ tách (TT40: 209 vs 193) — để bên kia không chỉnh code cho khớp nhầm số.
+
+---
+
+## 2026-08-04 (T3) — đợt 2: nhận dữ liệu crawl lại
+
+- **Done (kiểm độc lập báo cáo của crawler).** Không lấy báo cáo làm bằng, đếm lại khoản/điểm từ `articles[]` **và** từ `noi_dung` cho cả 9 văn bản: **8/9 khớp bảng nghiệm thu**. Ca lệch duy nhất là TT40 — **216 điểm, không phải 218 như tôi đưa**. Truy bằng chính file cũ trong git: bản cũ có điểm `đ` và `i` **lặp** ở cuối Điều 37 khoản 1, bản mới bỏ đúng hai cái đó. ⇒ **số của tôi sai**, vì phép khử trùng lúc tôi đo chỉ xử lý dòng khoản `^\d+\.` mà bỏ sót dòng điểm.
+- **Done (`articles[]` đảo vai từ "không được dùng" thành NGUỒN).** Đo được ba điều: `char_span` khớp `noi_dung` **8/8 văn bản, 100% số điều**; số khoản/điểm khớp bảng; `chapter`/`section` đầy đủ ở mọi văn bản **có** Chương (ND52 38/38 · TT40 54/54 · TT15 23/23 — các văn bản còn 0 đều là văn bản sửa đổi ngắn, cây cũng không có Chương nào).
+  - Lý do đủ mạnh để tin là **nguồn tự bảo đảm đúng bất biến xuất xứ mà tầng ontology dựa vào**, và nó **kiểm được ngay tại chỗ nạp** — không phải tin suông.
+  - Phép dựng lại từ `noi_dung` **ở lại làm đối chứng**, không xoá: cái đã hỏng một lần thì hỏng lại được, và kiểu hỏng của nó là im lặng (0 khoản trông y hệt một điều không chẻ khoản). `dieu_tu_ban_ghi` kiểm **hai lớp** — `char_span` sai ⇒ **từ chối cả văn bản**; số khoản/điểm lệch ⇒ cảnh báo. Có test dựng bản ghi mang đúng chữ ký khuyết tật cũ (mất đánh số nhưng `char_span` vẫn khớp) để chứng minh lớp 1 **không** đủ.
+- **Done (sửa lỗi của chính tôi — đổi bố cục thư mục làm hai bộ đọc câm).** Bộ crawl chuyển sang `raw/` + `corpus/`, cả `_doc_vbpl` lẫn `doc_thu_muc` còn quét phẳng ⇒ đọc ra **0 cạnh**, và công cụ in *"0 văn bản cần crawl"* — **đọc như đã xong hết, tức đúng nghĩa ngược lại**. Cùng lúc **42 test lặng lẽ chuyển sang skip** vì `skipif` trỏ đường dẫn cứng: suite vẫn báo xanh trong khi không kiểm gì.
+  - Sửa tận gốc chứ không vá đường dẫn: `tho_theo_so_hieu()` tra bản ghi theo **số hiệu nằm trong file**. Tên file đã đổi ba lần (`sample.json` → `<slug>.json` → `raw/<slug>.json`), số hiệu thì không đổi theo cách xếp file.
+  - Thêm chốt: thư mục **có file mà không nhận ra bản ghi nào** thì kêu. *Rỗng-vì-không-tìm-thấy* và *rỗng-vì-không-còn-gì* không được in ra giống nhau.
+  - **495 test, 0 skip** (trước đợt này: 446 pass + 42 skip).
+- **Decision:** chưa nạp 7 văn bản vào corpus. Không phải vì dữ liệu xấu — mà vì TT15 crawl lại **khác corpus ở 9/22 điều** và corpus đang **sai** ở đó (Điều 18 nuốt trọn Điều 19). Nạp đè là việc riêng, cần đo trước từng điều.
+- **Next:** nạp 7 văn bản (đầu tiên là `16/2019/NĐ-CP` — mở khoá ca §6.2); crawl tiếp theo `docs/CAN-CRAWL.md` (**68 văn bản**, `30/2016/TT-NHNN` và `58/2021/NĐ-CP` đứng mức GẤP vì mang `BAI_BO`); dựng lại instance Neo4j.
+
+---
+
+## 2026-08-04 (T3)
+
+**Giai đoạn:** chuẩn hoá **số hiệu văn bản**, bắc cầu `so_hieu` ↔ `doc_id`, **node rỗng**, và soát tồn đọng schema cũ.
+
+- **Done (số hiệu — `app/core/so_hieu.py`, `data/ky_hieu_van_ban.json`).** Nghiên cứu ký hiệu của bạn (`research/vb-phap-luat-ky-hieu.html`) đổi ba thứ tôi chưa tính: ký hiệu **hợp thành** `<loại>-<cơ quan>` ⇒ từ vựng là O(loại)+O(cơ quan) chứ không phải tích, tổ hợp chưa gặp (`TT-BNNMT`) tự hợp lệ; **năm tuỳ chọn** ⇒ khuôn cũ đòi năm nên bỏ sót **trọn nhóm hành chính** (`123/QĐ-NHNN`) trong im lặng; `TT-BT` là placeholder, văn bản đó về thuế XNK nên mã thật là `TT-BTC` — trùng đúng ca Cyrillic.
+  - **Chỉ lưu MỘT dạng: dạng công bố.** Bản nháp trước định thêm "dạng so khớp" (bỏ số 0 đầu, `Đ→D`) + id kỹ thuật từ URL vbpl — ba danh tính, và bạn nói thẳng là thừa. Đo lại chốt: **0 xung đột số 0 đầu** trên mọi nguồn ⇒ bỏ số 0 là giải bài toán không tồn tại mà lại làm dạng lưu lệch dạng công bố. Chuẩn hoá là **hàm ở biên**, không phải trường thứ hai; id trong URL vbpl là *provenance của bản ghi thô*.
+  - **Khử homoglyph là quy tắc CẤU TRÚC, không phải tra danh sách**: mã chỉ gồm chữ cái ⇒ bắt được cả mã cơ quan **chưa có trong bảng**. Cảnh báo nêu đích danh codepoint vì người sửa nguồn cần biết ký tự nào.
+  - `loai` **đóng** (luật liệt kê đủ hình thức) ⇒ mã lạ là lỗi. `co_quan` **không đóng được** (63 UBND tỉnh, doanh nghiệp) ⇒ mã lạ là cảnh báo. `QĐ` trả `qppl=None` **cố ý**: từ 2015 Quyết định của Bộ trưởng không còn là VBQPPL nhưng của Thủ tướng/UBND tỉnh thì vẫn — riêng ký hiệu không đủ chốt.
+  - **Test bắt một lỗi của chính tôi:** `TTg` (Thủ tướng) và `TTr` (Tờ trình) là chính tả chuẩn hoa-thường lẫn lộn, `.upper()` mù biến `QĐ-TTg` thành `QĐ-TTG` trong im lặng. Sửa theo nguyên tắc đang dùng — **từ vựng chốt chính tả**, không phải phép biến đổi chuỗi.
+- **Done (cầu `so_hieu` → `doc_id` + node rỗng — `app/ingestion/bac_cau.py`).**
+  - **Vì sao là chuyện im lặng, không phải chuyện bất tiện:** `push_corpus` viết `MATCH (a:Document {doc_id}), (b:Document {doc_id})` rồi mới `MERGE`, mà Cypher `MATCH` không khớp thì **cả câu không chạy**. Đổ 35 cạnh khoá-số-hiệu vào hôm nay ⇒ **0 cạnh, 0 lỗi**.
+  - `DocumentMeta.so_hieu` nullable, **`doc_id` vẫn là danh tính** (đổi nó chạm 243 chỗ + lịch sử Supabase). Điền **không gõ tay dòng nào**: 15/15 văn bản đọc được số hiệu từ chính `title`, kể cả 4 văn bản nội bộ SHB.
+  - **57 cạnh** (13 corpus + 44 từ hai bản ghi vbpl) quy hết về `doc_id`, **0 cạnh rơi, 0 cảnh báo**; 21 nối hai văn bản có toàn văn, **32 đầu mút thành node rỗng**. Mã có instance: **4/13 trong corpus → 7/13** khi hợp nhất lược đồ (thêm `BAI_BO`, `QUY_DINH_CHI_TIET_HUONG_DAN`, `HOP_NHAT`).
+  - **Cơ chế cập nhật là SUY RA, không vá.** Node rỗng không ai soạn — điều kiện tồn tại là "chưa văn bản nào nhận số hiệu này". Crawl xong, đưa vào corpus kèm `so_hieu` ⇒ lần nạp sau tự thành node thật, **không có bước di trú**. Đường nạp bổ sung có `don_node_rong_da_co_toan_van()` để cơ chế đó là thứ **gọi được và kiểm được**, không phải hệ quả phụ của việc xoá sạch.
+  - Hai chỗ **cố ý không làm**: node rỗng lấy chính số hiệu làm `doc_id` (bịa `ND16-2019` thì lúc crawl thật dễ thành hai node cho một văn bản); `related_docs()` **loại** node rỗng khỏi truy hồi (trích dẫn node rỗng là trích dẫn thứ chưa đọc) trong khi `related_edges()` giữ — ở đó chính **cạnh** mới là thông tin.
+  - **Xếp ưu tiên crawl theo *hỏng cái gì*, không theo số cạnh**: đo được 30/30 đầu mút treo đều đúng **1 cạnh** ⇒ xếp theo số cạnh là xếp theo một cột hằng số.
+- **Done (soát tồn đọng schema cũ — `docs/KG-CONFORMANCE-v05.md` §3.6).** Ba chỗ, mức rất khác nhau:
+  - **Neo4j: không tồn đọng, nhưng vì lý do đáng lo hơn** — instance Aura `fd63789d.databases.neo4j.io` **không phân giải DNS nữa** (`databases.neo4j.io` và `google.com` phân giải bình thường ⇒ không phải lỗi mạng). Đồ thị hiện không có dữ liệu để tồn đọng, và cũng không có để chạy.
+  - **Web: còn sống ở BA file và hỏng theo kiểu không ai thấy.** `anchors.ts:73` lọc `rel_type !== "SUA_DOI"` ⇒ sau khi đổi tên, **bản đồ sửa đổi theo điều rỗng đi**, bỏ đúng 2 cạnh `SUA_DOI_BO_SUNG` của corpus. Ba bảng nhãn 4 dòng ⇒ 11 mã còn lại rơi xuống nhánh dự phòng, người dùng đọc chữ `SUA_DOI_BO_SUNG` thay cho "Văn bản sửa đổi, bổ sung", **không lỗi nào trong console**. Gom về `web/lib/quan-he.ts`; `tests/test_quan_he_web.py` đọc thẳng file `.ts` canh 13 mã + 26 nhãn khớp `REL_TYPES`, kể cả cặp bất quy tắc #8.
+  - **Supabase: chỗ DUY NHẤT schema cũ còn sống trong dữ liệu thật.** Migration `0003` **seed thẳng** `HUONG_DAN` và `SUA_DOI` vào `change_events`, và đã chạy. Nặng hơn tên xấu: khoá chống trùng `unique (doc_id, source_doc_id, rel_type)` **có `rel_type` trong khoá** ⇒ lần ingest sau, cùng một thay đổi mang tên mới bị coi là **sự kiện khác** và chèn thêm dòng. `0006_quan_he_v05.sql` sửa + thêm `check` chặn ở biên — **chưa chạy**, cần dán vào SQL Editor.
+- **Done (`docs/CAN-CRAWL.md` — `app/ingestion/can_crawl.py`).** 32 văn bản, mỗi dòng truy được về một cạnh có thật. Danh sách gõ tay đúng vào ngày gõ rồi lệch dần mà không ai biết; cái này sinh lại được.
+  - **Một chỗ danh sách tự nó giấu — và bản ghi thứ hai của bạn chứng minh ngay trong ngày.** Lược đồ của một văn bản chỉ chứa quan hệ **với chính nó**. Lược đồ ND52 xếp 20 Thông tư vào `CAN_CU`, nhưng tiêu đề của 6 trong số đó nói chúng **sửa đổi** văn bản corpus — dấu hiệu, chưa phải kết luận. Thêm `sample_v2.json` (lược đồ **của chính TT40/2024**): `41/2025/TT-NHNN` và `22/2026/TT-NHNN` lộ ra ở `incoming / "Văn bản sửa đổi bổ sung"`, mức nhảy **thấp → cao**, và cùng lượt lộ `29/VBHN-NHNN` (`HOP_NHAT`). ⇒ corpus đang ghi TT40/2024 là *còn hiệu lực, chưa sửa đổi* — **sai**. Phải crawl lược đồ của **từng văn bản corpus**, không chỉ của các đầu mút.
+  - Một cảnh báo còn lại, và nó **đúng**: mục thứ hai trong nhóm *Văn bản hợp nhất* của TT40 chỉ có trích yếu *"Quy định về hoạt động cung ứng dịch vụ trung gian thanh toán"*, **không kèm số hiệu**. Rất có thể là chính `29/VBHN-NHNN` ở dòng trên, nhưng "rất có thể" không phải "biết" — báo ra, không đoán.
+- **Done (khảo sát dữ liệu ngoài, tách biệt khỏi luồng ontology ở trên).** Tải bộ dataset công khai `phamson02/tuvanphapluat` (HuggingFace) về `data/tuvanphapluat/` — 224,005 đoạn corpus + 169,451/9,999 cặp hỏi-đáp train/test, script tái tạo ở `scripts/download_tuvanphapluat.py`. Dựng UI duyệt cục bộ (`scripts/tuvanphapluat_viewer.py`, FastAPI + DuckDB đọc thẳng parquet, không load hết vào RAM — hợp máy 8GB) để xem/tìm kiếm, có liên kết câu hỏi ↔ đoạn corpus qua `contextoid`.
+  - Bộ dữ liệu **không** có trường "lĩnh vực pháp luật" tổng quát, chỉ có `category` rất chi tiết (**13,464 tag khác nhau**/câu hỏi, không phân cấp). Thêm bộ lọc theo tag vào UI (gõ "ngân hàng" → gợi ý tag liên quan kèm số lượng: *Tổ chức tín dụng* 461, *Ngân hàng Nhà nước* 275, *Ngân hàng thương mại* 163, *Tài khoản thanh toán* 60...) để lọc nhanh theo miền quan tâm thay vì gõ tay từng tag.
+  - Mới dừng ở bước xem qua — **chưa quyết định** có dùng làm nguồn eval/train bổ sung cho RAG hay không.
+- **Ship:** chưa deploy (chưa chạm đường chạy). `npm run lint` + `tsc --noEmit` + `next build` xanh; **466 test** + `ruff` xanh; `--classify` giữ **94 đơn vị 45/9/40**, `classify_testset` **9/9**. Hai script khảo sát dữ liệu đã commit (`46d7b4e`), không đụng pipeline chính.
+- **Decision:**
+  - Đầu mút chưa có toàn văn ⇒ **node rỗng**, không bỏ cạnh. Bỏ thì mất luôn instance `BAI_BO` duy nhất có thật (NĐ52 → NĐ16/2019), tức mất đúng ca kiểm chứng bắt buộc §6.2.
+  - `doc_id` **không đổi**; `so_hieu` là trường bắc cầu. §3.3 (hai không gian ID) từ "chặn đường" xuống "dọn sau".
+- **Next:** crawl theo `docs/CAN-CRAWL.md` (ưu tiên `16/2019/NĐ-CP`), crawl lược đồ **từng văn bản corpus** để lộ các quan hệ sửa đổi đang bị che; chạy migration `0006`; dựng lại instance Neo4j; G2 phần còn lại (giữ dòng Chương/Mục ở `extract.py:90` — 47 Chương + 15 Mục đang bị vứt).
+
+---
+
 ## 2026-08-03 (T2)
 
 **Giai đoạn:** đối chiếu code với **KG v0.5**, dựng hàng đợi duyệt cờ, và **B22 — guard `ap_dung_khi`**.
@@ -89,6 +257,92 @@
     `tiet_semicolon_mo_ho`. Nhánh vẫn phải chạy đúng nên test của nó chuyển sang **Điểm dựng tay**
     và nói rõ là dựng tay — sửa fixture cho vừa test thì rẻ hơn, nhưng fixture là **chữ luật thật**,
     sửa nó là làm hỏng thứ đắt nhất trong repo.
+- **Done (chuẩn hoá SỐ HIỆU theo khung ký hiệu — `research/vb-phap-luat-ky-hieu.html`).**
+  - **Nghiên cứu của bạn đổi hẳn thiết kế, theo hướng tốt hơn.** Ba điều tôi chưa tính: (1) ký
+    hiệu là **hợp thành** `<loại>-<cơ quan>` ⇒ từ vựng là **O(loại)+O(cơ quan)**, tổ hợp mới
+    (`TT-BNNMT`) tự hợp lệ, không phải liệt kê tích của hai; (2) **năm TUỲ CHỌN** — `123/QĐ-NHNN`
+    là văn bản hành chính hợp lệ, regex cũ đòi năm nên **bỏ sót cả nhóm đó trong im lặng**;
+    (3) `TT-BT` là placeholder chứ không phải mã thật, và văn bản đó về thuế XNK ⇒ đúng là
+    **`TT-BTC`**, khớp ca Cyrillic.
+  - **Chỉ lưu MỘT dạng — dạng công bố.** Bản nháp của tôi định thêm "dạng so khớp" (bỏ số 0 đầu,
+    `Đ→D`) và một khoá kỹ thuật từ URL ⇒ **ba dạng, thừa**. Đo lại: **0 xung đột số 0 đầu** trên
+    toàn dữ liệu ⇒ giải bài toán không tồn tại. Chuẩn hoá là **hàm chạy ở biên**, không phải
+    trường thứ hai; ID trong URL vbpl là *provenance của bản ghi thô*, không phải danh tính.
+  - **Khử homoglyph là quy tắc CẤU TRÚC, không phải tra danh sách:** mã chỉ gồm chữ cái ⇒ bắt
+    được ký tự lạ **kể cả với mã cơ quan chưa có trong bảng**. Ca thật `51/2025/TT-BTС` (С =
+    U+0421 CYRILLIC ES) nay **sửa được + nêu đích danh codepoint**, thay vì regex cũ **im lặng
+    cắt cụt** thành `51/2025/TT` — một khoá cụt tệ hơn không có khoá vì nó vẫn join được, vào
+    nhầm văn bản.
+  - **`loai` đóng · `co_quan` mở.** Luật liệt kê đủ hình thức văn bản ⇒ mã loại lạ là lỗi. Còn
+    cơ quan thì không đóng được (63 UBND tỉnh, doanh nghiệp, cơ quan mới lập) ⇒ **cảnh báo, không
+    từ chối**. `qppl` suy được từ chính ký hiệu (có năm + loại quy phạm); `QĐ` trả `None` **cố ý**
+    vì từ 2015 Quyết định của Bộ trưởng không còn là VBQPPL nhưng của Thủ tướng/UBND tỉnh thì vẫn.
+  - **Test bắt một lỗi thật của tôi:** `TTg` (Thủ tướng) và `TTr` (Tờ trình) là mã **hoa-thường
+    lẫn lộn**, `.upper()` mù biến `QĐ-TTg` thành `QĐ-TTG` trong im lặng. Sửa theo đúng nguyên tắc
+    đang dùng: **từ vựng chốt chính tả**, không phải một phép biến đổi chuỗi.
+  - **Đo:** đọc lại mẫu vbpl vẫn **35 cạnh**, và cảnh báo đi từ 0 → **1** — đúng cái lỗi của
+    nguồn, trước đây bị nuốt. pytest **444**, ruff sạch.
+- **Done (13 quan hệ thành TẬP ĐÓNG + đọc lược đồ vbpl.vn).**
+  - **Gốc rễ:** `REL_TYPES` cũ là **4 tên tự đặt** và `rel_type: str` **chưa bao giờ được đối
+    chiếu với nó** ⇒ `HUONG_DAN` — một loại không có thật — sống 4 lần. Cùng bảng còn bị **chép ở
+    ba nơi** (`schemas.py`, `answer.py`, `pipeline.py`). Nay một nguồn duy nhất + validator chặn ở
+    **biên dữ liệu vào**, thông báo lỗi nêu đủ 13 mã hợp lệ.
+  - **Cạnh CÓ KIỂU trong Neo4j** (4 chỗ Cypher). Nhờ đó viết được truy vấn §6.2 *legislative void*
+    (`BAI_BO` mà không `THAY_THE`) — với một kiểu cạnh duy nhất thì câu đó **không tồn tại**.
+    `khoang_trong_lap_phap()` ghi rõ: corpus có **0 `BAI_BO`** nên trả rỗng **vì thiếu dữ liệu**,
+    không phải vì không có khoảng trống nào.
+  - **Câu hỏi tưởng phải hỏi người thì NGUỒN trả lời.** `data/raw/vbpl/sample.json` (mẫu schema sẽ
+    thu thập) có `luoc_do.outgoing/incoming` khớp đúng hai cột nhãn của v0.5 §6. Cả bốn Thông tư
+    TT15/17/18/40-2024 nằm ở `incoming / "Văn bản áp dụng"` — **nhãn bị động của `CAN_CU`**, cặp
+    **#8 bất quy tắc** — chứ không ở `"Văn bản quy định chi tiết, hướng dẫn thi hành"` (chỉ có
+    TT34/2024). ⇒ quan hệ đúng là **`CAN_CU`**: các TT **ban hành căn cứ** NĐ52, không hướng dẫn nó.
+  - **Chiều mũi tên do `outgoing`/`incoming` quyết, KHÔNG do nhãn** — một quy tắc cho cả 13 mã.
+    Bằng chứng nó đúng kể cả với cặp bất quy tắc: cùng mã `CAN_CU` ra **hai chiều ngược nhau** trên
+    cùng một trang (outgoing "Căn cứ ban hành" → 10 Luật; incoming "Văn bản áp dụng" → 20 Thông tư).
+    Bảng nhãn **suy từ `REL_TYPES`**, không gõ tay ⇒ không thể trôi khỏi tập đóng; 26 nhãn sau
+    chuẩn hoá vẫn phân biệt được từng cái (có test canh vì phép chuẩn hoá bỏ dấu phẩy).
+  - **Đo:** đọc mẫu ra **35 cạnh · 0 cảnh báo** (`CAN_CU` 30 · `THAY_THE` 2 · `BAI_BO` 1 ·
+    `QUY_DINH_CHI_TIET_HUONG_DAN` 1 · `DAN_CHIEU` 1). **`BAI_BO` có instance thật**: NĐ52 → NĐ16/2019
+    ⇒ ca kiểm chứng §6.2 sẽ có dữ liệu khi chuyển nguồn. Sửa 6/13 hàng corpus (diff **10 dòng**,
+    chiều giữ nguyên, `documents` không đụng), `kiem_quan_he` báo **0 cạnh sai**. pytest **413**.
+  - Cạnh khoá bằng **số hiệu** (`52/2024/NĐ-CP`) — khoá v0.5 dùng và có sẵn trong vbpl — chứ không
+    phải `doc_id`. Quy về `doc_id` chờ trường bắc cầu `so_hieu` (việc #11).
+- **Done (đối chiếu lại v0.5 + G1 tầng CU — `docs/KG-CONFORMANCE-v05.md`, `ONTOLOGY-POC.md` §14g–h).**
+  - **Đo lại conformance: điểm KHÔNG đổi một ô nào.** Ba đợt việc 04/08 đều ở tầng CU, không chạm
+    tầng văn bản. Ghi lại thay vì làm tròn lên — một báo cáo đối chiếu mà tự cải thiện điểm sau
+    mỗi lần chạm code thì hết là thước đo. Cái lớn lên: §4 "PoC đi trước v0.5" **4 → 7 mục**.
+  - **Một ô sửa XUỐNG: §6 từ 4/13 còn 2/13.** Bản cũ đếm 4 vì dữ liệu có 4 `rel_type`. Đối chiếu
+    từng tên: chỉ `THAY_THE`, `DAN_CHIEU` trùng; `SUA_DOI` phải thành `SUA_DOI_BO_SUNG`; 4 cạnh
+    `HUONG_DAN` **không ánh xạ được** — §6.3 tách nó làm hai quan hệ mà Điều 53 k2 đối xử khác nhau.
+  - **Bốn phát hiện mới, mỗi cái truy tới một dòng:** (a) `Chương` có thật trong HTML gốc — **47
+    Chương + 15 Mục** trên 9 file — nhưng `extract.py:90` vứt đi, nên `Article.chapter` là trường
+    chết **0/278**; (b) tên quan hệ lệch; (c) **`BAI_BO` = 0 instance** ⇒ truy vấn *legislative
+    void* §6.2 sẽ **chạy nhưng rỗng**, đừng nhầm "dựng xong 13 cạnh" với "có demo"; (d)
+    `_SO_HIEU_RE` chạy đúng, `so_hieu` **đã trích rồi vứt** ⇒ bắc cầu ID rẻ hơn §3.3 tưởng.
+    Hai cái (a)(d) làm **đổi thứ tự phụ thuộc**: `Chuong`/`Muc` không cần chờ thống nhất ID.
+  - **LỖI ĐANG SỐNG tìm ra khi đối chiếu hai tầng guard.** TT17 Đ16 k1 điểm a: guard tại Điểm là
+    `('khách hàng','cá nhân')` trong khi tiết (ii) là `('khách hàng','tổ chức')`. `hop_guard` là
+    AND dọc đường đi ⇒ tiết (ii) nhận **`cá nhân ∧ tổ chức`, guard bất khả thi** — vế đó vĩnh viễn
+    không áp dụng cho ai. **2/2** ca có guard ở cả hai tầng đều hỏng. Test cũ không bắt vì không
+    test nào canh **quan hệ giữa hai tầng**.
+  - **Hai nguyên nhân độc lập, sửa cả hai:** (1) `tach_guard` trả cụm **đầu tiên** ⇒ đổi sang chỉ
+    nhận khi có **đúng một** cặp `(thuoc_tinh, gia_tri)`; từ hai trở lên báo `guard_nhieu_cum` và
+    **không chọn hộ**. (2) `extractor` đưa toàn văn Điểm vào ⇒ Điểm **có tiết** thì đọc trên **câu
+    bao trùm**, đúng ranh giới §14e. Chỉ sửa (2) thì chưa đủ: điểm b có **hai cụm ngoặc ngay trong
+    chapeau**. Kèm một sửa lỗi cắt câu: `_GUARD_CUM` nay dừng ở `)` — an toàn một chiều vì mọi cụm
+    chứa ngoặc **đang** bị loại.
+  - **Đo: guard 13 → 11 · guard bất khả thi 2 → 0** · cảnh báo 76 → 76 · lỗi cứng 0/49 ·
+    `guard_ngoai_mau` 13 → 12, `guard_nhieu_cum` 0 → 1 · `--classify` **94 đơn vị 45/9/40** ·
+    `classify_testset` **9/9** · pytest **365**.
+  - **Hai đề xuất của tôi bị ĐO bác bỏ** (lần thứ ba trong ngày): nới dạng C ra 6 từ cho
+    `thuoc_tinh = 'dịch'`, `'khách'` — **sai tiếng Việt**, vì danh ngữ Việt có head hai âm tiết;
+    bỏ điều kiện `ket==':'` của dạng B chỉ mua **1 ca** và đó là một khoản **định nghĩa**, nơi
+    guard vô nghĩa. Kế hoạch ghi "T4 16 → ~6" là **sai**, thực tế 16 → 16.
+  - **T3 "nghi bịa tình thái" bỏ trống**, 9 cờ xuống T5. Người duyệt chấm 8/9 báo động giả, và
+    `modality.py:65-68` đã viết trước: thêm dấu hiệu của nhóm **nguồn đã có** là *phân phối lệnh
+    cấm ra từng vế* hoặc *thay từ đồng nghĩa*, không phải bịa. Bịa thật là `invented_groups` → lỗi
+    cứng, 0/49. **Không** đụng `modality.py`. Số hiệu T3 giữ trống, không đánh số lại T4→T3 vì
+    `flag_verdicts.jsonl` đã duyệt có ghi `tier`. **Hàng đợi 31 → 22.**
 - **Done (bảng phân hoạch — `docs/ONTOLOGY-POC.md` §14f).** Chốt vế còn thiếu của câu hỏi T2.
   - **Câu hỏi ở §14c thiếu một vế.** Người duyệt trả lời *"loại trừ nhau về đối tượng áp dụng"*,
     nhưng loại trừ nhau **chưa đủ**: `(g₁→c₁)∧(g₂→c₂)` vs `(g₁∧c₁)∨(g₂∧c₂)` chỉ trùng nhau ở

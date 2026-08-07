@@ -5,6 +5,7 @@ tại thời điểm `as_of`, và có thể mở rộng qua knowledge graph (cro
 """
 from __future__ import annotations
 
+import re
 from functools import lru_cache
 
 from app.core import vectordb
@@ -123,6 +124,83 @@ def graph_augmented_search(
     seen = {r["id"] for r in base}
     merged = base + [r for r in extra if r["id"] not in seen]
     return merged, edges
+
+
+#: Số chunk tối đa lấy về cho MỘT điều xuất xứ. Điều dài bị `_split_khoan` chẻ nhiều mảnh
+#: (TT66-2025 Điều 12 = 7217 ký tự → 6 mảnh); lấy hết là nhồi cả điều vào prompt cho một chú
+#: thích phụ trợ. Lấy hai mảnh ĐẦU theo thứ tự nhãn: mệnh lệnh sửa ("Sửa đổi khoản N như
+#: sau:") và khối lời văn mới đầu tiên nằm ở đầu điều.
+_TOI_DA_MANH_MOI_DIEU = 2
+
+#: Trần quét mỗi văn bản khi tra theo tiền tố. Văn bản dày nhất của corpus thật là 92 chunk
+#: (TT40-2024); 300 để còn dư khi corpus lớn lên mà vẫn không kéo về cả bảng.
+_TRAN_QUET_MOI_DOC = 300
+
+_SO_DAU_RE = re.compile(r"\d+")
+
+
+def _sap_nhan(nhan: str) -> tuple:
+    """Thứ tự TỰ NHIÊN của nhãn chunk: `"Điều 1"` < `"Điều 1 Khoản 2"` < `"Điều 1 Khoản 10"`."""
+    return tuple(int(s) for s in _SO_DAU_RE.findall(nhan))
+
+
+def lay_chunk_theo_tien_to(
+    tien_to: list[str], *, moi_tien_to: int = _TOI_DA_MANH_MOI_DIEU
+) -> list[dict]:
+    """Tra chunk theo TIỀN TỐ `"{doc_id}::{nhãn điều}"` — không tìm kiếm, không embedding.
+
+    Vì sao tiền tố chứ không phải id chính xác: `app/ingestion/pipeline.py` mint id là
+    `"{doc_id}::{label}"`, mà `label` của một điều dài hơn `_MAX_CHUNK` là `"Điều N Khoản a-b"`
+    hoặc `"Điều N (phần k)"` — **id cấp điều không tồn tại**. Lớp phủ chỉ biết địa chỉ tới cấp
+    ĐIỀU (`articles[]` của corpus chỉ tới đó), nên tra đúng id thì 31/40 ca khớp 0 hàng và
+    fail-open nuốt mất (đo 06/08 trên `data/overlay/lop_phu.json` + `data/corpus.real.json`).
+
+    Ranh giới tiền tố là DẤU CÁCH, không phải `startswith` trần: `"Điều 3"` phải khớp
+    `"Điều 3 Khoản 1-6"` và `"Điều 3 (phần 2)"` nhưng KHÔNG được khớp `"Điều 30"` — corpus
+    thật có đủ cặp Điều 1/Điều 10..19, Điều 3/Điều 30..39 để cái nhầm đó xảy ra hằng ngày.
+
+    Lọc `doc_id` đẩy xuống LanceDB (`doc_id IN (...)` — cú pháp đã dùng ở `search_in_docs`,
+    không mượn thêm phương ngữ SQL nào); khớp tiền tố làm ở Python, nơi luật ranh giới kiểm
+    được. Lỗi (bảng chưa có, filter khác cú pháp) ⇒ trả rỗng: đây là phần THÊM cho câu trả
+    lời, không được làm hỏng nó.
+    """
+    cap: list[tuple[str, str]] = []
+    for t in tien_to:
+        doc_id, sep, nhan = (t or "").partition("::")
+        if sep and doc_id and nhan:
+            cap.append((doc_id, nhan))
+    if not cap:
+        return []
+
+    docs = sorted({d for d, _ in cap})
+    trong = ", ".join("'" + d.replace("'", "''") + "'" for d in docs)
+    try:
+        hang = (
+            _open_table()
+            .search()
+            .where(f"doc_id IN ({trong})")
+            .limit(len(docs) * _TRAN_QUET_MOI_DOC)
+            .to_list()
+        )
+    except Exception:  # noqa: BLE001 — xem docstring
+        return []
+
+    ra: list[dict] = []
+    da_co: set[str] = set()
+    for doc_id, nhan in cap:
+        khop = sorted(
+            (
+                r for r in hang
+                if r.get("doc_id") == doc_id
+                and ((a := (r.get("article") or "")) == nhan or a.startswith(nhan + " "))
+            ),
+            key=lambda r: _sap_nhan(r.get("article") or ""),
+        )
+        for r in khop[:moi_tien_to]:
+            if r.get("id") not in da_co:
+                da_co.add(r.get("id"))
+                ra.append(r)
+    return ra
 
 
 def baseline_vector_search(query: str, *, top_k: int = 6) -> list[dict]:

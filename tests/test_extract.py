@@ -4,7 +4,7 @@ from __future__ import annotations
 import json
 
 from app.core.schemas import CorpusDocument
-from app.ingestion.extract import _SO_HIEU_RE, merge_into_corpus, split_articles
+from app.ingestion.extract import merge_into_corpus, so_hieu_trong, split_articles
 
 _SAMPLE = """
 Mục lục
@@ -41,10 +41,23 @@ def test_split_articles_tach_dung_dieu():
     assert "văn bản liên quan" not in arts[2].text
 
 
-def test_so_hieu_regex():
-    assert _SO_HIEU_RE.search("Số: 52/2024/NĐ-CP").group() == "52/2024/NĐ-CP"
-    assert _SO_HIEU_RE.search("Thông tư 40/2024/TT-NHNN quy định").group() == "40/2024/TT-NHNN"
-    assert _SO_HIEU_RE.search("ngày 15/5/2024 ban hành") is None
+def test_so_hieu_trong_van_ban():
+    assert so_hieu_trong("Số: 52/2024/NĐ-CP") == "52/2024/NĐ-CP"
+    assert so_hieu_trong("Thông tư 40/2024/TT-NHNN quy định") == "40/2024/TT-NHNN"
+    assert so_hieu_trong("ngày 15/5/2024 ban hành") is None, "ngày tháng không phải số hiệu"
+
+
+def test_so_hieu_khong_con_bi_cat_cut_boi_homoglyph():
+    """Khuôn cũ (`[A-ZĐ]+(?:-[A-ZĐ]+)+`) gặp `С` Cyrillic thì lùi lại, im lặng cắt cụt.
+
+    Một khoá cụt tệ hơn không có khoá: `51/2025/TT` vẫn join được — vào nhầm văn bản.
+    """
+    assert so_hieu_trong("Số: 51/2025/TT-BTС") == "51/2025/TT-BTC"  # С = U+0421
+
+
+def test_so_hieu_hanh_chinh_khong_co_nam():
+    """Khuôn cũ đòi `\\d{4}/` nên bỏ sót TRỌN nhóm hành chính, không một tiếng nào."""
+    assert so_hieu_trong("Số: 123/QĐ-NHNN") == "123/QĐ-NHNN"
 
 
 def test_merge_into_corpus_thay_theo_doc_id(tmp_path):

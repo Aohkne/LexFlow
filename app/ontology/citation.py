@@ -32,7 +32,11 @@ from pydantic import BaseModel, Field
 
 from app.ontology.parser import _LC, _ROMAN_ALT
 
-# Số hiệu văn bản, cùng dạng với app/ingestion/extract.py::_SO_HIEU_RE.
+# Số hiệu văn bản DẪN CHIẾU trong văn xuôi — khác đường với `app.core.so_hieu.phan_tich`, và
+# cố ý giữ nguyên: mẫu này nằm trong `_CIT`, mà `_CIT` sinh ra `char_span`. Nới nó là dịch
+# offset của mọi bản ghi CU đã gán nhãn. Hệ quả phải nói ra: nó mang đúng khuyết tật đã sửa ở
+# `extract.py` — gặp homoglyph thì lùi lại khớp ngắn hơn — nên một dẫn chiếu tới
+# `51/2025/TT-BTС` sẽ **không** khớp ở đây. Sửa cần một đợt đo riêng trên char_span.
 _SO_HIEU = r"\d+/\d{4}/[A-ZĐ]+(?:-[A-ZĐ]+)+"
 _LOAI_VB = "Thông tư|Nghị định|Nghị quyết|Quyết định|Pháp lệnh|Bộ luật|Luật|Hiến pháp"
 

@@ -12,14 +12,14 @@ def test_corpus_real_van_validate():
 
 
 def test_relationship_khong_anchors_mac_dinh_rong():
-    r = Relationship(source_doc="A", target_doc="B", rel_type="SUA_DOI")
+    r = Relationship(source_doc="A", target_doc="B", rel_type="SUA_DOI_BO_SUNG")
     assert r.anchors == []
     assert r.model_dump()["anchors"] == []
 
 
 def test_relationship_round_trip_anchors():
     r = Relationship(
-        source_doc="A", target_doc="B", rel_type="SUA_DOI",
+        source_doc="A", target_doc="B", rel_type="SUA_DOI_BO_SUNG",
         anchors=[RelAnchor(source_article="Điều 1", target_article="Điều 9", detail="Sửa khoản 2")],
     )
     r2 = Relationship.model_validate(r.model_dump())

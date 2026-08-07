@@ -119,6 +119,7 @@ uv run python eval/run_benchmark.py
   "documents": [
     { "doc_id": "TT40-2024", "title": "...", "doc_type": "Thông tư",
       "source": "external", "valid_from": "2024-07-01", "valid_to": null,
+      "so_hieu": "40/2024/TT-NHNN",
       "articles": [ { "article": "Điều 12 Khoản 1", "text": "..." } ] }
   ],
   "relationships": [
@@ -127,5 +128,11 @@ uv run python eval/run_benchmark.py
   ]
 }
 ```
-`rel_type` ∈ `THAY_THE` · `SUA_DOI` · `HUONG_DAN` · `DAN_CHIEU`.
+`rel_type` thuộc **tập đóng 13 quan hệ** của KG v0.5 §6 — nguồn sự thật duy nhất là
+`app/core/schemas.py::REL_TYPES`, và `Relationship` từ chối mọi mã ngoài tập ngay lúc nạp.
+Soát dữ liệu có sẵn: `uv run python -m app.ingestion.kiem_quan_he`.
+
+`so_hieu` là trường **bắc cầu**: nguồn chính thống (lược đồ vbpl.vn, dẫn chiếu trong văn bản)
+khoá bằng số hiệu, còn corpus khoá bằng `doc_id`. Đầu mút chưa có toàn văn thành **node rỗng**
+— xem `app/ingestion/bac_cau.py`.
 Thay corpus mẫu bằng 9 văn bản lõi phạm vi thanh toán khi có.

@@ -43,7 +43,9 @@ ROMAN_ORDER = {r: i + 1 for i, r in enumerate(
 _ROMAN_ALT = "|".join(ROMAN)
 
 _DIEU_RE = re.compile(rf"^Điều\s+(\d+)([{_LC}])?\s*\.\s*(.*)$")
-_KHOAN_RE = re.compile(rf"^(\d{{1,3}})([{_LC}])?\s*\.\s+(.*)$")
+# Sau dấu chấm: có dấu cách (dạng chuẩn `1. Việc`), hoặc dính liền chữ (`1.Việc` — vbpl
+# hay in thiếu cách). KHÔNG nhận khi kế tiếp là chữ số: `1.000.000 đồng` là số nghìn.
+_KHOAN_RE = re.compile(rf"^(\d{{1,3}})([{_LC}])?\s*\.(?:\s+|(?=[^\d\s]))(.*)$")
 _DIEM_RE = re.compile(rf"^([{_LC}])\)\s*(.*)$")
 _CHUONG_RE = re.compile(r"^(Chương|Mục|Phần|Phụ lục)\s+[IVXLC\d]")
 # Tiết "(i) ..." bên trong một Điểm. KHÔNG được cấp địa chỉ node (xem TietSpan) —
@@ -52,6 +54,59 @@ _TIET_RE = re.compile(rf"^\(\s*({_ROMAN_ALT})\s*\)\s*(.*)$", re.I)
 # Từ nối ở ĐUÔI tiết cho biết quan hệ với tiết kế tiếp.
 _HOAC_RE = re.compile(r"(?:;|,)?\s*hoặc\s*$", re.I)
 _VA_RE = re.compile(r"(?:;|,)?\s*và\s*$", re.I)
+
+# --- Khối TRÍCH DẪN trong văn bản sửa đổi ------------------------------------
+#
+# Một văn bản sửa đổi luôn chép nguyên văn nội dung mới vào giữa hai dấu ngoặc kép, và
+# phần được chép mang **đánh số của văn bản BỊ sửa**. Không phân biệt thì máy gán nhầm
+# chủ: ND80 Điều 1 có 10 khoản của chính nó, nhưng đếm phẳng ra **14** — bốn cái thừa là
+# khoản 5, 6, 7, 8 **của ND101** nằm trong ngoặc.
+#
+# Hậu quả không dừng ở con số. Khoá `80/2016/NĐ-CP#than/dieu_1#khoan_5` khi đó trỏ vào
+# HAI thứ khác nhau, một trong hai thực chất là nội dung của văn bản khác — tức chính
+# kiểu nhập nhằng mà cả lớp khoá này sinh ra để chặn.
+#
+# Đo trước khi viết luật này:
+#   · ngoặc **cân 100%** trên cả 9 bản ghi đã crawl (`"` luôn chẵn, số `“` bằng số `”`);
+#   · sau khi bỏ dòng trong ngoặc, số khoản khớp cây `provisions` ở **7/8 văn bản trọn vẹn**
+#     (ND80 1/1, TT22 1/1, TT41 13/13, TT66 4/4, ND52 35/35, ND16 4/4);
+#   · **0/18 fixture** có khoản hay điểm nằm trong ngoặc ⇒ 94 đơn vị và nhãn vàng không đổi;
+#   · corpus hiện tại có **75 khoản** đang bị gán nhầm chủ, tất cả ở TT20-2016 và TT23-2019 —
+#     đúng hai văn bản sửa đổi.
+_MO_NGOAC, _DONG_NGOAC, _NGOAC_DAO = "“", "”", '"'
+
+
+def trong_trich_dan(text: str) -> list[bool]:
+    """Mặt nạ theo ký tự: vị trí này có nằm trong khối trích dẫn không.
+
+    `"` đảo trạng thái, `“` mở, `”` đóng. Chính ký tự ngoặc được đánh dấu là **trong**, để
+    một dòng mở đầu bằng ngoặc (`"4. Tổ chức…`) cũng bị coi là trong.
+
+    **Ngoặc lệch ⇒ trả mặt nạ toàn `False`**, tức bỏ luật này cho cả Điều đó. Cố đoán chỗ
+    đóng khi nguồn viết thiếu ngoặc sẽ nuốt phần còn lại của Điều — hỏng nặng hơn hẳn cái nó
+    định sửa, và hỏng im lặng. Không chắc thì làm như cũ.
+    """
+    # +1 phần tử: `_line_offsets` sinh một dòng rỗng ở cuối khi text kết thúc bằng '\n', và
+    # dòng đó có `start == len(text)`. Thiếu ô này thì tra mặt nạ ném IndexError — đã xảy ra.
+    if text.count(_NGOAC_DAO) % 2 or text.count(_MO_NGOAC) != text.count(_DONG_NGOAC):
+        return [False] * (len(text) + 1)
+    ra: list[bool] = []
+    mo = False
+    for ch in text:
+        if ch == _NGOAC_DAO:
+            mo = not mo
+            ra.append(True)
+        elif ch == _MO_NGOAC:
+            mo = True
+            ra.append(True)
+        elif ch == _DONG_NGOAC:
+            mo = False
+            ra.append(True)
+        else:
+            ra.append(mo)
+    ra.append(False)  # ô biên cho dòng rỗng cuối, xem chú thích ở trên
+    return ra
+
 
 # Rác biên tập của luatvietnam (nút "Phân tích" mở khối chú giải của biên tập
 # viên, không phải chữ của luật). Giữ bộ lọc riêng ở đây — sửa _NOISE_LINES
@@ -139,7 +194,7 @@ def _line_offsets(text: str) -> list[tuple[str, int, int]]:
 
 
 def _split_tiet(
-    lines: list[tuple[str, int, int]], dieu_text: str
+    lines: list[tuple[str, int, int]], dieu_text: str, trich: list[bool] | None = None
 ) -> list[TietSpan]:
     """Các dòng của một Điểm → danh sách tiết `(i)/(ii)` kèm từ nối.
 
@@ -147,10 +202,14 @@ def _split_tiet(
     `unknown`: tiếng Việt pháp lý dùng ';' cho cả liệt kê lẫn lựa chọn, đoán bừa
     sẽ biến phép TUYỂN thành phép HỘI — đúng loại lỗi đổi nghĩa mà cả pipeline
     này sinh ra để chặn.
+
+    `trich` là mặt nạ khối trích dẫn (xem `trong_trich_dan`); tiết nằm trong đó là của văn
+    bản bị sửa. Mặc định `None` để gọi trực tiếp trong test vẫn được — chỉ `parse_dieu` mới
+    có sẵn mặt nạ của cả Điều.
     """
     groups: list[tuple[str, list[tuple[str, int, int]]]] = []
     for line, start, end in lines:
-        m = _TIET_RE.match(line)
+        m = None if trich is not None and trich[start] else _TIET_RE.match(line)
         if m:
             groups.append((m.group(1).lower(), [(line, start, end)]))
         elif groups:
@@ -301,7 +360,12 @@ _GUARD_LA = re.compile(r"^(.{2,32}?)\s+là\s+(.{2,52}?)$", re.IGNORECASE)
 _GUARD_CUA = re.compile(r"^(.{2,32}?)\s+của\s+(.{2,32}?)$", re.IGNORECASE)
 # Cụm chứa những thứ này thì đã sang mệnh đề khác, tách ra là cắt nhầm câu.
 _GUARD_XAU = re.compile(r"\bhoặc\b|\bvà\b|\bđối với\b|[()]", re.IGNORECASE)
-_GUARD_CUM = re.compile(r"(.+?)([;:,.]|$)", re.DOTALL)
+# `)` là dấu KẾT của cụm, ngang hàng `;:,.` — guard hay nằm trong ngoặc đơn gắn vào một
+# danh ngữ: *"…của chủ tài khoản thanh toán (đối với khách hàng là cá nhân), người đại
+# diện hợp pháp (đối với khách hàng là tổ chức)…"*. Không dừng ở `)` thì cụm nuốt luôn
+# dấu đóng ngoặc, `_GUARD_XAU` thấy `[()]` và loại — ba ca thật bị đẩy sang `guard_ngoai_mau`
+# dù mẫu A khớp hoàn hảo sau khi cắt đúng.
+_GUARD_CUM = re.compile(r"(.+?)([;:,.)]|$)", re.DOTALL)
 _SO_THU_TU = re.compile(rf"^\s*(\d{{1,3}}[{_LC}]?\s*\.|[{_LC}]\s*\)|\(\s*({_ROMAN_ALT})\s*\))\s*", re.I)
 
 
@@ -313,13 +377,23 @@ def tach_guard(text: str, base: int = 0) -> tuple[tuple[str, str, str, int, int]
     `cảnh báo` = chuỗi rỗng, hoặc `"guard_ngoai_mau: …"` khi cụm TRÔNG như một guard mà
     không tách sạch được — cố ý **không đoán**, nhưng cũng không im lặng.
 
-    Trả về guard ĐẦU TIÊN tách được. Guard tại mỗi nút cố ý PHẲNG, MỘT CẤP: không guard
-    lồng guard, không `else`, không thứ tự ưu tiên. Muốn biết hiệu lực đầy đủ của một
-    tiết thì hợp dọc đường đi bằng `hop_guard()`.
+    Guard tại mỗi nút cố ý PHẲNG, MỘT CẤP: không guard lồng guard, không `else`, không
+    thứ tự ưu tiên. Muốn biết hiệu lực đầy đủ của một tiết thì hợp dọc đường đi bằng
+    `hop_guard()`.
+
+    Chỉ nhận khi đơn vị có **ĐÚNG MỘT** guard sạch. Bản đầu trả cụm *đầu tiên*, và đó là
+    một lỗi im lặng đã sống trong dữ liệu: TT17 Đ16 k1 điểm a có tiết (i) *"đối với khách
+    hàng là cá nhân"* và tiết (ii) *"đối với khách hàng là tổ chức"*; đọc trên toàn văn
+    Điểm thì cụm đầu thắng, Điểm nhận guard `cá nhân`, rồi `hop_guard` (AND dọc đường đi)
+    cho tiết (ii) một guard **`cá nhân ∧ tổ chức` — bất khả thi**, không đối tượng nào
+    thoả. Hai trên hai ca có guard ở cả hai tầng đều hỏng như vậy. Nhiều cụm khác nhau
+    trong một đơn vị nghĩa là chúng gắn vào những danh ngữ khác nhau, không phải một guard
+    phủ cả nút — chọn hộ là phán định.
     """
     m0 = _SO_THU_TU.match(text)
     moc = m0.end() if m0 else 0
     ngoai_mau: list[str] = []
+    sach: list[tuple[str, str, str, int, int]] = []
 
     for m in _GUARD_TRIGGER.finditer(text):
         mc = _GUARD_CUM.match(text[m.end() :])
@@ -339,11 +413,17 @@ def tach_guard(text: str, base: int = 0) -> tuple[tuple[str, str, str, int, int]
             and not _GUARD_XAU.search(la.group(2))
             and la.group(1).strip().lower() not in {"trường hợp", "đối với"}
         ):
-            return (la.group(1).strip(), la.group(2).strip(), raw, *span), ""
+            sach.append((la.group(1).strip(), la.group(2).strip(), raw, *span))
+            continue
 
         cua = _GUARD_CUA.match(cum)
+        # Giữ `ket == ":"`: hình dạng `X của Y:` mở đầu một DANH SÁCH yêu cầu, tức đúng vị
+        # trí một guard. Bỏ điều kiện này chỉ mua thêm đúng một ca trên toàn corpus —
+        # ND52 Đ3 k9 *"…đứng tên mở tài khoản đối với tài khoản của tổ chức."* — mà đó là
+        # một khoản ĐỊNH NGHĨA, nơi guard vô nghĩa vì không có nghĩa vụ nào để chặn.
         if cua and ket == ":" and not _GUARD_XAU.search(cum):
-            return (cua.group(1).strip(), cua.group(2).strip(), raw, *span), ""
+            sach.append((cua.group(1).strip(), cua.group(2).strip(), raw, *span))
+            continue
 
         if (
             m.start(1) <= moc + 1
@@ -351,7 +431,8 @@ def tach_guard(text: str, base: int = 0) -> tuple[tuple[str, str, str, int, int]
             and not _GUARD_KHONG_PHAI_LOAI.match(cum)
             and not _GUARD_XAU.search(cum)
         ):
-            return (cum.split()[0], cum, raw, *span), ""
+            sach.append((cum.split()[0], cum, raw, *span))
+            continue
 
         # Trông như tên một loại mà không tách được ⇒ nói ra. Cụm dài hoặc mở đầu bằng
         # từ chỉ tình huống thì bỏ im lặng: cảnh báo cho cả 48 ca khớp trigger sẽ dìm
@@ -359,6 +440,21 @@ def tach_guard(text: str, base: int = 0) -> tuple[tuple[str, str, str, int, int]
         if len(cum.split()) <= 6 and not _GUARD_KHONG_PHAI_LOAI.match(cum):
             ngoai_mau.append(cum[:60])
 
+    # Cùng một guard lặp lại không phải mâu thuẫn — chỉ đếm các cặp KHÁC nhau.
+    khac: list[tuple[str, str, str, int, int]] = []
+    for g in sach:
+        if (g[0], g[1]) not in [(x[0], x[1]) for x in khac]:
+            khac.append(g)
+
+    if len(khac) == 1:
+        return khac[0], ""
+    if len(khac) >= 2:
+        ds = "; ".join(f"({a!r}, {b!r})" for a, b, *_ in khac[:3])
+        return None, (
+            f"guard_nhieu_cum: đơn vị này có {len(khac)} guard KHÁC nhau {ds} — chúng gắn "
+            "vào những danh ngữ khác nhau chứ không phải một guard phủ cả nút, nên máy "
+            "không chọn hộ. Nếu đây là chỗ phân nhánh thì guard thuộc về từng tiết/điểm con."
+        )
     return None, (
         f"guard_ngoai_mau: khớp 'đối với/trường hợp' nhưng không tách được "
         f"(thuộc tính, giá trị): {'; '.join(repr(x) for x in ngoai_mau[:3])}"
@@ -388,6 +484,11 @@ def parse_dieu(dieu_text: str, so_hieu: str) -> DieuNode:
     if not lines:
         raise ValueError("Văn bản rỗng")
 
+    # Dòng nằm trong khối trích dẫn mang đánh số của văn bản BỊ sửa, không phải của văn bản
+    # này — xem `trong_trich_dan`. Nó ở lại trong `text` của khoản mẹ, đúng vai: *nội dung mà
+    # khoản này sửa thành*, chứ không phải khoản anh em.
+    trich = trong_trich_dan(dieu_text)
+
     head = _DIEU_RE.match(lines[0][0])
     if not head:
         raise ValueError(f"Dòng đầu không phải tiêu đề Điều: {lines[0][0][:60]!r}")
@@ -400,7 +501,7 @@ def parse_dieu(dieu_text: str, so_hieu: str) -> DieuNode:
     # Gom dòng theo Khoản, rồi theo Điểm bên trong Khoản.
     khoan_groups: list[tuple[re.Match[str], list[tuple[str, int, int]]]] = []
     for line, start, end in lines[1:]:
-        m = _KHOAN_RE.match(line)
+        m = None if trich[start] else _KHOAN_RE.match(line)
         if m:
             khoan_groups.append((m, [(line, start, end)]))
         elif khoan_groups:
@@ -415,7 +516,7 @@ def parse_dieu(dieu_text: str, so_hieu: str) -> DieuNode:
 
         diem_groups: list[tuple[re.Match[str], list[tuple[str, int, int]]]] = []
         for line, start, end in group[1:]:
-            dm = _DIEM_RE.match(line)
+            dm = None if trich[start] else _DIEM_RE.match(line)
             if dm:
                 diem_groups.append((dm, [(line, start, end)]))
             elif diem_groups:
@@ -430,7 +531,7 @@ def parse_dieu(dieu_text: str, so_hieu: str) -> DieuNode:
                 start=dg[0][1],
                 end=dg[-1][2],
                 text=dieu_text[dg[0][1] : dg[-1][2]],
-                tiet=_split_tiet(dg, dieu_text),
+                tiet=_split_tiet(dg, dieu_text, trich),
             )
             for dm, dg in diem_groups
         ]

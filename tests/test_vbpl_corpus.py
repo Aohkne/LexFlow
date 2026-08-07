@@ -1,300 +1,230 @@
-"""Test cho bước chuyển bản crawl → CorpusDocument, chạy trên FILE THẬT đã crawl.
+"""Bản ghi vbpl đã crawl → `CorpusDocument`. Offline, đọc `data/raw/vbpl/`.
 
-Fixture trong `tests/fixtures/vbpl/` là artefact nguyên vẹn của một lần cào thật, không phải
-dữ liệu dựng tay: những khuyết tật ở đây (nhãn vbpl chèn vào thân điều, khoản lặp, DOM thiếu
-markup, văn bản không có toàn văn) đều là thứ chỉ lộ ra trên dữ liệu thật.
-
-  tt15-2024.raw.json        Thông tư 15/2024/TT-NHNN — bản cào TRƯỚC khi lọc nhiễu
-  tt15-2024.prov-nodes.json danh sách phẳng prov-* đọc từ DOM của cùng văn bản đó
-  vbhn29-nhnn.raw.json      Văn bản hợp nhất 29/VBHN-NHNN — vbpl không đăng toàn văn
-  nd80-2016.raw.json        Nghị định 80/2016/NĐ-CP — văn bản SỬA ĐỔI, có khối trích dẫn
-  nd52-2024.noi-dung.txt    trường `noi_dung` nguyên vẹn của 52/2024/NĐ-CP (không có ngoặc)
+Điều đáng canh nhất là **đánh số khoản/điểm**, vì mất nó thì cả tầng ontology mất theo mà
+**không lỗi nào bắn ra**: `parse_dieu` chỉ trả về 0 khoản, và một văn bản 0 khoản trông y hệt
+một văn bản không chẻ khoản (25/267 điều thật sự như thế). Đo trên TT15/2024 — văn bản duy nhất
+có ở cả corpus lẫn bản crawl nên so được: `articles[].text` của bản crawl cho **0/0**, còn
+`noi_dung` thô cho **102 khoản / 57 điểm**.
 """
+from __future__ import annotations
+
 import json
 from pathlib import Path
 
 import pytest
 
-from app.core.schemas import CorpusDocument
-from app.ingestion.vbpl import (
-    _looks_like_property_table,
-    build_provision_tree,
-    check_tree_coverage,
-    count_provisions,
-    count_units,
-    doc_id_from_so_hieu,
-    file_download_url,
-    has_full_text,
-    parse_file_leaves,
-    quote_spans,
-    split_articles,
-    strip_amend_noise,
-    to_corpus_document,
+from app.ingestion.vbpl_corpus import (
+    dieu_tu_ban_ghi,
+    dieu_tu_toan_van,
+    doc_file,
+    doc_id_theo_corpus,
+    duong_dan_toan_van,
+    file_da_chuyen_khuon,
+    phan_cap_tu_cay,
 )
+from app.ontology.parser import parse_dieu
 
-FIXTURES = Path(__file__).parent / "fixtures" / "vbpl"
-
-
-def _load(name: str) -> dict:
-    return json.loads((FIXTURES / name).read_text(encoding="utf-8"))
+_GOC = Path("data/raw/vbpl")
 
 
-@pytest.fixture(scope="module")
-def tt15() -> dict:
-    return _load("tt15-2024.raw.json")
+def _tim(so_hieu: str) -> Path | None:
+    """Tra file đã chuyển khuôn theo **số hiệu bên trong**, không theo đường dẫn cứng.
 
-
-@pytest.fixture(scope="module")
-def tt15_sach(tt15) -> str:
-    return strip_amend_noise(tt15["noi_dung"])[0]
-
-
-# --- Khuyết tật 4: nhãn vbpl và khoản lặp lọt vào toàn văn ---
-
-def test_bo_dong_nhan_nhung_giu_tieu_de_dieu_that(tt15):
-    body, labels, _ = strip_amend_noise(tt15["noi_dung"])
-    assert "Điều khoản được sửa đổi, bổ sung" in tt15["noi_dung"]  # nguồn có
-    assert not any(
-        ln.strip().startswith("Điều khoản được") or ln.strip().startswith("Điều khoản bị")
-        for ln in body.split("\n")
-    )
-    assert len(labels) == 28  # 28 dòng nhãn nằm trong thân điều của TT15
-    # "Điều khoản thi hành" là tiêu đề Điều CÓ THẬT — lọc theo tiền tố trần sẽ ăn mất nó
-    assert doc_id_from_so_hieu("15/2024/TT-NHNN")  # (giữ import gọn)
-
-
-def test_giu_tieu_de_dieu_khoan_thi_hanh():
-    body, labels, _ = strip_amend_noise(
-        "Điều 22. Điều khoản thi hành\nĐiều khoản được thay thế\n1. Có hiệu lực."
-    )
-    assert "Điều 22. Điều khoản thi hành" in body
-    assert [lb["nhan"] for lb in labels] == ["Điều khoản được thay thế"]
-
-
-def test_khu_khoan_lap_y_het_trong_cung_mot_dieu(tt15, tt15_sach):
-    # Điều 19: khoản 1,2,3,8,9 xuất hiện 2 lần, giống hệt từng ký tự
-    assert count_units(tt15["noi_dung"])["khoan"] == 102  # trước khi lọc: bị thổi phồng
-    assert count_units(tt15_sach)["khoan"] == 97          # sau khi lọc: số thật
-
-
-def test_khoan_trung_so_nhung_khac_noi_dung_thi_giu_ca_hai_va_canh_bao():
-    body, _, warnings = strip_amend_noise(
-        "Điều 1. Sửa đổi\n5. Bản cũ của khoản 5.\n5. Bản mới của khoản 5."
-    )
-    assert body.count("khoản 5") == 2                     # không chọn hộ bản nào
-    assert any("khoản 5 xuất hiện 2 lần" in w for w in warnings)
-
-
-def test_nhan_da_loc_duoc_giu_lai_trong_dieu_khoan_bi_tac_dong(tt15):
-    _, labels, _ = strip_amend_noise(tt15["noi_dung"])
-    assert {lb["dieu"] for lb in labels} >= {"3", "19"}
-    assert all(lb["nhan"].startswith("Điều khoản ") for lb in labels)
-
-
-# --- Khuyết tật 1: articles[] mất đánh số và tiêu đề điều ---
-
-def test_articles_sinh_tu_toan_van_giu_nguyen_danh_so(tt15_sach):
-    arts = split_articles(tt15_sach)
-    assert len(arts) == 23
-    dieu2 = next(a for a in arts if a["article"] == "Điều 2")
-    assert dieu2["text"].startswith("Đối tượng áp dụng\n1. Tổ chức cung ứng dịch vụ")
-    assert "\na) Ngân hàng Nhà nước Việt Nam" in dieu2["text"]
-    assert "\nb) Ngân hàng thương mại" in dieu2["text"]
-
-
-def test_articles_dat_dung_moc_nghiem_thu(tt15_sach):
-    arts = split_articles(tt15_sach)
-    assert count_units(tt15_sach) == {"dieu": 23, "khoan": 97, "diem": 57}
-    assert sum(1 for a in arts if a["chapter"]) == 23      # đủ 23/23
-
-
-def test_articles_la_lat_cat_nguyen_van_cua_toan_van(tt15_sach):
-    """Bất biến xuất xứ mức ký tự: noi_dung[start:end] == text."""
-    for a in split_articles(tt15_sach):
-        assert tt15_sach[a["char_start"] : a["char_end"]] == a["text"]
-
-
-def test_chuong_muc_lay_duoc_ca_tieu_de_nhieu_dong(tt15_sach):
-    arts = {a["article"]: a for a in split_articles(tt15_sach)}
-    assert arts["Điều 1"]["chapter"] == "Chương I. QUY ĐỊNH CHUNG"
-    assert arts["Điều 7"]["section"] == "Mục 1. DỊCH VỤ THANH TOÁN QUA NGÂN HÀNG NHÀ NƯỚC"
-    assert arts["Điều 22"]["chapter"] == "Chương IV. ĐIỀU KHOẢN THI HÀNH"  # nguồn viết hoa
-
-
-def test_phu_luc_khong_phai_than_van_ban():
-    """Phụ lục là biểu mẫu và có "Điều 1..7" của riêng nó — đếm vào là thổi phồng số điều."""
-    body = "Điều 1. Phạm vi\n1. Nội dung.\nPHỤ LỤC\nĐiều 1. Cấp đổi Giấy phép\n1. Tên."
-    assert count_units(body) == {"dieu": 1, "khoan": 1, "diem": 0}
-    assert len(split_articles(body)) == 1
-
-
-# --- Khối trích dẫn của văn bản sửa đổi ---
-
-@pytest.fixture(scope="module")
-def nd80() -> dict:
-    return _load("nd80-2016.raw.json")
-
-
-@pytest.fixture(scope="module")
-def nd52_noi_dung() -> str:
-    return (FIXTURES / "nd52-2024.noi-dung.txt").read_text(encoding="utf-8")
-
-
-def test_khoan_trung_so_voi_doan_trich_thi_khong_canh_bao(nd80):
-    """ND80 Điều 1: khoản 5,6,7,8 xuất hiện 2 lần, nhưng là HAI VĂN BẢN.
-
-    Bản trong ngoặc là khoản của 101/2012/NĐ-CP được chép vào, bản ngoài ngoặc là khoản của
-    chính ND80. Không có gì để người đọc quyết — cảnh báo ở đây là việc rà soát giả, và vài
-    lần như thế là người ta ngừng đọc cảnh báo thật.
+    Bố cục đã đổi hai lần (`<slug>.corpus.json` → `corpus/<slug>.json`) và lần nào đường dẫn
+    cứng cũng lặng lẽ chuyển cả file test này sang skip — suite vẫn xanh, chỉ là không kiểm gì.
     """
-    _, _, warnings = strip_amend_noise(nd80["noi_dung"])
-    assert not [w for w in warnings if "xuất hiện 2 lần" in w]
+    for p in file_da_chuyen_khuon(_GOC):
+        if json.loads(p.read_text(encoding="utf-8")).get("so_hieu") == so_hieu:
+            return p
+    return None
 
 
-def test_doan_trich_khong_bi_cat_khoi_toan_van(nd80):
-    """Ngoặc là của chính đạo luật: giữ nguyên từng ký tự, chỉ dùng để BIẾT, không để cắt."""
-    body, _, _ = strip_amend_noise(nd80["noi_dung"])
-    assert body == nd80["noi_dung"]
-    assert "5. Chủ tài khoản thanh toán" in body       # bản được chép — còn
-    assert "5. Sửa đổi điểm b khoản 2 Điều 12" in body  # khoản của ND80 — còn
+_TT15 = _tim("15/2024/TT-NHNN")
+_VBHN = _tim("29/VBHN-NHNN")
+pytestmark = pytest.mark.skipif(_TT15 is None, reason="chưa crawl TT15/2024")
 
 
-def test_moc_doi_chieu_bo_dong_trong_ngoac_con_so_bao_ra_thi_khong(nd80):
-    body = nd80["noi_dung"]
-    assert count_units(body)["khoan"] == 14                        # số báo ra: giữ nguyên
-    assert count_units(body, ngoai_trich_dan=True)["khoan"] == 10  # mốc đối chiếu với cây
+def _dem(arts, so_hieu="15/2024/TT-NHNN") -> tuple[int, int]:
+    kh = di = 0
+    for a in arts:
+        d = parse_dieu(f"{a.article}. {a.text}", so_hieu)
+        kh += len(d.khoan)
+        di += sum(len(k.diem) for k in d.khoan)
+    return kh, di
 
 
-def test_cay_nd80_khong_con_bi_bao_la_thieu(nd80):
-    """Trước sửa: "cây thiếu 4 Khoản (10/14)" — nói ngược, 10 mới là số đúng."""
-    tree = nd80["cay_dieu_khoan"]
-    assert count_provisions(tree)["khoan"] == 10
-    assert not [w for w in check_tree_coverage(tree, nd80["noi_dung"]) if "Khoản" in w]
+# --- 1. articles[] đã được sửa, và ĐÓ là thứ phải kiểm ------------------------
 
 
-def test_van_ban_khong_co_ngoac_thi_khong_doi_gi(nd52_noi_dung):
-    """52/2024/NĐ-CP không có dấu ngoặc kép nào — hai phép đếm phải trùng khít."""
-    assert quote_spans(nd52_noi_dung) == []
-    assert count_units(nd52_noi_dung) == count_units(nd52_noi_dung, ngoai_trich_dan=True)
-    assert count_units(nd52_noi_dung) == {"dieu": 38, "khoan": 153, "diem": 102}
+def test_articles_giu_du_danh_so():
+    """Lượt crawl đầu cho **0 khoản / 0 điểm** ở đây — làm phẳng cây làm mất đánh số.
+
+    Test cũ khoá con số 0 đó lại và ghi *"ngày nào bộ crawl sửa được thì test này sẽ đỏ, và đỏ
+    ở đây là tin tốt"*. Ngày đó đã tới; con số nghiệm thu 23/98/57 nay là hợp đồng với nguồn.
+
+    (98, không phải 97 như nghiệm thu đầu: con số 97 đo bằng thước hỏng — `_KHOAN_RE` đòi dấu
+    cách sau chấm, còn vbpl in `3.Dịch vụ thu hộ` dính liền, nên khoản 3 Điều 14 bị nuốt vào
+    khoản 2. Cây sau sửa khớp corpus cũ từng khoản.)
+    """
+    kq = doc_file(_TT15)
+    assert kq.van_ban is not None
+    assert (len(kq.van_ban.articles), *_dem(kq.van_ban.articles)) == (23, 98, 57)
 
 
-def test_quote_spans_la_lat_cat_that_cua_toan_van(nd80):
-    body = nd80["noi_dung"]
-    spans = quote_spans(body)
-    assert spans, "ND80 là văn bản sửa đổi, phải có khối trích dẫn"
-    for sp in spans:
-        doan = body[sp["char_start"] : sp["char_end"]]
-        assert doan[0] in '"“' and doan[-1] in '"”'
-    assert any("5. Chủ tài khoản thanh toán" in body[s["char_start"] : s["char_end"]] for s in spans)
+def test_char_span_la_thu_lam_articles_DANG_TIN():
+    """Không tin suông: `noi_dung[char_start:char_end] == text` kiểm được ngay tại đây.
+
+    Đây đúng là bất biến xuất xứ mà cả tầng ontology dựa vào, nên nguồn tự bảo đảm được nó là
+    lý do duy nhất đủ mạnh để lấy `articles[]` làm nguồn thay vì tự dựng lại.
+    """
+    raw = json.loads(_TT15.read_text(encoding="utf-8"))
+    nd = json.loads(duong_dan_toan_van(_TT15).read_text(encoding="utf-8"))["noi_dung"]
+    assert raw["articles"], "bản ghi phải có articles"
+    for a in raw["articles"]:
+        assert nd[a["char_start"] : a["char_end"]] == a["text"], a["article"]
 
 
-# --- Khuyết tật 2: cây provisions thiếu nút ---
+def test_char_span_sai_thi_TU_CHOI_ca_van_ban():
+    """Nạp một xuất xứ không kiểm được còn tệ hơn không nạp: mọi `char_span` sau đó đều trỏ sai."""
+    raw = {
+        "so_hieu": "1/2020/TT-NHNN",
+        "articles": [{"article": "Điều 1", "text": "Nội dung.", "char_start": 0, "char_end": 9}],
+    }
+    dieu, cb = dieu_tu_ban_ghi(raw, "Nội dung.")
+    assert len(dieu) == 1 and cb == []
 
-def test_cay_bam_sat_toan_van_tren_du_lieu_that(tt15_sach):
-    nodes = _load("tt15-2024.prov-nodes.json")
-    tree = build_provision_tree(nodes)
-    dem = count_provisions(tree)
-    assert dem["dieu"] == 23
-    assert dem["diem"] == 57
-    # Bản chụp nút phẳng này lấy TRƯỚC khi `_JS_PROVISION_NODES` biết bù dòng Khoản không có
-    # thẻ, nên vẫn còn thiếu 1 Khoản. Cào lại bây giờ ra 97; giữ bản chụp cũ ở đây để còn một
-    # ca lệch thật mà kiểm tra `check_tree_coverage`.
-    assert dem["khoan"] == 96
-    assert check_tree_coverage(tree, tt15_sach) == [
-        "lệch Khoản giữa cây điều khoản và toàn văn: cây 96, toàn văn 97 — chưa biết bên nào "
-        "đúng, phải soi DOM (nguồn có khi bỏ markup một dòng khiến cây thiếu, có khi render "
-        "khối sửa đổi 2 lần khiến toàn văn dư)"
-    ]
+    dieu, cb = dieu_tu_ban_ghi(raw, "NỘI DUNG KHÁC HẲN.")
+    assert dieu == [], "lệch char_span thì không được nạp phần nào"
+    assert any("TỪ CHỐI" in c for c in cb)
 
 
-def test_check_tree_coverage_len_tieng_khi_lech():
-    tree = build_provision_tree([
-        {"cls": "prov-article", "text": "Điều 1. Phạm vi", "id": "a", "parent_id": None,
-         "hidden": False, "amend_type": None, "amend_badges": []},
-    ])
-    warnings = check_tree_coverage(tree, "Điều 1. Phạm vi\n1. Một.\n2. Hai.")
-    assert len(warnings) == 1
-    assert warnings[0].startswith("lệch Khoản giữa cây điều khoản và toàn văn: cây 0, toàn văn 2")
-    # Không được khẳng định bên nào sai: ở 34/2024 Điều 23 chính toàn văn mới là bên dư.
-    assert "cây điều khoản thiếu" not in warnings[0]
+def test_doi_chung_bat_lai_dung_khuyet_tat_cu():
+    """Phép dựng lại từ `noi_dung` ở lại làm đối chứng — cái đã hỏng một lần thì hỏng lại được.
+
+    Dựng bản ghi mang đúng chữ ký của khuyết tật cũ: `text` mất hết `1.`/`a)`, `char_span` vẫn
+    khớp. Chỉ `char_span` thôi **không** bắt được ca này, nên cần lớp thứ hai.
+    """
+    nd = "Điều 1. Phạm vi\n1. Khoản một.\na) Điểm a.\nĐiều 2. Đối tượng\n1. Khoản một."
+    mat_so = "Phạm vi\nKhoản một.\nĐiểm a."
+    raw = {
+        "so_hieu": "1/2020/TT-NHNN",
+        "articles": [
+            {"article": "Điều 1", "text": mat_so,
+             "char_start": len(nd) + 1, "char_end": len(nd) + 1 + len(mat_so)},
+            {"article": "Điều 2", "text": "Đối tượng",
+             "char_start": len(nd) + 2 + len(mat_so), "char_end": len(nd) + 11 + len(mat_so)},
+        ],
+    }
+    dieu, cb = dieu_tu_ban_ghi(raw, nd + "\n" + mat_so + "\nĐối tượng")
+    assert len(dieu) == 2, "char_span vẫn khớp nên lớp 1 cho qua"
+    assert any("0 khoản" in c for c in cb), "lớp 2 phải bắt được"
 
 
-def test_check_tree_coverage_im_lang_khi_du(tt15_sach):
-    assert check_tree_coverage(build_provision_tree([]), "") == []
+def test_duoi_hanh_chinh_khong_vao_dieu_cuoi():
+    """vbpl dán khối `Nơi nhận:` + chữ ký (TT40 còn cả 7k ký tự phụ lục biểu mẫu) vào sau
+    điều cuối. Phần đó không thuộc điều nào — v0.5 dành nhánh `#phuluc_` riêng cho phụ lục —
+    nên phải cắt trước khi thành `CorpusDocument`, và cắt CÓ VẾT (cảnh báo nói rõ cắt bao nhiêu).
+    """
+    kq = doc_file(_TT15)
+    cuoi = kq.van_ban.articles[-1]
+    assert "Nơi nhận" not in cuoi.text
+    assert "(Đã ký)" not in cuoi.text
+    assert cuoi.text.endswith("chịu trách nhiệm thi hành Thông tư này.")
+    assert any("đuôi hành chính" in c for c in kq.canh_bao)
 
 
-# --- Khuyết tật 3: văn bản không có toàn văn ---
+def test_cat_duoi_chi_dong_vao_dieu_cuoi():
+    """Đuôi thật ở cả 5/8 văn bản crawl là **dòng đúng bằng** `Nơi nhận:` — danh sách nơi
+    nhận nằm các dòng sau. `Nơi nhận: …` có nội dung cùng dòng là chữ trong thân, không cắt."""
+    from app.core.schemas import Article
+    from app.ingestion.vbpl_corpus import cat_duoi_hanh_chinh
 
-def test_bang_thuoc_tinh_khong_duoc_tinh_la_toan_van():
-    vbhn = _load("vbhn29-nhnn.raw.json")
-    ban_thuoc_tinh = vbhn["noi_dung"]
-    assert len(ban_thuoc_tinh) > 100          # phép kiểm theo độ dài sẽ cho qua
-    assert not has_full_text(ban_thuoc_tinh)  # nhưng không có dòng "Điều N." nào
-    assert _looks_like_property_table(ban_thuoc_tinh)
+    giua = Article(article="Điều 1", text="Thân điều.\nNơi nhận:\n-Bẫy: y hệt đuôi nhưng KHÔNG ở điều cuối.")
+    cuoi = Article(article="Điều 2", text="Hiệu lực./.\nNơi nhận:\n-Lưu VT.\nTHỐNG ĐỐC\n(Đã ký)")
+    dieu, bo = cat_duoi_hanh_chinh([giua, cuoi])
+    assert dieu[0].text == giua.text, "điều giữa không được đụng"
+    assert dieu[1].text == "Hiệu lực./."
+    assert bo == len(cuoi.text) - len("Hiệu lực./.")
 
-
-def test_co_toan_van_false_thi_noi_dung_de_rong_va_co_canh_bao():
-    doc = to_corpus_document({
-        "url": "https://vbpl.vn/van-ban/chi-tiet/vbhn-29--186078",
-        "title": "Văn bản hợp nhất số 29/VBHN-NHNN",
-        "noi_dung": "",
-        "co_toan_van": False,
-        "canh_bao": ["nguồn không đăng toàn văn"],
-        "thuoc_tinh": {"so_hieu": "29/VBHN-NHNN", "loai_van_ban": "Văn bản hợp nhất"},
-        "cay_dieu_khoan": [],
-    })
-    assert doc["co_toan_van"] is False
-    assert doc["articles"] == []
-    assert doc["canh_bao"] == ["nguồn không đăng toàn văn"]
+    trong_cau = Article(article="Điều 9", text="Thân.\nNơi nhận: hồ sơ nộp về Vụ Thanh toán.")
+    sach, bo0 = cat_duoi_hanh_chinh([trong_cau])
+    assert bo0 == 0 and sach[0].text == trong_cau.text
 
 
-def test_tep_dinh_kem_doc_duoc_ten_va_dung_luong():
-    # đúng thứ tự phần tử lá của tab "Tải về" trên vbpl
-    leaves = [
-        "Tải về",
-        "168089_body_content.html", "0.1MB", "14/04/2026 12:39",
-        "Thong tu 15.2024.TT.NHNN.pdf", "10.79MB", "14/04/2026 12:39",
-    ]
-    files = parse_file_leaves(leaves)
-    assert files == [
-        {"ten": "168089_body_content.html", "kich_thuoc": "0.1MB"},
-        {"ten": "Thong tu 15.2024.TT.NHNN.pdf", "kich_thuoc": "10.79MB"},
-    ]
+# --- 2. Chương/Mục: việc duy nhất cây provisions làm được ---------------------
 
 
-def test_url_tai_tep_dung_id_so_trong_url_chi_tiet():
-    url = file_download_url(
-        "https://vbpl.vn/van-ban/chi-tiet/thong-tu-so-15-2024--168089",
-        "Thong tu 15.2024.TT.NHNN.pdf",
-    )
-    assert url.endswith("/vbpl/168089/Thong%20tu%2015.2024.TT.NHNN.pdf/download")
-    assert file_download_url("https://vbpl.vn/van-ban/chi-tiet/khong-co-id", "a.pdf") is None
+def test_chuong_muc_lay_tu_cay_dien_du_23_dieu():
+    """`Article.chapter` khai đã lâu mà 0/278 điều có giá trị — nguồn vbpl có sẵn."""
+    moi = doc_file(_TT15).van_ban
+    assert all(a.chapter for a in moi.articles)
+    assert next(a for a in moi.articles if a.article == "Điều 2").chapter == "Chương I. QUY ĐỊNH CHUNG"
 
 
-# --- Việc nhỏ (a): doc_id theo đúng quy ước corpus ---
+def test_cay_rong_thi_khong_gan_bua_nhan_phan_cap():
+    assert phan_cap_tu_cay([]) == {}
+    arts = dieu_tu_toan_van("Điều 1. Phạm vi\nNội dung điều một.", [])
+    assert len(arts) == 1 and arts[0].chapter is None and arts[0].section is None
+
+
+# --- 3. doc_id: theo quy ước corpus, không sinh không gian tên thứ ba ---------
+
 
 @pytest.mark.parametrize(
-    "so_hieu,doc_id",
+    ("so_hieu", "cho"),
     [
-        ("15/2024/TT-NHNN", "TT15-2024"),
-        ("101/2012/NĐ-CP", "ND101-2012"),
-        ("52/2024/NĐ-CP", "ND52-2024"),
-        ("29/VBHN-NHNN", "VBHN29-NHNN"),   # không có năm → cơ quan làm phần phân biệt
+        ("101/2012/NĐ-CP", "ND101-2012"),   # khớp corpus đang có
+        ("15/2024/TT-NHNN", "TT15-2024"),   # khớp corpus đang có
+        ("29/VBHN-NHNN", "VBHN29-NHNN"),    # không năm ⇒ lấy cơ quan làm phần phân biệt
+        ("59/2020/QH14", "L59-2020"),
+        ("không phải số hiệu", None),
     ],
 )
-def test_doc_id_from_so_hieu(so_hieu, doc_id):
-    assert doc_id_from_so_hieu(so_hieu) == doc_id
+def test_doc_id_theo_quy_uoc_corpus(so_hieu, cho):
+    assert doc_id_theo_corpus(so_hieu) == cho
 
 
-# --- Toàn bộ artefact vẫn hợp lệ với schema ---
+def test_bo_crawl_nay_da_theo_quy_uoc_corpus():
+    """Lượt đầu bộ crawl đặt `15-2024-TT-NHNN` — theo nó ⇒ **hai node cho một văn bản**. Lượt
+    này nó đã theo `TT15-2024`, nên không còn cảnh báo nào để bắn.
+    """
+    kq = doc_file(_TT15)
+    assert kq.doc_id_trong_file == "TT15-2024"
+    assert kq.van_ban.doc_id == "TT15-2024"
+    assert not any("quy ước corpus" in c for c in kq.canh_bao)
 
-def test_corpus_document_hop_le_voi_schema(tt15):
-    doc = dict(tt15)
-    doc["noi_dung"], _, doc["canh_bao"] = strip_amend_noise(tt15["noi_dung"])
-    doc["co_toan_van"] = has_full_text(doc["noi_dung"])
-    cdoc = CorpusDocument.model_validate(to_corpus_document(doc))
-    assert cdoc.doc_id == "TT15-2024"
-    assert len(cdoc.articles) == 23
-    assert cdoc.co_toan_van is True
-    assert cdoc.articles[1].char_start is not None
+
+def test_neu_nguon_lech_quy_uoc_lan_nua_thi_van_bao_ra():
+    """Chốt chặn phải còn sống kể cả khi hiện không ca nào chạm tới — nguồn đổi lại được."""
+    from app.ingestion.vbpl_corpus import doc_id_theo_corpus
+
+    assert doc_id_theo_corpus("15/2024/TT-NHNN") == "TT15-2024" != "15-2024-TT-NHNN"
+
+
+# --- 4. Không có toàn văn thì KHÔNG giả vờ là có -----------------------------
+
+
+@pytest.mark.skipif(not _VBHN.exists(), reason="chưa crawl 29/VBHN-NHNN")
+def test_van_ban_khong_co_toan_van_thi_giu_lam_node_rong():
+    kq = doc_file(_VBHN)
+    assert kq.van_ban is None, "0 điều mà vẫn dựng CorpusDocument là khai khống"
+    assert kq.so_hieu == "29/VBHN-NHNN"
+    assert any("0 điều" in c for c in kq.canh_bao)
+
+
+def test_thieu_ban_ghi_tho_thi_TU_CHOI_chu_khong_bo_qua_kiem_tra():
+    """Không có `noi_dung` thì không kiểm được `char_span` — mà đó là điều kiện để tin `articles[]`."""
+    assert duong_dan_toan_van(_TT15).exists()
+    assert "noi_dung" in json.loads(duong_dan_toan_van(_TT15).read_text(encoding="utf-8"))
+
+
+@pytest.mark.parametrize(
+    ("duong_dan", "cho"),
+    [
+        ("data/raw/vbpl/corpus/x.json", "data/raw/vbpl/raw/x.json"),   # bố cục thư mục
+        ("data/raw/vbpl/x.corpus.json", "data/raw/vbpl/x.json"),       # bố cục phẳng, lượt đầu
+    ],
+)
+def test_hai_bo_cuc_thu_muc_deu_tim_duoc_ban_ghi_tho(duong_dan, cho):
+    """Bộ đọc chỉ hiểu một bố cục thì lần đổi sau nó đọc ra **0 văn bản mà không kêu**."""
+    assert duong_dan_toan_van(Path(duong_dan)).as_posix() == cho

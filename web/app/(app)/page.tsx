@@ -540,6 +540,23 @@ function ChatScreen() {
   );
 }
 
+function OverlayPill({ c }: { c: Citation }) {
+  if (!c.trang_thai || c.trang_thai === "nguyen_ven") return null;
+  const nhan =
+    c.trang_thai === "bi_bai_bo"
+      ? "Đã bị bãi bỏ"
+      : c.trang_thai === "la_loi_sua"
+        ? "Lời văn sửa đổi"
+        : "Đã bị sửa đổi";
+  const mau = c.trang_thai === "bi_bai_bo" ? "border-red text-red" : "border-accent text-accent-dim";
+  return (
+    <span className={`rounded border px-2 py-0.5 text-[10px] ${mau}`} title={c.chu_thich ?? ""}>
+      {nhan}
+      {c.sua_boi_doc_id ? ` · ${c.sua_boi_doc_id} ${c.sua_boi_article ?? ""}` : ""}
+    </span>
+  );
+}
+
 function StatusPill({ live, small }: { live: boolean; small?: boolean }) {
   return live ? (
     <span
@@ -803,6 +820,7 @@ function TurnView({
                           <span className="text-[13.5px] font-semibold">{c.doc_title}</span>
                           <span className="mono text-[11px] text-accent-hover">{c.article}</span>
                           <StatusPill live={!c.valid_to} />
+                          <OverlayPill c={c} />
                           <span className="mono ml-auto text-[10px] text-muted">
                             từ {c.valid_from ?? "—"}
                           </span>
@@ -811,6 +829,15 @@ function TurnView({
                           “{c.snippet}
                           {c.snippet.length >= 280 ? "…" : ""}”
                         </p>
+                        {c.ban_hien_hanh && (
+                          <details className="mt-2 rounded-[9px] border border-accent/40 bg-inset px-3 py-2">
+                            <summary className="cursor-pointer text-[11.5px] font-medium text-accent-hover">
+                              Bản hiện hành{" "}
+                              {c.sua_boi_doc_id ? `(theo ${c.sua_boi_doc_id} ${c.sua_boi_article ?? ""})` : ""}
+                            </summary>
+                            <p className="serif mt-2 text-sm leading-[1.6] text-fg-strong">{c.ban_hien_hanh}</p>
+                          </details>
+                        )}
                         <div className="mt-2.5 flex items-center gap-3.5">
                           <Link
                             href={`/docs/${encodeURIComponent(c.doc_id)}${anchor ? `#${anchor}` : ""}`}
