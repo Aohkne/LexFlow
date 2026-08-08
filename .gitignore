@@ -29,6 +29,9 @@ data/backup/
 # Cấu hình Claude Code riêng từng máy (chứa đường dẫn tuyệt đối của máy đó)
 .claude/settings.local.json
 
+# Phiên brainstorm (mockup HTML + state của server xem thử), không phải sản phẩm
+.superpowers/
+
 # Next.js
 web/node_modules/
 web/.next/
