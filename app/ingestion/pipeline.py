@@ -29,43 +29,132 @@ def load_corpus(path: str | Path) -> tuple[list[CorpusDocument], list[Relationsh
 _MAX_CHUNK = 2000
 _KHOAN_RE = re.compile(r"^(\d+)\.\s")
 
+#: Thang bậc cấu trúc MỊN DẦN, chỉ dùng khi `_KHOAN_RE` không chẻ được điều.
+#: Ca thật: TT66-2025 Điều 6 (4313 ký tự) là điều *sửa đổi*, đánh số ở cấp điểm/tiểu mục
+#: (`đ)`, `(i)`…`(vii)`, `- `) chứ không phải khoản — cắt cửa sổ ký tự làm vết cắt rơi vào
+#: giữa câu, mà điều này lại nằm trên đường nóng của lớp phủ.
+#:
+#: Nhãn vẫn là `(phần k)` cho MỌI bậc dưới khoản: `đ)`/`(i)` trong một điều sửa đổi là chữ
+#: TRÍCH của văn bản bị sửa (TT34-2024), không phải địa chỉ trong TT66-2025 — gắn nhãn
+#: `"Điều 6 Điểm đ"` cho nó là khai man địa chỉ pháp lý. Thang bậc chọn CHỖ CẮT, không đặt tên.
+_DIEM_RE = re.compile(r"^([a-zđêôơưáàảãạăâéèẻẽẹíìỉĩịóòỏõọúùủũụýỳỷỹỵ])\)\s")
+_TIEU_MUC_RE = re.compile(r"^\((\w+)\)\s")
+_GACH_DAU_DONG_RE = re.compile(r"^([-–+•])\s")
+_BAC_DU_PHONG = (_DIEM_RE, _TIEU_MUC_RE, _GACH_DAU_DONG_RE)
 
-def _split_khoan(article: str, text: str) -> list[tuple[str, str]]:
-    """Tách điều dài thành các chunk mức Khoản, gộp khoản liền kề tới ~_MAX_CHUNK.
+#: Ngắt câu để không cắt giữa câu khi một DÒNG tự nó dài hơn ngưỡng.
+_RANH_CAU_RE = re.compile(r"(?<=[.;:!?])\s+")
 
-    Trả về [(nhãn, text)] — nhãn kiểu "Điều 26 Khoản 1-3". Điều không có
-    cấu trúc khoản thì cắt theo cửa sổ ký tự ("Điều 26 (phần 2)").
-    """
-    if len(text) <= _MAX_CHUNK:
-        return [(article, text)]
 
-    # Gom dòng theo khoản: phần mở đầu (tiêu đề điều...) dính vào khoản đầu tiên
+def _gom_theo_mau(text: str, rx: re.Pattern[str]) -> list[tuple[str | None, str]]:
+    """Gom dòng thành đơn vị theo `rx`; phần mở đầu (tiêu đề điều…) dính đơn vị đầu tiên."""
     pieces: list[tuple[str | None, list[str]]] = [(None, [])]
     for ln in text.split("\n"):
-        m = _KHOAN_RE.match(ln)
+        m = rx.match(ln)
         if m:
             pieces.append((m.group(1), [ln]))
         else:
             pieces[-1][1].append(ln)
-    khoan = [(num, "\n".join(lines).strip()) for num, lines in pieces if "\n".join(lines).strip()]
+    return [(num, "\n".join(lines).strip()) for num, lines in pieces if "\n".join(lines).strip()]
 
-    if len(khoan) <= 1:  # không có cấu trúc khoản → cắt cửa sổ
-        chunks = [text[i : i + _MAX_CHUNK] for i in range(0, len(text), _MAX_CHUNK)]
-        return [(f"{article} (phần {i + 1})", t) for i, t in enumerate(chunks)]
 
-    # Gộp khoản liền kề cho tới ngưỡng
-    out: list[tuple[str, str]] = []
+def _gop_lien_ke(don_vi: list[tuple[str | None, str]]) -> list[list[tuple[str | None, str]]]:
+    """Gộp đơn vị liền kề cho tới ~_MAX_CHUNK. Đơn vị tự nó quá ngưỡng thì đứng một mình."""
+    nhom: list[list[tuple[str | None, str]]] = []
     buf: list[tuple[str | None, str]] = []
     size = 0
-    for num, t in khoan:
-        if buf and size + len(t) > _MAX_CHUNK:
-            out.append((_khoan_label(article, buf), "\n".join(x for _, x in buf)))
+    for item in don_vi:
+        if buf and size + len(item[1]) > _MAX_CHUNK:
+            nhom.append(buf)
             buf, size = [], 0
-        buf.append((num, t))
-        size += len(t)
+        buf.append(item)
+        size += len(item[1])
     if buf:
-        out.append((_khoan_label(article, buf), "\n".join(x for _, x in buf)))
-    return out
+        nhom.append(buf)
+    return nhom
+
+
+def _cat_theo_khoang_trang(cau: str) -> list[str]:
+    """Chặng cuối: một "câu" vẫn dài quá ngưỡng thì cắt ở KHOẢNG TRẮNG, không giữa từ."""
+    ra: list[str] = []
+    con = cau
+    while len(con) > _MAX_CHUNK:
+        cat = con.rfind(" ", 0, _MAX_CHUNK)
+        if cat <= 0:  # một "từ" dài hơn cả ngưỡng (URL, chuỗi số) — hết cách
+            cat = _MAX_CHUNK
+        ra.append(con[:cat].rstrip())
+        con = con[cat:].lstrip()
+    if con:
+        ra.append(con)
+    return ra
+
+
+def _cat_theo_dong(text: str) -> list[str]:
+    """Lưới an toàn cuối: gom TRỌN dòng tới ngưỡng; dòng nào tự nó dài quá thì ngắt ở câu.
+
+    Không bao giờ trả về mảnh mở đầu hay kết thúc bằng nửa từ. Khoảng trắng bên trong một
+    dòng bị ngắt sẽ chuẩn hoá về một dấu cách — đó là cái giá của việc ghép lại theo câu.
+    """
+    manh: list[str] = []
+    for dong in text.split("\n"):
+        if len(dong) <= _MAX_CHUNK:
+            manh.append(dong)
+            continue
+        cau_buf: list[str] = []
+        size = 0
+        for cau in filter(None, _RANH_CAU_RE.split(dong)):
+            for phan in _cat_theo_khoang_trang(cau) if len(cau) > _MAX_CHUNK else [cau]:
+                if cau_buf and size + len(phan) + 1 > _MAX_CHUNK:
+                    manh.append(" ".join(cau_buf))
+                    cau_buf, size = [], 0
+                cau_buf.append(phan)
+                size += len(phan) + 1
+        if cau_buf:
+            manh.append(" ".join(cau_buf))
+
+    ra: list[str] = []
+    buf: list[str] = []
+    size = 0
+    for m in manh:
+        if buf and size + len(m) + 1 > _MAX_CHUNK:
+            ra.append("\n".join(buf).strip())
+            buf, size = [], 0
+        buf.append(m)
+        size += len(m) + 1
+    if buf:
+        ra.append("\n".join(buf).strip())
+    return [x for x in ra if x]
+
+
+def _cat_du_phong(text: str) -> list[str]:
+    """Điều không chẻ được theo khoản: thử các bậc mịn hơn, cuối cùng mới cắt theo dòng/câu."""
+    for rx in _BAC_DU_PHONG:
+        don_vi = _gom_theo_mau(text, rx)
+        if len(don_vi) > 1:
+            return ["\n".join(t for _, t in nhom) for nhom in _gop_lien_ke(don_vi)]
+    return _cat_theo_dong(text)
+
+
+def _split_khoan(article: str, text: str) -> list[tuple[str, str]]:
+    """Tách điều dài thành các chunk mức Khoản, gộp khoản liền kề tới ~_MAX_CHUNK.
+
+    Trả về [(nhãn, text)] — nhãn kiểu "Điều 26 Khoản 1-3". Điều không có cấu trúc khoản thì
+    chẻ theo bậc mịn hơn (điểm → tiểu mục → gạch đầu dòng), hết đường mới cắt theo ranh giới
+    dòng/câu; những mảnh đó mang nhãn "Điều 26 (phần 2)".
+    """
+    if len(text) <= _MAX_CHUNK:
+        return [(article, text)]
+
+    khoan = _gom_theo_mau(text, _KHOAN_RE)
+    if len(khoan) <= 1:
+        return [
+            (f"{article} (phần {i + 1})", t) for i, t in enumerate(_cat_du_phong(text))
+        ]
+
+    return [
+        (_khoan_label(article, nhom), "\n".join(x for _, x in nhom))
+        for nhom in _gop_lien_ke(khoan)
+    ]
 
 
 def _khoan_label(article: str, buf: list[tuple[str | None, str]]) -> str:
