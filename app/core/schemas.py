@@ -232,6 +232,16 @@ class TacDongDonVi(BaseModel):
     boi_doc_id: str | None = None
     boi_article: str | None = None
     tu_ngay: str | None = None
+    # --- Đủ để trình xem dựng bảng đối chiếu mà không phải hỏi thêm lượt nào ---
+    #: sua_doi | bo_sung | bai_bo | thay_phu_luc | thay_cum_tu — thao tác của lần chạm gần nhất.
+    #: Mịn hơn `trang_thai`: cả `bo_sung` lẫn `thay_cum_tu` đều cho `trang_thai="da_sua"`, nhưng
+    #: người đọc cần biết là bổ sung thêm hay thay chữ trong câu.
+    thao_tac: str | None = None
+    #: Câu lệnh nguyên văn trong văn bản sửa ("Sửa đổi, bổ sung điểm d khoản 1 Điều 13 như sau:").
+    menh_lenh: str | None = None
+    #: Lời văn mới NGUYÊN VĂN — lát cắt `noi_dung` của văn bản sửa, không strip, không chuẩn hoá.
+    #: None khi bãi bỏ (không có gì thay thế) hoặc khi không định vị được khối trích.
+    loi_van_moi: str | None = None
 
 
 class DocumentDetail(DocumentMeta):
