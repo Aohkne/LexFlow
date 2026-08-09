@@ -127,19 +127,26 @@ nhưng đó là trần độ phủ hiện tại. Muốn nâng thì phải **mở
 
 ## Nợ kỹ thuật (parked từ review P4, 06/08)
 
-### [ ] T9 · Không có tín hiệu runtime cho biết lớp phủ đã nạp được
-
-Lớp phủ fail-open: artefact hỏng/thiếu ⇒ trả `None` và chat vẫn chạy — nghĩa là **hỏng
-lặng lẽ**. Cần `/health` + log lúc khởi động nói rõ đã nạp bao nhiêu cạnh.
-
-### [ ] T10 · `so_hieu_theo_doc` nên đóng băng lúc build artefact
-
-Hiện suy lại lúc chạy; nếu bảng ánh xạ đổi mà artefact không đổi thì khoá lệch mà không ai biết.
-
 ### [ ] T11 · Ghi rõ dựng lại artefact lớp phủ cần `data/raw/vbpl/raw/`
 
 Thư mục đó **gitignored** (22 file, 3.7 MB). Người clone repo sạch không dựng lại được
 `data/overlay/lop_phu.json` và sẽ không hiểu vì sao.
+
+Soi lại 09/08: vấn đề lớn hơn mục này. **`docs/ARCHITECTURE.md` không hề nhắc tới lớp phủ** —
+cả một tầng kiến trúc đã lên sản phẩm mà tài liệu kiến trúc không biết. T11 chỉ là một triệu
+chứng; nên gộp vào cùng lượt viết lại ARCHITECTURE (xem T12).
+
+### [ ] T15 · Ba chỗ còn suy `doc_id` theo quy ước — đang có dây bẫy canh
+
+`hien_hanh.nut_don_vi` (thuộc tính node Neo4j), `dinh_tuyen._cite` và `dinh_tuyen._tach_khoa`
+(câu trích + khoá sắp xếp) vẫn gọi `doc_id_theo_corpus` thay vì hỏi bảng của artefact — xem
+T10 đã đóng. Nằm sâu trong hàm sắp xếp nên luồn tham số vào là refactor rộng cho một lỗi
+tác hại **bằng 0 hôm nay**.
+
+- Đang được canh bởi `tests/test_lop_phu_anh_xa.py::test_quy_uoc_va_artefact_khong_duoc_lech`:
+  mọi văn bản có mặt trong lớp phủ phải có `doc_id` mà quy ước tái tạo được.
+- **Chỉ làm khi ca đó đỏ.** Đỏ nghĩa là đã có văn bản đặt tên lệch quy ước lọt vào lớp phủ
+  (nhóm nội bộ SHB là ứng viên đầu tiên) — lúc đó mới đáng trả giá refactor.
 
 ---
 
@@ -169,6 +176,19 @@ Chủ repo tự chuẩn bị — đã nói rõ 07/08: "về bộ câu hỏi thì
 
 ## Đã đóng
 
+- **09/08 · T9** — Lớp phủ hỏng lặng lẽ. `/health` nay có khối `overlay` (`nap`, `so_canh`,
+  `sinh_luc`) và `status` xuống `degraded` khi lớp phủ bật mà artefact không nạp được; log một
+  dòng lúc khởi động. HTTP vẫn 200 ở mọi ca — không có gì đọc endpoint này bằng máy, đổi thành
+  mã lỗi là biến cảnh báo thành sự cố triển khai. Nghiệm thu trên server thật, không chỉ test:
+  lần chạy đầu lộ ra dòng log **không hề tồn tại** (uvicorn chỉ cấu hình `uvicorn.*`), phải đặt
+  mức thẳng trên namespace `app`. Commit `85c9467`.
+- **09/08 · T10** — `doc_id` suy theo quy ước thay vì hỏi bảng của artefact; 4/26 văn bản lệch,
+  và 9 văn bản ngoài corpus bị **bịa** ra mã trông như thật (`ND135-2015`…) khiến web dựng link
+  tới trang trống. `tach_khoa` nay tra bảng, không có thì trả `None`. Không đổi một ký tự nào
+  trong response hôm nay (mọi `nguon` đều có trong bảng). Ba chỗ còn lại → **T15** + dây bẫy.
+  Commit `27abe0d`.
+- **09/08 · T3** — Đo được ngưỡng cắt embedding ~7.156 ký tự, chỉ 1/661 chunk vượt. Chi tiết ở
+  mục T3 phía trên. Commit `83ac6dd`.
 - **09/08** — Nhánh chẻ dự phòng cắt giữa từ. `TT66-2025 Điều 6` bị cắt ngay giữa chữ "ngân"
   (`ngâ` + `n`); vá bằng lưới ranh giới dòng/câu + thang bậc điểm → tiểu mục → gạch đầu dòng.
   651/654 chunk id giữ nguyên từng byte. Commit `8dd53f0`, 7 test mới, CI xanh. **Dữ liệu
