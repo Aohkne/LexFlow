@@ -236,6 +236,11 @@ export type TacDongDonVi = {
   boi_doc_id: string | null;
   boi_article: string | null;
   tu_ngay: string | null;
+  // Chữ để dựng bảng đối chiếu. Đều optional: backend cũ chưa trả nhóm này, và trong artefact
+  // hiện tại thì `bai_bo` không có `loi_van_moi` (bãi bỏ thì không có gì thay thế).
+  thao_tac?: "sua_doi" | "bo_sung" | "bai_bo" | "thay_phu_luc" | "thay_cum_tu" | null;
+  menh_lenh?: string | null;
+  loi_van_moi?: string | null;
 };
 
 export type SourceFile = {

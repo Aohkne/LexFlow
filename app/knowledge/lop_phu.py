@@ -146,6 +146,9 @@ def tac_dong_cua_van_ban(
             continue
         c = pb.cac_lan[-1]
         boi_doc, boi_art = tach_khoa(c.nguon)
+        # Chữ đã được `dong_goi` giải sẵn vào gói; đọc kèm ở đây để trình xem dựng được bảng
+        # đối chiếu ngay, khỏi phải mở `raw/` (thứ API không phục vụ) hay hỏi thêm một lượt.
+        g = lp.goi_theo_canh.get(_khoa_canh(c))
         ra.append(
             TacDongDonVi(
                 article=f"Điều {m.group('dieu')}",
@@ -155,6 +158,9 @@ def tac_dong_cua_van_ban(
                 boi_doc_id=boi_doc,
                 boi_article=boi_art,
                 tu_ngay=c.valid_from,
+                thao_tac=c.thao_tac,
+                menh_lenh=g.menh_lenh if g else None,
+                loi_van_moi=g.loi_van_moi_text if g else None,
             )
         )
     return ra

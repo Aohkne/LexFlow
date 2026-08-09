@@ -1096,6 +1096,98 @@ def check_tree_coverage(tree: list[dict], noi_dung: str) -> list[str]:
     return out
 
 
+#: Bảng 23 chữ dùng đánh số Điểm trong văn bản QPPL — khớp `app/ontology/parser.py::VI_LETTERS`.
+#: Không import từ `app.ontology`: tầng ingestion không phụ thuộc tầng chuẩn tắc, và `vbpl.py`
+#: vốn đã tự giữ lớp ký tự riêng của nó (`_TEXT_DIEM_RE`).
+_BANG_DIEM = "abcdđeghiklmnopqrstuvxy"
+
+#: Trần số cảnh báo về dãy số hiệu. Một văn bản hỏng nặng sinh ra rất nhiều dòng, mà `canh_bao`
+#: còn phải chở những cảnh báo khác — cắt ở đây thay vì làm ngập.
+_MAX_CANH_BAO_DAY = 20
+
+
+def _so_anh_em(nodes: list[dict], cap: str) -> list[str]:
+    return [str(n["so"]) for n in nodes if n["cap"] == cap and n.get("so")]
+
+
+def _lap(sos: list[str]) -> list[str]:
+    return sorted({s for i, s in enumerate(sos) if s in sos[:i]})
+
+
+def _sai_thu_tu(sos: list[str]) -> bool:
+    """Dãy Điểm có đi ngược bảng chữ không. Bỏ số hiệu có hậu tố ("đ1") — chèn bằng hậu tố là
+    cách đánh số hợp lệ, đưa vào so sánh sẽ báo động giả."""
+    chi_so = [_BANG_DIEM.find(s) for s in sos if len(s) == 1 and _BANG_DIEM.find(s) >= 0]
+    return len(chi_so) >= 2 and chi_so != sorted(chi_so)
+
+
+def _thieu_chu(sos: list[str]) -> set[str]:
+    """Chữ nằm giữa chữ đầu và chữ cuối của dãy mà dãy không có."""
+    chi_so = [_BANG_DIEM.find(s) for s in sos if len(s) == 1 and _BANG_DIEM.find(s) >= 0]
+    if len(chi_so) < 2:
+        return set()
+    return {_BANG_DIEM[i] for i in range(min(chi_so), max(chi_so)) if i not in chi_so}
+
+
+def check_unit_sequence(tree: list[dict]) -> list[str]:
+    """Số hiệu anh em trong cây có nhất quán không — bắt nút GẮN NHẦM CHA.
+
+    Khác `check_tree_coverage` ở chỗ đó đếm TỔNG, còn kiểu hỏng thật gặp trong lô này không làm
+    tổng lệch. Ca đã soi DOM: 15/2024 Điều 15 — nguồn đẩy hai đoạn `b)` xuống sau `c)` của khoản
+    2, nên cả hai cùng bám vào khoản 2 (thành a, c, b, b) và khoản 1 mất điểm b. Tổng số Điểm
+    vẫn đúng nên phép đếm mù hoàn toàn; chỉ dãy chữ cái mới lộ ra.
+
+    Ba dấu hiệu, đều là thứ KHÔNG THỂ hợp lệ:
+      - trùng số hiệu giữa các anh em;
+      - dãy Điểm đi ngược bảng chữ;
+      - một Điểm vắng ở Khoản này VÀ trùng ở Khoản khác cùng Điều — đúng hình dạng của một nút
+        bị treo nhầm cha.
+
+    Đứt quãng ĐƠN THUẦN thì KHÔNG báo: đã đo trên lô này và nó là chuyện hợp lệ — 40/2024 Điều
+    37 khoản 1 đi thẳng a…e, g, i, toàn văn nguồn vốn không có `h)` nào. Bắt cả đứt quãng là
+    biến một cách đánh số của người soạn thành lỗi.
+
+    KHÔNG sắp lại hộ: đoán đoạn `b)` nào thuộc khoản nào là đoán hộ nguồn, mà chính nguồn đang
+    tự mâu thuẫn. Báo, không sửa — cùng một luật với mọi cảnh báo khác ở đây.
+    """
+    out: list[str] = []
+    _DUOI = " — nút nhiều khả năng bị treo nhầm cha do nguồn đặt đoạn sai chỗ; giữ nguyên như nguồn"
+
+    def di(nodes: list[dict], duong_dan: str) -> None:
+        o = duong_dan or "gốc văn bản"
+        co_lap = False
+        for cap, ten in (("khoan", "Khoản"), ("diem", "Điểm")):
+            sos = _so_anh_em(nodes, cap)
+            if lap := _lap(sos):
+                co_lap = True
+                out.append(f"dãy {ten} trùng số tại {o}: {sos} (lặp {lap}){_DUOI}")
+        # Dãy đã trùng số thì gần như chắc chắn cũng "ngược bảng chữ" — báo tiếp chỉ là nói hai
+        # lần một sự việc. Chỉ báo khi ngược mà KHÔNG trùng, lúc đó nó là dấu hiệu độc lập.
+        diem = _so_anh_em(nodes, "diem")
+        if not co_lap and _sai_thu_tu(diem):
+            out.append(f"dãy Điểm đi ngược bảng chữ tại {o}: {diem}{_DUOI}")
+
+        # Điểm vắng ở một Khoản mà lại trùng ở Khoản khác của CÙNG Điều: hai mảnh của cùng một
+        # sự việc, ghép lại mới thành bằng chứng. Vắng không thôi thì im lặng.
+        khoan_con = [n for n in nodes if n["cap"] == "khoan" and n.get("con")]
+        diem_theo_khoan = {str(n.get("so")): _so_anh_em(n["con"], "diem") for n in khoan_con}
+        lap_o_noi_khac = {c for ds in diem_theo_khoan.values() for c in _lap(ds)}
+        for so, ds in diem_theo_khoan.items():
+            if chung := _thieu_chu(ds) & lap_o_noi_khac:
+                out.append(
+                    f"Điểm {sorted(chung)} vắng ở khoản {so} của {o} nhưng trùng ở khoản khác "
+                    f"cùng Điều (khoản {so} đang là {ds}){_DUOI}"
+                )
+
+        for n in nodes:
+            if n.get("con"):
+                nhan = f"{n['cap']}_{n.get('so')}"
+                di(n["con"], f"{duong_dan}/{nhan}" if duong_dan else nhan)
+
+    di(tree, "")
+    return out[:_MAX_CANH_BAO_DAY]
+
+
 _DOC_TYPE_RE = re.compile(
     r"^(Thông tư liên tịch|Thông tư|Nghị định|Nghị quyết|Quyết định|Luật|Pháp lệnh|"
     r"Chỉ thị|Công văn|Văn bản hợp nhất)",
@@ -1335,6 +1427,7 @@ def extract_document(browser, url: str) -> dict:
     if not files:
         warnings.append("tab Tải về không liệt kê tệp nào — không có bản gốc để đối chiếu")
     warnings += check_tree_coverage(tree, body)
+    warnings += check_unit_sequence(tree)
     warnings += _source_quirks(luoc_do)
 
     return {

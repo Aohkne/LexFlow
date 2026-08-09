@@ -45,6 +45,16 @@
   --cta-bg: #26241f;
   --cta-heading: #f3f0e7;
   --cta-body: #a49a88;
+  /* Đánh dấu đơn vị bị tác động trong toàn văn (handoff `giao_dien_dieu_khoan`).
+     Nền highlight nhạt hơn hẳn các `*-bg` sẵn có: nó nằm DƯỚI CHỮ THÂN văn bản chứ không phải
+     nền của một khối riêng, đậm thêm chút là chữ khó đọc. */
+  --mark-sua: #b4633e;
+  --mark-sua-bg: #f7e7da;
+  --mark-bai-bo: #a8412f;
+  --mark-bai-bo-bg: #f5e2dc;
+  --mark-bo-sung: #5b7a5b;
+  --mark-bo-sung-bg: #e7efe4;
+  --mark-gach: #d3c6b6; /* màu gạch ngang phần bị bãi bỏ */
   /* legacy alias (trang cũ còn dùng) */
   --blue: #3d6a9e;
 }
@@ -90,6 +100,13 @@
   --color-cta-bg: var(--cta-bg);
   --color-cta-heading: var(--cta-heading);
   --color-cta-body: var(--cta-body);
+  --color-mark-sua: var(--mark-sua);
+  --color-mark-sua-bg: var(--mark-sua-bg);
+  --color-mark-bai-bo: var(--mark-bai-bo);
+  --color-mark-bai-bo-bg: var(--mark-bai-bo-bg);
+  --color-mark-bo-sung: var(--mark-bo-sung);
+  --color-mark-bo-sung-bg: var(--mark-bo-sung-bg);
+  --color-mark-gach: var(--mark-gach);
   --color-blue: var(--blue);
   --font-sans: system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-serif: var(--font-newsreader), Georgia, serif;
