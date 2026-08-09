@@ -15,6 +15,7 @@ from typing import TYPE_CHECKING, Literal
 
 from pydantic import BaseModel
 
+from app.core.config import settings
 from app.ontology.dinh_tuyen import dinh_tuyen, khoa_tu_chunk_id
 from app.ontology.dong_goi import CanhGoi, GoiLopPhu
 from app.ontology.hien_hanh import phien_ban_hien_hanh
@@ -62,6 +63,8 @@ class LopPhuRuntime:
     #: khác hẳn thứ quy ước `<loại><số>-<năm>` sinh ra. Nên chỗ nào cần `doc_id` thật thì phải
     #: hỏi bảng này, không được suy.
     doc_id_theo_so_hieu: dict[str, str]
+    #: Ngày artefact được sinh — để `/health` nói được đang phục vụ bản lớp phủ nào.
+    sinh_luc: str
 
 
 def _khoa_canh(c: CanhTacDong | CanhGoi) -> tuple:
@@ -69,9 +72,16 @@ def _khoa_canh(c: CanhTacDong | CanhGoi) -> tuple:
 
 
 @lru_cache(maxsize=4)
-def tai_lop_phu(duong_dan: str = DUONG_DAN_MAC_DINH) -> LopPhuRuntime | None:
-    """Nạp artefact một lần. Hỏng/thiếu ⇒ None (fail-open), không ném lỗi."""
+def tai_lop_phu(duong_dan: str | None = None) -> LopPhuRuntime | None:
+    """Nạp artefact một lần. Hỏng/thiếu ⇒ None (fail-open), không ném lỗi.
+
+    Đường dẫn mặc định giải bên TRONG chứ không đặt ở chữ ký: đặt ở chữ ký thì mọi lượt gọi
+    không tham số và mọi lượt gọi truyền đúng đường dẫn đó thành hai khoá cache khác nhau —
+    artefact bị parse và giữ hai bản. Giải bên trong cũng là thứ cho test đổi
+    `DUONG_DAN_MAC_DINH` mà không phải sửa nơi gọi.
+    """
     try:
+        duong_dan = duong_dan or DUONG_DAN_MAC_DINH
         goi = GoiLopPhu.model_validate_json(Path(duong_dan).read_text(encoding="utf-8"))
     except (OSError, ValueError, json.JSONDecodeError):
         return None
@@ -84,7 +94,31 @@ def tai_lop_phu(duong_dan: str = DUONG_DAN_MAC_DINH) -> LopPhuRuntime | None:
         goi_theo_canh={_khoa_canh(c): c for c in goi.canh},
         so_hieu_theo_doc=goi.so_hieu_theo_doc,
         doc_id_theo_so_hieu={sh: d for d, sh in goi.so_hieu_theo_doc.items()},
+        sinh_luc=goi.sinh_luc,
     )
+
+
+def tinh_trang() -> dict:
+    """Lớp phủ hiện đang ở tình trạng nào — cho `/health` và log lúc khởi động.
+
+    Tồn tại vì fail-open không có tiếng nói: artefact thiếu trong image thì badge hiệu lực
+    biến mất khỏi toàn sản phẩm và không có chỗ nào nói ra. Đây là chỗ nói ra.
+
+    Dùng lại `tai_lop_phu()` (đã `lru_cache`) nên không thêm lượt đọc đĩa nào; gọi lúc khởi
+    động thì lượt chat đầu tiên khỏi trả giá parse.
+    """
+    if not settings.overlay_router:
+        return {"bat": False}
+    lp = tai_lop_phu()
+    if lp is None:
+        return {"bat": True, "nap": False, "duong_dan": DUONG_DAN_MAC_DINH}
+    return {
+        "bat": True,
+        "nap": True,
+        "so_canh": len(lp.canh),
+        "sinh_luc": lp.sinh_luc,
+        "duong_dan": DUONG_DAN_MAC_DINH,
+    }
 
 
 def tach_khoa(khoa: str, lp: LopPhuRuntime) -> tuple[str | None, str | None]:
