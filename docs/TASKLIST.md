@@ -55,16 +55,28 @@ TT23-2019::Điều 1 Khoản 5    x2
 - Bước đầu: trong `pipeline._split_khoan`, nhãn đã tồn tại trong cùng doc thì thêm hậu tố thứ
   tự (`Điều 1 Khoản 2 (2)`); giữ nguyên ngưỡng và luật chẻ. Test ghim đúng ca TT23-2019.
 
-### [ ] T3 · 59 chunk vượt ngưỡng `_MAX_CHUNK = 2000` — chưa biết Gemini xử lý thế nào
+### [x] T3 · Gemini có cắt đuôi chunk dài không — ĐÃ ĐO 09/08
 
-Đo 09/08: chunk dài nhất **9.531 ký tự**. `_MAX_CHUNK` **không phải trần thật** vì nhánh khoản
-chỉ ngắt *giữa* các khoản, không bao giờ cắt *trong* một khoản.
+**Có cắt, ở ~7.156 ký tự (±32)** — nhưng chỉ **1/661 chunk** vượt ngưỡng đó.
 
-- Vì sao quan trọng: ngưỡng này đặt ra vì giới hạn embedding. Nếu `gemini-embedding-001` âm
-  thầm cắt input thì phần đuôi của 59 chunk đó **không nằm trong vector** — retrieval sẽ trượt
-  đúng những khoản dài nhất mà không có dấu hiệu gì.
-- Bước đầu: **đo, đừng đoán** — embed một chunk dài và bản bị cắt đôi của nó, so cosine; hoặc
-  tra tài liệu giới hạn token của model. Có kết luận rồi mới bàn đổi ngưỡng.
+Đo bằng `scripts/do_gioi_han_embed.py` (gắn câu mốc vào cuối chuỗi rồi so vector: mốc không
+làm đổi vector ⇒ nó không tới được model). Đo trên chuỗi **thật sự được embed** —
+`"{doc_title} — {article}: {text}"`, không phải mình `text`.
+
+```
+model              gemini-embedding-001 · 768 chiều
+ngưỡng đo được     ~7156 ký tự
+chuỗi > _MAX_CHUNK  98/661     (đếm cả tiền tố tiêu đề)
+chunk MẤT ĐUÔI      1/661
+   TT23-2019::Điều 1 Khoản 6   9746 ký tự — mất 2590
+```
+
+- Kết luận: `_MAX_CHUNK = 2000` là lựa chọn về **độ chính xác retrieval**, không phải ràng
+  buộc của API — còn cách trần thật hơn ba lần. 97 chunk vượt ngưỡng chẻ vẫn vào vector trọn vẹn.
+- Chunk duy nhất mất đuôi thuộc TT23-2019, văn bản **đã hết hiệu lực** (`valid_to = 2024-07-17`)
+  nên bị lọc khỏi mọi đường truy hồi mặc định ⇒ tác hại hôm nay bằng 0. Cũng chính là văn bản
+  của **T2** — sửa T2 (chẻ Điều 1 dài 55.902 ký tự) thì mục này tan theo.
+- Đo lại khi đổi model embedding hoặc khi nạp văn bản mới có khoản dài bất thường.
 
 ### [ ] T4 · 8 văn bản ngoài chưa có bảng thuộc tính
 
