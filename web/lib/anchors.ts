@@ -81,6 +81,38 @@ export function tachDoan(html: string): string[] {
     .filter(Boolean);
 }
 
+/** Một đoạn đã tách khỏi nút, kèm bậc hiển thị và địa chỉ của chính nó. */
+export type Doan = {
+  html: string;
+  cap: "dieu" | "khoan" | "diem";
+  dc: DiaChiDonVi | null;
+};
+
+/**
+ * Bẻ phần nội dung của một nút thành các đoạn có địa chỉ riêng.
+ *
+ * Bậc của MỌI đoạn đều đọc từ chính tiền tố nguồn đã viết, không suy từ vị trí trong cây. Lý do
+ * nằm ở dữ liệu thật: nút cấp `dieu` của Nghị định 80/2016 đang ôm nguyên một khối trích dẫn
+ * `"4. Tổ chức… :<br>a) …<br>b) …"`. Nếu tin vào cấp của nút thì cả khối đó đổ ra thành một
+ * đoạn phẳng, mất sạch bậc khoản/điểm. Đoạn nào không có tiền tố thì mới lấy cấp của nút — đó
+ * đúng là các đoạn nối tiếp và đoạn dẫn.
+ *
+ * Đây là phép đọc lúc HIỂN THỊ, không phải đánh số lại: chữ và số giữ nguyên như nguồn trả, nên
+ * khối trích dẫn vẫn mang đánh số của văn bản BỊ SỬA như nó vốn có.
+ */
+export function beDoan(html: string, capNut: Doan["cap"], goc: DiaChiDonVi | null): Doan[] {
+  let khoan = goc?.khoan ?? null;
+  return tachDoan(html).map((doan) => {
+    const bac = bacTuTienTo(doan);
+    if (bac.cap === "khoan") khoan = bac.so;
+    const cap = bac.cap ?? capNut;
+    let dc = goc;
+    if (goc && bac.cap === "khoan") dc = { article: goc.article, khoan: bac.so, diem: null };
+    else if (goc && bac.cap === "diem") dc = { article: goc.article, khoan, diem: bac.so };
+    return { html: doan, cap, dc };
+  });
+}
+
 export type SchemaEntry = {
   docId: string; // văn bản phía bên kia của quan hệ
   title: string;

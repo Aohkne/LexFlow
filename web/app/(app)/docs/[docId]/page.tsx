@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import PageShell from "@/components/page-shell";
 import {
   downloadSourceFile,
@@ -15,15 +15,22 @@ import {
 import { renderInline } from "@/lib/inline-html";
 import {
   articleAnchor,
-  bacTuTienTo,
+  beDoan,
   buildAmendmentMap,
   groupRelationships,
   khoaDiaChi,
   neoDieu,
-  tachDoan,
   type AmendmentInfo,
   type DiaChiDonVi,
+  type Doan,
 } from "@/lib/anchors";
+import { DongGoiY, HuyHieuLe, MAU, ModalDoiChieu } from "@/components/tac-dong-ui";
+import {
+  bangDanhDau,
+  bangVanBanDonVi,
+  danhSachDanhDau,
+  type DanhDau,
+} from "@/lib/tac-dong";
 import {
   dongPhang,
   mucLucTuCay,
@@ -163,6 +170,28 @@ export default function DocViewerPage() {
   const dangDoc = useDangDoc(dsNeo);
   const mocDangDoc = neoTheoThuTu.find((n) => n.anchor === dangDoc) ?? null;
 
+  // --- Lớp phủ tác động ---
+  const bangDD = useMemo(() => bangDanhDau(doc?.tac_dong ?? []), [doc]);
+  const dsDD = useMemo(() => danhSachDanhDau(doc?.tac_dong ?? []), [doc]);
+  const vanBanDonVi = useMemo(() => bangVanBanDonVi(doc?.provisions ?? []), [doc]);
+  const dieuCoDanhDau = useMemo(() => new Set(dsDD.map((d) => d.t.article)), [dsDD]);
+  const [doiChieu, setDoiChieu] = useState<string | null>(null);
+  const [chiBiTacDong, setChiBiTacDong] = useState(false);
+
+  const viTriDD = doiChieu
+    ? dsDD.findIndex(
+        (d) => khoaDiaChi({ article: d.t.article, khoan: d.t.khoan, diem: d.t.diem }) === doiChieu,
+      )
+    : -1;
+  const ddHienTai = viTriDD >= 0 ? dsDD[viTriDD] : null;
+  // Hàm thường, không `useCallback`: React Compiler tự lo ghi nhớ, còn danh sách phụ thuộc gõ
+  // tay ở đây thiếu `setDoiChieu` nên nó từ chối tối ưu cả component.
+  const nhayDanhDau = (i: number) => {
+    if (dsDD.length === 0) return;
+    const d = dsDD[((i % dsDD.length) + dsDD.length) % dsDD.length];
+    setDoiChieu(khoaDiaChi({ article: d.t.article, khoan: d.t.khoan, diem: d.t.diem }));
+  };
+
   const nhay = useCallback((anchor: string) => {
     const el = document.getElementById(anchor);
     if (!el) return;
@@ -240,6 +269,21 @@ export default function DocViewerPage() {
         onDong={() => setMucLucMo(false)}
       />
     )}
+    {ddHienTai && doiChieu && (
+      <ModalDoiChieu
+        dd={ddHienTai}
+        vanBanGoc={vanBanDonVi.get(doiChieu) ?? null}
+        soHieuDangDoc={doc.so_hieu ?? doc.doc_id}
+        tenVanBanTacDong={
+          ddHienTai.t.boi_doc_id ? doc.doc_titles[ddHienTai.t.boi_doc_id] ?? null : null
+        }
+        viTri={viTriDD + 1}
+        tong={dsDD.length}
+        onTruoc={() => nhayDanhDau(viTriDD - 1)}
+        onTiep={() => nhayDanhDau(viTriDD + 1)}
+        onDong={() => setDoiChieu(null)}
+      />
+    )}
     <div className="mx-auto px-6 py-10" style={{ maxWidth: `${caiDat.rong}rem` }}>
       <Link href="/docs" className="text-xs text-dim hover:text-accent-dim">
         ← Thư viện văn bản
@@ -300,6 +344,26 @@ export default function DocViewerPage() {
             ))}
           </div>
 
+          {tab === "content" && dsDD.length > 0 && (
+            <>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-accent-wash-border bg-accent-wash px-2.5 py-1 text-[11.5px] text-accent-dim">
+                <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+                {dsDD.length} đơn vị bị tác động
+              </span>
+              <button
+                onClick={() => setChiBiTacDong((v) => !v)}
+                aria-pressed={chiBiTacDong}
+                className={`rounded-lg border px-2.5 py-1 text-[11.5px] transition-colors ${
+                  chiBiTacDong
+                    ? "border-accent bg-accent-wash text-accent-dim"
+                    : "border-border bg-background text-dim hover:text-foreground"
+                }`}
+              >
+                Chỉ điều bị tác động
+              </button>
+            </>
+          )}
+
           {tab === "content" && (
             <div className="ml-auto flex items-center gap-2">
               {mucLuc.length > 0 && (
@@ -352,7 +416,21 @@ export default function DocViewerPage() {
             : "mt-8"
         }
       >
-        {tab === "content" && <ContentTab doc={doc} amendments={amendments} dong={dong} />}
+        {tab === "content" && (
+          // Máng lề trái để huy hiệu số có chỗ đứng ở MỌI cỡ màn hình. Thiết kế gốc kéo khối ra
+          // ngoài bằng lề âm; ở đây cột chữ co giãn được nên lề âm sẽ tràn ra ngoài khung và đẻ
+          // thanh cuộn ngang trên màn hẹp — thứ lỗi vừa phải sửa ở thư viện văn bản.
+          <CtxDanhDau.Provider value={{ bang: bangDD, onMo: setDoiChieu }}>
+            <div className={dsDD.length > 0 ? "pl-9" : ""}>
+              <ContentTab
+                doc={doc}
+                amendments={amendments}
+                dong={dong}
+                locDieu={chiBiTacDong ? dieuCoDanhDau : null}
+              />
+            </div>
+          </CtxDanhDau.Provider>
+        )}
         {tab === "properties" && <PropertiesTab doc={doc} />}
         {tab === "schema" && <SchemaTab doc={doc} />}
       </div>
@@ -557,47 +635,24 @@ function TacDongDieu({ muc }: { muc: TacDongDonVi[] }) {
 // là số không đơn vị nên cũng giãn theo cỡ chữ.
 const THAN = "serif indent-7 text-justify leading-[1.75] text-fg-body";
 
-/** Một đoạn đã tách khỏi nút, kèm bậc hiển thị và địa chỉ của chính nó. */
-type Doan = {
-  html: string;
-  cap: "dieu" | "khoan" | "diem";
-  dc: DiaChiDonVi | null;
-};
-
-/**
- * Bẻ phần nội dung của một nút thành các đoạn có địa chỉ riêng.
+/** Bảng đánh dấu + cách mở bảng đối chiếu, cấp xuống cho cây điều khoản.
  *
- * Bậc của MỌI đoạn đều đọc từ chính tiền tố nguồn đã viết, không suy từ vị trí trong cây. Lý do
- * nằm ở dữ liệu thật: nút cấp `dieu` của Nghị định 80/2016 đang ôm nguyên một khối trích dẫn
- * `"4. Tổ chức… :<br>a) …<br>b) …"`. Nếu tin vào cấp của nút thì cả khối đó đổ ra thành một
- * đoạn phẳng, mất sạch bậc khoản/điểm. Đoạn nào không có tiền tố thì mới lấy cấp của nút — đó
- * đúng là các đoạn nối tiếp và đoạn dẫn.
- *
- * Đây là phép đọc lúc HIỂN THỊ, không phải đánh số lại: chữ và số giữ nguyên như nguồn trả, nên
- * khối trích dẫn vẫn mang đánh số của văn bản BỊ SỬA như nó vốn có.
+ * Dùng context chứ không truyền prop: `ProvisionNodes` đệ quy tới 5 tầng, mà chỉ đúng cái lá
+ * (`DoanThan`) cần hai giá trị này — luồn qua từng tầng chỉ để tầng cuối dùng là thứ khiến
+ * chữ ký hàm phình ra mà không nói thêm điều gì.
  */
-function beDoan(html: string, capNut: Doan["cap"], goc: DiaChiDonVi | null): Doan[] {
-  let khoan = goc?.khoan ?? null;
-  return tachDoan(html).map((doan) => {
-    const bac = bacTuTienTo(doan);
-    if (bac.cap === "khoan") khoan = bac.so;
-    const cap = bac.cap ?? capNut;
-    let dc = goc;
-    if (goc && bac.cap === "khoan") dc = { article: goc.article, khoan: bac.so, diem: null };
-    else if (goc && bac.cap === "diem") dc = { article: goc.article, khoan, diem: bac.so };
-    return { html: doan, cap, dc };
-  });
-}
+const CtxDanhDau = createContext<{
+  bang: Map<string, DanhDau>;
+  onMo: (khoa: string) => void;
+}>({ bang: new Map(), onMo: () => {} });
 
 /**
- * Một đoạn thân văn bản.
+ * Một đoạn thân văn bản, kèm đánh dấu nếu đơn vị của nó đang bị chạm.
  *
- * `data-dia-chi` là điểm móc để sau này gắn việc đánh dấu đơn vị bị tác động: giá trị của nó
- * chính là `khoaDiaChi()` dựng từ `TacDongDonVi`, nên tính năng đó chỉ cần lập bảng từ
- * `doc.tac_dong` rồi tra, không phải dò lại chuỗi. Cố ý dùng `data-` chứ không phải `id`: một
- * đơn vị có thể xuất hiện nhiều lần trên trang (bản gốc và bản trong khối trích dẫn), mà `id`
- * trùng là HTML sai còn `data-` thì `querySelectorAll` gom được cả cụm — đúng thứ việc đánh dấu
- * cần.
+ * `data-dia-chi` là điểm móc của việc đánh dấu: giá trị của nó chính là `khoaDiaChi()` dựng từ
+ * `TacDongDonVi`, nên đánh dấu chỉ là một phép tra bảng, không phải dò chuỗi trong nội dung.
+ * Cố ý dùng `data-` chứ không phải `id`: một đơn vị có thể xuất hiện nhiều lần trên trang (bản
+ * gốc và bản nằm trong khối trích dẫn), mà `id` trùng là HTML sai.
  */
 function DoanThan({
   doan,
@@ -608,13 +663,43 @@ function DoanThan({
   children: React.ReactNode;
   className?: string;
 }) {
-  return (
+  const { bang, onMo } = useContext(CtxDanhDau);
+  const khoa = doan.dc ? khoaDiaChi(doan.dc) : null;
+  const dd = khoa ? bang.get(khoa) : undefined;
+  const diem = doan.cap === "diem";
+
+  const doan_ = (
     <p
-      data-dia-chi={doan.dc ? khoaDiaChi(doan.dc) : undefined}
-      className={`${THAN} mt-2.5 ${doan.cap === "diem" ? "pl-7" : ""} ${className}`}
+      data-dia-chi={khoa ?? undefined}
+      className={`${THAN} mt-2.5 ${diem ? "pl-7" : ""} ${className}`}
     >
-      {children}
+      {dd ? <span className={MAU[dd.loai].highlight}>{children}</span> : children}
     </p>
+  );
+
+  if (!dd || !khoa) return doan_;
+
+  // Bấm chỗ nào trong khối cũng mở đối chiếu, kể cả huy hiệu và dòng gợi ý — đúng như thiết kế
+  // mô tả. Dùng div + role thay cho <button>: bên trong là cả một đoạn văn có thể chứa <strong>,
+  // <sup>…, mà nhét nội dung khối vào <button> là HTML không hợp lệ.
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      aria-label={`Xem đối chiếu ${doan.dc?.article ?? ""}`}
+      onClick={() => onMo(khoa)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onMo(khoa);
+        }
+      }}
+      className="relative cursor-pointer rounded-lg pr-2 transition-colors hover:bg-accent/5"
+    >
+      <HuyHieuLe dd={dd} />
+      {doan_}
+      <DongGoiY dd={dd} thutLe={diem} />
+    </div>
   );
 }
 
@@ -638,10 +723,13 @@ function ProvisionNodes({
   // Địa chỉ của phần văn bản đang bao quanh — Điều nào, và nếu đang trong một Khoản thì Khoản
   // nào. Nút Điểm không tự biết nó thuộc Khoản nào nên phải nhận từ trên xuống.
   ctx = { article: null, khoan: null, neoChuong: null },
+  locDieu = null,
   depth = 0,
 }: {
   nodes: Provision[];
   tacDong: Map<string, TacDongDonVi[]>;
+  /** Khác null ⇒ chỉ dựng những Điều có tên trong tập này (bộ lọc "chỉ điều bị tác động"). */
+  locDieu?: Set<string> | null;
   // `neoChuong` chảy xuống để một Mục biết nó nằm trong Chương nào: "Mục 1" lặp lại ở từng Chương
   // nên neo phải mang Chương cha, không thì hai Mục khác nhau trùng id.
   ctx?: { article: string | null; khoan: string | null; neoChuong: string | null };
@@ -685,6 +773,7 @@ function ProvisionNodes({
                 <ProvisionNodes
                   nodes={n.con}
                   tacDong={tacDong}
+                  locDieu={locDieu}
                   ctx={chuong ? { ...ctx, neoChuong: anchor } : ctx}
                   depth={depth + 1}
                 />
@@ -695,6 +784,7 @@ function ProvisionNodes({
 
         if (n.cap === "dieu") {
           const article = n.so ? `Điều ${n.so}` : null;
+          if (locDieu && (!article || !locDieu.has(article))) return null;
           const goc = article ? { article, khoan: null, diem: null } : null;
           return (
             <section
@@ -777,12 +867,14 @@ function ContentTab({
   doc,
   amendments,
   dong,
+  locDieu,
 }: {
   doc: DocumentDetail;
   amendments: Map<string, AmendmentInfo[]>;
   // Đường phẳng đã chuẩn bị sẵn ở trang: mục lục và phần render phải đọc cùng một danh sách,
   // nếu mỗi bên tự tính mốc Chương/Mục thì chỉ cần lệch một chỗ là bấm mục lục không nhảy.
   dong: DongPhang[];
+  locDieu: Set<string> | null;
 }) {
   // Tác động cấp khoản dựng TRƯỚC nhánh rẽ: cả đường cây lẫn đường phẳng đều cần nó.
   const theoDieu = new Map<string, TacDongDonVi[]>();
@@ -808,7 +900,7 @@ function ContentTab({
   // Có cây thì dựng toàn văn đúng phân cấp như bản gốc; chưa crawl lại thì vẫn dùng
   // danh sách Điều phẳng cũ, không để trang trống.
   if (doc.provisions && doc.provisions.length > 0) {
-    return <ProvisionNodes nodes={doc.provisions} tacDong={theoDieu} />;
+    return <ProvisionNodes nodes={doc.provisions} tacDong={theoDieu} locDieu={locDieu} />;
   }
 
   // Đường phẳng phải nói cùng một giọng với đường cây, nếu không cùng một trang lại đọc ra hai
@@ -816,6 +908,11 @@ function ContentTab({
   return (
     <div>
       {dong.map(({ a, neo: anchor, chuong, muc }) => {
+        // Đường phẳng không có `data-dia-chi` cấp khoản (cả Điều là một đoạn), nên đánh dấu nội
+        // dòng không đặt được ở đây; phần `TacDongDieu` bên dưới vẫn liệt kê đủ. Trong kho hiện
+        // tại không văn bản nào vừa đi đường phẳng vừa có tác động, nhưng bộ lọc thì vẫn phải
+        // hiểu cả hai đường.
+        if (locDieu && !locDieu.has(a.article)) return null;
         const hits = anchor ? amendments.get(anchor) ?? [] : [];
         const inactive = a.superseded || (a.valid_to !== null && a.valid_to <= new Date().toISOString().slice(0, 10));
         return (
