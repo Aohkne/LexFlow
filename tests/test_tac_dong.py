@@ -115,6 +115,49 @@ def test_canh_tu_dieu_khong_che_khoan():
     assert cb == []
 
 
+# Đúng hình dạng Điều 6 của 22/2026/TT-NHNN: điều cuối là mệnh lệnh thật, và `text` của nó
+# dính khối kết thúc văn bản — trong đó có dòng "- Như Điều 5;".
+_DIEU_CUOI_DINH_DUOI = (
+    "Điều khoản thi hành\n"
+    "1. Thông tư này có hiệu lực từ ngày 19 tháng 5 năm 2026.\n"
+    "2. Bãi bỏ Điều 16, Điều 17, Điều 18 Thông tư số 41/2025/TT-NHNN.\n"
+    "Nơi nhận:\n"
+    "- Như Điều 5;\n"
+    "- Ban lãnh đạo NHNN;\n"
+    "THỐNG ĐỐC\n"
+)
+
+
+def test_khoi_ket_van_ban_khong_de_ra_dich():
+    """"- Như Điều 5;" trong danh sách nơi nhận KHÔNG phải viện dẫn.
+
+    Đọc nó thành đích sinh ra cạnh bãi bỏ Điều 5 của văn bản nền — nói một điều còn hiệu lực
+    là đã bị bãi bỏ. Ca thật: 22/2026 Điều 6 Khoản 2 (issue #12).
+    """
+    canh, _ = canh_tu_dieu("Điều 6", _DIEU_CUOI_DINH_DUOI, 0,
+                           "22/2026/TT-NHNN", "40/2024/TT-NHNN", [], valid_from="2026-05-19")
+    assert [c.dich for c in canh] == [
+        "41/2025/TT-NHNN#than/dieu_16",
+        "41/2025/TT-NHNN#than/dieu_17",
+        "41/2025/TT-NHNN#than/dieu_18",
+    ]
+    # Chuỗi hiển thị cũng phải sạch: trình xem trưng nó ra làm "điều luật tác động".
+    assert all("Nơi nhận" not in c.menh_lenh for c in canh)
+
+
+def test_che_khoi_ket_giu_nguyen_do_dai():
+    """Thay bằng dấu cách chứ không cắt: `span_start`/`span_end` đọc offset trong chính chuỗi
+    này, cắt ngắn là lệch mọi span phía sau mà không có gì báo."""
+    from app.ontology.tac_dong import _che_khoi_ket
+
+    s = "1. Bãi bỏ Điều 16.\nNơi nhận:\n- Như Điều 5;\n"
+    ra = _che_khoi_ket(s)
+    assert len(ra) == len(s)
+    assert ra.startswith("1. Bãi bỏ Điều 16.\n")
+    assert "Điều 5" not in ra
+    assert _che_khoi_ket("1. Bãi bỏ Điều 16.") == "1. Bãi bỏ Điều 16."  # không có mốc ⇒ nguyên
+
+
 def test_sua_doi_thieu_khoi_trich_thi_canh_bao_khong_vut():
     canh, cb = canh_tu_dieu("Điều 2", "Sửa đổi khoản 3 Điều 9 như sau:", 0,
                             "41/2025/TT-NHNN", "40/2024/TT-NHNN", [], None)
