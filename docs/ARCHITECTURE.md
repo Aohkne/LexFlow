@@ -140,9 +140,37 @@ Không cấu hình Supabase → backend chạy **dev mode**: auth no-op (user gi
 Cấp quyền là thao tác tay, cố ý: chỉ service-role đặt được `app_metadata`, mà backend không
 giữ service-role key (xem docstring `app/core/appdb.py`).
 
-1. Supabase Dashboard → Authentication → Users → chọn user → Edit user
-2. App Metadata → `{"role": "admin"}` → Save
-3. **Đăng nhập lại** — JWT cũ vẫn mang role cũ tới lúc hết hạn
+Cách đã chạy thật trên production 10/08 — SQL Editor của Supabase (chạy dưới vai service-role):
 
-Không có bước 3 thì triệu chứng rất dễ đọc nhầm thành "migration hỏng": Dashboard hiển thị
-role đúng, mà `/admin` vẫn 403.
+```sql
+update auth.users
+set raw_app_meta_data = coalesce(raw_app_meta_data, '{}'::jsonb) || '{"role":"admin"}'::jsonb
+where email = '<email>';
+
+select email, raw_app_meta_data ->> 'role' as role from auth.users;
+```
+
+`raw_app_meta_data` là cột GoTrue dùng để dựng claim `app_metadata` lúc phát token. Dùng `||`
+chứ **không gán đè**, nếu không sẽ xoá mất `provider`/`providers` mà Supabase tự đặt ở đó.
+
+Đường "chính thống" hơn là Admin API (`auth.admin.updateUserById`) — nó ghi đúng cột này. Ô
+`App Metadata` trên giao diện Dashboard tuỳ phiên bản có thể không sửa được, nên đừng dựa vào.
+
+Rồi **đăng xuất và đăng nhập lại**. Bắt buộc: token hiện tại đã được ký với `role` cũ và giữ
+nguyên tới lúc hết hạn — sửa cột không hồi tố vào token đã phát. Thiếu bước này thì triệu
+chứng rất dễ đọc nhầm thành "migration hỏng": SQL nói `admin`, mà `/admin` vẫn 403.
+
+Kiểm nhanh sau khi đăng nhập lại, không cần mở DevTools: sidebar phải hiện mục **"Quản trị văn
+bản"** — web gate mục đó đúng bằng `app_metadata.role === "admin"`
+(`web/components/app-sidebar.tsx`).
+
+Kiểm nhánh dương của `is_admin()` ngay trong SQL Editor (SQL Editor không mang JWT người dùng
+nên `select public.is_admin()` trần luôn trả `false` — phải giả lập claim):
+
+```sql
+begin;
+set local role authenticated;
+set local request.jwt.claims = '{"app_metadata":{"role":"admin"}}';
+select public.is_admin();   -- kỳ vọng: true
+rollback;
+```
