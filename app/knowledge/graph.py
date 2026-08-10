@@ -193,6 +193,14 @@ def push_one_doc(
     phá bất biến của `app.ingestion.bac_cau` ("node rỗng = chưa văn bản nào nhận số hiệu này").
     `ingest_one_doc` phân loại và cảnh báo cho phần không quy được về đâu.
 
+    Hệ quả bậc hai của `dau_mut_that`, đã cân nhắc và chấp nhận: `_merge_doc` ghi cả `so_hieu`
+    của các văn bản đó lên node, nên `don_node_rong_da_co_toan_van()` chạy ngay sau đó có thể
+    khớp và xoá node rỗng **của văn bản khác** — việc lượt nạp một văn bản trước đây không làm.
+    Đó là dọn đúng (node rỗng ấy quả thật đã có toàn văn), và không cuốn theo `THUOC`:
+    `push_overlay` khớp văn bản bằng `doc_id_theo_corpus(so_hieu)`
+    (`app/ingestion/vbpl_corpus.py`), luôn trả mã kiểu `ND52-2024`, không bao giờ là
+    `52/2024/NĐ-CP` — thứ mà node rỗng dùng làm `doc_id`.
+
     Giới hạn đã biết:
 
     * Văn bản vừa duyệt mà lại có mặt trong artefact lớp phủ thì cạnh `THUOC` của nó chưa được
