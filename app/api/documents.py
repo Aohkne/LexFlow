@@ -1,7 +1,7 @@
 """Luồng duyệt văn bản (maker-checker):
 
 upload (PDF/HTML → Storage + extract → pending) → admin xem/sửa JSON →
-approve (merge corpus canonical trên Storage → re-ingest full) / reject.
+approve (merge corpus canonical trên Storage → nạp lại ĐÚNG văn bản đó) / reject.
 
 Corpus canonical: `legal-docs/corpus.json` trên Supabase Storage; nếu chưa có,
 khởi điểm từ `data/corpus.real.json` đóng gói trong image.
@@ -226,12 +226,30 @@ def approve_document(
 
     from app.ingestion.pipeline import kiem_doc_id
 
+    # `ingest_one_doc` kiểm lại y hệt, và đó là chủ ý: lời gọi ở đây là thứ biến lỗi thành
+    # 422 đọc được cho admin; lời gọi bên trong là thứ giữ bất biến cho mọi người gọi không
+    # đi qua API (CLI, script, test). Đừng gộp lại thành một.
     try:
         kiem_doc_id(doc.doc_id)
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
-    corpus = corpus_store.load_canonical(user.token)
+    # `strict=True`: đây là đọc-sửa-GHI. Fail-open ở đây nghĩa là đè bản corpus đóng gói
+    # trong image lên `corpus.json` thật, xoá mọi văn bản đã duyệt trước đó — im lặng.
+    try:
+        corpus = corpus_store.load_canonical(user.token, strict=True)
+    except Exception as exc:  # noqa: BLE001 — mọi lỗi đọc đều cùng một cách xử
+        appdb.log_audit(
+            user.token, user.id, action="doc_approve_failed",
+            detail={"doc_id": doc.doc_id, "buoc": "doc_canonical", "loi": str(exc)},
+        )
+        raise HTTPException(
+            status_code=502,
+            detail=(
+                f"Không đọc được corpus canonical trên Storage: {exc}. "
+                "Chưa thay đổi gì cả — bấm duyệt lại khi Storage trả lời được."
+            ),
+        ) from exc
     corpus["documents"] = [d for d in corpus.get("documents", []) if d.get("doc_id") != doc.doc_id]
     corpus["documents"].append(doc.model_dump())
     existing = {(r["source_doc"], r["target_doc"], r["rel_type"]) for r in corpus.get("relationships", [])}
@@ -252,14 +270,24 @@ def approve_document(
     try:
         n_chunks = ingest_one_doc(doc, rels, docs)
     except Exception as exc:  # noqa: BLE001 — mọi lỗi nạp đều cùng một cách xử
-        # Canonical trên Storage đã cập nhật, chỉ mục thì chưa. Thứ tự này là cố ý: thư viện
-        # thấy văn bản mà tra chưa ra thì chat đơn giản không trích dẫn nó — không có trích
-        # dẫn gãy. Đảo lại mới tệ: retrieval có văn bản mà trang xem trả 404.
+        # Canonical trên Storage đã cập nhật, còn bước nạp thì dừng GIỮA CHỪNG — không nói
+        # "chỉ mục thì chưa": lỗi có thể đến sau khi LanceDB đã ghi xong (Neo4j rớt chẳng
+        # hạn), lúc đó chỉ mục đã đổi một phần. Bấm lại vẫn an toàn vì cả `delete + add` lẫn
+        # upsert Storage đều lặp lại vô hại.
+        #
+        # Thứ tự Storage-trước là cố ý: thư viện thấy văn bản mà tra chưa ra thì chat đơn
+        # giản không trích dẫn nó — không có trích dẫn gãy. Đảo lại mới tệ: retrieval có văn
+        # bản mà trang xem trả 404.
+        appdb.log_audit(
+            user.token, user.id, action="doc_approve_failed",
+            detail={"doc_id": doc.doc_id, "buoc": "ingest", "loi": str(exc)},
+        )
         raise HTTPException(
             status_code=502,
             detail=(
-                f"Đã cập nhật corpus canonical nhưng chưa nạp được chỉ mục: {exc}. "
-                "Bấm duyệt lại văn bản này — thao tác lặp lại vô hại."
+                f"Đã cập nhật corpus canonical nhưng bước nạp chỉ mục dừng giữa chừng: {exc}. "
+                "Chỉ mục có thể đã đổi một phần. Bấm duyệt lại văn bản này — thao tác lặp lại "
+                "vô hại."
             ),
         ) from exc
 

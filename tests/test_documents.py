@@ -349,3 +349,42 @@ def test_approve_nap_hong_thi_502_va_giu_pending(client, fake_store, monkeypatch
     assert "duyệt lại" in r.json()["detail"]
     assert fake_store["rows"]["TT99-2026"]["status"] == "pending"
     assert "corpus.json" in fake_store["storage"], "canonical đã ghi — thông báo phải nói đúng thế"
+    # Lỗi mà không để lại dấu vết thì lượt duyệt hỏng biến mất khỏi lịch sử: bảng vẫn
+    # `pending`, `audit_log` không có gì, và không ai truy được là đã có người bấm.
+    assert "doc_approve_failed" in fake_store["audit"]
+
+
+def test_approve_khong_doc_duoc_canonical_thi_502_chu_khong_de_ban_dong_goi_len(
+    client, fake_store, monkeypatch
+):
+    """Đọc-sửa-GHI không được fail-open.
+
+    `load_canonical` nuốt lỗi Storage rồi rơi về `data/corpus.real.json` đóng gói trong image
+    — đúng cho đường ĐỌC (thà bản cũ còn hơn trắng trang), nhưng ở đây bản 26 văn bản ấy sẽ
+    được ghi đè lên `corpus.json` thật, xoá sạch mọi văn bản đã duyệt trước đó mà không một
+    dòng lỗi. Câu "bấm lại vô hại" chỉ đúng khi lượt đọc này trả canonical thật.
+    """
+    import json
+
+    goc = json.dumps(
+        {"documents": [{**_DOC, "doc_id": "ND00-2020", "title": "Đã duyệt hôm qua"}],
+         "relationships": []},
+        ensure_ascii=False,
+    ).encode("utf-8")
+    fake_store["storage"]["corpus.json"] = goc
+    fake_store["rows"]["TT99-2026"] = {"doc_id": "TT99-2026", "extracted": _DOC, "status": "pending"}
+
+    def boom(tok, path):
+        raise RuntimeError("Storage timeout")
+
+    monkeypatch.setattr(appdb, "download_storage", boom)
+
+    r = client.post(
+        "/documents/TT99-2026/approve",
+        headers={"Authorization": f"Bearer {_token('admin')}"},
+    )
+    assert r.status_code == 502, r.text
+    assert fake_store["storage"]["corpus.json"] == goc, "canonical thật không được đụng tới"
+    assert fake_store["rows"]["TT99-2026"]["status"] == "pending"
+    assert fake_store["ingested"] == 0, "chưa đọc được canonical thì không được nạp gì"
+    assert "doc_approve_failed" in fake_store["audit"]
