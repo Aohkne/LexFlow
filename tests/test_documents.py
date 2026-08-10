@@ -55,11 +55,13 @@ def fake_store(monkeypatch):
 
     import app.ingestion.pipeline as pipeline
 
-    def fake_ingest(docs, rels):
-        store["ingested"] = sum(len(d.articles) for d in docs)
+    def fake_ingest_one(doc, rels, tat_ca_docs):
+        store["ingested"] = len(doc.articles)
+        store["ingested_doc"] = doc.doc_id
+        store["ingested_tat_ca"] = [d.doc_id for d in tat_ca_docs]
         return store["ingested"]
 
-    monkeypatch.setattr(pipeline, "ingest_docs", fake_ingest)
+    monkeypatch.setattr(pipeline, "ingest_one_doc", fake_ingest_one)
     return store
 
 
@@ -104,7 +106,12 @@ def test_approve_merge_vao_canonical(client, fake_store, monkeypatch):
     assert corpus["relationships"][0]["rel_type"] == "DAN_CHIEU"
     assert fake_store["rows"]["TT99-2026"]["status"] == "approved"
     assert "doc_approve" in fake_store["audit"]
-    assert fake_store["ingested"] == 2  # re-ingest full: 2 văn bản × 1 điều
+    # Chỉ nạp lại VĂN BẢN VỪA DUYỆT, không nạp lại cả corpus — đây là điều phân biệt
+    # đường tăng dần với đường ghi đè. Văn bản cũ ND00-2020 vẫn nằm trong canonical
+    # (nên có mặt ở `ingested_tat_ca`) nhưng không bị embed lại.
+    assert fake_store["ingested"] == 1
+    assert fake_store["ingested_doc"] == "TT99-2026"
+    assert set(fake_store["ingested_tat_ca"]) == {"ND00-2020", "TT99-2026"}
 
 
 def test_approve_khong_co_extracted_bi_400(client, fake_store):
@@ -308,3 +315,37 @@ def test_approve_lam_moi_cache_doc(client, fake_store):
     r2 = client.get("/documents", headers={"Authorization": f"Bearer {_token('staff')}"})
     titles = {d["doc_id"]: d["title"] for d in r2.json()}
     assert titles["TT99-2026"] == "Đã sửa tên"  # cache đã invalidate sau approve
+
+
+def test_approve_doc_id_ban_bi_chan_truoc_khi_ghi_storage(client, fake_store):
+    """`doc_id` đi vào chuỗi điều kiện của `delete` — chặn ở cửa, và chặn TRƯỚC khi ghi."""
+    xau = {**_DOC, "doc_id": "TT99'; drop --"}
+    fake_store["rows"]["TT99-2026"] = {"doc_id": "TT99-2026", "extracted": xau, "status": "pending"}
+
+    r = client.post(
+        "/documents/TT99-2026/approve",
+        headers={"Authorization": f"Bearer {_token('admin')}"},
+    )
+    assert r.status_code == 422, r.text
+    assert "corpus.json" not in fake_store["storage"], "không được ghi canonical rồi mới từ chối"
+    assert fake_store["rows"]["TT99-2026"]["status"] == "pending"
+
+
+def test_approve_nap_hong_thi_502_va_giu_pending(client, fake_store, monkeypatch):
+    """Canonical đã ghi mà chỉ mục chưa — phải nói ra, và để status ở pending để bấm lại."""
+    import app.ingestion.pipeline as pipeline
+
+    def no(doc, rels, tat_ca_docs):
+        raise RuntimeError("LanceDB Cloud từ chối")
+
+    monkeypatch.setattr(pipeline, "ingest_one_doc", no)
+    fake_store["rows"]["TT99-2026"] = {"doc_id": "TT99-2026", "extracted": _DOC, "status": "pending"}
+
+    r = client.post(
+        "/documents/TT99-2026/approve",
+        headers={"Authorization": f"Bearer {_token('admin')}"},
+    )
+    assert r.status_code == 502, r.text
+    assert "duyệt lại" in r.json()["detail"]
+    assert fake_store["rows"]["TT99-2026"]["status"] == "pending"
+    assert "corpus.json" in fake_store["storage"], "canonical đã ghi — thông báo phải nói đúng thế"

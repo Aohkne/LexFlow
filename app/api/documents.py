@@ -224,6 +224,13 @@ def approve_document(
     except Exception as exc:  # noqa: BLE001
         raise HTTPException(status_code=422, detail=f"JSON không hợp lệ: {exc}") from exc
 
+    from app.ingestion.pipeline import kiem_doc_id
+
+    try:
+        kiem_doc_id(doc.doc_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
     corpus = corpus_store.load_canonical(user.token)
     corpus["documents"] = [d for d in corpus.get("documents", []) if d.get("doc_id") != doc.doc_id]
     corpus["documents"].append(doc.model_dump())
@@ -238,11 +245,23 @@ def approve_document(
     )
     corpus_store.invalidate_cache()
 
-    from app.ingestion.pipeline import build_change_events, ingest_docs
+    from app.ingestion.pipeline import build_change_events, ingest_one_doc
 
     docs = [CorpusDocument.model_validate(d) for d in corpus["documents"]]
     rels = [Relationship.model_validate(r) for r in corpus.get("relationships", [])]
-    n_chunks = ingest_docs(docs, rels)
+    try:
+        n_chunks = ingest_one_doc(doc, rels, docs)
+    except Exception as exc:  # noqa: BLE001 — mọi lỗi nạp đều cùng một cách xử
+        # Canonical trên Storage đã cập nhật, chỉ mục thì chưa. Thứ tự này là cố ý: thư viện
+        # thấy văn bản mà tra chưa ra thì chat đơn giản không trích dẫn nó — không có trích
+        # dẫn gãy. Đảo lại mới tệ: retrieval có văn bản mà trang xem trả 404.
+        raise HTTPException(
+            status_code=502,
+            detail=(
+                f"Đã cập nhật corpus canonical nhưng chưa nạp được chỉ mục: {exc}. "
+                "Bấm duyệt lại văn bản này — thao tác lặp lại vô hại."
+            ),
+        ) from exc
 
     appdb.update_document(
         user.token, doc.doc_id,
