@@ -307,6 +307,23 @@ def ingest_one_doc(
         tbl = db.create_table(LANCEDB_TABLE, data=rows)
         tbl.create_fts_index("text", replace=True, **_FTS_OPTS)
     print(f"[ingest] {doc.doc_id}: {len(rows)} chunk vào LanceDB (thay tại chỗ).")
+
+    if settings.neo4j_enabled:
+        from app.ingestion.bac_cau import quy_ve_doc_id
+        from app.knowledge.graph import push_one_doc
+
+        # Quy cạnh về `doc_id` trên TOÀN BỘ rels rồi mới lọc: cạnh đọc từ vbpl khoá bằng số
+        # hiệu, lọc trước khi quy là bỏ sót đúng những cạnh chưa được quy.
+        canh_tat_ca, rong_tat_ca, cb = quy_ve_doc_id(rels, tat_ca_docs)
+        for c in cb:
+            print(f"[ingest] cảnh báo: {c}")
+        canh = [c for c in canh_tat_ca if c.source_doc == doc.doc_id]
+        dich = {c.target_doc for c in canh}
+        rong = [v for v in rong_tat_ca if v.so_hieu in dich]
+        push_one_doc(doc, canh, rong)
+        print(f"[ingest] {doc.doc_id}: 1 node + {len(canh)} cạnh vào Neo4j (không xoá sạch).")
+    else:
+        print("[ingest] Bỏ qua Neo4j (chưa cấu hình NEO4J_URI/PASSWORD).")
     return len(rows)
 
 

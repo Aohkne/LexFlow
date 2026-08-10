@@ -119,3 +119,36 @@ def test_doc_id_ban_khong_phat_lenh_delete_nao(bang):
     with pytest.raises(ValueError):
         pipeline.ingest_one_doc(_doc("TT99'; --"), [], [])
     assert bang.deleted == [], "phải chặn TRƯỚC khi chạm bảng"
+
+
+def _gia_lap_graph(monkeypatch) -> list[str]:
+    """Ghi lại các bước chạm Neo4j, không gọi Aura thật."""
+    da_goi: list[str] = []
+    monkeypatch.setattr(pipeline.settings, "neo4j_uri", "neo4j+s://test")
+    monkeypatch.setattr(pipeline.settings, "neo4j_password", "test")
+    monkeypatch.setattr(
+        "app.knowledge.graph.push_one_doc", lambda *a, **k: da_goi.append("push_one_doc")
+    )
+    monkeypatch.setattr(
+        "app.knowledge.graph.push_corpus", lambda *a, **k: da_goi.append("push_corpus")
+    )
+    monkeypatch.setattr(
+        "app.knowledge.graph.push_overlay", lambda goi: (da_goi.append("push_overlay"), (0, 0))[1]
+    )
+    return da_goi
+
+
+def test_nap_mot_van_ban_khong_dung_toi_ca_do_thi(bang, monkeypatch):
+    da_goi = _gia_lap_graph(monkeypatch)
+    pipeline.ingest_one_doc(_doc("TT99-2026"), [], [_doc("TT99-2026")])
+    assert da_goi == ["push_one_doc"], (
+        "push_corpus mở đầu bằng DETACH DELETE toàn bộ Document — dùng nó ở đây là "
+        "xoá sạch 254 cạnh THUOC của lớp phủ để thêm một văn bản"
+    )
+
+
+def test_khong_phai_day_lai_lop_phu(bang, monkeypatch):
+    """Hệ quả tốt của việc không DETACH DELETE: THUOC là cạnh ĐI VÀO nên còn nguyên."""
+    da_goi = _gia_lap_graph(monkeypatch)
+    pipeline.ingest_one_doc(_doc("TT99-2026"), [], [_doc("TT99-2026")])
+    assert "push_overlay" not in da_goi

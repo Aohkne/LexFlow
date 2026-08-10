@@ -91,6 +91,53 @@ def ensure_constraints() -> None:
         )
 
 
+def _merge_doc(s, d: CorpusDocument) -> None:
+    s.run(
+        """
+        MERGE (n:Document {doc_id: $doc_id})
+        SET n.title=$title, n.doc_type=$doc_type, n.source=$source,
+            n.valid_from=$valid_from, n.valid_to=$valid_to,
+            n.so_hieu=$so_hieu, n.co_toan_van=true
+        """,
+        doc_id=d.doc_id, title=d.title, doc_type=d.doc_type,
+        source=d.source, valid_from=d.valid_from, valid_to=d.valid_to,
+        so_hieu=d.so_hieu,
+    )
+
+
+def _merge_rong(s, v: "VanBanRong") -> None:
+    # `co_toan_van=false` là thứ phân biệt DUY NHẤT, và nó phải nằm trên node chứ không suy
+    # từ "không có chunk": tầng truy hồi và tầng hiển thị đọc từ hai chỗ khác nhau, mà cả hai
+    # đều không được trích dẫn một văn bản chưa đọc.
+    s.run(
+        """
+        MERGE (n:Document {doc_id: $doc_id})
+        SET n.title=$title, n.doc_type=$doc_type, n.source='external',
+            n.so_hieu=$doc_id, n.co_toan_van=false
+        """,
+        doc_id=v.so_hieu, title=v.title or v.so_hieu,
+        doc_type=v.doc_type or "Chưa rõ",
+    )
+
+
+def _merge_canh(s, r: Relationship) -> None:
+    # Neo4j chỉ nhận property nguyên thủy → anchors mức điều lưu dạng JSON string
+    anchors_json = (
+        json.dumps([a.model_dump() for a in r.anchors], ensure_ascii=False)
+        if r.anchors else None
+    )
+    ma = _kiem_ma(r.rel_type)
+    s.run(
+        f"""
+        MATCH (a:Document {{doc_id: $src}}), (b:Document {{doc_id: $tgt}})
+        MERGE (a)-[e:{ma}]->(b)
+        SET e.rel_type=$rt, e.valid_from=$vf, e.note=$note, e.anchors=$anchors
+        """,
+        src=r.source_doc, tgt=r.target_doc, rt=ma,
+        vf=r.valid_from, note=r.note, anchors=anchors_json,
+    )
+
+
 def push_corpus(
     docs: list[CorpusDocument],
     rels: list[Relationship],
@@ -108,46 +155,44 @@ def push_corpus(
         # Xoá sạch để nạp lại (MVP)
         s.run("MATCH (d:Document) DETACH DELETE d")
         for d in docs:
-            s.run(
-                """
-                MERGE (n:Document {doc_id: $doc_id})
-                SET n.title=$title, n.doc_type=$doc_type, n.source=$source,
-                    n.valid_from=$valid_from, n.valid_to=$valid_to,
-                    n.so_hieu=$so_hieu, n.co_toan_van=true
-                """,
-                doc_id=d.doc_id, title=d.title, doc_type=d.doc_type,
-                source=d.source, valid_from=d.valid_from, valid_to=d.valid_to,
-                so_hieu=d.so_hieu,
-            )
+            _merge_doc(s, d)
         for v in rong or []:
-            # `co_toan_van=false` là thứ phân biệt DUY NHẤT, và nó phải nằm trên node chứ
-            # không suy từ "không có chunk": tầng truy hồi và tầng hiển thị đọc từ hai chỗ khác
-            # nhau, mà cả hai đều không được trích dẫn một văn bản chưa đọc.
-            s.run(
-                """
-                MERGE (n:Document {doc_id: $doc_id})
-                SET n.title=$title, n.doc_type=$doc_type, n.source='external',
-                    n.so_hieu=$doc_id, n.co_toan_van=false
-                """,
-                doc_id=v.so_hieu, title=v.title or v.so_hieu,
-                doc_type=v.doc_type or "Chưa rõ",
-            )
+            _merge_rong(s, v)
         for r in rels:
-            # Neo4j chỉ nhận property nguyên thủy → anchors mức điều lưu dạng JSON string
-            anchors_json = (
-                json.dumps([a.model_dump() for a in r.anchors], ensure_ascii=False)
-                if r.anchors else None
-            )
-            ma = _kiem_ma(r.rel_type)
-            s.run(
-                f"""
-                MATCH (a:Document {{doc_id: $src}}), (b:Document {{doc_id: $tgt}})
-                MERGE (a)-[e:{ma}]->(b)
-                SET e.rel_type=$rt, e.valid_from=$vf, e.note=$note, e.anchors=$anchors
-                """,
-                src=r.source_doc, tgt=r.target_doc, rt=ma,
-                vf=r.valid_from, note=r.note, anchors=anchors_json,
-            )
+            _merge_canh(s, r)
+
+
+def push_one_doc(
+    doc: CorpusDocument,
+    rels: list[Relationship],
+    rong: list[VanBanRong] | None = None,
+) -> None:
+    """Nạp lại MỘT văn bản mà không đụng phần còn lại của đồ thị.
+
+    Khác `push_corpus` ở đúng một chỗ, và chỗ đó có hậu quả lớn: **không**
+    `MATCH (d:Document) DETACH DELETE d`. `DETACH` xoá mọi cạnh chạm node, kể cả `THUOC` phát
+    từ `(:DonVi)` của lớp phủ — nên đường nạp toàn bộ buộc phải gọi lại `push_overlay` ngay
+    sau đó (xem `pipeline._noi_lai_lop_phu`). Ở đây chỉ thay các cạnh **đi ra** của đúng văn
+    bản này; `THUOC` là cạnh **đi vào** nên không bị đụng, và cái nợ ấy biến mất.
+
+    Cạnh đi VÀO từ văn bản khác cũng không đụng: chúng thuộc về văn bản kia, sẽ được thay khi
+    chính văn bản kia được duyệt lại.
+
+    Giới hạn đã biết: văn bản vừa duyệt mà lại có mặt trong artefact lớp phủ thì cạnh `THUOC`
+    của nó chưa được dựng — artefact sinh offline từ `data/raw/vbpl/raw/`, không có trong
+    image. Ca này chưa từng xảy ra; gặp thì chạy `push_overlay` một lượt.
+    """
+    ensure_constraints()
+    with session() as s:
+        _merge_doc(s, doc)
+        s.run(
+            "MATCH (a:Document {doc_id: $doc_id})-[r]->(:Document) DELETE r",
+            doc_id=doc.doc_id,
+        )
+        for v in rong or []:
+            _merge_rong(s, v)
+        for r in rels:
+            _merge_canh(s, r)
 
 
 def push_overlay(goi: "GoiLopPhu") -> tuple[int, int]:
