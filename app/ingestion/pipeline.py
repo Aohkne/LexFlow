@@ -258,6 +258,58 @@ def write_lancedb(rows: list[dict]) -> int:
     return len(rows)
 
 
+#: `doc_id` đi thẳng vào chuỗi điều kiện của `tbl.delete(...)`, mà nó đến từ JSON admin sửa
+#: được bằng tay — đây là biên tin cậy. Chặn bằng bộ ký tự cho phép chứ không thoát chuỗi:
+#: bộ này phủ đủ mọi `doc_id` đang có (`TT40-2024`, `ND101-2012`, nhóm nội bộ SHB) và từ
+#: chối phần còn lại, nên nó nói KHÔNG với thứ chưa từng thấy thay vì đoán cách xử.
+_DOC_ID_RE = re.compile(r"^[A-Za-z0-9._-]+\Z")
+
+
+def kiem_doc_id(doc_id: str) -> str:
+    if not _DOC_ID_RE.match(doc_id or ""):
+        raise ValueError(
+            f"doc_id không hợp lệ: {doc_id!r} — chỉ nhận chữ, số, dấu chấm, gạch dưới, gạch nối"
+        )
+    return doc_id
+
+
+def ingest_one_doc(
+    doc: CorpusDocument,
+    rels: list[Relationship],
+    tat_ca_docs: list[CorpusDocument],
+) -> int:
+    """Nạp lại ĐÚNG MỘT văn bản. Trả về số chunk của riêng nó.
+
+    Khác `ingest_docs` ở chỗ không đụng phần còn lại: `delete` theo `doc_id` rồi `add`, thay
+    vì `create_table(mode="overwrite")` ghi đè cả bảng đang phục vụ. Đo 10/08 trên LanceDB
+    Cloud: một vòng delete+add của 23 hàng mất 1,23s, embed 23 chunk mất 1,79s — so với ~52s
+    chỉ riêng phần embed nếu nạp lại toàn bộ 661 chunk.
+
+    Cái giá đã đo và chấp nhận: chỉ mục FTS mất ~13 giây mới thấy hàng mới (nó tự cập nhật,
+    không phải dựng lại). Nhánh vector thấy ngay, nên trong 13 giây đó truy hồi vẫn ra kết
+    quả, chỉ thiếu một nhánh.
+
+    `tat_ca_docs` là toàn bộ corpus sau khi đã gộp `doc` — cần cho `quy_ve_doc_id` dựng đủ
+    bảng số hiệu, chứ không phải để nạp.
+    """
+    kiem_doc_id(doc.doc_id)
+    rows = build_chunks([doc])
+    if not rows:
+        return 0
+    _embed_rows(rows)
+
+    db = vectordb.connect()
+    if LANCEDB_TABLE in db.list_tables():
+        tbl = db.open_table(LANCEDB_TABLE)
+        tbl.delete(f"doc_id = '{doc.doc_id}'")
+        tbl.add(rows)
+    else:
+        tbl = db.create_table(LANCEDB_TABLE, data=rows)
+        tbl.create_fts_index("text", replace=True, **_FTS_OPTS)
+    print(f"[ingest] {doc.doc_id}: {len(rows)} chunk vào LanceDB (thay tại chỗ).")
+    return len(rows)
+
+
 # Nhãn lấy từ `app.core.schemas.REL_TYPES` — nguồn sự thật DUY NHẤT cho 13 quan hệ.
 # Trước đây bảng này bị chép ở ba nơi nên sửa một chỗ không kéo theo hai chỗ kia.
 
