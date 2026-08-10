@@ -847,14 +847,15 @@ for cid in ['TT41-2025::Điều 10','TT41-2025::Điều 16']:
 # TT41-2025::Điều 10 -> nguyen_ven (cần text thật mới ra la_loi_sua — nhánh 3 nhận diện bằng CHỮ)
 # TT41-2025::Điều 16 -> bi_bai_bo
 
-# --- benchmark router ON/OFF (cần PYTHONPATH, và -u để thấy tiến độ) ---
-$env:PYTHONIOENCODING="utf-8"; $env:PYTHONPATH="."; uv run python -u eval/run_benchmark.py
+# --- benchmark router ON/OFF (-u để thấy tiến độ) ---
+$env:PYTHONIOENCODING="utf-8"; uv run python -u eval/run_benchmark.py
 # 36 câu, 0 lỗi; stale-avoidance 21/36 -> 36/36; router OFF|ON khác nhau 0/36; 8 hit được nắn
 ```
 
 **Đọc kỹ ba chỗ dễ hiểu sai trong bộ lệnh trên.** (1) `chu_thich_chunk` với `text` rỗng trả
 `nguyen_ven` cho `Điều 10` — không phải sai, vì nhánh 3 nhận diện bằng **chữ chứa nhau**; muốn
-thấy `la_loi_sua` phải truyền text thật của chunk. (2) `PYTHONPATH="."` là bắt buộc khi chạy
-`eval/run_benchmark.py` trực tiếp — thiếu nó ra `ModuleNotFoundError: No module named 'app'`.
+thấy `la_loi_sua` phải truyền text thật của chunk. (2) `PYTHONPATH="."` **không còn cần** từ
+10/08: `run_benchmark.py` tự nối gốc repo vào `sys.path`. Trước đó thiếu nó ra
+`ModuleNotFoundError: No module named 'app'`, mà README lại ghi lệnh không kèm biến này.
 (3) Deploy: **đừng** đọc exit code qua pipe (`gcloud … | grep | tail` trả mã thoát của `tail`);
 ghi thẳng ra log rồi bắt `$?`, và nghiệm thu bằng OpenAPI của bản đang phục vụ.

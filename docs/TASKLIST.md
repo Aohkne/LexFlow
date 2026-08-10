@@ -123,6 +123,73 @@ nhưng đó là trần độ phủ hiện tại. Muốn nâng thì phải **mở
   vector bắt được tên văn bản, nhánh BM25 không.
 - Chưa đo tác động — cần một bộ câu hỏi có số hiệu/thuật ngữ ghép để biết mất bao nhiêu.
 
+### [ ] T20 · Corpus phủ 4/37 văn bản mà bộ eval TVPL hỏi tới
+
+Đo 10/08 trên `data/evaluate/eval_filtered_clean.jsonl` (251 câu): chỉ **76 câu** dẫn toàn văn
+bản có trong corpus, 159 câu dẫn văn bản ngoài, 16 câu không dẫn gì. Đây là trần độ phủ thật của
+corpus khi gặp câu hỏi do người ngoài soạn — số 76 kia không phải "bộ eval nhỏ", mà là corpus hẹp.
+
+Nạp thêm văn bản mở khoá được bao nhiêu (tính tham lam, `scratchpad/phu.py` dựng lại được):
+
+| thêm | +câu | cộng dồn |
+|---|---|---|
+| `09/2020/TT-NHNN` — an toàn bảo mật giao dịch ngân hàng điện tử | +51 | 127 (51%) |
+| `34/2012/TT-NHNN` | +21 | 148 (59%) |
+| `37/2016/TT-NHNN` | +18 | 166 (66%) |
+| `88/2019/NĐ-CP` — xử phạt VPHC lĩnh vực tiền tệ | +11 | 177 (71%) |
+
+Bước đầu: crawl `09/2020/TT-NHNN` từ vbpl.vn (một văn bản, +51 câu — lãi nhất theo xa), kiểm
+hiệu lực và quan hệ thay thế của nó, rồi chạy lại `eval/chuyen_tvpl.py`. Ba văn bản còn lại làm
+sau nếu bảng đo cho thấy mẫu 76 câu chưa đủ phân biệt.
+
+---
+
+## Khoảng cách với bài báo SBV-LawGraph (mở 10/08)
+
+> Đối chiếu `docs/paper/ACIIDS2026a.pdf` với code hiện có. Tầng **đo lường** đã làm xong
+> (`eval/metrics.py`, `docs/EVAL-IR.md`); bốn mục dưới đây là phần **retrieval/generation** của
+> bài báo mà LexFlow chưa có. Cả bốn đều cố ý hoãn: chưa có thước đo thì không chứng minh được
+> thay đổi nào là cải thiện. Làm chúng **sau** khi bộ câu hỏi gán nhãn đầy đủ về tới nơi.
+
+### [ ] T16 · Cross-encoder rerank sau RRF
+
+Bài báo (§4.3) xếp lại top-k bằng ViRanker + `bge-reranker-v2-m3`; `docs/RAG-DESIGN.md:116` chốt
+"không reranker cross-encoder ở quy mô này" — quyết định lấy từ hồi corpus 15 văn bản.
+
+- Bước đầu: đo cột `lexflow` hiện tại ở R@1 vs R@5. Chênh lệch lớn = thứ hạng đang kém và rerank
+  có chỗ để cải thiện; chênh lệch nhỏ = rerank chỉ tốn thêm một lượt gọi API.
+- Chủ repo đã chốt dùng **cloud/API** (Gemini hoặc rerank API), không tải model HF về máy yếu.
+
+### [ ] T17 · Ngưỡng điểm τ + fallback "không đủ căn cứ"
+
+Bài báo lọc `Score(d) ≥ τ` (cosine 0.9) TRƯỚC generation, rỗng thì trả "Unknown Answer".
+`answer.py` chỉ trả `_NOT_FOUND` khi retrieval **rỗng hoàn toàn** — tức là một chunk lạc đề vẫn
+đủ để hệ nói tiếp.
+
+- Bước đầu: cho `_rrf` trả kèm điểm (`_rrf_score`) mà **không** đổi thứ tự xếp hạng, rồi sweep τ
+  trên bộ eval để xem ngưỡng nào cắt được câu lạc đề mà không cắt nhầm câu đúng.
+
+### [ ] T18 · Nhận diện viện dẫn trong CÂU HỎI → anchor đồ thị
+
+Bài báo (§4.3, SBV-RR) chạy NER trên câu hỏi để bắt "Thông tư 23/2025/TT-NHNN" làm điểm neo cho
+Cypher. LexFlow **đã có parser viện dẫn đầy đủ** (`app/ontology/citation.py:121`,
+`parse_citations` + `to_node_ids`) nhưng chỉ dùng lúc ingest (`classify.py`, `tac_dong.py`,
+`extractor.py`) — đường hỏi đáp không gọi nó lần nào.
+
+- Hệ quả: hỏi thẳng "Điều 12 Thông tư 40/2024 quy định gì" vẫn phải đi qua tìm kiếm ngữ nghĩa,
+  trong khi câu trả lời là một phép tra khoá.
+- Bước đầu: trong `answer._prepare`, gọi `parse_citations(req.query)`; có viện dẫn tường minh thì
+  lấy chunk theo `lay_chunk_theo_tien_to` trước, hybrid search chỉ để bổ sung. Đúng nhánh
+  "GRAPH LOOKUP trực tiếp" mà `docs/RAG-DESIGN.md:37` đã thiết kế mà chưa cài.
+
+### [ ] T19 · Hậu kiểm câu trả lời: `HasCitations` / `EvidenceMismatch`
+
+Bài báo (Algorithm 2, dòng 20–21) kiểm SAU khi sinh: không có trích dẫn, hoặc trích dẫn không khớp
+bằng chứng ⇒ từ chối trả lời. LexFlow chỉ **dặn** trong system prompt (`answer.py:16`), không verify.
+
+- Bước đầu: `HasCitations` là phép rẻ nhất — regex `\[.+—.+\]` trên câu trả lời, không khớp thì
+  đánh dấu. Đo tỷ lệ rớt trên bộ eval trước, rồi mới quyết có chặn hay chỉ cảnh báo.
+
 ---
 
 ## Nợ kỹ thuật (parked từ review P4, 06/08)
@@ -171,6 +238,12 @@ quyết** viết lại thế nào.
 ### [ ] T14 · Bộ câu hỏi eval cấp khoản (backlog #19)
 
 Chủ repo tự chuẩn bị — đã nói rõ 07/08: "về bộ câu hỏi thì tôi sẽ chuẩn bị riêng".
+
+**10/08**: bộ curate từ thuvienphapluat.vn đã về (`data/evaluate/`, 251 câu, có nhãn cấp điều),
+chuyển sang định dạng eval bằng `eval/chuyen_tvpl.py` → 76 câu dùng được, xem `docs/EVAL-IR.md` §6.
+Còn thiếu để đóng T14: câu hỏi cấp **khoản** (bộ TVPL chỉ tới cấp điều), và câu có **nhiều hơn
+một** căn cứ — 73/76 câu hiện chỉ dẫn một văn bản, nên `|R| = 1` và recall vẫn chưa phân biệt được
+các cột. Mở corpus (T20) không sửa được chỗ này; nó là tính chất của cách TVPL viết bài.
 
 ---
 

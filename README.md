@@ -108,8 +108,21 @@ Xem `docs/ARCHITECTURE.md` § Topology.
 So sánh RAG vector thuần vs Hybrid + Versioning + Conflict:
 ```bash
 uv run python eval/run_benchmark.py
+uv run python eval/run_benchmark.py --bo eval/bo_cua_ban.jsonl   # thêm bộ câu hỏi khác
 ```
-Đo: độ chính xác trích dẫn, tỷ lệ tránh văn bản hết hiệu lực, tỷ lệ phát hiện mâu thuẫn.
+Đo hai tầng:
+
+- **Sản phẩm**: độ chính xác trích dẫn, tỷ lệ tránh văn bản hết hiệu lực, tỷ lệ phát hiện mâu thuẫn.
+- **Truy hồi (IR)**: R@{1,2,5,10,20}, P@k, MRR@k, F2@k cho 6 cột — BM25 · Naive RAG · Advanced RAG
+  (tái lập baseline của bài báo SBV-LawGraph) và LexFlow hybrid · +graph · +router. Cách đo, định
+  dạng nhãn vàng và các cảnh báo khi đọc số: `docs/EVAL-IR.md`.
+
+**Đo theo thời điểm** — cùng một câu hỏi, đổi `as_of` thì nhãn vàng đổi theo:
+```bash
+uv run python eval/chuyen_tvpl.py        # data/evaluate/ → 2 bộ (đúng-thời / hiện-nay)
+uv run python -u eval/run_benchmark.py --bo eval/bo_tvpl_dung_thoi.jsonl --bo eval/bo_tvpl_hien_nay.jsonl
+```
+Ba cột baseline không có khái niệm `as_of` nên trả cùng kết quả ở cả hai bộ — xem `docs/EVAL-IR.md` §6.
 
 ## Định dạng corpus
 
