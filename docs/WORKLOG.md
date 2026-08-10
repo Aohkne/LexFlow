@@ -6,7 +6,7 @@
 
 ---
 
-## 2026-08-10 (CN) — dữ liệu đang phục vụ đã mang bản vá; mã và dữ liệu khớp nhau
+## 2026-08-10 (CN) — mã, dữ liệu và đồ thị khớp nhau; và một cạnh tác động không có thật
 
 - **Done (T2 — id chunk phải định danh đúng một chunk).** `TT23-2019 Điều 1` là điều *sửa đổi*
   dài 55.902 ký tự, chép nguyên văn nhiều điều của TT39-2014 nên số khoản **khởi động lại
@@ -45,11 +45,57 @@
 - **Đính chính.** Ghi chép 09/08 đoán "sửa T2 thì T3 tan theo" — **sai**. T2 chỉ đổi nhãn,
   không chẻ nhỏ thêm; chunk quá cỡ vẫn còn, mang tên mới `TT23-2019::Điều 1 Khoản 6 (2)`
   (9.750 ký tự, mất ~2.594). Muốn hết phải chẻ *bên trong* một khoản ⇒ thêm một lượt re-ingest.
+- **Done (T8 — BM25 chấm cụm, không chỉ chấm túi-từ).** Chỉ mục cũ dựng bằng **mặc định tiếng
+  Anh** (stemmer Snowball + stop-word Anh, mà `ascii_folding` bỏ dấu *trước* khi lọc nên từ
+  Việt rơi đúng vào danh sách đó) và **không lưu vị trí token** nên không truy vấn cụm nào khả
+  thi. Nay `PhraseQuery` đứng cạnh `MatchQuery` ở mức `SHOULD`: precision@10 của riêng nhánh
+  BM25 đi từ **8,4 → 9,9/10** trên 14 cụm có thật trong corpus. Dựng lại chỉ mục **không
+  embedding lại chunk nào**. Rev `lexflow-api-00022-242`. Giới hạn đã ghi rõ: mọi endpoint chạm
+  truy hồi đều đòi đăng nhập nên chưa chứng minh được bằng một lượt truy vấn thật qua
+  production — mở **T19** cho khoảng mù đó.
+
+### Nhánh software
+
+- **Done (cạnh tác động GIẢ — 178 → 177).** Span mệnh lệnh của khoản cuối chạy tới hết văn bản
+  nên nuốt luôn **khối kết** (`Nơi nhận:` + chữ ký); dòng `- Như Điều 5;` trong danh sách nơi
+  nhận bị đọc thành trích dẫn, đẻ ra một cạnh `bai_bo` **không hề tồn tại**:
+  `22/2026/TT-NHNN Điều 6 khoản 2 → 40/2024/TT-NHNN Điều 5`. Vá bằng `_che_khoi_ket`: **che
+  khối kết bằng dấu cách chứ không cắt**, vì `char_span` tính theo offset tuyệt đối — cắt là
+  lệch mọi span phía sau. Bỏ đúng 1 cạnh, không thêm cạnh nào, 142 cạnh có chữ giữ nguyên.
+- **Done (đẩy lại lớp phủ lên Neo4j).** Đây là bước dễ bỏ sót nhất: `push_overlay` **toàn
+  `MERGE`** nên nó chỉ THÊM — chạy lại một mình sẽ để nguyên cạnh giả và không ai biết. Nên đo
+  trước: đồ thị **178 cạnh / 293 nút / 255 THUOC** so với artefact **177 / 292**, thừa đúng 1
+  cạnh và 1 nút, thiếu 0. `DETACH DELETE` nút thừa gỡ 2 quan hệ chạm nó (cạnh `TAC_DONG` giả +
+  cạnh `THUOC` của nó), rồi đẩy lại. Sau: **177 / 292 / 254**, so lại hai chiều đều bằng 0.
+- **Done (trình xem toàn văn).** Thanh định vị dính đầu trang + mục lục mở khi cần + chỉnh cỡ
+  chữ và độ rộng cột. Neo mục lục phải mang tên chương cha vì "Mục 1" lặp lại ở mỗi chương —
+  kiểm trên cả 22 file corpus: không neo nào trùng, không Điều nào sót.
+- **Done (giao diện điều bị tác động).** Mỗi tác động chỉ hiện **một lần**, và dấu cấp điều neo
+  vào **tiêu đề Điều** chứ không vào đoạn dẫn — đo ra **10/16** tác động cấp điều rơi vào Điều
+  không hề có đoạn dẫn, để ở đoạn dẫn là mất hơn nửa. Bảng đối chiếu tra ra nguyên văn 86/104
+  đơn vị; 16 trong 18 còn lại là `bo_sung` nên vốn chưa tồn tại trong bản gốc, 2 ca cuối là
+  khuyết tật nguồn → **T16**.
+- **Done (T16 — ghi sổ khuyết tật nguồn, không tự đoán).** Hai đơn vị mất/lệch nút vì vbpl.vn
+  phát `<p>` layout Tailwind thay vì `prov-*` — **soi DOM xác nhận**, không suy từ JSON đã
+  parse. Chữ không mất, chỉ mất nhãn ngữ nghĩa. Thêm `check_unit_sequence` bắt được ca "tổng số
+  Điểm vẫn đúng nhưng treo nhầm cha" mà phép đếm tổng mù hoàn toàn: chạy trên 14 văn bản ra 3
+  cảnh báo, đều thuộc TT15-2024, 13 văn bản còn lại sạch. **Không vá bằng cách đoán** — chính
+  nguồn đang tự mâu thuẫn, suy nút từ tiền tố là chuẩn hoá ngầm mà dự án cấm.
+- **Ship.** PR **#13** (`1584502`, `8d2af3c`, `5be4aea`) và PR **#14** (`1d4aa87`) đã merge; ba
+  commit dọn dẹp `40d7d0a`/`59fd303`/`be97441`.
+- **Decision (quy ước push).** Track AI thôi đẩy thẳng vào `main`; **mỗi track một nhánh, một
+  worktree, và `main` chỉ nhận qua PR**. Lý do là sự cố có thật chứ không phải nguyên tắc suông:
+  `main` nhận thêm commit trong lúc PR #11 đang mở, PR merge mà thiếu phần push sau đó, hai
+  commit mắc lại tới khi tình cờ phát hiện. Dựng worktree `../LexFlow-ai` (736 test xanh) và ghi
+  luôn vào `COMMIT-CONVENTION.md` thủ tục git không mang theo được: `.env`, `uv sync`, và
+  **junction** trỏ `data/raw/vbpl/raw/` về một checkout duy nhất — riêng cái junction un-skip 52
+  test vốn đang bị bỏ qua.
 - **Next.** (1) Không còn mục nào chặn. (2) **T5** là rủi ro lớn nhất còn lại cho kỳ đánh giá:
   luồng duyệt văn bản qua `/admin` **chưa từng chạy thật** trên production (bucket `legal-docs`
-  rỗng, `legal_documents` rỗng), mà đó là tính năng sẽ được nhìn. (3) `docs/ARCHITECTURE.md`
-  không hề nhắc tới lớp phủ — cả một tầng kiến trúc đã lên sản phẩm mà tài liệu kiến trúc
-  không biết.
+  rỗng, `legal_documents` rỗng), mà đó là tính năng sẽ được nhìn. (3) **T19** — không có cách
+  nghiệm thu nhánh truy hồi trên production mà không cần đăng nhập; đúng khoảng mù mà T9 đã bịt
+  cho lớp phủ, chỉ khác tầng. (4) `docs/ARCHITECTURE.md` không hề nhắc tới lớp phủ — cả một tầng
+  kiến trúc đã lên sản phẩm mà tài liệu kiến trúc không biết.
 
 ---
 
