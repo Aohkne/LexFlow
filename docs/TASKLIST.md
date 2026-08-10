@@ -13,47 +13,21 @@
 
 ## Chặn — cần người quyết trước khi làm
 
-### [ ] T1 · Re-ingest LanceDB để bản vá chunking tới production
+### [ ] T17 · Deploy để mã khớp với dữ liệu vừa nạp
 
-Commit `8dd53f0` (09/08) sửa nhánh chẻ dự phòng, nhưng **LanceDB Cloud vẫn giữ 3 chunk cũ**
-của `TT66-2025 Điều 6` — bản cắt giữa chữ "ngân" thành `ngâ` + `n`.
+Sau lượt re-ingest 10/08, LanceDB có **10 nhãn mang hậu tố phân biệt** (`Điều 1 Khoản 2 (2)`…),
+tất cả thuộc TT23-2019. Nhưng revision đang phục vụ (`00020-2c7`) chạy mã **trước** commit
+`3219fba`, nên `khoa_tu_chunk_id` chưa biết bóc hậu tố ⇒ 10 chunk đó trả `None` và rớt khỏi mọi
+cạnh tác động **trong im lặng**.
 
-- Vì sao quan trọng: điều này nằm trên đường nóng của lớp phủ (cạnh
-  `66/2025/TT-NHNN#than/dieu_6 → 34/2024/TT-NHNN#than/dieu_9#khoan_2#diem_đ`), nên chữ kéo
-  vào prompt hiện mở đầu bằng nửa câu.
-- Giá phải trả: `write_lancedb` **embed lại toàn bộ 661 chunk** rồi
-  `create_table(mode="overwrite")` — không có đường cập nhật 3 hàng riêng lẻ. Tức là tốn
-  embedding cho cả bảng và ghi đè bảng đang phục vụ.
-- Bước đầu: gộp luôn với **T2** trong cùng một lượt, rồi
-  `uv run python -m app.ingestion data/corpus.real.json`.
-- **Chờ duyệt** (ghi lên cloud).
+- Tác hại thực tế ~0: cả 10 thuộc TT23-2019, đã hết hiệu lực nên bị lọc khỏi truy hồi mặc định.
+- Nhưng đây là **lệch giữa mã và dữ liệu** — đúng loại nợ sinh ra lỗi khó hiểu về sau.
+- Bước đầu: `gcloud run deploy lexflow-api --source . --region asia-southeast1` (chủ repo chạy
+  — lớp phân loại quyền chặn AI gọi lệnh này), rồi nghiệm thu `/health` trên revision mới.
 
 ---
 
 ## Chất lượng dữ liệu
-
-### [ ] T2 · Trùng id chunk ở TT23-2019 — 5 id / 7 hàng
-
-Đo 09/08 trên `data/corpus.real.json`:
-
-```
-TT23-2019::Điều 1 Khoản 2    x3   ← ba chunk KHÁC NHAU, cùng một id
-TT23-2019::Điều 1 Khoản 6    x3
-TT23-2019::Điều 1 Khoản 1    x2
-TT23-2019::Điều 1 Khoản 3-4  x2
-TT23-2019::Điều 1 Khoản 5    x2
-```
-
-- Nguyên nhân: TT23-2019 là văn bản **sửa đổi**, cả Điều 1 (55.902 ký tự → 27 mảnh) chép lại
-  nguyên văn nhiều điều của TT39-2014, nên số khoản **khởi động lại nhiều lần** trong cùng
-  một điều. Kèm 6 nhãn vô nghĩa kiểu `Khoản 18-1`, `Khoản 11-7` (số đầu > số cuối).
-- Vì sao quan trọng: `_rrf()` gom kết quả vào `dict` khoá bằng `row["id"]` — hai chunk trùng
-  id cùng lọt vào pool thì **một cái bị nuốt**, và trích dẫn trỏ tới một địa chỉ có ba nội
-  dung khác nhau. Hiện chưa gây hại thấy được vì TT23-2019 đã hết hiệu lực
-  (`valid_to = 2024-07-17`) nên bị lọc ra; sẽ nổ ngay khi có văn bản sửa đổi **còn hiệu lực**
-  cấu trúc tương tự.
-- Bước đầu: trong `pipeline._split_khoan`, nhãn đã tồn tại trong cùng doc thì thêm hậu tố thứ
-  tự (`Điều 1 Khoản 2 (2)`); giữ nguyên ngưỡng và luật chẻ. Test ghim đúng ca TT23-2019.
 
 ### [x] T3 · Gemini có cắt đuôi chunk dài không — ĐÃ ĐO 09/08
 
@@ -74,8 +48,12 @@ chunk MẤT ĐUÔI      1/661
 - Kết luận: `_MAX_CHUNK = 2000` là lựa chọn về **độ chính xác retrieval**, không phải ràng
   buộc của API — còn cách trần thật hơn ba lần. 97 chunk vượt ngưỡng chẻ vẫn vào vector trọn vẹn.
 - Chunk duy nhất mất đuôi thuộc TT23-2019, văn bản **đã hết hiệu lực** (`valid_to = 2024-07-17`)
-  nên bị lọc khỏi mọi đường truy hồi mặc định ⇒ tác hại hôm nay bằng 0. Cũng chính là văn bản
-  của **T2** — sửa T2 (chẻ Điều 1 dài 55.902 ký tự) thì mục này tan theo.
+  nên bị lọc khỏi mọi đường truy hồi mặc định ⇒ tác hại hôm nay bằng 0.
+- **Sửa 10/08:** bản ghi trước đó đoán "sửa T2 thì mục này tan theo" — **sai**. T2 chỉ đổi
+  NHÃN, không chẻ nhỏ thêm; đo lại sau T2 thì chunk quá cỡ vẫn còn, chỉ mang tên mới
+  `TT23-2019::Điều 1 Khoản 6 (2)` (9.750 ký tự, mất ~2.594). Muốn hết thì phải chẻ **bên
+  trong một khoản** — nhánh gộp hiện chỉ ngắt *giữa* các khoản — và việc đó đổi nhãn chunk nên
+  kéo theo một lượt re-ingest nữa.
 - Đo lại khi đổi model embedding hoặc khi nạp văn bản mới có khoản dài bất thường.
 
 ### [ ] T4 · 8 văn bản ngoài chưa có bảng thuộc tính
@@ -187,8 +165,19 @@ Chủ repo tự chuẩn bị — đã nói rõ 07/08: "về bộ câu hỏi thì
   tới trang trống. `tach_khoa` nay tra bảng, không có thì trả `None`. Không đổi một ký tự nào
   trong response hôm nay (mọi `nguon` đều có trong bảng). Ba chỗ còn lại → **T15** + dây bẫy.
   Commit `27abe0d`.
+- **10/08 · T1 + T2** — Re-ingest mang cả hai bản vá chunking sang dữ liệu đang phục vụ.
+  LanceDB: **661 hàng / 661 id phân biệt** (trước: 654 id, 7 hàng đụng nhau). Neo4j về đúng số
+  cũ: 26 Document · 293 DonVi · 255 THUOC · 178 TAC_DONG · 35 cạnh văn bản. Nghiệm thu trên
+  chính dữ liệu đang phục vụ: `TT66-2025 Điều 6` hết cắt giữa từ; bốn chunk từng đụng id lộ ra
+  là **bốn điều khoản khác hẳn nhau** (thông tin khách hàng · hạn mức BTĐT · quyền và trách
+  nhiệm ngân hàng hợp tác) — va chạm cũ đúng là có hại; hybrid search trả 4 hit bình thường
+  nên chỉ mục FTS sống sót qua lượt ghi đè. Commit `3219fba`.
+  **Hai chuyện phát sinh, đều đã xử:** `ingest_docs` không gọi lại `push_overlay` sau
+  `push_corpus` (mất 255 cạnh `THUOC` trong im lặng) — nay nối vào đường ingest kèm test;
+  `push_overlay` chạy ~764 round-trip lẻ nên Aura rớt giữa chừng ở 221/255 — nay gộp lô bằng
+  `UNWIND`, commit `f3ccf2f`.
 - **09/08 · T3** — Đo được ngưỡng cắt embedding ~7.156 ký tự, chỉ 1/661 chunk vượt. Chi tiết ở
-  mục T3 phía trên. Commit `83ac6dd`.
+  mục T3 phía trên (kèm một đính chính 10/08). Commit `83ac6dd`.
 - **09/08** — Nhánh chẻ dự phòng cắt giữa từ. `TT66-2025 Điều 6` bị cắt ngay giữa chữ "ngân"
   (`ngâ` + `n`); vá bằng lưới ranh giới dòng/câu + thang bậc điểm → tiểu mục → gạch đầu dòng.
   651/654 chunk id giữ nguyên từng byte. Commit `8dd53f0`, 7 test mới, CI xanh. **Dữ liệu
