@@ -167,6 +167,51 @@ Chữ ký `RemoteTable.create_index` **không có tham số cột** rõ ràng ch
   luôn `table_names()` → `list_tables()` vì thấy cùng là deprecated — hai cái không cùng số
   phận trên deployment này.
 
+### [ ] T26 · Tầng chuẩn tắc (CU / meta-CU / premise) có thật nhưng không nối vào đâu cả
+
+Soi 10/08 để trả lời câu "knowledge base có thành phần nào trích premise / Compliance Unit
+không". **Có** — `app/ontology/` là một bộ trích đầy đủ theo GraphCompliance, ánh xạ sang
+tên node đã thiết kế ở KG v0.5 §10.2. `app/ontology/schema.py` định nghĩa `ActorCU:310`
+(⟨S⟩ bắt buộc · ⟨A⟩ · `logic` · `conditions[]`), `MetaCU:333` (`gates[]` · `dieu_kien_cong`
+· `menh_de`), `PremiseRecord:242`, `KhaiNiem:267`, `Gate:179`, `DieuKienCong:213`,
+`ConditionItem:154`, `GuardApDung:114`, `Grounding:89`. Kèm `classify.py` (phân 3 vai, tất
+định, không gọi LLM), `modality.py` (từ điển tình thái), `segmenter.py`, `extractor.py`.
+
+**Nhưng nó không nằm trong KB, theo cả ba nghĩa** — ghi ra đây để người sau khỏi grep lại:
+
+- **Không ở LanceDB.** Hàng chunk có đúng 10 cột + `vector` (`app/ingestion/pipeline.py:204-217`),
+  không cột nào mang CU.
+- **Không ở Neo4j.** Chỉ hai nhãn `:Document` và `:DonVi` (`app/knowledge/graph.py:86,90`).
+  `NghiaVu`/`ChuThe`/`NgoaiLe` đã thiết kế rồi **hoãn có chủ đích** (KG v0.5 §10.2).
+- **Không ở đường phục vụ.** Không file nào trong `app/api/` hay `app/reasoning/` import
+  `extractor`/`classify`/`roles`/`schema`/`modality`/`segmenter`. `review.py:136` và
+  `conflict.py:80` đều nối `text` thô rồi ném thẳng cho LLM, một nhịp. Phần duy nhất của
+  `app/ontology/` chạm production là chuỗi lớp phủ (`tac_dong`/`hien_hanh`/`dinh_tuyen`/
+  `dong_goi`) — tầng **thời hiệu**, không phải tầng chuẩn tắc.
+
+Đường chạy hiện tại là CLI ngoại tuyến `python -m app.ontology` → `eval/ontology/*.jsonl`.
+
+**Độ phủ đo 10/08:** `pred.jsonl` **49 CU** (40 actor + 9 meta) trên **12 Điều / 4 văn bản**;
+`premise.jsonl` 45 (dinh_nghia 36 · vai_tro 7 · pham_vi 2) và `khainiem.jsonl` 36, cả hai chỉ
+2 văn bản. Một trong bốn văn bản — `52/2024/NĐ-CP` — **không có trong corpus**, nên so với
+corpus (26 văn bản / 425 Điều / 661 chunk) tầng chuẩn tắc phủ **8/425 Điều ≈ 1,9 %**.
+`docs/ONTOLOGY-FOR-MENTOR.md:220` ghi thẳng chỗ yếu nhất: **0/94 nhãn người gán**.
+
+**Lỗ hổng schema — ghi kèm vì nó quyết định THỨ TỰ làm.** `ActorCU` không có ô tình thái
+(`must`/`must_not`/`may`): `modality.py` có từ điển deontic đủ nhưng chỉ dùng làm hàng rào
+chống bịa và làm căn cứ phân vai. Và **không có ô ngưỡng/số ở bất cứ đâu** —
+`MODALITY["dinh_luong"]` chỉ là danh sách từ khoá, `Delta.added_numbers` là guard
+hallucination. Trong khi **cả 5 cặp vàng ở `eval/mau_thuan_vang.jsonl` đều là số chọi số**
+(200↔100 triệu · 20↔5 triệu · 14↔15 tuổi) và **T24** đang hỏng đúng ở một cặp số. ⇒ Mở rộng
+độ phủ CU trước khi có ô số thì không cải thiện được phán định: **schema trước, độ phủ sau**.
+
+- **Bước đầu tiên: chưa mở.** Ba hướng đã cân nhắc 10/08, chủ repo hoãn cả ba — (a) thêm ô
+  ngưỡng + tình thái vào `ActorCU`; (b) mở rộng độ phủ lên 425 Điều (tốn LLM, phải ước trước);
+  (c) nối CU vào `review.py`/`conflict.py` (chỉ 8/425 Điều có CU nên phải chạy song song hai
+  đường một thời gian).
+- Mở lại khi có **nhãn người gán** — câu hỏi #1 gửi mentor ở `ONTOLOGY-FOR-MENTOR.md:230`.
+  Không có nhãn thì mọi cải tiến ở tầng này vẫn là máy tự chấm máy.
+
 ---
 
 ## Chất lượng phán định tuân thủ
@@ -186,6 +231,8 @@ recall 0,800 và 1,000 ở tầng cặp (đo 10/08, `results/precision-cap-20260
 - ⇒ Nghi là **lỗ hổng truy hồi, không phải phán định**. **Xác nhận trước, đừng sửa trước:**
   chỉ cần in tập chunk của câu đó và xem `TT40-2024 Điều 25` được chẻ thành những chunk nào,
   chunk nào lọt vào top-k.
+- Ghi chú: `TT40-2024 Điều 25` **đã có CU trích sẵn** (6 bản ghi trong `eval/ontology/pred.jsonl`),
+  nhưng đường phán định không đọc tới — xem **T26**.
 
 ### [ ] T24 · `SHB-QD-TK-2022 Mục 2.3` ra `warning` thay vì `violation`
 
@@ -196,6 +243,9 @@ số, đáng lẽ là `violation` dứt khoát. Ổn định qua cả hai lượ
 - Chưa truy nguyên nhân. Hai hướng đáng nhìn trước: căn cứ mà `_judge` chọn có đúng là
   Điều 11 không, và luật ranh giới số 1 trong `_SYSTEM` (“nội bộ đặt con số KHÁC điều luật →
   violation”) có bị luật số 2 (“im lặng về một nghĩa vụ → warning”) lấn át không.
+- Ghi chú: `TT17-2024 Điều 11` **đã có CU trích sẵn** (2 bản ghi, `logic="any"`, ba Điểm là ba
+  loại cá nhân), nhưng con số 15 tuổi nằm trong `conditions[].text` chứ **không có ô ngưỡng**
+  nào để so trực tiếp — xem **T26**.
 
 ---
 
