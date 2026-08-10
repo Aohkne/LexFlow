@@ -239,15 +239,18 @@ def test_van_ban_khong_con_dieu_nao_van_xoa_chunk_cu_va_len_do_thi(bang, monkeyp
 # thật trên session giả và đọc chuỗi Cypher nó phát ra, theo nếp `tests/test_push_overlay.py`.
 
 
-def _phat_cypher(doc, rels, rong=None, canh_vao=None):
-    """Chạy `push_one_doc` thật trên session giả → (danh sách câu Cypher, danh sách lời gọi)."""
+def _phat_cypher(doc, rels, rong=None, canh_vao=None, ids_rong=()):
+    """Chạy `push_one_doc` thật trên session giả → (danh sách câu Cypher, danh sách lời gọi).
+
+    `ids_rong` là thứ câu đầu của `don_node_rong_da_co_toan_van` trả về, tức **chọn nhánh**
+    của hàm dọn: rỗng = không có node rỗng nào phải dọn (nó về ngay), có phần tử = nhánh dời
+    cạnh + `DETACH DELETE`. Phải đặt tường minh: `MagicMock` trần cho `ids` là một MagicMock
+    *truthy*, tức bản giả tự chọn nhánh hộ mình — đúng hình dạng sự cố `list_tables()`.
+    """
     from app.knowledge import graph
 
     phien = MagicMock()
-    # `don_node_rong_da_co_toan_van` đọc kết quả câu đầu của nó. Trả danh sách rỗng = ca
-    # thường (không node rỗng nào phải dọn) và nó về ngay. MagicMock trần sẽ cho `ids` là một
-    # MagicMock *truthy*, khiến hàm chạy tiếp 26 câu dời cạnh — không giống thật chút nào.
-    phien.run.return_value.single.return_value = {"ids": []}
+    phien.run.return_value.single.return_value = {"ids": list(ids_rong)}
     with patch("app.knowledge.graph.session") as mo:
         mo.return_value.__enter__.return_value = phien
         graph.push_one_doc(doc, rels, rong, canh_vao)
@@ -255,9 +258,22 @@ def _phat_cypher(doc, rels, rong=None, canh_vao=None):
 
 
 def _cau_xoa(cypher: list[str]) -> str:
-    xoa = [c for c in cypher if "DELETE" in c]
-    assert len(xoa) == 1, f"chỉ được đúng một câu xoá, thấy {len(xoa)}: {xoa}"
+    """Câu xoá cạnh ĐI RA của chính văn bản — phải có đúng một, ở BẤT KỲ nhánh nào.
+
+    Lọc theo đúng mẫu chứ không theo `"DELETE"`: nhánh có node rỗng phải dọn của
+    `don_node_rong_da_co_toan_van()` phát thêm 26 câu `DELETE e` và một `DETACH DELETE rong`,
+    nên bộ lọc rộng chỉ cho ra "đúng một" nhờ `ids_rong` mặc định rỗng ép hàm dọn về sớm —
+    tức một khẳng định đúng nhờ bản giả chọn nhánh hộ. (`"DELETE r"` cũng không đủ: nó khớp
+    luôn `DETACH DELETE rong`.)
+    """
+    xoa = [c for c in cypher if c.rstrip().endswith("]->(:Document) DELETE r")]
+    assert len(xoa) == 1, f"chỉ được đúng một câu xoá cạnh đi ra, thấy {len(xoa)}: {xoa}"
     return xoa[0]
+
+
+def _xoa_trang(cypher: list[str]) -> list[str]:
+    """Câu `DETACH DELETE` KHÔNG neo vào một danh sách id cụ thể — tức xoá theo nhãn."""
+    return [c for c in cypher if "DETACH DELETE" in c and "$ids" not in c]
 
 
 def test_push_one_doc_chi_xoa_canh_di_ra_cua_chinh_no():
@@ -270,9 +286,15 @@ def test_push_one_doc_chi_xoa_canh_di_ra_cua_chinh_no():
         "không neo đầu kia sẽ cuốn theo cạnh THUOC của lớp phủ"
     )
     assert [c.kwargs.get("doc_id") for c in goi if "DELETE" in c.args[0]] == ["TT99-2026"]
-    assert "DETACH DELETE" not in " ".join(cypher), (
-        "DETACH xoá MỌI cạnh chạm node, kể cả THUOC phát từ (:DonVi) — đó chính là thứ "
-        "đường nạp một văn bản sinh ra để tránh"
+    # Câu cũ ở đây khẳng định `"DETACH DELETE" not in cypher`, và nó **sai khi nói chung**:
+    # `don_node_rong_da_co_toan_van()` chạy ở cuối mỗi lượt và nhánh CÓ node rỗng của nó phát
+    # ra `DETACH DELETE rong` thật. Câu ấy chỉ đúng vì `ids_rong` mặc định rỗng ép hàm về sớm —
+    # tức nó khẳng định về một nhánh nó không bao giờ đi qua, đúng lỗi đã mắc hai lần.
+    # Tính chất thật sự tách `push_one_doc` khỏi `push_corpus` là: KHÔNG có lượt xoá theo nhãn.
+    # `MATCH (d:Document) DETACH DELETE d` cuốn theo mọi cạnh chạm mọi văn bản, kể cả `THUOC`
+    # phát từ `(:DonVi)`. Nhánh dọn node rỗng có ca riêng bên dưới canh phạm vi của nó.
+    assert _xoa_trang(cypher) == [], (
+        "xoá theo nhãn (không neo `$ids`) là thứ đường nạp một văn bản sinh ra để tránh"
     )
 
 
@@ -327,4 +349,45 @@ def test_don_node_rong_chay_o_cuoi_moi_luot_nap():
 
     don = [c for c in cypher if "rong.co_toan_van = false" in c and "that.so_hieu" in c]
     assert len(don) == 1, "push_one_doc phải gọi don_node_rong_da_co_toan_van()"
-    assert cypher[-1] == don[0], "phải chạy SAU khi node thật đã được MERGE"
+    # "câu cuối cùng" là tính chất của nhánh KHÔNG có gì để dọn (`ids_rong` rỗng ⇒ hàm về
+    # ngay). Thứ đúng ở mọi nhánh: nó chạy sau khi node thật và mọi cạnh đã dựng xong — dọn
+    # trước thì chưa có node thật nào để dời cạnh sang. Nhánh còn lại có ca riêng bên dưới.
+    i_dung = [i for i, c in enumerate(cypher) if "MERGE (n:Document" in c or "MERGE (a)-[e:" in c]
+    assert cypher.index(don[0]) > max(i_dung)
+
+
+def test_don_node_rong_nhanh_co_viec_doi_canh_xong_moi_xoa_va_xoa_dung_pham_vi():
+    """Nhánh CÓ node rỗng phải dọn — nhánh mà `push_one_doc` chạy thật trên production.
+
+    Ca ở trên chỉ chạy nhánh rỗng (`ids == []`, hàm về ngay), nên mọi khẳng định về `DETACH
+    DELETE` của nó nói về một đoạn mã chưa từng được chạy. Đây là nhánh thật: 13 mã × 2 hướng
+    dời cạnh sang node thật, RỒI mới xoá node rỗng — đảo thứ tự là `DETACH` cuốn theo đúng
+    những cạnh vừa định cứu.
+    """
+    from app.core.schemas import REL_TYPES
+
+    cypher, goi = _phat_cypher(_doc("TT99-2026"), [], ids_rong=["52/2024/NĐ-CP"])
+
+    assert _cau_xoa(cypher).startswith("MATCH (a:Document {doc_id: $doc_id})-[r"), (
+        "nhánh dọn không được làm đổi câu xoá cạnh đi ra của chính văn bản"
+    )
+    doi = [i for i, c in enumerate(cypher) if "MERGE (" in c and "DELETE e" in c]
+    assert len(doi) == 2 * len(REL_TYPES), (
+        "phải dời cả hai hướng của cả 13 mã — bỏ sót mã nào là mất cạnh đó khi xoá node rỗng"
+    )
+    i_xoa = next(i for i, c in enumerate(cypher) if "DETACH DELETE rong" in c)
+    assert max(doi) < i_xoa, "dời cạnh xong mới được xoá"
+    assert i_xoa == len(cypher) - 1
+
+    # Phạm vi xoá: đúng danh sách id do câu đầu trả về, không phải một lượt quét nhãn.
+    assert _xoa_trang(cypher) == []
+    ids = goi[i_xoa].kwargs["ids"]
+    assert ids == ["52/2024/NĐ-CP"]
+    assert "TT99-2026" not in ids, "văn bản đang duyệt không bao giờ được nằm trong danh sách xoá"
+    # `$ids` sinh từ câu `WHERE rong.co_toan_van = false`, nên node bị xoá luôn là node RỖNG.
+    # Node mang cạnh `THUOC` thì ngược lại: `dung_overlay` lấy `doc_id` từ
+    # `doc_id_theo_corpus`, tức luôn là văn bản CÓ trong corpus — mà `quy_ve_doc_id` không bao
+    # giờ dựng node rỗng cho một `doc_id` đã có trong corpus.
+    assert any("rong.co_toan_van = false" in c and "collect(DISTINCT rong.doc_id)" in c
+               for c in cypher)
+    assert all(goi[i].kwargs["ids"] == ids for i in doi), "mọi câu dời cạnh phải cùng phạm vi"
