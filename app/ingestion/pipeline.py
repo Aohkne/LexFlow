@@ -299,7 +299,12 @@ def ingest_one_doc(
     _embed_rows(rows)
 
     db = vectordb.connect()
-    if LANCEDB_TABLE in db.list_tables():
+    # KHÔNG dùng `db.list_tables()` dù `table_names()` bị đánh dấu deprecated: trên LanceDB
+    # Cloud thật, `list_tables()` ném `HttpError 400` — "Bad request: InvalidArgument:
+    # PgCatalog::open_database() requires a table name to resolve the storage path". Đo
+    # 10/08 trên đúng kết nối `.env` của dự án: `table_names()` chạy tốt (chỉ kèm
+    # DeprecationWarning), `list_tables()` thì không. Xem T18 trong docs/TASKLIST.md.
+    if LANCEDB_TABLE in db.table_names():
         tbl = db.open_table(LANCEDB_TABLE)
         tbl.delete(f"doc_id = '{doc.doc_id}'")
         tbl.add(rows)

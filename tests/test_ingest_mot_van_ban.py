@@ -34,8 +34,17 @@ class _FakeDB:
     def __init__(self, bang: dict[str, _FakeTable]):
         self.bang = bang
 
-    def list_tables(self):
+    def table_names(self):
         return list(self.bang)
+
+    def list_tables(self):
+        # Ghim finding critical fix round 1 (10/08): `list_tables()` ném HttpError 400 thật
+        # trên LanceDB Cloud của dự án — "PgCatalog::open_database() requires a table name".
+        # `ingest_one_doc` PHẢI dùng `table_names()`. Nếu ca này đỏ, ai đó vừa đổi ngược lại.
+        raise AssertionError(
+            "ingest_one_doc không được gọi list_tables() — nó 400 thật trên LanceDB Cloud, "
+            "dùng table_names() thay vào đó"
+        )
 
     def open_table(self, ten: str) -> _FakeTable:
         return self.bang[ten]

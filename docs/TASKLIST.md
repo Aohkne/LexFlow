@@ -158,6 +158,15 @@ Cảnh báo khi dựng lại chỉ mục 10/08: *"use `create_index()` with `con
 Chữ ký `RemoteTable.create_index` **không có tham số cột** rõ ràng cho FTS, nên chưa đổi —
 đoán mò ở đây là làm hỏng đường ingest. Cần đọc tài liệu rồi mới chuyển.
 
+- Cùng họ deprecated: `db.list_tables()` cũng bị đánh dấu cũ, nhưng đường thay thế
+  `table_names()` là đường **duy nhất chạy được** trên LanceDB Cloud của dự án —
+  `list_tables()` ném `HttpError 400` thật (*"PgCatalog::open_database() requires a table
+  name to resolve the storage path"*), đo 10/08 trong fix round 1 của Task 4. `ingest_one_doc`
+  đã dùng `table_names()`, và `tests/test_ingest_mot_van_ban.py::_FakeDB.list_tables` ghim
+  chuyện này bằng `AssertionError`. Lần chuyển `create_fts_index` sau **đừng** tiện tay đổi
+  luôn `table_names()` → `list_tables()` vì thấy cùng là deprecated — hai cái không cùng số
+  phận trên deployment này.
+
 ---
 
 ## Nợ kỹ thuật (parked từ review P4, 06/08)
