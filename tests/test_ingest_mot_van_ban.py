@@ -235,6 +235,24 @@ def test_nguon_that_cua_canh_di_vao_duoc_dung_node_that_chu_khong_phai_node_rong
     assert [(c.source_doc, c.target_doc) for c in ghi["canh_vao"]] == [("TT01-2020", "TT99-2026")]
 
 
+def test_dich_that_cua_canh_di_ra_cung_duoc_dung_node(bang, monkeypatch):
+    """Chiều ĐI RA hở y hệt chiều đi vào, và đó là lý do lọc ở chỗ dùng chung cho cả hai.
+
+    `_merge_canh` bỏ câu trong im lặng khi **bất kỳ** vế `MATCH` nào không khớp — không riêng
+    vế nguồn. Duyệt TT99-2026 có `DAN_CHIEU → TT02-2021` trong khi TT02-2021 là văn bản thật
+    đã duyệt từ trước nhưng chưa lên đồ thị thì cạnh đi ra cũng biến mất không tiếng động.
+    """
+    ghi = _bat_push_one_doc(monkeypatch)
+    doc, dich = _doc("TT99-2026"), _doc("TT02-2021")
+    ra = Relationship(source_doc="TT99-2026", target_doc="TT02-2021", rel_type="DAN_CHIEU")
+
+    pipeline.ingest_one_doc(doc, [ra], [doc, dich])
+
+    assert [d.doc_id for d in ghi["dau_mut_that"]] == ["TT02-2021"]
+    assert ghi["rong"] == []
+    assert [(c.source_doc, c.target_doc) for c in ghi["rels"]] == [("TT99-2026", "TT02-2021")]
+
+
 def test_canh_khong_quy_duoc_dau_mut_thi_keu_len_chu_khong_im_lang(bang, monkeypatch, capsys):
     """Đầu mút không phải `doc_id` trong corpus, cũng không đọc được thành số hiệu.
 
@@ -326,7 +344,9 @@ def test_push_one_doc_chi_xoa_canh_di_ra_cua_chinh_no():
         "mẫu phải neo cả hai đầu vào :Document và chỉ DELETE r — `DETACH DELETE` hay mẫu "
         "không neo đầu kia sẽ cuốn theo cạnh THUOC của lớp phủ"
     )
-    assert [c.kwargs.get("doc_id") for c in goi if "DELETE" in c.args[0]] == ["TT99-2026"]
+    # Qua `_cau_xoa` chứ không lọc `"DELETE" in c`: ở nhánh có việc dọn, bộ lọc rộng bắt thêm
+    # 27 câu nữa và vế phải thành `["TT99-2026"] + [None]*27`. Đúng loại lỗi cả lượt này đi sửa.
+    assert goi[cypher.index(xoa)].kwargs["doc_id"] == "TT99-2026"
     # Câu cũ ở đây khẳng định `"DETACH DELETE" not in cypher`, và nó **sai khi nói chung**:
     # `don_node_rong_da_co_toan_van()` chạy ở cuối mỗi lượt và nhánh CÓ node rỗng của nó phát
     # ra `DETACH DELETE rong` thật. Câu ấy chỉ đúng vì `ids_rong` mặc định rỗng ép hàm về sớm —
@@ -358,7 +378,9 @@ def test_merge_node_truoc_khi_xoa_canh_va_truoc_moi_canh():
     cypher, _ = _phat_cypher(_doc("TT99-2026"), [ra])
 
     i_node = next(i for i, c in enumerate(cypher) if "MERGE (n:Document" in c)
-    i_xoa = next(i for i, c in enumerate(cypher) if "DELETE r" in c)
+    # `"DELETE r" in c` khớp luôn `DETACH DELETE rong`; ở đây nó đúng chỉ nhờ `next()` lấy
+    # phần tử đầu. Dùng `_cau_xoa` để khỏi phải may.
+    i_xoa = cypher.index(_cau_xoa(cypher))
     i_canh = next(i for i, c in enumerate(cypher) if "MERGE (a)-[e:" in c)
     assert i_node < i_xoa < i_canh
 
@@ -409,9 +431,12 @@ def test_don_node_rong_nhanh_co_viec_doi_canh_xong_moi_xoa_va_xoa_dung_pham_vi()
 
     cypher, goi = _phat_cypher(_doc("TT99-2026"), [], ids_rong=["52/2024/NĐ-CP"])
 
-    assert _cau_xoa(cypher).startswith("MATCH (a:Document {doc_id: $doc_id})-[r"), (
+    xoa = _cau_xoa(cypher)
+    assert xoa.startswith("MATCH (a:Document {doc_id: $doc_id})-[r"), (
         "nhánh dọn không được làm đổi câu xoá cạnh đi ra của chính văn bản"
     )
+    # Cùng khẳng định với ca nhánh rỗng, chạy ở đây để nó được kiểm ở CẢ HAI nhánh.
+    assert goi[cypher.index(xoa)].kwargs["doc_id"] == "TT99-2026"
     doi = [i for i, c in enumerate(cypher) if "MERGE (" in c and "DELETE e" in c]
     assert len(doi) == 2 * len(REL_TYPES), (
         "phải dời cả hai hướng của cả 13 mã — bỏ sót mã nào là mất cạnh đó khi xoá node rỗng"
@@ -424,9 +449,11 @@ def test_don_node_rong_nhanh_co_viec_doi_canh_xong_moi_xoa_va_xoa_dung_pham_vi()
     assert _xoa_trang(cypher) == []
     ids = goi[i_xoa].kwargs["ids"]
     assert ids == ["52/2024/NĐ-CP"]
-    assert "TT99-2026" not in ids, "văn bản đang duyệt không bao giờ được nằm trong danh sách xoá"
-    # `$ids` sinh từ câu `WHERE rong.co_toan_van = false`, nên node bị xoá luôn là node RỖNG.
-    # Node mang cạnh `THUOC` thì ngược lại: `dung_overlay` lấy `doc_id` từ
+    # KHÔNG khẳng định `"TT99-2026" not in ids` ở đây: `ids` chỉ là thứ bản giả vọng lại từ
+    # `ids_rong`, nên câu đó không bao giờ đỏ được — nó nói về bản giả, không về mã. Thứ THẬT
+    # sự giữ văn bản đang duyệt ngoài danh sách xoá là câu sinh ra `$ids`: nó lọc
+    # `rong.co_toan_van = false`, mà `_merge_doc` vừa đặt `co_toan_van=true` cho văn bản này.
+    # Cùng lý do, node mang cạnh `THUOC` không lọt vào: `dung_overlay` lấy `doc_id` từ
     # `doc_id_theo_corpus`, tức luôn là văn bản CÓ trong corpus — mà `quy_ve_doc_id` không bao
     # giờ dựng node rỗng cho một `doc_id` đã có trong corpus.
     assert any("rong.co_toan_van = false" in c and "collect(DISTINCT rong.doc_id)" in c
