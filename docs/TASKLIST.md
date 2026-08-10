@@ -169,6 +169,36 @@ Chữ ký `RemoteTable.create_index` **không có tham số cột** rõ ràng ch
 
 ---
 
+## Chất lượng phán định tuân thủ
+
+> Số đo và cách đo ở `docs/EVAL-COMPLIANCE.md`. Ở đây chỉ là hàng đợi việc.
+
+### [ ] T23 · Cặp `SHB Mục 4.2 ↔ TT40 Điều 25` chưa bao giờ bắt được
+
+Cặp vàng duy nhất bị bỏ sót, bỏ ở **cả hai** ca chạm tới nó — đây là toàn bộ khoảng cách giữa
+recall 0,800 và 1,000 ở tầng cặp (đo 10/08, `results/precision-cap-20260810-094112.json`).
+
+- Nội dung: nội bộ cho **nạp tiền mặt tại quầy** vào ví, `TT40-2024 Điều 25` chỉ cho nạp từ
+  tài khoản/thẻ liên kết.
+- Bằng chứng đã có: log cho thấy bộ phát hiện **có** xử lý `Mục 4.2`, nhưng ghép nó với
+  `TT40-2024::Điều 37 Khoản 1(i)(vi)` và `Điều 25 Khoản 1(a)` — hai địa chỉ **không quy được
+  về chunk nào trong tập lấy về**. Tức chunk chứa khoản 1 Điều 25 không được truy hồi.
+- ⇒ Nghi là **lỗ hổng truy hồi, không phải phán định**. **Xác nhận trước, đừng sửa trước:**
+  chỉ cần in tập chunk của câu đó và xem `TT40-2024 Điều 25` được chẻ thành những chunk nào,
+  chunk nào lọt vào top-k.
+
+### [ ] T24 · `SHB-QD-TK-2022 Mục 2.3` ra `warning` thay vì `violation`
+
+eKYC từ đủ **14** tuổi trong khi `TT17-2024 Điều 11` đòi đủ **15** — một con số chọi một con
+số, đáng lẽ là `violation` dứt khoát. Ổn định qua cả hai lượt đo 10/08 nên **không phải nhiễu**.
+
+- Đây là điểm trừ duy nhất của `review.py` trong lượt chấm đầu tiên (đúng 6/7, sai 0).
+- Chưa truy nguyên nhân. Hai hướng đáng nhìn trước: căn cứ mà `_judge` chọn có đúng là
+  Điều 11 không, và luật ranh giới số 1 trong `_SYSTEM` (“nội bộ đặt con số KHÁC điều luật →
+  violation”) có bị luật số 2 (“im lặng về một nghĩa vụ → warning”) lấn át không.
+
+---
+
 ## Nợ kỹ thuật (parked từ review P4, 06/08)
 
 ### [ ] T11 · Ghi rõ dựng lại artefact lớp phủ cần `data/raw/vbpl/raw/`
@@ -297,6 +327,21 @@ quyết** viết lại thế nào.
 ### [ ] T14 · Bộ câu hỏi eval cấp khoản (backlog #19)
 
 Chủ repo tự chuẩn bị — đã nói rõ 07/08: "về bộ câu hỏi thì tôi sẽ chuẩn bị riêng".
+
+### [ ] T25 · 5/12 mục nội bộ chưa có nhãn verdict
+
+`eval/tuan_thu_vang.jsonl` mới phủ **7/12** mục của 4 văn bản SHB: 5 mục có mâu thuẫn cài sẵn
++ 2 mục đối chứng thuần chính sách phí. Năm mục chưa có nhãn:
+
+`SHB-QD-VI-2023::Mục 5.1` · `SHB-QD-TK-2022::Mục 2.5` · `SHB-QD-TK-2022::Mục 6.1` ·
+`SHB-QD-THE-2023::Mục 7.3` · `SHB-CS-PHI-2024` (đã phủ cả 2 mục)
+
+- Vì sao không giao cho AI: nhãn vàng do chính hệ thống-cùng-tác-giả sinh ra thì **phép đo mất
+  giá trị** — tự gán rồi tự chấm là tự chấm bài của mình. Chủ repo đã chọn phương án này
+  10/08, cố ý nhận mẫu nhỏ hơn để nhãn sạch.
+- Cần gì: với mỗi mục, một verdict `violation` / `warning` / `pass` kèm một câu lý do và điều
+  luật làm căn cứ. Có nhãn thì mẫu số của `ty_le_dung` tăng từ 7 lên 12 mà không phải sửa dòng
+  mã nào — `eval/do_tuan_thu.py` tự đọc thêm.
 
 ---
 
