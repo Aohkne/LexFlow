@@ -58,13 +58,35 @@ docs: update DESIGN-GAP with Lexi section
 
 ## Push rules
 
-1. **Ontology / KG work goes directly to `main`** (solo dev, trunk-based).
-2. **Software work goes on `feat/software`**, developed in a parallel git worktree so the two tracks do not fight over the same checkout:
+1. **`main` only ever receives a PR.** Nobody pushes to it directly — see rule 2 for why this changed.
+2. **Two long-lived branches, one worktree each**, so the tracks never fight over the same checkout:
+
+   | Track | Branch | Worktree |
+   |---|---|---|
+   | AI: ontology, KG, ingestion, retrieval, eval | `feat/ai` | `../LexFlow-ai` |
+   | Software: API surface, web | `feat/software` | `../LexFlow-sw` |
+
    ```bash
-   git worktree add -b <branch> ../LexFlow-sw main   # first time only
+   git worktree add -b feat/ai ../LexFlow-ai main   # first time only
    ```
-   The worktree only carries tracked files — copy `.env` and `web/.env.local` over, then `uv sync` and `npm install --prefix web`.
-   Merge back into `main` with a PR when the branch is green. Rebase on `main` before opening the PR; never rebase after pushing the PR.
+
+   The AI track used to push straight to `main`. That stopped being safe once both tracks ran at
+   once: `main` gained commits while `feat/software` had an open PR, the PR merged without the
+   branch's later work, and two commits sat stranded until someone noticed. A PR per track makes
+   that visible instead of silent.
+
+   **Setting up a worktree** — git only carries tracked files, so also:
+   - copy `.env` and `web/.env.local` from an existing checkout;
+   - `uv sync`, and `npm install --prefix web` only if the track touches `web/`;
+   - link the crawl artefacts, needed to rebuild `data/overlay/lop_phu.json` — `data/raw/vbpl/raw/`
+     is gitignored so it exists in exactly one checkout. Link rather than copy, one source of truth:
+     ```powershell
+     New-Item -ItemType Junction -Path data\raw\vbpl\raw -Target <checkout-khac>\data\raw\vbpl\raw
+     ```
+     It also un-skips ~52 tests that are guarded on that directory existing.
+
+   Merge back into `main` with a PR when the branch is green. Rebase on `main` before opening the
+   PR; **never rebase after pushing** — merge `main` in instead.
 3. Before pushing, everything must be green locally: `uv run pytest -q` + `uv run ruff check .` (backend), and `npm run lint` + `npm run build` in `web/` (if web is touched).
 4. After pushing, GitHub Actions CI must be green; if it goes red, fix it immediately with a new commit (highest priority).
 5. **Never**: `push --force` to `main` · amend/rebase already-pushed commits · `--no-verify` to skip hooks.
