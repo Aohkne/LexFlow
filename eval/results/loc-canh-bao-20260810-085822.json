@@ -1,0 +1,305 @@
+{
+ "run_at": "20260810-085822",
+ "bang": {
+  "A_khong_loc": {
+   "recall": "7/7",
+   "ca_am_bao": "8/20",
+   "tong_canh_bao": 32
+  },
+  "B_bo_info": {
+   "recall": "7/7",
+   "ca_am_bao": "5/20",
+   "tong_canh_bao": 22
+  },
+  "C_chi_noi_bo": {
+   "recall": "7/7",
+   "ca_am_bao": "4/20",
+   "tong_canh_bao": 13
+  },
+  "D_ca_hai": {
+   "recall": "7/7",
+   "ca_am_bao": "4/20",
+   "tong_canh_bao": 13
+  }
+ },
+ "ca": [
+  {
+   "nhan": "duong",
+   "query": "Hạn mức giao dịch qua ví điện tử cá nhân hiện nay là bao nhiêu một tháng?",
+   "canh_bao": [
+    {
+     "sev": "critical",
+     "cap": "external+internal"
+    }
+   ]
+  },
+  {
+   "nhan": "duong",
+   "query": "Khách hàng có được nạp tiền mặt trực tiếp vào ví điện tử không?",
+   "canh_bao": [
+    {
+     "sev": "warning",
+     "cap": "external+internal"
+    },
+    {
+     "sev": "critical",
+     "cap": "external+external"
+    },
+    {
+     "sev": "warning",
+     "cap": "external+external"
+    },
+    {
+     "sev": "warning",
+     "cap": "external+external"
+    },
+    {
+     "sev": "warning",
+     "cap": "external+external"
+    },
+    {
+     "sev": "warning",
+     "cap": "external+external"
+    }
+   ]
+  },
+  {
+   "nhan": "duong",
+   "query": "Người 14 tuổi có được tự mở tài khoản thanh toán bằng eKYC không?",
+   "canh_bao": [
+    {
+     "sev": "critical",
+     "cap": "external+internal"
+    },
+    {
+     "sev": "critical",
+     "cap": "external+internal"
+    }
+   ]
+  },
+  {
+   "nhan": "duong",
+   "query": "Một thẻ được rút tối đa bao nhiêu ngoại tệ tiền mặt tại nước ngoài trong một ngày?",
+   "canh_bao": [
+    {
+     "sev": "critical",
+     "cap": "external+internal"
+    }
+   ]
+  },
+  {
+   "nhan": "duong",
+   "query": "Số dư tối đa trên thẻ trả trước vô danh là bao nhiêu?",
+   "canh_bao": [
+    {
+     "sev": "critical",
+     "cap": "external+internal"
+    }
+   ]
+  },
+  {
+   "nhan": "duong",
+   "query": "Hạn mức nạp tiền ví điện tử liên kết theo quy định nội bộ SHB có đúng luật không?",
+   "canh_bao": [
+    {
+     "sev": "critical",
+     "cap": "external+internal"
+    }
+   ]
+  },
+  {
+   "nhan": "duong",
+   "query": "Người chưa đủ 15 tuổi sử dụng tài khoản thanh toán như thế nào?",
+   "canh_bao": [
+    {
+     "sev": "critical",
+     "cap": "external+internal"
+    },
+    {
+     "sev": "critical",
+     "cap": "external+internal"
+    }
+   ]
+  },
+  {
+   "nhan": "am",
+   "query": "Tổng hạn mức rút tiền mặt của thẻ tín dụng trong một tháng là bao nhiêu?",
+   "canh_bao": [
+    {
+     "sev": "critical",
+     "cap": "external+internal"
+    }
+   ]
+  },
+  {
+   "nhan": "am",
+   "query": "Ví điện tử là gì và được nạp tiền từ những nguồn nào?",
+   "canh_bao": [
+    {
+     "sev": "critical",
+     "cap": "external+internal"
+    },
+    {
+     "sev": "warning",
+     "cap": "external+external"
+    }
+   ]
+  },
+  {
+   "nhan": "am",
+   "query": "Các hành vi nào bị cấm trong hoạt động thanh toán không dùng tiền mặt?",
+   "canh_bao": []
+  },
+  {
+   "nhan": "am",
+   "query": "Tài khoản thanh toán bị phong tỏa trong những trường hợp nào?",
+   "canh_bao": [
+    {
+     "sev": "info",
+     "cap": "external+external"
+    },
+    {
+     "sev": "info",
+     "cap": "external+external"
+    },
+    {
+     "sev": "info",
+     "cap": "external+external"
+    },
+    {
+     "sev": "info",
+     "cap": "external+external"
+    }
+   ]
+  },
+  {
+   "nhan": "am",
+   "query": "Điều kiện để tổ chức không phải ngân hàng được cấp Giấy phép cung ứng dịch vụ trung gian thanh toán?",
+   "canh_bao": []
+  },
+  {
+   "nhan": "am",
+   "query": "Việc liên kết ví điện tử với tài khoản thanh toán của khách hàng phải tuân thủ quy định gì?",
+   "canh_bao": []
+  },
+  {
+   "nhan": "am",
+   "query": "Tổ chức cung ứng dịch vụ ví điện tử phải thông báo gì cho khách hàng khi mở ví?",
+   "canh_bao": []
+  },
+  {
+   "nhan": "am",
+   "query": "Hồ sơ mở ví điện tử đối với khách hàng cá nhân gồm những gì?",
+   "canh_bao": [
+    {
+     "sev": "info",
+     "cap": "external+external"
+    },
+    {
+     "sev": "info",
+     "cap": "external+external"
+    },
+    {
+     "sev": "info",
+     "cap": "external+external"
+    },
+    {
+     "sev": "info",
+     "cap": "external+external"
+    },
+    {
+     "sev": "info",
+     "cap": "external+external"
+    }
+   ]
+  },
+  {
+   "nhan": "am",
+   "query": "Giao dịch thanh toán qua dịch vụ trung gian thanh toán phải dùng đồng tiền nào?",
+   "canh_bao": []
+  },
+  {
+   "nhan": "am",
+   "query": "Ai được mở tài khoản thanh toán tại ngân hàng theo quy định hiện hành?",
+   "canh_bao": []
+  },
+  {
+   "nhan": "am",
+   "query": "Mở tài khoản thanh toán bằng phương thức điện tử phải đáp ứng yêu cầu gì?",
+   "canh_bao": [
+    {
+     "sev": "info",
+     "cap": "external+external"
+    }
+   ]
+  },
+  {
+   "nhan": "am",
+   "query": "Séc và ủy nhiệm chi được quy định như thế nào trong cung ứng dịch vụ thanh toán?",
+   "canh_bao": []
+  },
+  {
+   "nhan": "am",
+   "query": "Dịch vụ thu hộ chi hộ hiện nay được quy định ở văn bản nào?",
+   "canh_bao": []
+  },
+  {
+   "nhan": "am",
+   "query": "Thẻ ghi nợ khác thẻ tín dụng như thế nào?",
+   "canh_bao": []
+  },
+  {
+   "nhan": "am",
+   "query": "Hợp đồng phát hành và sử dụng thẻ phải có những nội dung gì?",
+   "canh_bao": []
+  },
+  {
+   "nhan": "am",
+   "query": "Tổ chức phát hành thẻ phải làm gì khi phát hiện thẻ có dấu hiệu gian lận?",
+   "canh_bao": [
+    {
+     "sev": "critical",
+     "cap": "external+external"
+    }
+   ]
+  },
+  {
+   "nhan": "am",
+   "query": "Phí quản lý tài khoản thanh toán cá nhân tại SHB là bao nhiêu?",
+   "canh_bao": [
+    {
+     "sev": "warning",
+     "cap": "external+internal"
+    }
+   ]
+  },
+  {
+   "nhan": "am",
+   "query": "Chuyển tiền nhanh Napas 247 tại SHB có mất phí không?",
+   "canh_bao": []
+  },
+  {
+   "nhan": "am",
+   "query": "Thẻ SHB chưa kích hoạt sau bao lâu thì bị khóa?",
+   "canh_bao": [
+    {
+     "sev": "warning",
+     "cap": "external+internal"
+    },
+    {
+     "sev": "critical",
+     "cap": "external+external"
+    },
+    {
+     "sev": "critical",
+     "cap": "external+external"
+    }
+   ]
+  },
+  {
+   "nhan": "am",
+   "query": "Tài khoản SHB không giao dịch bao lâu thì bị chuyển trạng thái ngủ đông?",
+   "canh_bao": []
+  }
+ ]
+}

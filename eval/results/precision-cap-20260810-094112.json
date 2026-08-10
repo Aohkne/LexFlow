@@ -1,0 +1,273 @@
+{
+ "run_at": "20260810-094112",
+ "model": "gemini-2.5-flash-lite",
+ "hop_le": true,
+ "bo_qua": 0,
+ "n_ca": 27,
+ "n_cap_vang": 5,
+ "khong_loc": {
+  "ky_vong": 10,
+  "bat_duoc": 8,
+  "bao": 55,
+  "duong_tinh_gia": 47,
+  "recall": 0.8,
+  "precision": 0.145
+ },
+ "chi_noi_bo": {
+  "ky_vong": 10,
+  "bat_duoc": 8,
+  "bao": 13,
+  "duong_tinh_gia": 5,
+  "recall": 0.8,
+  "precision": 0.615
+ },
+ "chi_tiet": [
+  {
+   "query": "Hạn mức giao dịch qua ví điện tử cá nhân hiện nay là bao nhiêu một tháng?",
+   "ky_vong": 1,
+   "bat_khong_loc": 1,
+   "bat_co_loc": 1,
+   "gia_khong_loc": 0,
+   "gia_co_loc": 0,
+   "bo_sot": []
+  },
+  {
+   "query": "Khách hàng có được nạp tiền mặt trực tiếp vào ví điện tử không?",
+   "ky_vong": 1,
+   "bat_khong_loc": 0,
+   "bat_co_loc": 0,
+   "gia_khong_loc": 0,
+   "gia_co_loc": 0,
+   "bo_sot": [
+    "nạp tiền mặt tại quầy vào ví: luật chỉ cho nạp từ tài khoản/thẻ liên kết"
+   ]
+  },
+  {
+   "query": "Người 14 tuổi có được tự mở tài khoản thanh toán bằng eKYC không?",
+   "ky_vong": 1,
+   "bat_khong_loc": 1,
+   "bat_co_loc": 1,
+   "gia_khong_loc": 1,
+   "gia_co_loc": 1,
+   "bo_sot": []
+  },
+  {
+   "query": "Một thẻ được rút tối đa bao nhiêu ngoại tệ tiền mặt tại nước ngoài trong một ngày?",
+   "ky_vong": 1,
+   "bat_khong_loc": 1,
+   "bat_co_loc": 1,
+   "gia_khong_loc": 0,
+   "gia_co_loc": 0,
+   "bo_sot": []
+  },
+  {
+   "query": "Số dư tối đa trên thẻ trả trước vô danh là bao nhiêu?",
+   "ky_vong": 1,
+   "bat_khong_loc": 1,
+   "bat_co_loc": 1,
+   "gia_khong_loc": 0,
+   "gia_co_loc": 0,
+   "bo_sot": []
+  },
+  {
+   "query": "Hạn mức nạp tiền ví điện tử liên kết theo quy định nội bộ SHB có đúng luật không?",
+   "ky_vong": 2,
+   "bat_khong_loc": 1,
+   "bat_co_loc": 1,
+   "gia_khong_loc": 0,
+   "gia_co_loc": 0,
+   "bo_sot": [
+    "nạp tiền mặt tại quầy vào ví: luật chỉ cho nạp từ tài khoản/thẻ liên kết"
+   ]
+  },
+  {
+   "query": "Người chưa đủ 15 tuổi sử dụng tài khoản thanh toán như thế nào?",
+   "ky_vong": 1,
+   "bat_khong_loc": 1,
+   "bat_co_loc": 1,
+   "gia_khong_loc": 1,
+   "gia_co_loc": 1,
+   "bo_sot": []
+  },
+  {
+   "query": "Tổng hạn mức rút tiền mặt của thẻ tín dụng trong một tháng là bao nhiêu?",
+   "ky_vong": 1,
+   "bat_khong_loc": 1,
+   "bat_co_loc": 1,
+   "gia_khong_loc": 0,
+   "gia_co_loc": 0,
+   "bo_sot": []
+  },
+  {
+   "query": "Ví điện tử là gì và được nạp tiền từ những nguồn nào?",
+   "ky_vong": 1,
+   "bat_khong_loc": 1,
+   "bat_co_loc": 1,
+   "gia_khong_loc": 0,
+   "gia_co_loc": 0,
+   "bo_sot": []
+  },
+  {
+   "query": "Các hành vi nào bị cấm trong hoạt động thanh toán không dùng tiền mặt?",
+   "ky_vong": 0,
+   "bat_khong_loc": 0,
+   "bat_co_loc": 0,
+   "gia_khong_loc": 2,
+   "gia_co_loc": 0,
+   "bo_sot": []
+  },
+  {
+   "query": "Tài khoản thanh toán bị phong tỏa trong những trường hợp nào?",
+   "ky_vong": 0,
+   "bat_khong_loc": 0,
+   "bat_co_loc": 0,
+   "gia_khong_loc": 10,
+   "gia_co_loc": 0,
+   "bo_sot": []
+  },
+  {
+   "query": "Điều kiện để tổ chức không phải ngân hàng được cấp Giấy phép cung ứng dịch vụ trung gian thanh toán?",
+   "ky_vong": 0,
+   "bat_khong_loc": 0,
+   "bat_co_loc": 0,
+   "gia_khong_loc": 3,
+   "gia_co_loc": 0,
+   "bo_sot": []
+  },
+  {
+   "query": "Việc liên kết ví điện tử với tài khoản thanh toán của khách hàng phải tuân thủ quy định gì?",
+   "ky_vong": 0,
+   "bat_khong_loc": 0,
+   "bat_co_loc": 0,
+   "gia_khong_loc": 0,
+   "gia_co_loc": 0,
+   "bo_sot": []
+  },
+  {
+   "query": "Tổ chức cung ứng dịch vụ ví điện tử phải thông báo gì cho khách hàng khi mở ví?",
+   "ky_vong": 0,
+   "bat_khong_loc": 0,
+   "bat_co_loc": 0,
+   "gia_khong_loc": 0,
+   "gia_co_loc": 0,
+   "bo_sot": []
+  },
+  {
+   "query": "Hồ sơ mở ví điện tử đối với khách hàng cá nhân gồm những gì?",
+   "ky_vong": 0,
+   "bat_khong_loc": 0,
+   "bat_co_loc": 0,
+   "gia_khong_loc": 4,
+   "gia_co_loc": 0,
+   "bo_sot": []
+  },
+  {
+   "query": "Giao dịch thanh toán qua dịch vụ trung gian thanh toán phải dùng đồng tiền nào?",
+   "ky_vong": 0,
+   "bat_khong_loc": 0,
+   "bat_co_loc": 0,
+   "gia_khong_loc": 0,
+   "gia_co_loc": 0,
+   "bo_sot": []
+  },
+  {
+   "query": "Ai được mở tài khoản thanh toán tại ngân hàng theo quy định hiện hành?",
+   "ky_vong": 0,
+   "bat_khong_loc": 0,
+   "bat_co_loc": 0,
+   "gia_khong_loc": 0,
+   "gia_co_loc": 0,
+   "bo_sot": []
+  },
+  {
+   "query": "Mở tài khoản thanh toán bằng phương thức điện tử phải đáp ứng yêu cầu gì?",
+   "ky_vong": 0,
+   "bat_khong_loc": 0,
+   "bat_co_loc": 0,
+   "gia_khong_loc": 19,
+   "gia_co_loc": 0,
+   "bo_sot": []
+  },
+  {
+   "query": "Séc và ủy nhiệm chi được quy định như thế nào trong cung ứng dịch vụ thanh toán?",
+   "ky_vong": 0,
+   "bat_khong_loc": 0,
+   "bat_co_loc": 0,
+   "gia_khong_loc": 0,
+   "gia_co_loc": 0,
+   "bo_sot": []
+  },
+  {
+   "query": "Dịch vụ thu hộ chi hộ hiện nay được quy định ở văn bản nào?",
+   "ky_vong": 0,
+   "bat_khong_loc": 0,
+   "bat_co_loc": 0,
+   "gia_khong_loc": 0,
+   "gia_co_loc": 0,
+   "bo_sot": []
+  },
+  {
+   "query": "Thẻ ghi nợ khác thẻ tín dụng như thế nào?",
+   "ky_vong": 0,
+   "bat_khong_loc": 0,
+   "bat_co_loc": 0,
+   "gia_khong_loc": 0,
+   "gia_co_loc": 0,
+   "bo_sot": []
+  },
+  {
+   "query": "Hợp đồng phát hành và sử dụng thẻ phải có những nội dung gì?",
+   "ky_vong": 0,
+   "bat_khong_loc": 0,
+   "bat_co_loc": 0,
+   "gia_khong_loc": 0,
+   "gia_co_loc": 0,
+   "bo_sot": []
+  },
+  {
+   "query": "Tổ chức phát hành thẻ phải làm gì khi phát hiện thẻ có dấu hiệu gian lận?",
+   "ky_vong": 0,
+   "bat_khong_loc": 0,
+   "bat_co_loc": 0,
+   "gia_khong_loc": 0,
+   "gia_co_loc": 0,
+   "bo_sot": []
+  },
+  {
+   "query": "Phí quản lý tài khoản thanh toán cá nhân tại SHB là bao nhiêu?",
+   "ky_vong": 0,
+   "bat_khong_loc": 0,
+   "bat_co_loc": 0,
+   "gia_khong_loc": 1,
+   "gia_co_loc": 1,
+   "bo_sot": []
+  },
+  {
+   "query": "Chuyển tiền nhanh Napas 247 tại SHB có mất phí không?",
+   "ky_vong": 0,
+   "bat_khong_loc": 0,
+   "bat_co_loc": 0,
+   "gia_khong_loc": 0,
+   "gia_co_loc": 0,
+   "bo_sot": []
+  },
+  {
+   "query": "Thẻ SHB chưa kích hoạt sau bao lâu thì bị khóa?",
+   "ky_vong": 0,
+   "bat_khong_loc": 0,
+   "bat_co_loc": 0,
+   "gia_khong_loc": 5,
+   "gia_co_loc": 1,
+   "bo_sot": []
+  },
+  {
+   "query": "Tài khoản SHB không giao dịch bao lâu thì bị chuyển trạng thái ngủ đông?",
+   "ky_vong": 0,
+   "bat_khong_loc": 0,
+   "bat_co_loc": 0,
+   "gia_khong_loc": 1,
+   "gia_co_loc": 1,
+   "bo_sot": []
+  }
+ ]
+}
