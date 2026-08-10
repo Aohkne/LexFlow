@@ -292,11 +292,11 @@ def ingest_one_doc(
     `tat_ca_docs` là toàn bộ corpus sau khi đã gộp `doc` — cần cho `quy_ve_doc_id` dựng đủ
     bảng số hiệu, chứ không phải để nạp.
     """
+    # Kiểm lần thứ hai là CỐ Ý, không phải thừa: lời gọi trong `approve_document` là thứ sinh
+    # ra 422 cho admin, còn lời gọi ở đây là thứ khiến bất biến này đúng cho MỌI người gọi —
+    # CLI, script, test — chứ không chỉ cho đường đi qua API. Đừng xoá cái nào.
     kiem_doc_id(doc.doc_id)
     rows = build_chunks([doc])
-    if not rows:
-        return 0
-    _embed_rows(rows)
 
     db = vectordb.connect()
     # KHÔNG dùng `db.list_tables()` dù `table_names()` bị đánh dấu deprecated: trên LanceDB
@@ -306,9 +306,16 @@ def ingest_one_doc(
     # DeprecationWarning), `list_tables()` thì không. Xem T18 trong docs/TASKLIST.md.
     if LANCEDB_TABLE in db.table_names():
         tbl = db.open_table(LANCEDB_TABLE)
+        # `delete` chạy LUÔN, kể cả khi văn bản không còn điều nào. Về sớm khi `rows` rỗng —
+        # admin xoá hết Điều trong ô JSON, hoặc extract ra 0 điều — là để nguyên chunk cũ
+        # trong bảng đang phục vụ: truy hồi tiếp tục trả về đúng đoạn văn vừa bị xoá, và trả
+        # 200 `approved` để báo là xong.
         tbl.delete(f"doc_id = '{doc.doc_id}'")
-        tbl.add(rows)
-    else:
+        if rows:
+            _embed_rows(rows)
+            tbl.add(rows)
+    elif rows:
+        _embed_rows(rows)
         tbl = db.create_table(LANCEDB_TABLE, data=rows)
         tbl.create_fts_index("text", replace=True, **_FTS_OPTS)
     print(f"[ingest] {doc.doc_id}: {len(rows)} chunk vào LanceDB (thay tại chỗ).")
@@ -323,10 +330,22 @@ def ingest_one_doc(
         for c in cb:
             print(f"[ingest] cảnh báo: {c}")
         canh = [c for c in canh_tat_ca if c.source_doc == doc.doc_id]
-        dich = {c.target_doc for c in canh}
-        rong = [v for v in rong_tat_ca if v.so_hieu in dich]
-        push_one_doc(doc, canh, rong)
-        print(f"[ingest] {doc.doc_id}: 1 node + {len(canh)} cạnh vào Neo4j (không xoá sạch).")
+        # Cạnh đi VÀO cũng phải được dựng (MERGE, không xoá — chúng thuộc văn bản kia):
+        # `approve_document` nhận `relationships` tự do từ ô JSON của admin, không gì buộc
+        # `source_doc == doc_id`. Chỉ lọc theo `source_doc` là cạnh đi vào lọt vào
+        # `corpus.json`, hiện trên `/docs/[docId]`, mà đồ thị lặng lẽ không có.
+        canh_vao = [
+            c for c in canh_tat_ca if c.target_doc == doc.doc_id and c.source_doc != doc.doc_id
+        ]
+        # Node rỗng cho đầu mút NGOÀI corpus của cả hai chiều: `_merge_canh` khớp hai đầu bằng
+        # `MATCH`, thiếu một đầu là Cypher bỏ qua cả câu trong im lặng.
+        ngoai = {c.target_doc for c in canh} | {c.source_doc for c in canh_vao}
+        rong = [v for v in rong_tat_ca if v.so_hieu in ngoai]
+        push_one_doc(doc, canh, rong, canh_vao)
+        print(
+            f"[ingest] {doc.doc_id}: 1 node + {len(canh)} cạnh đi ra "
+            f"+ {len(canh_vao)} cạnh đi vào vào Neo4j (không xoá sạch)."
+        )
     else:
         print("[ingest] Bỏ qua Neo4j (chưa cấu hình NEO4J_URI/PASSWORD).")
     return len(rows)

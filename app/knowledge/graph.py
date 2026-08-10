@@ -166,6 +166,7 @@ def push_one_doc(
     doc: CorpusDocument,
     rels: list[Relationship],
     rong: list[VanBanRong] | None = None,
+    canh_vao: list[Relationship] | None = None,
 ) -> None:
     """Nạp lại MỘT văn bản mà không đụng phần còn lại của đồ thị.
 
@@ -175,8 +176,17 @@ def push_one_doc(
     sau đó (xem `pipeline._noi_lai_lop_phu`). Ở đây chỉ thay các cạnh **đi ra** của đúng văn
     bản này; `THUOC` là cạnh **đi vào** nên không bị đụng, và cái nợ ấy biến mất.
 
-    Cạnh đi VÀO từ văn bản khác cũng không đụng: chúng thuộc về văn bản kia, sẽ được thay khi
-    chính văn bản kia được duyệt lại.
+    `rels` = cạnh đi RA (bị thay: xoá rồi dựng lại). `canh_vao` = cạnh đi VÀO node này —
+    chỉ `MERGE`, **không bao giờ xoá**: chúng thuộc quyền của văn bản nguồn, và câu `DELETE`
+    ở đây theo thiết kế chỉ khớp `(doc)-[r]->()`. Cạnh đi vào có mặt vì `approve_document`
+    nhận `relationships` tự do từ ô JSON của admin: không gì buộc `source_doc == doc_id`, nên
+    một cạnh đi vào nhập lúc duyệt sẽ vào `corpus.json`, hiện trên `/docs/[docId]`, mà đồ thị
+    không bao giờ biết tới nếu ở đây chỉ dựng cạnh đi ra. `push_corpus` (đường CLI) vẫn dựng.
+
+    Node nguồn của một cạnh đi vào có thể CHƯA tồn tại. `_merge_canh` viết
+    `MATCH (a) MATCH (b) MERGE` — thiếu một đầu là Cypher bỏ qua cả câu **trong im lặng**, y
+    hệt ca `THUOC` mô tả ở `push_overlay`. Nên đầu mút ngoài corpus phải đi kèm trong `rong`;
+    `ingest_one_doc` lo phần đó cho cả hai chiều.
 
     Giới hạn đã biết: văn bản vừa duyệt mà lại có mặt trong artefact lớp phủ thì cạnh `THUOC`
     của nó chưa được dựng — artefact sinh offline từ `data/raw/vbpl/raw/`, không có trong
@@ -185,14 +195,26 @@ def push_one_doc(
     ensure_constraints()
     with session() as s:
         _merge_doc(s, doc)
+        # Liệt kê 13 mã thay vì `-[r]->` trần, cùng lý do với `_MOI_CANH`: một cạnh
+        # `Document→Document` KHÁC (loại nào đó thêm sau này, không thuộc corpus) đi qua đây
+        # sẽ bị cuốn theo mà không ai thấy. Chỉ xoá đúng thứ mình dựng lại được.
         s.run(
-            "MATCH (a:Document {doc_id: $doc_id})-[r]->(:Document) DELETE r",
+            f"MATCH (a:Document {{doc_id: $doc_id}})-[r{_MOI_CANH}]->(:Document) DELETE r",
             doc_id=doc.doc_id,
         )
         for v in rong or []:
             _merge_rong(s, v)
         for r in rels:
             _merge_canh(s, r)
+        for r in canh_vao or []:
+            _merge_canh(s, r)
+    # Văn bản này có thể từng chỉ tồn tại như một node RỖNG (khoá theo `so_hieu`), trong khi
+    # `_merge_doc` khoá theo `doc_id` — không dọn thì đồ thị có HAI node cho một văn bản, node
+    # rỗng giữ hết cạnh đi vào cũ, `related_docs()` lọc `co_toan_van=false` ra nên các quan hệ
+    # ấy biến mất, và `thieu_toan_van()` vẫn kê nó vào danh sách cần crawl. Đường xoá-sạch
+    # không cần bước này; đây là đường nạp bổ sung đầu tiên nên nó cần. Idempotent: trả `[]`
+    # và tốn đúng một câu truy vấn khi không có gì để dọn.
+    don_node_rong_da_co_toan_van()
 
 
 def push_overlay(goi: "GoiLopPhu") -> tuple[int, int]:
