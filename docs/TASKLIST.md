@@ -198,6 +198,33 @@ tác hại **bằng 0 hôm nay**.
 - **Chỉ làm khi ca đó đỏ.** Đỏ nghĩa là đã có văn bản đặt tên lệch quy ước lọt vào lớp phủ
   (nhóm nội bộ SHB là ứng viên đầu tiên) — lúc đó mới đáng trả giá refactor.
 
+### [ ] T20 · Dọn node rỗng khớp bằng `so_hieu`, mà văn bản duyệt qua `/admin` không có
+
+`don_node_rong_da_co_toan_van()` (`app/knowledge/graph.py`) tìm node rỗng cần thay bằng
+`WHERE that.so_hieu = rong.doc_id`. Nhưng `CorpusDocument.so_hieu` là **optional**, nên với
+văn bản không có số hiệu thì `_merge_doc` ghi `n.so_hieu = null` (Neo4j xoá luôn property) và
+câu khớp trên không bao giờ đúng: hàm dọn chạy, tốn một round-trip, trả `[]`, và **đồ thị nằm
+lại với hai node cho một văn bản** — node rỗng giữ hết cạnh đi vào cũ, `related_docs()` lọc
+`co_toan_van=false` ra nên các quan hệ ấy biến mất khỏi truy hồi, `thieu_toan_van()` vẫn kê
+văn bản vừa duyệt vào danh sách cần crawl. Không lỗi, không cảnh báo.
+
+**Đọc mã 10/08 thì ca này còn rộng hơn mô tả ban đầu:** không phải "chỉ hỏng khi không rút
+được số hiệu". `app/ingestion/extract.py:165 extract_document()` dựng `CorpusDocument(...)`
+mà **không truyền `so_hieu` vào**, dù `extract_metadata` ngay bên trên đã tính
+`meta["so_hieu"] = so_hieu_trong(text)` kèm hẳn một đoạn chú thích giải thích vì sao trường
+này là cây cầu. Tức **mọi** văn bản đi qua `/admin` (upload → extract → duyệt) đều có
+`so_hieu = None`, kể cả khi số hiệu nằm nguyên văn ở dòng đầu và parser đọc ra được.
+
+- Vì sao quan trọng: đây là đường duyệt trên production (T5), và lớp phủ + `related_docs`
+  đọc đúng cái node bị bỏ lại. Hôm nay tác hại còn nhỏ vì bucket mới có ít văn bản, nhưng nó
+  lớn dần theo mỗi lượt duyệt.
+- **Bước đầu tiên (một dòng):** truyền `so_hieu=meta["so_hieu"]` vào `CorpusDocument(...)`
+  trong `extract_document`, kèm một ca test rằng file có dòng số hiệu thì `doc.so_hieu` khác
+  `None`. Việc này đóng phần lớn ca, và làm được ngay — nó chỉ là điền một trường đã tính sẵn.
+- Còn lại sau bước đó: PDF scan/layout hỏng không rút được số hiệu. Lúc ấy mới phải quyết
+  **đổi khoá khớp** của hàm dọn (ví dụ khớp thêm theo `doc_id`, hoặc để admin nhập số hiệu
+  trong ô JSON trước khi duyệt) — đó là quyết định thiết kế, không phải việc sửa kèm.
+
 ---
 
 ## Tài liệu lệch với thực tế
