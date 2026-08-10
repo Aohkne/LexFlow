@@ -167,6 +167,7 @@ def push_one_doc(
     rels: list[Relationship],
     rong: list[VanBanRong] | None = None,
     canh_vao: list[Relationship] | None = None,
+    dau_mut_that: list[CorpusDocument] | None = None,
 ) -> None:
     """Nạp lại MỘT văn bản mà không đụng phần còn lại của đồ thị.
 
@@ -183,14 +184,26 @@ def push_one_doc(
     một cạnh đi vào nhập lúc duyệt sẽ vào `corpus.json`, hiện trên `/docs/[docId]`, mà đồ thị
     không bao giờ biết tới nếu ở đây chỉ dựng cạnh đi ra. `push_corpus` (đường CLI) vẫn dựng.
 
-    Node nguồn của một cạnh đi vào có thể CHƯA tồn tại. `_merge_canh` viết
+    Node ở đầu kia của một cạnh có thể CHƯA tồn tại. `_merge_canh` viết
     `MATCH (a) MATCH (b) MERGE` — thiếu một đầu là Cypher bỏ qua cả câu **trong im lặng**, y
-    hệt ca `THUOC` mô tả ở `push_overlay`. Nên đầu mút ngoài corpus phải đi kèm trong `rong`;
-    `ingest_one_doc` lo phần đó cho cả hai chiều.
+    hệt ca `THUOC` mô tả ở `push_overlay`. Nên mọi đầu mút phải đi kèm, theo đúng bản chất của
+    nó: đầu mút NGOÀI corpus vào `rong` (`VanBanRong`, `co_toan_van=false`), đầu mút LÀ văn bản
+    thật vào `dau_mut_that` (`_merge_doc`, `co_toan_van=true` — y như `push_corpus` vẫn làm cho
+    mọi văn bản). Không được đổi chỗ hai cái: dựng `VanBanRong` cho văn bản đã có toàn văn là
+    phá bất biến của `app.ingestion.bac_cau` ("node rỗng = chưa văn bản nào nhận số hiệu này").
+    `ingest_one_doc` phân loại và cảnh báo cho phần không quy được về đâu.
 
-    Giới hạn đã biết: văn bản vừa duyệt mà lại có mặt trong artefact lớp phủ thì cạnh `THUOC`
-    của nó chưa được dựng — artefact sinh offline từ `data/raw/vbpl/raw/`, không có trong
-    image. Ca này chưa từng xảy ra; gặp thì chạy `push_overlay` một lượt.
+    Giới hạn đã biết:
+
+    * Văn bản vừa duyệt mà lại có mặt trong artefact lớp phủ thì cạnh `THUOC` của nó chưa được
+      dựng — artefact sinh offline từ `data/raw/vbpl/raw/`, không có trong image. Ca này chưa
+      từng xảy ra; gặp thì chạy `push_overlay` một lượt.
+    * `don_node_rong_da_co_toan_van()` khớp node rỗng bằng `that.so_hieu = rong.doc_id`, mà
+      `CorpusDocument.so_hieu` là **optional** — và `extract.extract_document` hiện không
+      truyền nó vào, nên MỌI văn bản duyệt qua `/admin` đều có `so_hieu = None`. Với chúng,
+      hàm dọn chạy nhưng không bao giờ khớp: đồ thị nằm lại với hai node cho một văn bản. Xem
+      T20 trong `docs/TASKLIST.md` (bước đầu là một dòng ở `extract_document`); đổi khoá khớp
+      là quyết định thiết kế, không phải việc của đường nạp này.
     """
     ensure_constraints()
     with session() as s:
@@ -204,6 +217,8 @@ def push_one_doc(
         )
         for v in rong or []:
             _merge_rong(s, v)
+        for d in dau_mut_that or []:
+            _merge_doc(s, d)
         for r in rels:
             _merge_canh(s, r)
         for r in canh_vao or []:

@@ -306,10 +306,11 @@ def ingest_one_doc(
     # DeprecationWarning), `list_tables()` thì không. Xem T18 trong docs/TASKLIST.md.
     if LANCEDB_TABLE in db.table_names():
         tbl = db.open_table(LANCEDB_TABLE)
-        # `delete` chạy LUÔN, kể cả khi văn bản không còn điều nào. Về sớm khi `rows` rỗng —
-        # admin xoá hết Điều trong ô JSON, hoặc extract ra 0 điều — là để nguyên chunk cũ
-        # trong bảng đang phục vụ: truy hồi tiếp tục trả về đúng đoạn văn vừa bị xoá, và trả
-        # 200 `approved` để báo là xong.
+        # `delete` chạy LUÔN, kể cả khi văn bản không còn điều nào (admin xoá hết Điều trong ô
+        # JSON, hoặc extract ra 0 điều); chỉ `_embed_rows` + `add` mới bị bỏ qua khi `rows`
+        # rỗng. Bản trước về sớm ngay đầu hàm khi `rows` rỗng, và đó là lỗi: chunk cũ nằm lại
+        # trong bảng đang phục vụ nên truy hồi vẫn trả về đúng đoạn văn vừa bị xoá, trong khi
+        # API trả 200 `approved` báo là xong.
         tbl.delete(f"doc_id = '{doc.doc_id}'")
         if rows:
             _embed_rows(rows)
@@ -329,19 +330,47 @@ def ingest_one_doc(
         canh_tat_ca, rong_tat_ca, cb = quy_ve_doc_id(rels, tat_ca_docs)
         for c in cb:
             print(f"[ingest] cảnh báo: {c}")
-        canh = [c for c in canh_tat_ca if c.source_doc == doc.doc_id]
+        # `_merge_canh` khớp CẢ HAI đầu bằng `MATCH`, và Cypher bỏ qua cả câu **trong im lặng**
+        # khi một vế không khớp. Nên mỗi đầu mút phải có đúng một cách dựng node — và cạnh nào
+        # không có cách nào thì bị loại ra CÓ TIẾNG, chứ không đếm vào số cạnh "đã ghi".
+        rong_theo_sh = {v.so_hieu: v for v in rong_tat_ca}
+        docs_theo_id = {d.doc_id: d for d in tat_ca_docs}
+
+        def co_node(dau_mut: str) -> bool:
+            return dau_mut == doc.doc_id or dau_mut in rong_theo_sh or dau_mut in docs_theo_id
+
         # Cạnh đi VÀO cũng phải được dựng (MERGE, không xoá — chúng thuộc văn bản kia):
         # `approve_document` nhận `relationships` tự do từ ô JSON của admin, không gì buộc
         # `source_doc == doc_id`. Chỉ lọc theo `source_doc` là cạnh đi vào lọt vào
         # `corpus.json`, hiện trên `/docs/[docId]`, mà đồ thị lặng lẽ không có.
-        canh_vao = [
-            c for c in canh_tat_ca if c.target_doc == doc.doc_id and c.source_doc != doc.doc_id
-        ]
-        # Node rỗng cho đầu mút NGOÀI corpus của cả hai chiều: `_merge_canh` khớp hai đầu bằng
-        # `MATCH`, thiếu một đầu là Cypher bỏ qua cả câu trong im lặng.
+        canh: list[Relationship] = []
+        canh_vao: list[Relationship] = []
+        for c in canh_tat_ca:
+            if c.source_doc == doc.doc_id:
+                dich = canh
+            elif c.target_doc == doc.doc_id:
+                dich = canh_vao
+            else:
+                continue
+            if co_node(c.source_doc) and co_node(c.target_doc):
+                dich.append(c)
+            else:
+                print(
+                    f"[ingest] cảnh báo: bỏ cạnh {c.source_doc!r} -{c.rel_type}-> "
+                    f"{c.target_doc!r}: đầu mút không quy được về văn bản nào, Neo4j sẽ bỏ câu "
+                    "MERGE trong im lặng nên không tính nó vào số cạnh đã ghi"
+                )
+
         ngoai = {c.target_doc for c in canh} | {c.source_doc for c in canh_vao}
+        ngoai.discard(doc.doc_id)
+        # Hai loại đầu mút, hai cách dựng, KHÔNG được lẫn: ngoài corpus ⇒ node rỗng; là văn bản
+        # thật trong corpus (đã duyệt trước đó nhưng có thể chưa lên đồ thị — `neo4j_enabled`
+        # tắt lúc ấy, hoặc Aura rớt giữa chừng như ca `SessionExpired` 10/08) ⇒ `_merge_doc`
+        # đúng như `push_corpus` vẫn làm. Dựng `VanBanRong` cho văn bản đã có toàn văn là phá
+        # bất biến của `bac_cau`.
         rong = [v for v in rong_tat_ca if v.so_hieu in ngoai]
-        push_one_doc(doc, canh, rong, canh_vao)
+        dau_mut_that = [docs_theo_id[i] for i in sorted(ngoai) if i in docs_theo_id]
+        push_one_doc(doc, canh, rong, canh_vao, dau_mut_that)
         print(
             f"[ingest] {doc.doc_id}: 1 node + {len(canh)} cạnh đi ra "
             f"+ {len(canh_vao)} cạnh đi vào vào Neo4j (không xoá sạch)."

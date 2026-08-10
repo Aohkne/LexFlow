@@ -175,8 +175,8 @@ def _bat_push_one_doc(monkeypatch) -> dict:
     monkeypatch.setattr(pipeline.settings, "neo4j_password", "test")
     monkeypatch.setattr(
         "app.knowledge.graph.push_one_doc",
-        lambda doc, rels, rong=None, canh_vao=None: ghi.update(
-            doc=doc, rels=rels, rong=rong, canh_vao=canh_vao
+        lambda doc, rels, rong=None, canh_vao=None, dau_mut_that=None: ghi.update(
+            doc=doc, rels=rels, rong=rong, canh_vao=canh_vao, dau_mut_that=dau_mut_that
         ),
     )
     return ghi
@@ -213,6 +213,47 @@ def test_nguon_ngoai_corpus_cua_canh_di_vao_duoc_dung_node_rong(bang, monkeypatc
     )
 
 
+def test_nguon_that_cua_canh_di_vao_duoc_dung_node_that_chu_khong_phai_node_rong(
+    bang, monkeypatch
+):
+    """Nguồn là văn bản THẬT trong corpus nhưng có thể chưa lên đồ thị.
+
+    Xảy ra khi lượt duyệt trước chạy lúc `neo4j_enabled` tắt, hoặc Aura rớt giữa chừng (ca
+    `SessionExpired` có thật 10/08). Khi đó `_merge_canh` không khớp được vế `MATCH` bên nguồn
+    và Cypher bỏ cả câu trong im lặng — cạnh không bao giờ tồn tại, mà `ingest_one_doc` vẫn in
+    ra như đã ghi. Nó phải được `_merge_doc` (`co_toan_van=true`), KHÔNG phải `VanBanRong`:
+    node rỗng cho văn bản đã có toàn văn là phá bất biến của `bac_cau`.
+    """
+    ghi = _bat_push_one_doc(monkeypatch)
+    doc, nguon = _doc("TT99-2026"), _doc("TT01-2020")
+    vao = Relationship(source_doc="TT01-2020", target_doc="TT99-2026", rel_type="SUA_DOI_BO_SUNG")
+
+    pipeline.ingest_one_doc(doc, [vao], [doc, nguon])
+
+    assert [d.doc_id for d in ghi["dau_mut_that"]] == ["TT01-2020"]
+    assert ghi["rong"] == [], "TT01-2020 có toàn văn — dựng node rỗng cho nó là nói dối đồ thị"
+    assert [(c.source_doc, c.target_doc) for c in ghi["canh_vao"]] == [("TT01-2020", "TT99-2026")]
+
+
+def test_canh_khong_quy_duoc_dau_mut_thi_keu_len_chu_khong_im_lang(bang, monkeypatch, capsys):
+    """Đầu mút không phải `doc_id` trong corpus, cũng không đọc được thành số hiệu.
+
+    Không có node nào dựng được cho nó, nên cạnh này Neo4j sẽ bỏ trong im lặng. Loại nó ra và
+    NÓI RA, để số cạnh in ở dòng tổng kết là số đã ghi thật chứ không phải số đã thử.
+    """
+    ghi = _bat_push_one_doc(monkeypatch)
+    doc = _doc("TT99-2026")
+    hong = Relationship(source_doc="nguồn nào đó", target_doc="TT99-2026", rel_type="BAI_BO")
+    tot = Relationship(source_doc="52/2024/NĐ-CP", target_doc="TT99-2026", rel_type="DAN_CHIEU")
+
+    pipeline.ingest_one_doc(doc, [hong, tot], [doc])
+
+    assert [c.source_doc for c in ghi["canh_vao"]] == ["52/2024/NĐ-CP"]
+    ra = capsys.readouterr().out
+    assert "nguồn nào đó" in ra and "bỏ cạnh" in ra
+    assert "0 cạnh đi ra + 1 cạnh đi vào" in ra, "số cạnh phải đếm cái ĐÃ GHI, không phải đã thử"
+
+
 def test_van_ban_khong_con_dieu_nao_van_xoa_chunk_cu_va_len_do_thi(bang, monkeypatch):
     """0 điều là ca có thật (admin xoá hết Điều trong ô JSON, hoặc extract ra rỗng).
 
@@ -239,7 +280,7 @@ def test_van_ban_khong_con_dieu_nao_van_xoa_chunk_cu_va_len_do_thi(bang, monkeyp
 # thật trên session giả và đọc chuỗi Cypher nó phát ra, theo nếp `tests/test_push_overlay.py`.
 
 
-def _phat_cypher(doc, rels, rong=None, canh_vao=None, ids_rong=()):
+def _phat_cypher(doc, rels, rong=None, canh_vao=None, dau_mut_that=None, ids_rong=()):
     """Chạy `push_one_doc` thật trên session giả → (danh sách câu Cypher, danh sách lời gọi).
 
     `ids_rong` là thứ câu đầu của `don_node_rong_da_co_toan_van` trả về, tức **chọn nhánh**
@@ -253,7 +294,7 @@ def _phat_cypher(doc, rels, rong=None, canh_vao=None, ids_rong=()):
     phien.run.return_value.single.return_value = {"ids": list(ids_rong)}
     with patch("app.knowledge.graph.session") as mo:
         mo.return_value.__enter__.return_value = phien
-        graph.push_one_doc(doc, rels, rong, canh_vao)
+        graph.push_one_doc(doc, rels, rong, canh_vao, dau_mut_that)
     return [c.args[0] for c in phien.run.call_args_list], phien.run.call_args_list
 
 
@@ -391,3 +432,26 @@ def test_don_node_rong_nhanh_co_viec_doi_canh_xong_moi_xoa_va_xoa_dung_pham_vi()
     assert any("rong.co_toan_van = false" in c and "collect(DISTINCT rong.doc_id)" in c
                for c in cypher)
     assert all(goi[i].kwargs["ids"] == ids for i in doi), "mọi câu dời cạnh phải cùng phạm vi"
+
+
+def test_dau_mut_that_duoc_merge_truoc_khi_dung_canh():
+    """Cạnh đi vào từ một văn bản thật chưa lên đồ thị: node nguồn phải được MERGE trước.
+
+    `_merge_canh` khớp hai đầu bằng `MATCH`; thiếu node nguồn thì Cypher bỏ cả câu trong im
+    lặng — cạnh không tồn tại mà không ai biết.
+    """
+    nguon = _doc("TT01-2020")
+    vao = Relationship(source_doc="TT01-2020", target_doc="TT99-2026", rel_type="SUA_DOI_BO_SUNG")
+
+    cypher, goi = _phat_cypher(_doc("TT99-2026"), [], None, [vao], [nguon])
+
+    merge_nguon = [
+        i for i, c in enumerate(goi)
+        if "MERGE (n:Document" in c.args[0] and c.kwargs.get("doc_id") == "TT01-2020"
+    ]
+    assert len(merge_nguon) == 1, "node nguồn phải được dựng đúng một lần"
+    assert "n.co_toan_van=true" in cypher[merge_nguon[0]], (
+        "nguồn có toàn văn ⇒ node THẬT; dựng node rỗng cho nó là phá bất biến của bac_cau"
+    )
+    i_canh = next(i for i, c in enumerate(cypher) if "MERGE (a)-[e:" in c)
+    assert merge_nguon[0] < i_canh
