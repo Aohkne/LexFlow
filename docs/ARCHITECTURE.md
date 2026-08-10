@@ -130,3 +130,19 @@ Không cấu hình Supabase → backend chạy **dev mode**: auth no-op (user gi
    ghi `change_events` (migration 0003, idempotent); trang `/alerts` hiện danh sách
    + đăng ký nhận cảnh báo (`alert_subscriptions`). Gửi email thật = nâng cấp sau
    (Resend/SMTP + Cloud Run Jobs định kỳ khi có nguồn crawl văn bản).
+
+## Cấp quyền admin
+
+"Admin" có **một** nguồn sự thật: `app_metadata.role` trong JWT Supabase. FastAPI
+(`require_admin`), web (4 chỗ) và RLS (`is_admin()`, từ migration `0007`) đều đọc đúng chỗ đó.
+`public.profiles.role` **đã chết** — còn trong schema nhưng không ai đọc.
+
+Cấp quyền là thao tác tay, cố ý: chỉ service-role đặt được `app_metadata`, mà backend không
+giữ service-role key (xem docstring `app/core/appdb.py`).
+
+1. Supabase Dashboard → Authentication → Users → chọn user → Edit user
+2. App Metadata → `{"role": "admin"}` → Save
+3. **Đăng nhập lại** — JWT cũ vẫn mang role cũ tới lúc hết hạn
+
+Không có bước 3 thì triệu chứng rất dễ đọc nhầm thành "migration hỏng": Dashboard hiển thị
+role đúng, mà `/admin` vẫn 403.
