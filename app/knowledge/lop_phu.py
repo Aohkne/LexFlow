@@ -125,7 +125,7 @@ def tach_khoa(khoa: str, lp: LopPhuRuntime) -> tuple[str | None, str | None]:
     """Khoá overlay → (`doc_id`, nhãn kiểu `"Điều 1 Khoản 2"`). Không giải được ⇒ (None, None).
 
     `doc_id` tra từ bảng của artefact, **không suy theo quy ước đặt tên**. Số hiệu không có
-    trong bảng nghĩa là văn bản nằm ngoài corpus (vd `135/2015/NĐ-CP`, đích của 39/178 cạnh) —
+    trong bảng nghĩa là văn bản nằm ngoài corpus (vd `135/2015/NĐ-CP`, đích của 39/177 cạnh) —
     khi đó không có `doc_id` nào đúng, nên trả `None` chứ không sinh ra một mã trông như thật:
     phía web dựng link `/docs/{id}` từ giá trị này, và một mã bịa dẫn thẳng tới trang trống.
     Nhãn vẫn giải được nên vẫn trả — mất `doc_id` không có nghĩa là mất địa chỉ.

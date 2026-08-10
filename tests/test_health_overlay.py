@@ -34,8 +34,11 @@ def test_artefact_that_thi_bao_so_canh(client):
     assert body["status"] == "ok"
     assert body["overlay"]["bat"] is True
     assert body["overlay"]["nap"] is True
-    assert body["overlay"]["so_canh"] == 178
-    assert body["overlay"]["sinh_luc"] == "2026-08-06"
+    # Hai hằng này đi theo `data/overlay/lop_phu.json` và ĐỔI MỖI LẦN artefact được sinh lại —
+    # `sinh_luc` là ngày chạy `dong_goi`. 178 → 177 vì bỏ một cạnh GIẢ (xem `_che_khoi_ket`,
+    # issue #12), không phải mất dữ liệu.
+    assert body["overlay"]["so_canh"] == 177
+    assert body["overlay"]["sinh_luc"] == "2026-08-09"
 
 
 def test_thieu_artefact_thi_degraded_nhung_van_200(client, monkeypatch, tmp_path):
@@ -73,8 +76,8 @@ def test_log_khoi_dong_noi_so_canh(caplog):
     lop_phu.tai_lop_phu.cache_clear()
     with caplog.at_level("INFO", logger="app.main"):
         main._bao_lop_phu()
-    assert "178 cạnh" in caplog.text
-    assert "2026-08-06" in caplog.text
+    assert "177 cạnh" in caplog.text  # đi theo artefact, xem chú thích ở test trên
+    assert "2026-08-09" in caplog.text
 
 
 def test_log_khoi_dong_canh_bao_khi_thieu_artefact(caplog, monkeypatch, tmp_path):
