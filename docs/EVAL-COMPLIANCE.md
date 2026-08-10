@@ -180,13 +180,11 @@ dám kết luận. Chưa truy nguyên nhân.
   `so_sanh_phan_dinh.py` chạy cả 20 ca âm chính là để bịt chỗ này.
 - ~~Nhãn đang gắn sai tầng.~~ **Đã sửa 10/08 — xem §2c.** `eval/mau_thuan_vang.jsonl` gắn nhãn
   vào cặp điều khoản, `eval/cham_mau_thuan.py` chấm, `eval/do_precision_cap.py` chạy.
-- **Cặp `Mục 4.2 ↔ TT40 Điều 25` chưa bao giờ bắt được** — nghi do chunk chứa khoản 1 Điều 25
-  không lọt vào tập truy hồi. Chưa xác nhận, đừng sửa trước khi xác nhận.
+- **Cặp `Mục 4.2 ↔ TT40 Điều 25` chưa bao giờ bắt được** → `docs/TASKLIST.md` **T23**.
 - ~~Chưa phân tích mức nghiêm trọng của cảnh báo thừa.~~ **Đã đo 10/08 — xem §2b.** Giả thuyết
   "phần lớn là `info`" **đúng về tỷ lệ** (~70% ở cả hai nhóm) nhưng **sai về tác dụng**: lọc
   `severity` chỉ đưa ca âm từ 8/20 xuống 5/20, còn lọc theo **cặp nguồn** xuống 4/20 và làm
   luôn phần việc của lọc severity.
-- ~~`review.py` chưa có phép đo nào.~~ **Đã chấm 10/08 — xem §3b.** Còn lại ở đó:
-  `SHB-QD-TK-2022::Mục 2.3` ra `warning` thay vì `violation`, ổn định qua hai lượt — chưa truy
-  nguyên nhân. Và bộ nhãn mới phủ 7/12 mục nội bộ; 5 mục kia cần người có thẩm quyền phát biểu
-  verdict đúng trước khi đo được.
+- ~~`review.py` chưa có phép đo nào.~~ **Đã chấm 10/08 — xem §3b.** Hai việc còn lại đã vào
+  hàng đợi: `Mục 2.3` ra `warning` thay vì `violation` → **T24**; bộ nhãn mới phủ 7/12 mục nội
+  bộ, 5 mục kia cần người có thẩm quyền → **T25**.
