@@ -6,6 +6,95 @@
 
 ---
 
+## 2026-08-10 (CN) — dữ liệu đang phục vụ đã mang bản vá; mã và dữ liệu khớp nhau
+
+- **Done (T2 — id chunk phải định danh đúng một chunk).** `TT23-2019 Điều 1` là điều *sửa đổi*
+  dài 55.902 ký tự, chép nguyên văn nhiều điều của TT39-2014 nên số khoản **khởi động lại
+  nhiều lần** trong cùng một điều. Chunker thấy một điều phẳng và đúc ra cùng một nhãn ba lần
+  ⇒ **5 id / 7 hàng đụng nhau**. Vì `_rrf()` gom kết quả vào `dict` khoá bằng `id`, một hàng bị
+  nuốt và trích dẫn trỏ tới một địa chỉ mang ba nội dung khác nhau. Nay nhãn trùng được thêm
+  hậu tố thứ tự (`Điều 1 Khoản 2 (2)`), và nhãn dải kiểu `"Khoản 18-1"` — vốn tuyên bố một dải
+  chạy ngược từ 18 về 1 — rơi về số khoản đầu.
+- **Done (T1 — re-ingest).** LanceDB Cloud: **661 hàng / 661 id phân biệt** (trước: 654 id).
+  Neo4j về đúng số cũ: 26 `Document` · 293 `DonVi` · 255 `THUOC` · 178 `TAC_DONG` · 35 cạnh
+  văn bản.
+- **Hai cái bẫy lộ ra giữa lượt ingest, đều đã bịt.** (1) `ingest_docs` **không** gọi lại
+  `push_overlay` sau `push_corpus`, mà `push_corpus` mở đầu bằng `DETACH DELETE` trên
+  `Document` — xoá luôn 255 cạnh `THUOC`. Node `DonVi` và cạnh `TAC_DONG` sống sót nên đồ thị
+  *trông vẫn đủ*, chỉ mất sạch đường nối về văn bản, không một lời báo. Yêu cầu này trước nay
+  chỉ nằm trong docstring dặn người chạy nhớ. (2) Aura **rớt kết nối giữa chừng** ở 221/255
+  cạnh vì `push_overlay` chạy ~764 round-trip lẻ trong một session — gộp lô bằng `UNWIND` còn
+  3 câu lệnh.
+- **Verify (trên chính dữ liệu đang phục vụ, không nhìn exit code).** `TT66-2025 Điều 6` hết
+  cắt giữa từ. Bốn chunk từng đụng chung id lộ ra là **bốn điều khoản khác hẳn nhau** — thông
+  tin khách hàng mở Ví · hạn mức BTĐT · quyền và trách nhiệm ngân hàng hợp tác — tức va chạm cũ
+  đúng là có hại thật. Hybrid search trả 4 hit bình thường ⇒ chỉ mục FTS sống sót qua lượt ghi
+  đè.
+- **Ship.** `3219fba`, `f3ccf2f`. Cloud Run rev **`00021-jvs`** (100% traffic). 737 test xanh,
+  ruff sạch, CI xanh.
+- **Verify sau deploy.** `/health` không phân biệt được revision cũ với mới (khối `overlay` đã
+  có từ bản trước), nên nghiệm thu bằng thứ đúng chỗ: tra 10 nhãn có hậu tố **trên bảng LanceDB
+  đang phục vụ** — **10/10 giải được** bằng mã mới, **0/10** bằng regex cũ; cả 10 rơi về khoá
+  cấp điều `23/2019/TT-NHNN#than/dieu_1`, đúng thiết kế.
+- **Decision.** Không đổi model embedding sang `paraphrase-multilingual-mpnet-base-v2`. Nó
+  cũng 768 chiều nên schema không phải đổi, nhưng cửa sổ **128 token** so với ngưỡng
+  **~7.156 ký tự** vừa đo được của Gemini nghĩa là gần như *toàn bộ* 661 chunk sẽ mất đuôi
+  (median chunk 1.044 ký tự). Thêm nữa, đổi model là đổi **cả hai đầu** — vector câu hỏi phải
+  cùng không gian với vector chunk — nên Cloud Run (512Mi) sẽ phải gánh torch + 1,1 GB trọng
+  số. Và chưa có bộ câu hỏi chấm điểm thì đổi xong cũng không biết tốt lên hay xấu đi.
+- **Đính chính.** Ghi chép 09/08 đoán "sửa T2 thì T3 tan theo" — **sai**. T2 chỉ đổi nhãn,
+  không chẻ nhỏ thêm; chunk quá cỡ vẫn còn, mang tên mới `TT23-2019::Điều 1 Khoản 6 (2)`
+  (9.750 ký tự, mất ~2.594). Muốn hết phải chẻ *bên trong* một khoản ⇒ thêm một lượt re-ingest.
+- **Next.** (1) Không còn mục nào chặn. (2) **T5** là rủi ro lớn nhất còn lại cho kỳ đánh giá:
+  luồng duyệt văn bản qua `/admin` **chưa từng chạy thật** trên production (bucket `legal-docs`
+  rỗng, `legal_documents` rỗng), mà đó là tính năng sẽ được nhìn. (3) `docs/ARCHITECTURE.md`
+  không hề nhắc tới lớp phủ — cả một tầng kiến trúc đã lên sản phẩm mà tài liệu kiến trúc
+  không biết.
+
+---
+
+## 2026-08-09 (T7) — dọn ba chỗ "hỏng lặng lẽ", và một cuốn sổ nợ
+
+- **Done (chunk cắt giữa từ).** Điều dài mà regex khoản không bắt được cấu trúc thì bị cắt
+  **cửa sổ ký tự cứng**. Ca thật duy nhất trong corpus: `TT66-2025 Điều 6` (4.313 ký tự) — một
+  điều *sửa đổi* đánh số ở cấp điểm/tiểu mục (`đ)`, `(i)`…`(vii)`) chứ không phải khoản. Vết
+  cắt ở vị trí 4.000 chẻ đôi chữ **"ngân"** thành `ngâ` + `n`, mà điều này lại nằm trên đường
+  nóng của lớp phủ nên chữ kéo vào prompt mở đầu bằng nửa câu. Vá bằng hai lớp: **thang bậc cấu
+  trúc** (điểm → tiểu mục → gạch đầu dòng) và **lưới ranh giới dòng/câu/từ**. Nhãn giữ nguyên
+  `(phần k)` ở mọi bậc dưới khoản — `đ)`/`(i)` trong một điều sửa đổi là chữ TRÍCH của văn bản
+  bị sửa, gắn nhãn "Điểm đ" cho nó là khai man địa chỉ pháp lý.
+- **Số đo.** 651/654 chunk id giữ nguyên **từng byte**, 0 id thêm/mất, chỉ 3 mảnh của
+  `TT66-2025 Điều 6` đổi ⇒ bộ nhãn lớp phủ và benchmark đã đo không phải làm lại.
+- **Done (T3 — đo giới hạn embedding).** `scripts/do_gioi_han_embed.py`: gắn câu mốc vào cuối
+  chuỗi rồi so vector, mốc không làm đổi vector nghĩa là nó không tới được model. Kết quả:
+  **ngưỡng ~7.156 ký tự**, chỉ **1/661 chunk** vượt. Tức `_MAX_CHUNK = 2000` là lựa chọn về
+  **độ chính xác retrieval**, không phải ràng buộc của API — trần thật cách nó hơn ba lần.
+- **Done (T10 — một nguồn ánh xạ `doc_id`).** `dong_goi` đã đóng băng bảng `so_hieu_theo_doc`
+  vào artefact, nhưng `lop_phu.tach_khoa` vẫn **suy lại** `doc_id` từ số hiệu theo quy ước.
+  Lệch 4/26 văn bản (toàn nhóm nội bộ SHB). Nặng hơn: với 9 văn bản **ngoài corpus**, quy ước
+  **bịa** ra mã trông y hệt mã thật (`ND135-2015`, `TT19-2016`) khiến web dựng link `/docs/{id}`
+  tới trang trống. Nay tra bảng, không có thì trả `None`. Ba call site còn lại nằm sâu trong
+  khoá sắp xếp và hàm dựng câu trích — thay vì refactor rộng cho một lỗi tác hại bằng 0, đặt
+  một **test dây bẫy** đỏ đúng ngày điều đó hết đúng.
+- **Done (T9 — lớp phủ hỏng lặng lẽ).** `/health` nay có khối `overlay` (`nap`, `so_canh`,
+  `sinh_luc`), `status` xuống `degraded` khi lớp phủ bật mà artefact không nạp được, và log một
+  dòng lúc khởi động. HTTP vẫn 200 ở mọi ca — không có gì đọc endpoint này bằng máy, đổi thành
+  mã lỗi là biến cảnh báo thành sự cố triển khai.
+- **Chạy server thật cứu một bàn.** Test xanh hết nhưng chạy `uvicorn` thì **dòng log không hề
+  tồn tại**: uvicorn chỉ cấu hình logger `uvicorn.*`, mọi record `app.*` mức INFO rơi vào hư
+  không. `basicConfig` cũng không cứu được vì nó là no-op khi root đã có handler — đúng tình
+  huống dưới pytest. Phải đặt mức thẳng trên namespace `app`, và ca test nay assert
+  `isEnabledFor(INFO)` trước khi xét nội dung, vì `caplog` tự gắn handler nên sẽ xanh trong khi
+  ngoài đời log mất hút.
+- **Ship.** `8dd53f0`, `83ac6dd`, `27abe0d`, `85c9467`. 730 test xanh, ruff sạch, CI xanh.
+- **Decision.** Lập `docs/TASKLIST.md` — sổ ghi việc **đã biết nhưng chưa làm**, mỗi mục kèm
+  *vì sao quan trọng*, *bước đầu tiên cụ thể* và **ngày đo** của mọi con số, để một số liệu cũ
+  nhìn ra là cũ thay vì được tin. Khác `ROADMAP-SPRINT.md` (kế hoạch theo sprint) và worklog
+  này (nhật ký theo ngày): nó tổ chức theo *cái gì còn mở*, và teo dần khi đóng mục.
+- **Next.** Re-ingest LanceDB để hai bản vá chunking tới được dữ liệu đang phục vụ (T1 + T2).
+
+---
+
 ## 2026-08-07 (T6) — thuộc tính văn bản: 1/26 → 14/26, và đường lên canonical
 
 - **Done.** Bản crawl vbpl.vn có đủ bảng Thuộc tính cho 22 văn bản, nhưng corpus canonical chỉ
