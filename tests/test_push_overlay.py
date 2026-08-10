@@ -20,6 +20,27 @@ def test_merge_node_va_canh():
     assert ":DonVi" in cypher and ":TAC_DONG" in cypher
 
 
+def test_gop_lo_khong_mot_luot_moi_hang():
+    """Số lượt gọi Neo4j phải là HẰNG SỐ, không tỉ lệ với số nút.
+
+    Bản một-lượt-mỗi-hàng chạy ~764 round-trip trong một session và Aura free rớt kết nối
+    giữa chừng (gặp thật 10/08: `SessionExpired` sau khi dựng lại 221/255 cạnh `THUOC`, đồ thị
+    nằm lại nửa vời). Ca này canh đúng cái tính chất khiến chuyện đó không lặp lại.
+    """
+    phien = MagicMock()
+    with patch("app.knowledge.graph.session") as mo:
+        mo.return_value.__enter__.return_value = phien
+        push_overlay(_goi())
+
+    # 2 lượt `CREATE CONSTRAINT` của `ensure_constraints` + 3 lượt gộp lô.
+    assert phien.run.call_count <= 6, (
+        f"{phien.run.call_count} lượt cho 6 nút — đang gọi theo từng hàng, "
+        "lớp phủ thật có 293 nút thì đứt kết nối"
+    )
+    ghi = [str(c) for c in phien.run.call_args_list if "MERGE" in str(c)]
+    assert ghi and all("UNWIND" in c for c in ghi), "câu MERGE nào cũng phải đi theo lô"
+
+
 def test_ensure_constraints_phu_ca_DonVi_khoa():
     """Fix wave 06/08, IMPORTANT 5: `push_overlay` gọi `ensure_constraints()`, đọc như đã có
     ràng buộc — nhưng nó chỉ tạo ràng buộc trên `Document.doc_id`, nên MỌI

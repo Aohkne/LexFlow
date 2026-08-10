@@ -163,6 +163,12 @@ def push_overlay(goi: "GoiLopPhu") -> tuple[int, int]:
     hàm này đếm số cạnh `THUOC` MERGE được so với số nút overlay có `doc_id`, và in ra
     khoảng chênh thay vì để người chạy đoán.
 
+    Ba câu `UNWIND`, không phải một câu mỗi hàng. Bản cũ chạy ~764 lượt round-trip riêng lẻ
+    (293 nút + 293 `THUOC` + 178 cạnh) trong một session, và Aura free **rớt kết nối giữa
+    chừng** — gặp thật 10/08: `SessionExpired` sau khi mới dựng lại 221/255 cạnh `THUOC`, tức
+    đồ thị nằm lại đúng trạng thái nửa vời mà đoạn trên vừa mô tả. Gộp lô làm việc chạy lại
+    được, nhưng quan trọng hơn là nó gần như không còn cửa để đứt giữa chừng.
+
     **Phải chạy lại SAU MỖI `push_corpus`.** `push_corpus` mở đầu bằng
     `MATCH (d:Document) DETACH DELETE d`, mà `DETACH` xoá **mọi** cạnh chạm các node đó — kể cả
     `THUOC` phát từ `(:DonVi)`. Node `DonVi` và cạnh `TAC_DONG` thì KHÔNG bị xoá (chúng không
@@ -177,27 +183,32 @@ def push_overlay(goi: "GoiLopPhu") -> tuple[int, int]:
     canh = [c.thanh_canh() for c in goi.canh]
     nodes = dung_overlay(canh)
     co_doc_id = sum(1 for n in nodes if n.doc_id)
-    thuoc_tao_duoc = 0
     with session() as s:
-        for n in nodes:
-            s.run(
-                "MERGE (d:DonVi {khoa: $khoa}) SET d.doc_id = $doc_id, d.vai = $vai",
-                khoa=n.khoa, doc_id=n.doc_id, vai=n.vai,
-            )
-            if n.doc_id:
-                rec = s.run(
-                    "MATCH (d:DonVi {khoa: $khoa}) MATCH (v:Document {doc_id: $doc_id}) "
-                    "MERGE (d)-[r:THUOC]->(v) RETURN count(r) AS n",
-                    khoa=n.khoa, doc_id=n.doc_id,
-                ).single()
-                thuoc_tao_duoc += rec["n"] if rec else 0
-        for c in canh:
-            s.run(
-                "MATCH (a:DonVi {khoa: $nguon}) MATCH (b:DonVi {khoa: $dich}) "
-                "MERGE (a)-[r:TAC_DONG {thao_tac: $thao_tac}]->(b) "
-                "SET r.valid_from = $valid_from",
-                nguon=c.nguon, dich=c.dich, thao_tac=c.thao_tac, valid_from=c.valid_from,
-            )
+        s.run(
+            "UNWIND $hang AS h "
+            "MERGE (d:DonVi {khoa: h.khoa}) SET d.doc_id = h.doc_id, d.vai = h.vai",
+            hang=[{"khoa": n.khoa, "doc_id": n.doc_id, "vai": n.vai} for n in nodes],
+        )
+        rec = s.run(
+            "UNWIND $hang AS h "
+            "MATCH (d:DonVi {khoa: h.khoa}) MATCH (v:Document {doc_id: h.doc_id}) "
+            "MERGE (d)-[r:THUOC]->(v) RETURN count(r) AS n",
+            hang=[{"khoa": n.khoa, "doc_id": n.doc_id} for n in nodes if n.doc_id],
+        ).single()
+        thuoc_tao_duoc = rec["n"] if rec else 0
+        s.run(
+            "UNWIND $hang AS h "
+            "MATCH (a:DonVi {khoa: h.nguon}) MATCH (b:DonVi {khoa: h.dich}) "
+            "MERGE (a)-[r:TAC_DONG {thao_tac: h.thao_tac}]->(b) "
+            "SET r.valid_from = h.valid_from",
+            hang=[
+                {
+                    "nguon": c.nguon, "dich": c.dich,
+                    "thao_tac": c.thao_tac, "valid_from": c.valid_from,
+                }
+                for c in canh
+            ],
+        )
     print(
         f"[push_overlay] THUOC: {thuoc_tao_duoc}/{co_doc_id} nút overlay có doc_id "
         f"nối được vào Document đã có trong corpus (chênh lệch = văn bản chưa crawl)."
