@@ -6,6 +6,63 @@
 
 ---
 
+## 2026-08-10 (T2) — dựng tầng đo theo bài báo ACIIDS 2026, và bộ eval biết đến thời gian
+
+**Giai đoạn:** đối chiếu LexFlow với `docs/paper/ACIIDS2026a.pdf` (SBV-LawGraph, HCMUT).
+
+- **Đọc bài báo → khoảng cách thật không nằm ở retrieval mà ở đo lường.** LexFlow đã có hybrid +
+  RRF k=60 + Neo4j 1-hop như họ, và có thêm thứ họ không có: lọc hiệu lực `as_of`, lớp phủ
+  dưới-văn-bản, conflict detector, review tuân thủ. Thứ thiếu là **thước**: họ báo cáo
+  R@k/P@k/MRR@k/F2@k trên 829 câu có nhãn, ta chỉ có citation_accuracy trên 36 câu một nhãn.
+- **Done — tầng đo.** `eval/metrics.py` (thuần hàm), `eval/bo_cau_hoi.py` (định dạng nhãn + loader,
+  dòng hỏng thì **ném** chứ không bỏ qua im lặng), 6 cột so sánh trong `run_benchmark.py`: BM25 ·
+  Naive RAG · Advanced RAG (tái lập §5.2 của họ) và LexFlow hybrid · +graph · +router. Cách đo và
+  các cảnh báo khi đọc số: `docs/EVAL-IR.md`.
+- **Số đo — 36 câu, `eval/results/20260810-145813.json`, 0 câu lỗi.** Gate hồi quy giữ nguyên:
+  stale_avoidance baseline 21/36 → LexFlow **36/36**. Mức văn bản, F2@2: BM25 0.44 · Naive RAG
+  0.69 · Advanced RAG 0.46 · **LexFlow 0.81**; R@1 0.42 / 0.56 / 0.47 / **0.72**.
+- **Hai điều đáng ghi.** (1) **Advanced RAG của bài báo thua Naive RAG** ở đây — trọng số 75% BM25
+  của họ chỉnh cho corpus 840 văn bản, với 26 văn bản thì nhánh BM25 yếu nên đè 75% lên là hại;
+  siêu tham số của họ không chuyển sang corpus khác được. (2) **+graph và +router giống hệt
+  hybrid** ở mức văn bản (router chỉ đổi 1/36 câu) — đồ thị chưa đóng góp gì *đo được*, muốn thấy
+  phải đo ở mức điều mà 36 câu không có nhãn mức đó.
+- **Kiểm tầng đo trước khi tin.** In top-20 thật của 3 câu, tính recall/precision/RR bằng tay ở cả
+  5 mốc k — khớp tuyệt đối. `citation_accuracy` baseline cũ (36/36 ở `top_k=6`) nhất quán với
+  `R@5 = 1.00` của cột Naive RAG, cùng một hàm retrieval.
+- **Done — bộ eval biết đến thời gian.** Bộ curate từ thuvienphapluat.vn về (251 câu, có nhãn cấp
+  điều) nhưng **không có trường ngày**. Không cần: giao các khoảng hiệu lực của những văn bản mỗi
+  câu dẫn cho ra đúng cửa sổ mà nhãn vàng còn đúng, và **không câu nào có giao rỗng**.
+  `eval/chuyen_tvpl.py` sinh **hai** bộ từ cùng 76 câu dùng được — `bo_tvpl_dung_thoi` (`as_of`
+  cuối cửa sổ, nhãn TVPL nguyên bản) và `bo_tvpl_hien_nay` (`as_of` hôm nay, `must_not_doc` là văn
+  bản đã chết, `relevant_docs` là văn bản kế thừa suy từ cạnh `THAY_THE`).
+- **Decision — vì sao phải tách hai bộ.** Corpus phủ đúng 4/37 văn bản bộ eval hỏi tới, và **cả
+  bốn đều hết hiệu lực từ 2024-07** ⇒ tại hôm nay 0/76 câu còn nhãn gốc đúng. Chạy bộ TVPL nguyên
+  trạng với `as_of` = hôm nay thì cột LexFlow bị lọc hết (recall ≈ 0) còn baseline điểm cao, và
+  bảng sẽ nói "baseline thắng tuyệt đối" trong khi LexFlow đang làm đúng chức năng cốt lõi — kết
+  luận sai **ngược**, tệ hơn không đo. Bộ thứ hai chính là chỗ LexFlow tách khỏi mọi baseline của
+  bài báo: BM25/Naive/Advanced **không có khái niệm `as_of`** nên trả cùng kết quả ở cả hai bộ.
+- **Decision — nhãn bộ "hiện nay" là suy diễn, không phải nhãn người.** Nó lấy từ cạnh `THAY_THE`,
+  mà thay thế cấp văn bản không đảm bảo từng điều ánh xạ 1-1 ⇒ bộ này cố ý **chỉ có nhãn cấp văn
+  bản**. Muốn nhãn cấp điều ở luật hiện hành thì phải gán tay: lớp phủ không có ánh xạ điều↔điều.
+- **Decision — phạm vi.** Chỉ tầng đo, **không đổi retrieval sản phẩm** một dòng nào; model dùng
+  cloud/API, không tải model HF về máy. Bốn khoảng cách còn lại so với bài báo (cross-encoder
+  rerank, ngưỡng τ, NER câu hỏi → anchor đồ thị, hậu kiểm `HasCitations`) mở thành T16–T19, cố ý
+  hoãn: chưa có thước thì không chứng minh được thay đổi nào là cải thiện.
+- **Sửa một bẫy có sẵn.** `uv run python eval/run_benchmark.py` vẫn luôn `ModuleNotFoundError` —
+  README ghi lệnh hỏng còn KG-CONFORMANCE vá bằng `PYTHONPATH="."`, tức một bước bắt buộc nằm
+  ngoài mã. Vá tại gốc bằng bootstrap `sys.path` trong script, sửa cả hai tài liệu.
+- **Ship.** `baea510`, `9c26ddb`, `d8d0085`, `ae0b51a` trên `feat/ai`. 769 test xanh, ruff sạch.
+  Chưa push, chưa mở PR.
+- **Chưa xong.** Benchmark trên hai bộ TVPL (152 câu) **chạy dở phải dừng** — máy hết paging file,
+  mới 6/152 câu sau ~15 phút (≈2,5 phút/câu, cả lượt sẽ mất nhiều giờ). Bảng so sánh theo thời
+  điểm vì thế **chưa có số**; `docs/EVAL-IR.md` §6 mới có cách đo, chưa có kết quả.
+- **Next.** (1) Chạy lại benchmark hai bộ TVPL lúc máy rảnh, điền bảng vào `docs/EVAL-IR.md` §6.
+  (2) T20 — cào `09/2020/TT-NHNN` (một văn bản, +51 câu, phủ 76→127/251). (3) Push `feat/ai` và mở
+  PR. (4) T14 vẫn chưa đóng: bộ TVPL chỉ tới cấp điều và 73/76 câu chỉ một căn cứ ⇒ `|R| = 1`,
+  recall vẫn chưa phân biệt được các cột.
+
+---
+
 ## 2026-08-07 (T6) — thuộc tính văn bản: 1/26 → 14/26, và đường lên canonical
 
 - **Done.** Bản crawl vbpl.vn có đủ bảng Thuộc tính cho 22 văn bản, nhưng corpus canonical chỉ
