@@ -1,0 +1,2164 @@
+{
+ "run_at": "20260810-073306",
+ "summary": {
+  "n_cases": 36,
+  "n_ok": 35,
+  "n_errors": 1,
+  "baseline": {
+   "citation_accuracy": 1.0,
+   "stale_avoidance": 0.6
+  },
+  "lexflow": {
+   "citation_accuracy": 1.0,
+   "stale_avoidance": 1.0,
+   "conflict_recall": 1.0,
+   "retrieval_latency_p50_ms": 3970
+  },
+  "lexflow_graph": {
+   "citation_accuracy": 1.0,
+   "stale_avoidance": 1.0,
+   "conflict_recall": 1.0
+  },
+  "router": {
+   "off": {
+    "citation_accuracy": 1.0,
+    "stale_avoidance": 1.0
+   },
+   "on": {
+    "citation_accuracy": 1.0,
+    "stale_avoidance": 1.0
+   },
+   "n_cases_differ": 1,
+   "hits_bai_bo": 0,
+   "hits_nan_trich_dan": 10
+  },
+  "conflict_cases": 7
+ },
+ "details": [
+  {
+   "query": "Hạn mức giao dịch qua ví điện tử cá nhân hiện nay là bao nhiêu một tháng?",
+   "group": "conflict",
+   "as_of": "2025-01-01",
+   "expected_doc": "TT40-2024",
+   "must_not_doc": "TT39-2014",
+   "latency_s": 3.4353126999922097,
+   "baseline": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "SHB-QD-VI-2023",
+     "TT23-2019",
+     "TT40-2024",
+     "TT41-2025"
+    ]
+   },
+   "lexflow": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "SHB-QD-VI-2023",
+     "TT18-2024",
+     "TT40-2024"
+    ]
+   },
+   "lexflow_graph": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "SHB-QD-VI-2023",
+     "TT18-2024",
+     "TT40-2024"
+    ]
+   },
+   "router_off": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "SHB-QD-VI-2023",
+     "TT18-2024",
+     "TT40-2024"
+    ]
+   },
+   "router_on": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "SHB-QD-VI-2023",
+     "TT18-2024",
+     "TT40-2024"
+    ]
+   },
+   "router_differs": false,
+   "router_hits_bai_bo": 0,
+   "router_hits_nan_trich_dan": 0,
+   "conflict_found": true,
+   "conflict_found_graph": true,
+   "expect_conflict": true
+  },
+  {
+   "query": "Khách hàng có được nạp tiền mặt trực tiếp vào ví điện tử không?",
+   "group": "conflict",
+   "as_of": "2025-01-01",
+   "expected_doc": "TT40-2024",
+   "must_not_doc": "TT39-2014",
+   "latency_s": 3.541068599995924,
+   "baseline": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "SHB-QD-VI-2023",
+     "TT15-2024",
+     "TT23-2019",
+     "TT40-2024",
+     "TT41-2025"
+    ]
+   },
+   "lexflow": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "SHB-QD-VI-2023",
+     "TT40-2024"
+    ]
+   },
+   "lexflow_graph": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "SHB-QD-VI-2023",
+     "TT40-2024"
+    ]
+   },
+   "router_off": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "SHB-QD-VI-2023",
+     "TT40-2024"
+    ]
+   },
+   "router_on": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "SHB-QD-VI-2023",
+     "TT40-2024"
+    ]
+   },
+   "router_differs": false,
+   "router_hits_bai_bo": 0,
+   "router_hits_nan_trich_dan": 0,
+   "conflict_found": true,
+   "conflict_found_graph": true,
+   "expect_conflict": true
+  },
+  {
+   "query": "Người 14 tuổi có được tự mở tài khoản thanh toán bằng eKYC không?",
+   "group": "conflict",
+   "as_of": "2025-01-01",
+   "expected_doc": "TT17-2024",
+   "must_not_doc": "TT23-2014",
+   "latency_s": 3.4356619999889517,
+   "baseline": {
+    "cite": true,
+    "stale_ok": false,
+    "docs": [
+     "ND101-2012",
+     "SHB-QD-TK-2022",
+     "TT17-2024",
+     "TT23-2014",
+     "TT40-2024"
+    ]
+   },
+   "lexflow": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "SHB-QD-TK-2022",
+     "TT17-2024",
+     "TT18-2024",
+     "TT40-2024"
+    ]
+   },
+   "lexflow_graph": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "SHB-QD-TK-2022",
+     "TT17-2024",
+     "TT18-2024",
+     "TT40-2024"
+    ]
+   },
+   "router_off": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "SHB-QD-TK-2022",
+     "TT17-2024",
+     "TT18-2024",
+     "TT40-2024"
+    ]
+   },
+   "router_on": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "SHB-QD-TK-2022",
+     "TT17-2024",
+     "TT18-2024",
+     "TT40-2024"
+    ]
+   },
+   "router_differs": false,
+   "router_hits_bai_bo": 0,
+   "router_hits_nan_trich_dan": 0,
+   "conflict_found": true,
+   "conflict_found_graph": true,
+   "expect_conflict": true
+  },
+  {
+   "query": "Một thẻ được rút tối đa bao nhiêu ngoại tệ tiền mặt tại nước ngoài trong một ngày?",
+   "group": "conflict",
+   "as_of": "2025-01-01",
+   "expected_doc": "TT18-2024",
+   "must_not_doc": null,
+   "latency_s": 3.6217521999933524,
+   "baseline": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "SHB-QD-THE-2023",
+     "TT18-2024",
+     "TT20-2016"
+    ]
+   },
+   "lexflow": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "SHB-QD-THE-2023",
+     "TT18-2024",
+     "TT34-2024"
+    ]
+   },
+   "lexflow_graph": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "SHB-QD-THE-2023",
+     "TT18-2024",
+     "TT34-2024"
+    ]
+   },
+   "router_off": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "SHB-QD-THE-2023",
+     "TT18-2024",
+     "TT34-2024"
+    ]
+   },
+   "router_on": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "SHB-QD-THE-2023",
+     "TT18-2024",
+     "TT34-2024"
+    ]
+   },
+   "router_differs": false,
+   "router_hits_bai_bo": 0,
+   "router_hits_nan_trich_dan": 0,
+   "conflict_found": true,
+   "conflict_found_graph": true,
+   "expect_conflict": true
+  },
+  {
+   "query": "Số dư tối đa trên thẻ trả trước vô danh là bao nhiêu?",
+   "group": "conflict",
+   "as_of": "2025-01-01",
+   "expected_doc": "TT18-2024",
+   "must_not_doc": null,
+   "latency_s": 5.74823290000495,
+   "baseline": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "SHB-QD-THE-2023",
+     "TT18-2024",
+     "TT41-2025"
+    ]
+   },
+   "lexflow": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "SHB-QD-THE-2023",
+     "TT18-2024"
+    ]
+   },
+   "lexflow_graph": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "SHB-QD-THE-2023",
+     "TT17-2024",
+     "TT18-2024",
+     "TT40-2024"
+    ]
+   },
+   "router_off": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "SHB-QD-THE-2023",
+     "TT17-2024",
+     "TT18-2024",
+     "TT40-2024"
+    ]
+   },
+   "router_on": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "SHB-QD-THE-2023",
+     "TT17-2024",
+     "TT18-2024",
+     "TT40-2024"
+    ]
+   },
+   "router_differs": false,
+   "router_hits_bai_bo": 0,
+   "router_hits_nan_trich_dan": 0,
+   "conflict_found": true,
+   "conflict_found_graph": true,
+   "expect_conflict": true
+  },
+  {
+   "query": "Hạn mức nạp tiền ví điện tử liên kết theo quy định nội bộ SHB có đúng luật không?",
+   "group": "conflict",
+   "as_of": "2025-01-01",
+   "expected_doc": "SHB-QD-VI-2023",
+   "must_not_doc": null,
+   "latency_s": 5.024411799997324,
+   "baseline": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "SHB-QD-THE-2023",
+     "SHB-QD-VI-2023",
+     "TT23-2019",
+     "TT40-2024"
+    ]
+   },
+   "lexflow": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "SHB-QD-VI-2023",
+     "TT40-2024"
+    ]
+   },
+   "lexflow_graph": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "SHB-QD-VI-2023",
+     "TT40-2024"
+    ]
+   },
+   "router_off": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "SHB-QD-VI-2023",
+     "TT40-2024"
+    ]
+   },
+   "router_on": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "SHB-QD-VI-2023",
+     "TT40-2024"
+    ]
+   },
+   "router_differs": false,
+   "router_hits_bai_bo": 0,
+   "router_hits_nan_trich_dan": 0,
+   "conflict_found": true,
+   "conflict_found_graph": true,
+   "expect_conflict": true
+  },
+  {
+   "query": "Tổng hạn mức rút tiền mặt của thẻ tín dụng trong một tháng là bao nhiêu?",
+   "group": "lookup",
+   "as_of": "2025-01-01",
+   "expected_doc": "TT18-2024",
+   "must_not_doc": null,
+   "latency_s": 3.129071400006069,
+   "baseline": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "SHB-QD-THE-2023",
+     "TT18-2024",
+     "TT20-2016"
+    ]
+   },
+   "lexflow": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "SHB-QD-THE-2023",
+     "SHB-QD-VI-2023",
+     "TT15-2024",
+     "TT18-2024"
+    ]
+   },
+   "lexflow_graph": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "SHB-QD-THE-2023",
+     "SHB-QD-VI-2023",
+     "TT15-2024",
+     "TT18-2024",
+     "TT40-2024"
+    ]
+   },
+   "router_off": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "SHB-QD-THE-2023",
+     "SHB-QD-VI-2023",
+     "TT15-2024",
+     "TT18-2024",
+     "TT40-2024"
+    ]
+   },
+   "router_on": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "SHB-QD-THE-2023",
+     "SHB-QD-VI-2023",
+     "TT15-2024",
+     "TT18-2024",
+     "TT40-2024"
+    ]
+   },
+   "router_differs": false,
+   "router_hits_bai_bo": 0,
+   "router_hits_nan_trich_dan": 0,
+   "conflict_found": null,
+   "conflict_found_graph": null,
+   "expect_conflict": false
+  },
+  {
+   "query": "Ví điện tử là gì và được nạp tiền từ những nguồn nào?",
+   "group": "lookup",
+   "as_of": "2025-01-01",
+   "expected_doc": "ND52-2024",
+   "must_not_doc": "ND101-2012",
+   "latency_s": 3.091577999992296,
+   "baseline": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "SHB-QD-VI-2023",
+     "TT23-2019",
+     "TT39-2014",
+     "TT40-2024"
+    ]
+   },
+   "lexflow": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "SHB-QD-VI-2023",
+     "TT40-2024"
+    ]
+   },
+   "lexflow_graph": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "SHB-QD-VI-2023",
+     "TT15-2024",
+     "TT18-2024",
+     "TT40-2024"
+    ]
+   },
+   "router_off": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "SHB-QD-VI-2023",
+     "TT15-2024",
+     "TT18-2024",
+     "TT40-2024"
+    ]
+   },
+   "router_on": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "SHB-QD-VI-2023",
+     "TT15-2024",
+     "TT18-2024",
+     "TT40-2024"
+    ]
+   },
+   "router_differs": false,
+   "router_hits_bai_bo": 0,
+   "router_hits_nan_trich_dan": 0,
+   "conflict_found": null,
+   "conflict_found_graph": null,
+   "expect_conflict": false
+  },
+  {
+   "query": "Các hành vi nào bị cấm trong hoạt động thanh toán không dùng tiền mặt?",
+   "group": "lookup",
+   "as_of": "2025-01-01",
+   "expected_doc": "ND52-2024",
+   "must_not_doc": "ND101-2012",
+   "latency_s": 5.5275920999993104,
+   "baseline": {
+    "cite": true,
+    "stale_ok": false,
+    "docs": [
+     "ND101-2012",
+     "ND52-2024",
+     "TT15-2024",
+     "TT46-2014"
+    ]
+   },
+   "lexflow": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "TT15-2024",
+     "TT18-2024"
+    ]
+   },
+   "lexflow_graph": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "TT15-2024",
+     "TT17-2024",
+     "TT18-2024"
+    ]
+   },
+   "router_off": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "TT15-2024",
+     "TT17-2024",
+     "TT18-2024"
+    ]
+   },
+   "router_on": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "TT15-2024",
+     "TT17-2024",
+     "TT18-2024"
+    ]
+   },
+   "router_differs": false,
+   "router_hits_bai_bo": 0,
+   "router_hits_nan_trich_dan": 0,
+   "conflict_found": null,
+   "conflict_found_graph": null,
+   "expect_conflict": false
+  },
+  {
+   "query": "Tài khoản thanh toán bị phong tỏa trong những trường hợp nào?",
+   "group": "lookup",
+   "as_of": "2025-01-01",
+   "expected_doc": "ND52-2024",
+   "must_not_doc": null,
+   "latency_s": 9.029721700004302,
+   "baseline": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND101-2012",
+     "ND52-2024",
+     "TT17-2024",
+     "TT23-2014"
+    ]
+   },
+   "lexflow": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "TT17-2024"
+    ]
+   },
+   "lexflow_graph": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "TT17-2024"
+    ]
+   },
+   "router_off": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "TT17-2024"
+    ]
+   },
+   "router_on": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "TT17-2024"
+    ]
+   },
+   "router_differs": false,
+   "router_hits_bai_bo": 0,
+   "router_hits_nan_trich_dan": 0,
+   "conflict_found": null,
+   "conflict_found_graph": null,
+   "expect_conflict": false
+  },
+  {
+   "query": "Điều kiện để tổ chức không phải ngân hàng được cấp Giấy phép cung ứng dịch vụ trung gian thanh toán?",
+   "group": "lookup",
+   "as_of": "2025-01-01",
+   "expected_doc": "ND52-2024",
+   "must_not_doc": "ND101-2012",
+   "latency_s": 3.920472099998733,
+   "baseline": {
+    "cite": true,
+    "stale_ok": false,
+    "docs": [
+     "ND101-2012",
+     "ND52-2024",
+     "ND80-2016",
+     "TT39-2014"
+    ]
+   },
+   "lexflow": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "TT40-2024"
+    ]
+   },
+   "lexflow_graph": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "TT40-2024"
+    ]
+   },
+   "router_off": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "TT40-2024"
+    ]
+   },
+   "router_on": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "TT40-2024"
+    ]
+   },
+   "router_differs": false,
+   "router_hits_bai_bo": 0,
+   "router_hits_nan_trich_dan": 0,
+   "conflict_found": null,
+   "conflict_found_graph": null,
+   "expect_conflict": false
+  },
+  {
+   "query": "Việc liên kết ví điện tử với tài khoản thanh toán của khách hàng phải tuân thủ quy định gì?",
+   "group": "lookup",
+   "as_of": "2025-01-01",
+   "expected_doc": "TT40-2024",
+   "must_not_doc": "TT39-2014",
+   "latency_s": 3.6539878999901703,
+   "baseline": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "TT23-2019",
+     "TT40-2024"
+    ]
+   },
+   "lexflow": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "TT40-2024"
+    ]
+   },
+   "lexflow_graph": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "TT40-2024"
+    ]
+   },
+   "router_off": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "TT40-2024"
+    ]
+   },
+   "router_on": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "TT40-2024"
+    ]
+   },
+   "router_differs": false,
+   "router_hits_bai_bo": 0,
+   "router_hits_nan_trich_dan": 0,
+   "conflict_found": null,
+   "conflict_found_graph": null,
+   "expect_conflict": false
+  },
+  {
+   "query": "Tổ chức cung ứng dịch vụ ví điện tử phải thông báo gì cho khách hàng khi mở ví?",
+   "group": "lookup",
+   "as_of": "2025-01-01",
+   "expected_doc": "TT40-2024",
+   "must_not_doc": null,
+   "latency_s": 3.2924502000096254,
+   "baseline": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "TT40-2024"
+    ]
+   },
+   "lexflow": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "TT40-2024"
+    ]
+   },
+   "lexflow_graph": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "TT40-2024"
+    ]
+   },
+   "router_off": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "TT40-2024"
+    ]
+   },
+   "router_on": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "TT40-2024"
+    ]
+   },
+   "router_differs": false,
+   "router_hits_bai_bo": 0,
+   "router_hits_nan_trich_dan": 0,
+   "conflict_found": null,
+   "conflict_found_graph": null,
+   "expect_conflict": false
+  },
+  {
+   "query": "Hồ sơ mở ví điện tử đối với khách hàng cá nhân gồm những gì?",
+   "group": "lookup",
+   "as_of": "2025-01-01",
+   "expected_doc": "TT40-2024",
+   "must_not_doc": "TT39-2014",
+   "latency_s": 3.5164810999995098,
+   "baseline": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "TT23-2019",
+     "TT40-2024"
+    ]
+   },
+   "lexflow": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "TT17-2024",
+     "TT40-2024"
+    ]
+   },
+   "lexflow_graph": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "TT17-2024",
+     "TT40-2024"
+    ]
+   },
+   "router_off": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "TT17-2024",
+     "TT40-2024"
+    ]
+   },
+   "router_on": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "TT17-2024",
+     "TT40-2024"
+    ]
+   },
+   "router_differs": false,
+   "router_hits_bai_bo": 0,
+   "router_hits_nan_trich_dan": 0,
+   "conflict_found": null,
+   "conflict_found_graph": null,
+   "expect_conflict": false
+  },
+  {
+   "query": "Giao dịch thanh toán qua dịch vụ trung gian thanh toán phải dùng đồng tiền nào?",
+   "group": "lookup",
+   "as_of": "2025-01-01",
+   "expected_doc": "TT40-2024",
+   "must_not_doc": null,
+   "latency_s": 3.634194899990689,
+   "baseline": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND101-2012",
+     "TT40-2024"
+    ]
+   },
+   "lexflow": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "TT15-2024",
+     "TT40-2024"
+    ]
+   },
+   "lexflow_graph": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "TT15-2024",
+     "TT40-2024"
+    ]
+   },
+   "router_off": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "TT15-2024",
+     "TT40-2024"
+    ]
+   },
+   "router_on": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "TT15-2024",
+     "TT40-2024"
+    ]
+   },
+   "router_differs": false,
+   "router_hits_bai_bo": 0,
+   "router_hits_nan_trich_dan": 0,
+   "conflict_found": null,
+   "conflict_found_graph": null,
+   "expect_conflict": false
+  },
+  {
+   "query": "Ai được mở tài khoản thanh toán tại ngân hàng theo quy định hiện hành?",
+   "group": "lookup",
+   "error": "HttpError('Http error: (request_id=cc634517-3417-4872-af48-73436c57397a) error sending request for url (https://default-a4jfvt.us-east-1.api.lancedb.com/v1/table/chunks/query/)')"
+  },
+  {
+   "query": "Người chưa đủ 15 tuổi sử dụng tài khoản thanh toán như thế nào?",
+   "group": "conflict",
+   "as_of": "2025-01-01",
+   "expected_doc": "TT17-2024",
+   "must_not_doc": "TT23-2014",
+   "latency_s": 6.930047300003935,
+   "baseline": {
+    "cite": true,
+    "stale_ok": false,
+    "docs": [
+     "ND101-2012",
+     "ND80-2016",
+     "SHB-QD-TK-2022",
+     "TT17-2024",
+     "TT23-2014"
+    ]
+   },
+   "lexflow": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "SHB-QD-TK-2022",
+     "TT17-2024",
+     "TT18-2024",
+     "TT40-2024"
+    ]
+   },
+   "lexflow_graph": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "SHB-QD-TK-2022",
+     "TT17-2024",
+     "TT18-2024",
+     "TT40-2024"
+    ]
+   },
+   "router_off": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "SHB-QD-TK-2022",
+     "TT17-2024",
+     "TT18-2024",
+     "TT40-2024"
+    ]
+   },
+   "router_on": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "SHB-QD-TK-2022",
+     "TT17-2024",
+     "TT18-2024",
+     "TT40-2024"
+    ]
+   },
+   "router_differs": false,
+   "router_hits_bai_bo": 0,
+   "router_hits_nan_trich_dan": 0,
+   "conflict_found": true,
+   "conflict_found_graph": true,
+   "expect_conflict": true
+  },
+  {
+   "query": "Mở tài khoản thanh toán bằng phương thức điện tử phải đáp ứng yêu cầu gì?",
+   "group": "lookup",
+   "as_of": "2025-01-01",
+   "expected_doc": "TT17-2024",
+   "must_not_doc": "TT23-2014",
+   "latency_s": 3.9702246000088053,
+   "baseline": {
+    "cite": true,
+    "stale_ok": false,
+    "docs": [
+     "ND101-2012",
+     "TT17-2024",
+     "TT23-2014"
+    ]
+   },
+   "lexflow": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "TT15-2024",
+     "TT17-2024",
+     "TT40-2024"
+    ]
+   },
+   "lexflow_graph": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "TT15-2024",
+     "TT17-2024",
+     "TT40-2024"
+    ]
+   },
+   "router_off": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "TT15-2024",
+     "TT17-2024",
+     "TT40-2024"
+    ]
+   },
+   "router_on": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "TT15-2024",
+     "TT17-2024",
+     "TT40-2024"
+    ]
+   },
+   "router_differs": false,
+   "router_hits_bai_bo": 0,
+   "router_hits_nan_trich_dan": 0,
+   "conflict_found": null,
+   "conflict_found_graph": null,
+   "expect_conflict": false
+  },
+  {
+   "query": "Séc và ủy nhiệm chi được quy định như thế nào trong cung ứng dịch vụ thanh toán?",
+   "group": "lookup",
+   "as_of": "2025-01-01",
+   "expected_doc": "TT15-2024",
+   "must_not_doc": "TT46-2014",
+   "latency_s": 3.3464346999971895,
+   "baseline": {
+    "cite": true,
+    "stale_ok": false,
+    "docs": [
+     "ND101-2012",
+     "ND52-2024",
+     "TT15-2024",
+     "TT46-2014"
+    ]
+   },
+   "lexflow": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "TT15-2024"
+    ]
+   },
+   "lexflow_graph": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "TT15-2024",
+     "TT17-2024",
+     "TT30-2016"
+    ]
+   },
+   "router_off": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "TT15-2024",
+     "TT17-2024",
+     "TT30-2016"
+    ]
+   },
+   "router_on": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "TT15-2024",
+     "TT17-2024",
+     "TT30-2016"
+    ]
+   },
+   "router_differs": false,
+   "router_hits_bai_bo": 0,
+   "router_hits_nan_trich_dan": 1,
+   "conflict_found": null,
+   "conflict_found_graph": null,
+   "expect_conflict": false
+  },
+  {
+   "query": "Dịch vụ thu hộ chi hộ hiện nay được quy định ở văn bản nào?",
+   "group": "lookup",
+   "as_of": "2025-01-01",
+   "expected_doc": "TT15-2024",
+   "must_not_doc": "TT46-2014",
+   "latency_s": 3.3717732000077376,
+   "baseline": {
+    "cite": true,
+    "stale_ok": false,
+    "docs": [
+     "ND52-2024",
+     "TT15-2024",
+     "TT38-2019",
+     "TT40-2024",
+     "TT46-2014"
+    ]
+   },
+   "lexflow": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "TT15-2024"
+    ]
+   },
+   "lexflow_graph": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "TT15-2024",
+     "TT17-2024",
+     "TT40-2024"
+    ]
+   },
+   "router_off": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "TT15-2024",
+     "TT17-2024",
+     "TT40-2024"
+    ]
+   },
+   "router_on": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "TT15-2024",
+     "TT17-2024",
+     "TT40-2024"
+    ]
+   },
+   "router_differs": false,
+   "router_hits_bai_bo": 0,
+   "router_hits_nan_trich_dan": 0,
+   "conflict_found": null,
+   "conflict_found_graph": null,
+   "expect_conflict": false
+  },
+  {
+   "query": "Thẻ ghi nợ khác thẻ tín dụng như thế nào?",
+   "group": "lookup",
+   "as_of": "2025-01-01",
+   "expected_doc": "TT18-2024",
+   "must_not_doc": null,
+   "latency_s": 5.07805249998637,
+   "baseline": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "TT18-2024"
+    ]
+   },
+   "lexflow": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "TT18-2024"
+    ]
+   },
+   "lexflow_graph": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "TT18-2024"
+    ]
+   },
+   "router_off": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "TT18-2024"
+    ]
+   },
+   "router_on": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "TT18-2024"
+    ]
+   },
+   "router_differs": false,
+   "router_hits_bai_bo": 0,
+   "router_hits_nan_trich_dan": 0,
+   "conflict_found": null,
+   "conflict_found_graph": null,
+   "expect_conflict": false
+  },
+  {
+   "query": "Hợp đồng phát hành và sử dụng thẻ phải có những nội dung gì?",
+   "group": "lookup",
+   "as_of": "2025-01-01",
+   "expected_doc": "TT18-2024",
+   "must_not_doc": null,
+   "latency_s": 5.254433000009158,
+   "baseline": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "TT18-2024"
+    ]
+   },
+   "lexflow": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "TT18-2024"
+    ]
+   },
+   "lexflow_graph": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "SHB-QD-THE-2023",
+     "TT18-2024"
+    ]
+   },
+   "router_off": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "SHB-QD-THE-2023",
+     "TT18-2024"
+    ]
+   },
+   "router_on": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "SHB-QD-THE-2023",
+     "TT18-2024"
+    ]
+   },
+   "router_differs": false,
+   "router_hits_bai_bo": 0,
+   "router_hits_nan_trich_dan": 0,
+   "conflict_found": null,
+   "conflict_found_graph": null,
+   "expect_conflict": false
+  },
+  {
+   "query": "Tổ chức phát hành thẻ phải làm gì khi phát hiện thẻ có dấu hiệu gian lận?",
+   "group": "lookup",
+   "as_of": "2025-01-01",
+   "expected_doc": "TT18-2024",
+   "must_not_doc": null,
+   "latency_s": 5.040636699995957,
+   "baseline": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "TT18-2024"
+    ]
+   },
+   "lexflow": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "TT18-2024",
+     "TT30-2016"
+    ]
+   },
+   "lexflow_graph": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "TT15-2024",
+     "TT18-2024",
+     "TT30-2016"
+    ]
+   },
+   "router_off": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "TT15-2024",
+     "TT18-2024",
+     "TT30-2016"
+    ]
+   },
+   "router_on": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "TT15-2024",
+     "TT18-2024",
+     "TT30-2016"
+    ]
+   },
+   "router_differs": false,
+   "router_hits_bai_bo": 0,
+   "router_hits_nan_trich_dan": 2,
+   "conflict_found": null,
+   "conflict_found_graph": null,
+   "expect_conflict": false
+  },
+  {
+   "query": "Phí quản lý tài khoản thanh toán cá nhân tại SHB là bao nhiêu?",
+   "group": "lookup",
+   "as_of": "2025-01-01",
+   "expected_doc": "SHB-CS-PHI-2024",
+   "must_not_doc": null,
+   "latency_s": 4.809971499998937,
+   "baseline": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "SHB-CS-PHI-2024",
+     "SHB-QD-THE-2023",
+     "SHB-QD-TK-2022"
+    ]
+   },
+   "lexflow": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "SHB-CS-PHI-2024",
+     "SHB-QD-TK-2022",
+     "SHB-QD-VI-2023",
+     "TT17-2024"
+    ]
+   },
+   "lexflow_graph": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "SHB-CS-PHI-2024",
+     "SHB-QD-TK-2022",
+     "SHB-QD-VI-2023",
+     "TT17-2024",
+     "TT40-2024"
+    ]
+   },
+   "router_off": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "SHB-CS-PHI-2024",
+     "SHB-QD-TK-2022",
+     "SHB-QD-VI-2023",
+     "TT17-2024",
+     "TT40-2024"
+    ]
+   },
+   "router_on": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "SHB-CS-PHI-2024",
+     "SHB-QD-TK-2022",
+     "SHB-QD-VI-2023",
+     "TT17-2024",
+     "TT40-2024"
+    ]
+   },
+   "router_differs": false,
+   "router_hits_bai_bo": 0,
+   "router_hits_nan_trich_dan": 0,
+   "conflict_found": null,
+   "conflict_found_graph": null,
+   "expect_conflict": false
+  },
+  {
+   "query": "Chuyển tiền nhanh Napas 247 tại SHB có mất phí không?",
+   "group": "lookup",
+   "as_of": "2025-01-01",
+   "expected_doc": "SHB-CS-PHI-2024",
+   "must_not_doc": null,
+   "latency_s": 7.8968249000026844,
+   "baseline": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "SHB-CS-PHI-2024",
+     "SHB-QD-TK-2022",
+     "SHB-QD-VI-2023",
+     "TT30-2025"
+    ]
+   },
+   "lexflow": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "SHB-CS-PHI-2024",
+     "SHB-QD-TK-2022",
+     "SHB-QD-VI-2023",
+     "TT15-2024"
+    ]
+   },
+   "lexflow_graph": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "SHB-CS-PHI-2024",
+     "SHB-QD-TK-2022",
+     "SHB-QD-VI-2023",
+     "TT15-2024",
+     "TT40-2024"
+    ]
+   },
+   "router_off": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "SHB-CS-PHI-2024",
+     "SHB-QD-TK-2022",
+     "SHB-QD-VI-2023",
+     "TT15-2024",
+     "TT40-2024"
+    ]
+   },
+   "router_on": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "SHB-CS-PHI-2024",
+     "SHB-QD-TK-2022",
+     "SHB-QD-VI-2023",
+     "TT15-2024",
+     "TT40-2024"
+    ]
+   },
+   "router_differs": false,
+   "router_hits_bai_bo": 0,
+   "router_hits_nan_trich_dan": 0,
+   "conflict_found": null,
+   "conflict_found_graph": null,
+   "expect_conflict": false
+  },
+  {
+   "query": "Thẻ SHB chưa kích hoạt sau bao lâu thì bị khóa?",
+   "group": "lookup",
+   "as_of": "2025-01-01",
+   "expected_doc": "SHB-QD-THE-2023",
+   "must_not_doc": null,
+   "latency_s": 6.8886177999957,
+   "baseline": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "SHB-QD-THE-2023",
+     "SHB-QD-TK-2022",
+     "SHB-QD-VI-2023"
+    ]
+   },
+   "lexflow": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "SHB-QD-THE-2023",
+     "SHB-QD-TK-2022",
+     "TT18-2024",
+     "TT30-2016"
+    ]
+   },
+   "lexflow_graph": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "SHB-QD-THE-2023",
+     "SHB-QD-TK-2022",
+     "TT17-2024",
+     "TT18-2024",
+     "TT30-2016"
+    ]
+   },
+   "router_off": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "SHB-QD-THE-2023",
+     "SHB-QD-TK-2022",
+     "TT17-2024",
+     "TT18-2024",
+     "TT30-2016"
+    ]
+   },
+   "router_on": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "SHB-QD-THE-2023",
+     "SHB-QD-TK-2022",
+     "TT17-2024",
+     "TT18-2024",
+     "TT30-2016"
+    ]
+   },
+   "router_differs": false,
+   "router_hits_bai_bo": 0,
+   "router_hits_nan_trich_dan": 1,
+   "conflict_found": null,
+   "conflict_found_graph": null,
+   "expect_conflict": false
+  },
+  {
+   "query": "Tài khoản SHB không giao dịch bao lâu thì bị chuyển trạng thái ngủ đông?",
+   "group": "lookup",
+   "as_of": "2025-01-01",
+   "expected_doc": "SHB-QD-TK-2022",
+   "must_not_doc": null,
+   "latency_s": 3.6258531999919796,
+   "baseline": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "SHB-CS-PHI-2024",
+     "SHB-QD-THE-2023",
+     "SHB-QD-TK-2022",
+     "SHB-QD-VI-2023"
+    ]
+   },
+   "lexflow": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "SHB-CS-PHI-2024",
+     "SHB-QD-TK-2022",
+     "SHB-QD-VI-2023",
+     "TT17-2024"
+    ]
+   },
+   "lexflow_graph": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "SHB-CS-PHI-2024",
+     "SHB-QD-TK-2022",
+     "SHB-QD-VI-2023",
+     "TT17-2024",
+     "TT18-2024",
+     "TT40-2024"
+    ]
+   },
+   "router_off": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "SHB-CS-PHI-2024",
+     "SHB-QD-TK-2022",
+     "SHB-QD-VI-2023",
+     "TT17-2024",
+     "TT18-2024",
+     "TT40-2024"
+    ]
+   },
+   "router_on": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "SHB-CS-PHI-2024",
+     "SHB-QD-TK-2022",
+     "SHB-QD-VI-2023",
+     "TT17-2024",
+     "TT18-2024",
+     "TT40-2024"
+    ]
+   },
+   "router_differs": false,
+   "router_hits_bai_bo": 0,
+   "router_hits_nan_trich_dan": 0,
+   "conflict_found": null,
+   "conflict_found_graph": null,
+   "expect_conflict": false
+  },
+  {
+   "query": "Quy định hiện hành về hoạt động cung ứng dịch vụ trung gian thanh toán nằm ở văn bản nào?",
+   "group": "stale",
+   "as_of": "2025-06-01",
+   "expected_doc": "TT40-2024",
+   "must_not_doc": "TT39-2014",
+   "latency_s": 3.6797251000098186,
+   "baseline": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND101-2012",
+     "ND52-2024",
+     "TT40-2024"
+    ]
+   },
+   "lexflow": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "TT15-2024",
+     "TT40-2024"
+    ]
+   },
+   "lexflow_graph": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "TT15-2024",
+     "TT40-2024"
+    ]
+   },
+   "router_off": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "TT15-2024",
+     "TT40-2024"
+    ]
+   },
+   "router_on": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND52-2024",
+     "TT15-2024",
+     "TT40-2024"
+    ]
+   },
+   "router_differs": false,
+   "router_hits_bai_bo": 0,
+   "router_hits_nan_trich_dan": 0,
+   "conflict_found": null,
+   "conflict_found_graph": null,
+   "expect_conflict": false
+  },
+  {
+   "query": "Khung pháp lý về thanh toán không dùng tiền mặt hiện nay là nghị định nào?",
+   "group": "stale",
+   "as_of": "2025-06-01",
+   "expected_doc": "ND52-2024",
+   "must_not_doc": "ND101-2012",
+   "latency_s": 5.868670399999246,
+   "baseline": {
+    "cite": true,
+    "stale_ok": false,
+    "docs": [
+     "ND101-2012",
+     "ND52-2024",
+     "ND80-2016"
+    ]
+   },
+   "lexflow": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND16-2019",
+     "ND52-2024",
+     "TT15-2024",
+     "TT17-2024",
+     "TT40-2024"
+    ]
+   },
+   "lexflow_graph": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND16-2019",
+     "ND52-2024",
+     "TT15-2024",
+     "TT17-2024",
+     "TT40-2024"
+    ]
+   },
+   "router_off": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND16-2019",
+     "ND52-2024",
+     "TT15-2024",
+     "TT17-2024",
+     "TT40-2024"
+    ]
+   },
+   "router_on": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND16-2019",
+     "ND52-2024",
+     "TT15-2024",
+     "TT17-2024",
+     "TT40-2024"
+    ]
+   },
+   "router_differs": false,
+   "router_hits_bai_bo": 0,
+   "router_hits_nan_trich_dan": 0,
+   "conflict_found": null,
+   "conflict_found_graph": null,
+   "expect_conflict": false
+  },
+  {
+   "query": "Việc mở và sử dụng tài khoản thanh toán hiện được hướng dẫn bởi thông tư nào?",
+   "group": "stale",
+   "as_of": "2025-06-01",
+   "expected_doc": "TT17-2024",
+   "must_not_doc": "TT23-2014",
+   "latency_s": 5.710272500000428,
+   "baseline": {
+    "cite": true,
+    "stale_ok": false,
+    "docs": [
+     "TT17-2024",
+     "TT23-2014"
+    ]
+   },
+   "lexflow": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "TT17-2024"
+    ]
+   },
+   "lexflow_graph": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "TT17-2024"
+    ]
+   },
+   "router_off": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "TT17-2024"
+    ]
+   },
+   "router_on": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "TT17-2024"
+    ]
+   },
+   "router_differs": false,
+   "router_hits_bai_bo": 0,
+   "router_hits_nan_trich_dan": 0,
+   "conflict_found": null,
+   "conflict_found_graph": null,
+   "expect_conflict": false
+  },
+  {
+   "query": "Dịch vụ thanh toán không dùng tiền mặt hiện được hướng dẫn bởi thông tư nào?",
+   "group": "stale",
+   "as_of": "2025-06-01",
+   "expected_doc": "TT15-2024",
+   "must_not_doc": "TT46-2014",
+   "latency_s": 12.717090200007078,
+   "baseline": {
+    "cite": true,
+    "stale_ok": false,
+    "docs": [
+     "TT15-2024",
+     "TT46-2014"
+    ]
+   },
+   "lexflow": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "TT15-2024"
+    ]
+   },
+   "lexflow_graph": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "TT15-2024"
+    ]
+   },
+   "router_off": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "TT15-2024"
+    ]
+   },
+   "router_on": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "TT15-2024"
+    ]
+   },
+   "router_differs": false,
+   "router_hits_bai_bo": 0,
+   "router_hits_nan_trich_dan": 0,
+   "conflict_found": null,
+   "conflict_found_graph": null,
+   "expect_conflict": false
+  },
+  {
+   "query": "Năm 2020, dịch vụ trung gian thanh toán được điều chỉnh bởi thông tư nào?",
+   "group": "asof",
+   "as_of": "2020-06-01",
+   "expected_doc": "TT39-2014",
+   "must_not_doc": "TT40-2024",
+   "latency_s": 5.850204700007453,
+   "baseline": {
+    "cite": true,
+    "stale_ok": false,
+    "docs": [
+     "TT23-2019",
+     "TT39-2014",
+     "TT40-2024"
+    ]
+   },
+   "lexflow": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "TT23-2019",
+     "TT39-2014"
+    ]
+   },
+   "lexflow_graph": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "TT23-2019",
+     "TT39-2014"
+    ]
+   },
+   "router_off": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "TT23-2019",
+     "TT39-2014"
+    ]
+   },
+   "router_on": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "TT23-2019",
+     "TT30-2016",
+     "TT39-2014"
+    ]
+   },
+   "router_differs": true,
+   "router_hits_bai_bo": 0,
+   "router_hits_nan_trich_dan": 3,
+   "conflict_found": null,
+   "conflict_found_graph": null,
+   "expect_conflict": false
+  },
+  {
+   "query": "Tại thời điểm năm 2021, quy định về ví điện tử đã được sửa đổi bởi văn bản nào?",
+   "group": "asof",
+   "as_of": "2021-01-01",
+   "expected_doc": "TT23-2019",
+   "must_not_doc": "TT40-2024",
+   "latency_s": 14.884856400007266,
+   "baseline": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "TT23-2019",
+     "TT41-2025"
+    ]
+   },
+   "lexflow": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND16-2019",
+     "TT23-2019",
+     "TT30-2016",
+     "TT38-2019"
+    ]
+   },
+   "lexflow_graph": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND16-2019",
+     "ND80-2016",
+     "TT23-2019",
+     "TT30-2016",
+     "TT38-2019",
+     "TT39-2014"
+    ]
+   },
+   "router_off": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND16-2019",
+     "ND80-2016",
+     "TT23-2019",
+     "TT30-2016",
+     "TT38-2019",
+     "TT39-2014"
+    ]
+   },
+   "router_on": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND16-2019",
+     "ND80-2016",
+     "TT23-2019",
+     "TT30-2016",
+     "TT38-2019",
+     "TT39-2014"
+    ]
+   },
+   "router_differs": false,
+   "router_hits_bai_bo": 0,
+   "router_hits_nan_trich_dan": 3,
+   "conflict_found": null,
+   "conflict_found_graph": null,
+   "expect_conflict": false
+  },
+  {
+   "query": "Năm 2016, việc mở tài khoản thanh toán thực hiện theo thông tư nào?",
+   "group": "asof",
+   "as_of": "2016-06-01",
+   "expected_doc": "TT23-2014",
+   "must_not_doc": "TT17-2024",
+   "latency_s": 20.78915519999282,
+   "baseline": {
+    "cite": true,
+    "stale_ok": false,
+    "docs": [
+     "TT17-2024",
+     "TT23-2014"
+    ]
+   },
+   "lexflow": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "TT23-2014"
+    ]
+   },
+   "lexflow_graph": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "TT23-2014"
+    ]
+   },
+   "router_off": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "TT23-2014"
+    ]
+   },
+   "router_on": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "TT23-2014"
+    ]
+   },
+   "router_differs": false,
+   "router_hits_bai_bo": 0,
+   "router_hits_nan_trich_dan": 0,
+   "conflict_found": null,
+   "conflict_found_graph": null,
+   "expect_conflict": false
+  },
+  {
+   "query": "Năm 2018, dịch vụ thanh toán không dùng tiền mặt theo hướng dẫn của thông tư nào?",
+   "group": "asof",
+   "as_of": "2018-06-01",
+   "expected_doc": "TT46-2014",
+   "must_not_doc": "TT15-2024",
+   "latency_s": 3.657140299997991,
+   "baseline": {
+    "cite": true,
+    "stale_ok": false,
+    "docs": [
+     "TT15-2024",
+     "TT23-2019",
+     "TT38-2019",
+     "TT46-2014"
+    ]
+   },
+   "lexflow": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "TT23-2014",
+     "TT46-2014"
+    ]
+   },
+   "lexflow_graph": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "TT23-2014",
+     "TT46-2014"
+    ]
+   },
+   "router_off": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "TT23-2014",
+     "TT46-2014"
+    ]
+   },
+   "router_on": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "TT23-2014",
+     "TT46-2014"
+    ]
+   },
+   "router_differs": false,
+   "router_hits_bai_bo": 0,
+   "router_hits_nan_trich_dan": 0,
+   "conflict_found": null,
+   "conflict_found_graph": null,
+   "expect_conflict": false
+  },
+  {
+   "query": "Trước năm 2024, khung pháp lý thanh toán không dùng tiền mặt là nghị định nào?",
+   "group": "asof",
+   "as_of": "2023-06-01",
+   "expected_doc": "ND101-2012",
+   "must_not_doc": "ND52-2024",
+   "latency_s": 3.0738316000060877,
+   "baseline": {
+    "cite": true,
+    "stale_ok": false,
+    "docs": [
+     "ND101-2012",
+     "ND52-2024",
+     "TT15-2024"
+    ]
+   },
+   "lexflow": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND101-2012"
+    ]
+   },
+   "lexflow_graph": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND101-2012",
+     "TT38-2019"
+    ]
+   },
+   "router_off": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND101-2012",
+     "TT38-2019"
+    ]
+   },
+   "router_on": {
+    "cite": true,
+    "stale_ok": true,
+    "docs": [
+     "ND101-2012",
+     "TT38-2019"
+    ]
+   },
+   "router_differs": false,
+   "router_hits_bai_bo": 0,
+   "router_hits_nan_trich_dan": 0,
+   "conflict_found": null,
+   "conflict_found_graph": null,
+   "expect_conflict": false
+  }
+ ],
+ "errors": [
+  {
+   "query": "Ai được mở tài khoản thanh toán tại ngân hàng theo quy định hiện hành?",
+   "error": "HttpError('Http error: (request_id=cc634517-3417-4872-af48-73436c57397a) error sending request for url (https://default-a4jfvt.us-east-1.api.lancedb.com/v1/table/chunks/query/)')",
+   "traceback": "lancedb.remote.errors.HttpError: connection reset\n\nThe above exception was the direct cause of the following exception:\n\nlancedb.remote.errors.HttpError: connection error\n\nThe above exception was the direct cause of the following exception:\n\nlancedb.remote.errors.HttpError: client error (SendRequest)\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"D:\\Vinuni\\VSF\\LexFlow\\eval\\run_benchmark.py\", line 129, in evaluate\n    r = _run_case(case)\n        ^^^^^^^^^^^^^^^\n  File \"D:\\Vinuni\\VSF\\LexFlow\\eval\\run_benchmark.py\", line 46, in _run_case\n    o_chunks = hybrid_search(q, top_k=6, as_of=as_of, effective_only=True)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"d:\\Vinuni\\VSF\\LexFlow\\.venv\\Lib\\site-packages\\langfuse\\_client\\observe.py\", line 418, in sync_wrapper\n    raise e\n  File \"d:\\Vinuni\\VSF\\LexFlow\\.venv\\Lib\\site-packages\\langfuse\\_client\\observe.py\", line 402, in sync_wrapper\n    result = func(*args, **kwargs)\n             ^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\Vinuni\\VSF\\LexFlow\\app\\knowledge\\retrieval.py\", line 95, in hybrid_search\n    vector_hits = tbl.search(qv).limit(pool).to_list()\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"d:\\Vinuni\\VSF\\LexFlow\\.venv\\Lib\\site-packages\\lancedb\\query.py\", line 1044, in to_list\n    return self.to_arrow(timeout=timeout).to_pylist()\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"d:\\Vinuni\\VSF\\LexFlow\\.venv\\Lib\\site-packages\\lancedb\\query.py\", line 1628, in to_arrow\n    return self.to_batches(timeout=timeout).read_all()\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"d:\\Vinuni\\VSF\\LexFlow\\.venv\\Lib\\site-packages\\lancedb\\query.py\", line 1689, in to_batches\n    result_set = self._table._execute_query(\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"d:\\Vinuni\\VSF\\LexFlow\\.venv\\Lib\\site-packages\\lancedb\\remote\\table.py\", line 687, in _execute_query\n    async_iter = LOOP.run(\n                 ^^^^^^^^^\n  File \"d:\\Vinuni\\VSF\\LexFlow\\.venv\\Lib\\site-packages\\lancedb\\background_loop.py\", line 33, in run\n    return concurrent_future.result()\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\HUYNHANNGHIEP\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\concurrent\\futures\\_base.py\", line 456, in result\n    return self.__get_result()\n           ^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\HUYNHANNGHIEP\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\concurrent\\futures\\_base.py\", line 401, in __get_result\n    raise self._exception\n  File \"d:\\Vinuni\\VSF\\LexFlow\\.venv\\Lib\\site-packages\\lancedb\\table.py\", line 5229, in _execute_query\n    return await async_query.to_batches(\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"d:\\Vinuni\\VSF\\LexFlow\\.venv\\Lib\\site-packages\\lancedb\\query.py\", line 3512, in to_batches\n    reader = await super().to_batches(timeout=timeout)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"d:\\Vinuni\\VSF\\LexFlow\\.venv\\Lib\\site-packages\\lancedb\\query.py\", line 2646, in to_batches\n    await self._inner.execute(\nlancedb.remote.errors.HttpError: Http error: (request_id=cc634517-3417-4872-af48-73436c57397a) error sending request for url (https://default-a4jfvt.us-east-1.api.lancedb.com/v1/table/chunks/query/)\n"
+  }
+ ]
+}

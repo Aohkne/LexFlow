@@ -8,6 +8,48 @@
 
 ## 2026-08-10 (CN) — dữ liệu đang phục vụ đã mang bản vá; mã và dữ liệu khớp nhau
 
+- **Done (compliance — `conflict_recall` 6/7 → 7/7).** Ca trượt là *"Số dư tối đa trên thẻ trả
+  trước vô danh là bao nhiêu?"* (nội bộ SHB 20 triệu vs TT18-2024 Đ13.4 trần **5 triệu**). Loại
+  trừ bằng đo chứ không suy: truy hồi lấy **đủ cả hai phía**; bỏ sót **5/5 lần** nên không phải
+  nhiễu; gọi thẳng `chat_json` với **đúng prompt hiện tại** thì bắt được **3/3**. Thủ phạm nằm
+  ở hậu xử lý — mô hình trả `"TT18-2024::Điều 13 Khoản 4"`, tức địa chỉ **chi tiết hơn** nhãn
+  chunk `"TT18-2024::Điều 13"`, `by_id.get()` trượt rồi `continue` **trong im lặng**. Bộ phát
+  hiện đang phạt mô hình vì trích dẫn chuẩn hơn nhãn nó được đưa. Nay quy id theo tiền tố có
+  ranh giới dấu cách, khớp nhiều chunk thì bỏ chứ không đoán, không quy được thì **ghi log**.
+  PR #16, 4 test mới, CI xanh.
+- **Benchmark lại 36 câu** (`eval/results/20260810-073306.json`), **12,1 phút**:
+
+  | | 06/08 | 10/08 |
+  |---|---|---|
+  | Phát hiện mâu thuẫn | 6/7 | **7/7** |
+  | Citation accuracy (baseline / hybrid / +graph) | 36/36 | 35/35 cả ba |
+  | Tránh văn bản hết hiệu lực (baseline → LexFlow) | 21/36 → 36/36 | 21/35 → **35/35** |
+  | Latency retrieval p50 | 5.028 ms | **3.970 ms** |
+  | Router: câu OFF/ON khác nhau · hit nắn trích dẫn | 0/36 · 8 | 1/35 · 10 |
+
+  **1/36 câu lỗi** (*"Ai được mở tài khoản thanh toán…"*) — `HttpError` khi gọi LanceDB Cloud,
+  lỗi mạng thoáng qua, bị loại khỏi mẫu số đúng theo thiết kế của `run_benchmark`. Con số
+  router đổi (1/35 · 10) là do artefact lớp phủ đã sinh lại còn **177 cạnh** kèm bản vá
+  chunking, không phải do router đổi hành vi.
+- **Chi phí một lượt benchmark — đo thật, không ước.** Bọc `client.models.generate_content` /
+  `embed_content` để đọc `usage_metadata` của chính response:
+
+  ```
+  gemini-2.5-flash-lite   14 lượt   38.095 token vào · 7.593 token ra
+  gemini-embedding-001    36 lượt   ~723 token (ước từ 2.529 ký tự — API embed
+                                     không trả usage_metadata)
+  ```
+
+  Theo bảng giá paid tier (flash-lite $0.10 vào / $0.40 ra, embedding $0.15 — mỗi 1M token):
+  **≈ 0,0070 USD ≈ 181 VNĐ cho cả lượt 36 câu**, tức ~0,19 USD nếu chạy 1.000 câu cùng dạng.
+  Chi phí **không phải** thứ đáng cân nhắc khi quyết có chạy benchmark hay không; 12 phút đồng
+  hồ mới là cái giá thật.
+- **Phát hiện kèm theo: đường phán định đang chạy `gemini-2.5-flash-lite`, không phải
+  `gemini-2.5-pro`.** `config.py` mặc định `gemini_reasoning_model = "gemini-2.5-pro"` nhưng
+  `.env` đặt `GEMINI_REASONING_MODEL=gemini-2.5-flash-lite`, và `.env` thắng. Nghĩa là
+  conflict detector + review tuân thủ — hai chỗ phán định pháp lý nặng nhất — đang chạy trên
+  model rẻ nhất họ Gemini, còn **chưa ai đo** xem đổi lên `pro` thì được gì. Đáng đo, vì với
+  0,007 USD/lượt thì phép so sánh gần như miễn phí.
 - **Done (T2 — id chunk phải định danh đúng một chunk).** `TT23-2019 Điều 1` là điều *sửa đổi*
   dài 55.902 ký tự, chép nguyên văn nhiều điều của TT39-2014 nên số khoản **khởi động lại
   nhiều lần** trong cùng một điều. Chunker thấy một điều phẳng và đúc ra cùng một nhãn ba lần
