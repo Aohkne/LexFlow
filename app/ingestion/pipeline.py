@@ -226,17 +226,35 @@ def _embed_rows(rows: list[dict]) -> None:
             r["vector"] = v
 
 
+#: Tham số chỉ mục toàn văn (BM25). Mặc định của LanceDB dựng cho tiếng Anh; ba thay đổi:
+#:
+#: * `with_position=True` — lưu vị trí token, điều kiện BẮT BUỘC để `PhraseQuery` chạy được
+#:   (không có nó, Storage trả 400 "position is not found"). Đo 10/08 trên 14 cụm có thật
+#:   trong corpus: precision@10 của nhánh BM25 là **8.4/10**, trong đó ba cụm mà từng thành tố
+#:   đều rất phổ biến rớt hẳn — `an toàn` 2/10, `giấy phép hoạt động` 3/10, `quy định nội bộ`
+#:   4/10. Chunk rải rác "giấy phép" và "hoạt động" thắng chunk chứa đúng cụm.
+#: * `stem=False` — stemmer Snowball tiếng Anh không có việc gì để làm trên tiếng Việt.
+#: * `remove_stop_words=False` — danh sách stop-word tiếng Anh cũng vậy; và vì `ascii_folding`
+#:   bỏ dấu TRƯỚC khi lọc, `thẻ`/`số`/`tổ` sẽ thành `the`/`so`/`to` và rơi đúng vào danh sách
+#:   đó. (Đo 10/08: hiện chưa thấy thiệt hại thật, nhưng đây là mìn hẹn giờ chứ không phải
+#:   thiết kế.)
+#:
+#: `ascii_folding` GIỮ `True`: người dùng gõ không dấu vẫn khớp được văn bản có dấu.
+_FTS_OPTS = {
+    "with_position": True,
+    "stem": False,
+    "remove_stop_words": False,
+    "ascii_folding": True,
+}
+
+
 def write_lancedb(rows: list[dict]) -> int:
     if not rows:
         return 0
     _embed_rows(rows)
     db = vectordb.connect()
     tbl = db.create_table(LANCEDB_TABLE, data=rows, mode="overwrite")
-    # Full-text (BM25) index cho hybrid search — cloud dùng FTS native, không nhận replace=
-    if settings.lancedb_cloud_enabled:
-        tbl.create_fts_index("text")
-    else:
-        tbl.create_fts_index("text", replace=True)
+    tbl.create_fts_index("text", replace=True, **_FTS_OPTS)
     return len(rows)
 
 

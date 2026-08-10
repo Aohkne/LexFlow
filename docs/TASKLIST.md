@@ -81,15 +81,35 @@ nhưng đó là trần độ phủ hiện tại. Muốn nâng thì phải **mở
 
 27 quan hệ còn lại chỉ nối văn bản ↔ văn bản, không chỉ được vào điều khoản cụ thể.
 
-### [ ] T8 · BM25 không hiểu từ ghép tiếng Việt, và không phủ tiêu đề
+### [x] T8 · BM25 chấm điểm túi-từ, không chấm cụm — ĐÃ SỬA 10/08
 
-- Index dựng bằng tokenizer mặc định (`create_fts_index("text")`, không truyền cấu hình) —
-  cắt theo khoảng trắng/ranh giới từ Unicode, **không tách từ ghép, không stemming**.
-  "ví điện tử" vào index thành ba token rời.
-- Bất đối xứng: text đem **embed** là `"{doc_title} — {article}: {text}"` (có tiêu đề làm ngữ
-  cảnh), text đem **index BM25** chỉ là `text` trần. Hỏi "Thông tư 40 quy định gì" thì nhánh
-  vector bắt được tên văn bản, nhánh BM25 không.
-- Chưa đo tác động — cần một bộ câu hỏi có số hiệu/thuật ngữ ghép để biết mất bao nhiêu.
+Đo trên 14 cụm **có thật** trong corpus, precision@10 của riêng nhánh BM25. Thước đo này
+**tự nghiệm** ("top-10 có thật sự chứa cụm đã hỏi không") nên không cần đáp án vàng, không
+phải chờ T14:
+
+```
+chỉ mục cũ  + MatchQuery        8.4/10
+chỉ mục mới + MatchQuery        9.0/10   an toàn 2→10
+chỉ mục mới + Match + Phrase    9.9/10   giấy phép hoạt động 3→9 · quy định nội bộ 4→10
+```
+
+- Hai nguyên nhân tách bạch. (1) Chỉ mục dựng bằng **mặc định tiếng Anh**: stemmer Snowball +
+  stop-word tiếng Anh, mà `ascii_folding` bỏ dấu **trước** khi lọc nên từ Việt thường rơi
+  đúng vào danh sách đó. (2) **Không có vị trí token** ⇒ không truy vấn cụm nào khả thi.
+- `PhraseQuery` đứng cạnh `MatchQuery` ở mức `SHOULD`: cộng dồn điểm cho chunk chứa nguyên
+  cụm, còn câu hỏi dài dạng tự nhiên không khớp mệnh đề cụm và không mất gì (2 câu thử: 6/6
+  hit y như cũ).
+- Dựng lại chỉ mục **không embedding lại chunk nào** — chỉ đụng cột `text`.
+- Nhánh BM25 nay **ghi log khi tắt** thay vì nuốt lặng.
+- **Còn lại của mục này:** bất đối xứng chưa xử — text đem *embed* là
+  `"{doc_title} — {article}: {text}"` còn text đem *index BM25* chỉ là `text` trần, nên hỏi
+  "Thông tư 40 quy định gì" thì vector bắt được tên văn bản, BM25 không. Chưa đo tác động.
+
+### [ ] T18 · `create_fts_index` đã deprecated từ lancedb 0.25
+
+Cảnh báo khi dựng lại chỉ mục 10/08: *"use `create_index()` with `config=FTS()` instead"*.
+Chữ ký `RemoteTable.create_index` **không có tham số cột** rõ ràng cho FTS, nên chưa đổi —
+đoán mò ở đây là làm hỏng đường ingest. Cần đọc tài liệu rồi mới chuyển.
 
 ---
 
@@ -155,6 +175,10 @@ Chủ repo tự chuẩn bị — đã nói rõ 07/08: "về bộ câu hỏi thì
   tới trang trống. `tach_khoa` nay tra bảng, không có thì trả `None`. Không đổi một ký tự nào
   trong response hôm nay (mọi `nguon` đều có trong bảng). Ba chỗ còn lại → **T15** + dây bẫy.
   Commit `27abe0d`.
+- **10/08 · T8** — BM25 chấm điểm cụm: 8.4 → **9.9/10** precision@10. Chi tiết ở mục T8 phía
+  trên. Chỉ mục trên LanceDB Cloud đã dựng lại (không embedding lại chunk nào). **Revision
+  đang phục vụ chưa có phần thưởng này** — nó gửi chuỗi trần, vẫn chạy đúng trên chỉ mục mới
+  nhưng không được cộng điểm cụm; cần một lượt deploy nữa.
 - **10/08 · T17** — Deploy để mã khớp dữ liệu vừa nạp: rev `lexflow-api-00021-jvs`, 100%
   traffic. Nghiệm thu đúng thứ cần chứng minh chứ không chỉ `/health` (nó không phân biệt được
   revision cũ với mới): tra thẳng 10 nhãn có hậu tố trên **bảng LanceDB đang phục vụ** —

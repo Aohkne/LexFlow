@@ -5,6 +5,7 @@ tại thời điểm `as_of`, và có thể mở rộng qua knowledge graph (cro
 """
 from __future__ import annotations
 
+import logging
 import re
 from functools import lru_cache
 
@@ -14,7 +15,50 @@ from app.core.llm import embed_query
 from app.core.tracing import observe
 from app.ingestion.versioning import is_effective
 
+logger = logging.getLogger(__name__)
+
 _RRF_K = 60  # hằng số Reciprocal Rank Fusion
+
+
+def _truy_van_fts(query: str):
+    """Truy vấn BM25: giữ độ phủ của túi-từ, cộng điểm cho chunk chứa NGUYÊN cụm đã hỏi.
+
+    `MatchQuery` chấm điểm từng token độc lập, nên một chunk rải rác "giấy phép" và "hoạt
+    động" nhiều lần thắng chunk chứa đúng cụm "giấy phép hoạt động" một lần. Đo 10/08 trên 14
+    cụm có thật trong corpus: `giấy phép hoạt động` **3/10**, `quy định nội bộ` **4/10**.
+
+    `PhraseQuery` đứng cạnh nó ở mức `SHOULD` chứ không phải `MUST`: chunk khớp cả hai mệnh đề
+    được cộng dồn điểm nên nổi lên trên, còn câu hỏi dài dạng tự nhiên — thứ gần như không bao
+    giờ xuất hiện nguyên văn trong luật — không khớp mệnh đề cụm và **không mất gì**. Đo lại
+    sau khi đổi: 9.0 → **9.9/10** trên cùng bộ cụm, và hai câu hỏi dài trả về đúng 6/6 hit cũ.
+
+    Cần chỉ mục có `with_position=True` (xem `pipeline._FTS_OPTS`); chỉ mục thiếu vị trí thì
+    Storage trả 400 và nhánh BM25 tắt — nay có log, xem `_bat_fts`.
+    """
+    from lancedb.query import BooleanQuery, MatchQuery, Occur, PhraseQuery
+
+    return BooleanQuery(
+        queries=[
+            (Occur.SHOULD, MatchQuery(query, column="text")),
+            (Occur.SHOULD, PhraseQuery(query, column="text")),
+        ]
+    )
+
+
+def _bat_fts(tbl, query: str, *, pool: int, where: str | None = None) -> list[dict]:
+    """Nhánh BM25. Hỏng thì trả rỗng để vector gánh tiếp — nhưng KÊU chứ không im.
+
+    Fail-open ở đây là đúng (một nửa của hybrid vẫn hơn không có câu trả lời), nhưng nuốt
+    trong im lặng thì nửa hệ thống truy hồi có thể chết hàng tuần mà không ai biết.
+    """
+    try:
+        q = tbl.search(_truy_van_fts(query), query_type="fts")
+        if where:
+            q = q.where(where, prefilter=True)
+        return q.limit(pool).to_list()
+    except Exception as exc:  # noqa: BLE001 — xem docstring
+        logger.warning("Nhánh BM25 không chạy được, chỉ còn vector: %s", exc)
+        return []
 
 
 def _open_table():
@@ -49,10 +93,7 @@ def hybrid_search(
 
     qv = list(_qv(query))
     vector_hits = tbl.search(qv).limit(pool).to_list()
-    try:
-        fts_hits = tbl.search(query, query_type="fts").limit(pool).to_list()
-    except Exception:
-        fts_hits = []  # FTS chưa sẵn sàng → chỉ dùng vector
+    fts_hits = _bat_fts(tbl, query, pool=pool)
 
     merged = _rrf(vector_hits, fts_hits, pool)
 
@@ -84,12 +125,7 @@ def search_in_docs(
     vector_hits = (
         tbl.search(list(_qv(query))).where(where, prefilter=True).limit(pool).to_list()
     )
-    try:
-        fts_hits = (
-            tbl.search(query, query_type="fts").where(where, prefilter=True).limit(pool).to_list()
-        )
-    except Exception:
-        fts_hits = []  # FTS chưa sẵn sàng → chỉ dùng vector
+    fts_hits = _bat_fts(tbl, query, pool=pool, where=where)
 
     hits = _rrf(vector_hits, fts_hits, pool)
     if effective_only:
