@@ -225,6 +225,52 @@ này là cây cầu. Tức **mọi** văn bản đi qua `/admin` (upload → ext
   **đổi khoá khớp** của hàm dọn (ví dụ khớp thêm theo `doc_id`, hoặc để admin nhập số hiệu
   trong ô JSON trước khi duyệt) — đó là quyết định thiết kế, không phải việc sửa kèm.
 
+### [ ] T21 · `download_storage` nuốt 400/404 cho mọi caller
+
+`app/core/appdb.py` trả `None` khi Storage đáp 400 **hoặc** 404, không đọc thân lỗi. Hai hệ quả
+đo được 10/08:
+
+- `download_original` (`app/api/documents.py`) biến một lỗi RLS hoặc lỗi truyền tải thành
+  "chưa có file gốc" 404 cho người dùng — sai nguyên nhân, và không cách nào phân biệt.
+- `load_canonical(strict=True)` — hàng rào dựng cho `approve_document` để nó không ghi đè
+  canonical bằng bản đóng gói — **không chặn được nhánh 400/404**, vì `download_storage` đã
+  nuốt trước khi `strict` nhìn thấy. Hàng rào đó hiện an toàn vì quyền ĐỌC bucket yếu hơn
+  quyền GHI (`0001_init.sql:139-142` so với `0004_doc_workflow.sql:7-10`), nên read bị RLS
+  chặn thì upload sau đó chắc chắn cũng chặn. Nhưng đó là lập luận, không phải rào.
+
+- Vì sao quan trọng: phần còn lại là 400/404 **thoáng qua trên một object CÓ THẬT** — lúc đó
+  `approve` merge một văn bản vào corpus 26 bản đóng gói rồi ghi đè `corpus.json`, xoá mọi
+  văn bản đã duyệt trước đó. Im lặng.
+- **Bước đầu tiên:** dùng lại `scripts/sync_corpus_storage._ma_loi_storage` (đã có sẵn, đang
+  không được tái sử dụng) trong `download_storage`: chỉ trả `None` khi thân lỗi nói `NoSuchKey`
+  hoặc `statusCode 404`, còn lại thì ném. Đóng cả hai ca trên bằng một chỗ.
+
+### [ ] T22 · Bốn mẩu nợ nhỏ còn lại của nhánh ingest-một-văn-bản
+
+Đều lộ ra trong review nhánh T5 (10/08), đều đã cân nhắc và cố ý để lại — ghi ở đây để không
+phải phát hiện lại.
+
+- **Lưới test chặn Supabase là "tắt" chứ không phải "bẫy".** `tests/conftest.py` xoá
+  `settings.supabase_url` nên `appdb.enabled()` trả `False` và mọi thứ thành no-op im lặng —
+  khác hẳn hai seam kia (LanceDB, Neo4j) vốn **ném lỗi có thông điệp**. Test nào tự đặt lại
+  `supabase_url` rồi quên vá `appdb` thì không có gì canh.
+- **`don_node_rong_da_co_toan_van` dùng `SET m += properties(e)`** khi dời cạnh khỏi node rỗng.
+  Trước đây hàm này chỉ chạy sau một lượt nạp toàn bộ nên không có gì tươi để đè; nay nó chạy
+  ngay sau khi `push_one_doc` vừa dựng lại cạnh từ corpus hiện tại, nên `note`/`anchors` cũ có
+  thể ghi đè bản vừa ghi.
+- **`canh_vao` gộp toàn bộ cạnh đi vào của corpus**, không phải phần chênh. Mỗi lượt duyệt
+  MERGE lại tất cả, một round-trip mỗi cạnh (`_merge_canh` chưa gộp lô như `push_overlay`).
+  35 cạnh hôm nay nên không đau; nó lớn tuyến tính theo corpus, trên đúng đường đã từng rớt
+  kết nối Aura giữa chừng.
+- **`DocumentMeta.so_hieu` khai hai lần** (`app/core/schemas.py:115` và `:118`, cùng kiểu cùng
+  mặc định). Pydantic v2 lấy khai báo sau, nên vô hại — nhưng đoạn chú thích giải thích ở trên
+  đang gắn vào dòng đã chết.
+
+- Vì sao quan trọng: không mục nào hỏng hôm nay; ba mục đầu là thứ sẽ hỏng khi corpus lớn lên
+  hoặc khi có người viết test tiếp theo.
+- **Bước đầu tiên:** mục cuối là một dòng xoá — làm luôn khi nào chạm `schemas.py`. Ba mục còn
+  lại chỉ mở khi có triệu chứng thật.
+
 ---
 
 ## Tài liệu lệch với thực tế
