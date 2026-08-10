@@ -142,6 +142,37 @@ Con số embedding của lượt benchmark là **ký tự quy đổi** (~723 tok
 phải token đo được: API embed không trả `usage_metadata`. Nó chiếm ~1,5% tổng nên sai số ở đó
 không đổi kết luận.
 
+## 3b · `review.py` — phép chấm đầu tiên, 10/08
+
+Trước hôm nay đường đối chiếu tuân thủ **chưa có một con số nào**. Bộ nhãn
+`eval/tuan_thu_vang.jsonl` cố ý **nhỏ và sạch**: 5 mục nội bộ có mâu thuẫn cài sẵn + 2 mục đối
+chứng (thuần chính sách phí, không có điểm va với luật). 7 mục còn lại của 4 văn bản SHB
+**không gắn nhãn** — chưa ai từng phát biểu verdict đúng cho chúng, và tự gán rồi tự chấm là
+tự chấm bài của mình.
+
+Đối chiếu với **toàn bộ 22 văn bản external**, không phải nhóm chọn sẵn — người dùng thật
+không biết trước điều nội bộ va vào luật nào. `flash-lite`, 2 lượt. Kết quả:
+`results/tuan-thu-20260810-100405.json`.
+
+| | lượt 1 | lượt 2 |
+|---|---|---|
+| đúng | 6/7 | 6/7 |
+| nửa đúng (`warning`) | 1 | 1 |
+| **sai** | **0** | **0** |
+| chưa đánh giá | 0 | 0 |
+| tỷ lệ đúng | 0,857 | 0,857 |
+
+**Hai lượt trùng khớp từng mục** — `temperature=0` cộng self-consistency 2+1 lượt của
+`_judge` cho kết quả tái lập được, khác hẳn `conflict.py` nơi số cảnh báo nhảy 80↔32 giữa hai
+lượt.
+
+**Không ca nào nói "đạt" về một quy định trái luật.** Đây là kiểu hỏng nguy hiểm nhất của sản
+phẩm và nó không xảy ra — `bo_sot_vi_pham()` tách riêng chỉ số này chính vì thế.
+
+Điểm trừ duy nhất: `SHB-QD-TK-2022::Mục 2.3` (eKYC từ đủ 14 tuổi trong khi TT17-2024 Điều 11
+đòi đủ 15) ra `warning` thay vì `violation`, ổn định ở cả hai lượt. Bắt được mùi nhưng không
+dám kết luận. Chưa truy nguyên nhân.
+
 ## 4 · Còn nợ ở tầng đo này
 
 - **`run_benchmark` không đo precision.** Nó chỉ gọi `detect_conflicts` khi `expect_conflict`
@@ -155,5 +186,7 @@ không đổi kết luận.
   "phần lớn là `info`" **đúng về tỷ lệ** (~70% ở cả hai nhóm) nhưng **sai về tác dụng**: lọc
   `severity` chỉ đưa ca âm từ 8/20 xuống 5/20, còn lọc theo **cặp nguồn** xuống 4/20 và làm
   luôn phần việc của lọc severity.
-- **`review.py` chưa có phép đo nào.** Toàn bộ mục này nói về `conflict.py`. Đường đối chiếu
-  tuân thủ (verdict violation/warning/pass, self-consistency 2+1 lượt) chưa từng được chấm.
+- ~~`review.py` chưa có phép đo nào.~~ **Đã chấm 10/08 — xem §3b.** Còn lại ở đó:
+  `SHB-QD-TK-2022::Mục 2.3` ra `warning` thay vì `violation`, ổn định qua hai lượt — chưa truy
+  nguyên nhân. Và bộ nhãn mới phủ 7/12 mục nội bộ; 5 mục kia cần người có thẩm quyền phát biểu
+  verdict đúng trước khi đo được.
