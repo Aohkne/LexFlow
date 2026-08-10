@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F0EEE6;color:#191919;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#8F4A30;text-decoration:none}a:hover{color:#CC785C}
+::selection{background:#E7C9B6}
+.dv-turn{padding:40px 44px 34px;border-bottom:1px solid rgba(0,0,0,.08)}
+.dv-thd{display:flex;align-items:baseline;gap:10px;margin:0 0 6px}
+.dv-tid{font:600 10px ui-monospace,Menlo,monospace;padding:3px 7px;background:#26241F;color:#F3F0E7;border-radius:4px;text-decoration:none}
+.dv-tname{font:600 13px/1.2 system-ui,sans-serif;color:#191919}
+.dv-lede{margin:0 0 22px;max-width:760px;font:13px/1.6 system-ui,sans-serif;color:#6E6A5E}
+.dv-opts{display:flex;flex-wrap:wrap;gap:30px;align-items:flex-start}
+.dv-opt{flex:none;display:flex;flex-direction:column;gap:9px}
+.dv-oid{font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:#EAE4D6;color:#26241F;border-radius:5px;text-decoration:none}
+.dv-olabel{display:flex;align-items:baseline;gap:8px;font:400 11.5px/1.35 system-ui,sans-serif;color:#6E6A5E;max-width:640px}
+.dv-card{background:#F0EEE6;border:1px solid #E4DFD2;border-radius:10px;box-shadow:0 4px 20px rgba(40,34,24,.07);overflow:hidden}
+.dv-opt:target .dv-oid{background:#CC785C;color:#fff}
+.dv-next{margin:24px 0 0;font:12px/1.6 system-ui,sans-serif;color:#8A8577}
+*::-webkit-scrollbar{width:10px}*::-webkit-scrollbar-thumb{background:#DED8C9;border-radius:99px;border:3px solid #F0EEE6}*::-webkit-scrollbar-track{background:transparent}
+@keyframes fadeup{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+</style>
+</helmet>
+
+<section class="dv-turn" id="t2">
+<div class="dv-thd"><a class="dv-tid" href="#t2">2</a><span class="dv-tname">Đánh dấu tại chỗ → click mở pop-up đối chiếu</span></div>
+<p class="dv-lede">Toàn văn đọc như bản in, khoản bị tác động được đánh dấu ngay trong dòng chữ. Click vào khoản → modal đối chiếu <strong>điều luật gốc</strong> ↔ <strong>điều luật tác động</strong>. Thử click các đoạn có gạch chân màu.</p>
+
+<div class="dv-opts">
+<div class="dv-opt" id="2a">
+<div class="dv-olabel"><a class="dv-oid" href="#2a">2a</a><span>Bản đọc sạch + huy hiệu số ở lề. Click khoản đánh dấu mở modal 2 cột: cột trái là nguyên văn gốc của văn bản này, cột phải là nguyên văn điều khoản tác động trích từ văn bản sửa đổi, kèm kết quả sau hợp nhất ở dưới.</span></div>
+<div class="dv-card" style="position:relative;width:1240px;height:900px;display:flex;flex-direction:column;background:#FAF9F5">
+  <header style="flex:none;display:flex;align-items:center;gap:11px;border-bottom:1px solid #E4DFD2;padding:13px 30px">
+    <span style="border-radius:5px;background:#EAE4D6;color:#26241F;font-size:11px;font-weight:600;padding:3px 8px">Thông tư</span>
+    <span style="font-family:ui-monospace,Menlo,monospace;font-size:12.5px;color:#8F4A30">40/2024/TT-NHNN</span>
+    <h1 style="margin:0;font-family:'Newsreader',Georgia,serif;font-size:17px;font-weight:500">Quy định về hoạt động cung ứng dịch vụ trung gian thanh toán</h1>
+    <span style="flex:1"></span>
+    <span style="display:inline-flex;align-items:center;gap:6px;border:1px solid #E7C9B6;border-radius:999px;background:#F7EDE6;color:#8F4A30;font-size:11.5px;padding:4px 11px"><span style="width:6px;height:6px;border-radius:50%;background:#CC785C"></span>4 khoản bị tác động</span>
+    <span style="border:1px solid #E4DFD2;border-radius:9px;background:#F0EEE6;font-size:11.5px;color:#6E6A5E;padding:5px 11px">Chỉ điều bị tác động</span>
+  </header>
+
+  <div style="flex:1;min-height:0;overflow-y:auto">
+    <div style="max-width:800px;margin:0 auto;padding:36px 30px 90px">
+      <sc-for list="{{ groupsE }}" as="g" hint-placeholder-count="3">
+        <section style="margin-top:34px">
+          <h3 style="margin:0;font-family:'Newsreader',Georgia,serif;font-size:17.5px;font-weight:600;line-height:1.35">{{ g.head }}</h3>
+          <sc-for list="{{ g.items }}" as="d" hint-placeholder-count="4">
+            <div onClick="{{ d.open }}" style="{{ d.wSt }}">
+              <span style="{{ d.pinSt }}">{{ d.pin }}</span>
+              <p style="{{ d.pSt }}"><span style="{{ d.hlSt }}">{{ d.t }}</span></p>
+              <span style="{{ d.hintSt }}">{{ d.hint }}</span>
+            </div>
+          </sc-for>
+        </section>
+      </sc-for>
+    </div>
+  </div>
+
+  <sc-if value="{{ modalOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeModal }}" style="position:absolute;inset:0;z-index:20;display:grid;place-items:center;background:rgba(32,27,20,.42);backdrop-filter:blur(2px);animation:fadeup .16s ease-out">
+      <div onClick="{{ stop }}" style="width:1000px;max-height:760px;display:flex;flex-direction:column;border:1px solid #E4DFD2;border-radius:16px;background:#FAF9F5;box-shadow:0 30px 70px rgba(30,24,16,.34);overflow:hidden">
+        <div style="flex:none;display:flex;align-items:center;gap:11px;border-bottom:1px solid #E4DFD2;background:#F5F2EA;padding:15px 22px">
+          <span style="{{ mKindSt }}">{{ mKind }}</span>
+          <span style="font-family:ui-monospace,Menlo,monospace;font-size:13.5px;color:#26241F">{{ mAddr }}</span>
+          <span style="flex:1"></span>
+          <span style="font-family:ui-monospace,Menlo,monospace;font-size:11.5px;color:#8A8577">hiệu lực từ {{ mFrom }}</span>
+          <button onClick="{{ closeModal }}" style="display:grid;place-items:center;width:28px;height:28px;border:1px solid #E4DFD2;border-radius:8px;background:#F0EEE6;color:#6E6A5E;font-size:14px;cursor:pointer">✕</button>
+        </div>
+
+        <div style="flex:1;min-height:0;overflow-y:auto">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#E4DFD2">
+            <div style="background:#FAF9F5;padding:18px 22px">
+              <div style="display:flex;align-items:center;gap:8px">
+                <span style="font-size:9.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#8A8577">Điều luật gốc</span>
+                <span style="font-family:ui-monospace,Menlo,monospace;font-size:10.5px;color:#9C9686">40/2024/TT-NHNN</span>
+              </div>
+              <div style="margin-top:4px;font-family:'Newsreader',Georgia,serif;font-size:13px;font-style:italic;color:#8A8577">{{ mArtHead }}</div>
+              <p style="{{ mCuSt }}">{{ mCu }}</p>
+            </div>
+            <div style="background:#F7EDE6;padding:18px 22px">
+              <div style="display:flex;align-items:center;gap:8px">
+                <span style="font-size:9.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#B4633E">Điều luật tác động</span>
+                <span style="font-family:ui-monospace,Menlo,monospace;font-size:10.5px;color:#8F4A30">{{ mSrcCode }}</span>
+              </div>
+              <div style="margin-top:4px;font-family:'Newsreader',Georgia,serif;font-size:13px;font-style:italic;color:#8F4A30">{{ mSrcArt }}</div>
+              <p style="margin:12px 0 0;font-family:'Newsreader',Georgia,serif;font-size:14.5px;line-height:1.72;text-align:justify;color:#26241F">{{ mSrcText }}</p>
+            </div>
+          </div>
+
+          <div style="border-top:1px solid #E4DFD2;padding:18px 22px 22px">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="font-size:9.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#5B7A5B">Nội dung sau hợp nhất</span>
+              <span style="flex:1;height:1px;background:#E4DFD2"></span>
+            </div>
+            <p style="{{ mMoiSt }}">{{ mMoi }}</p>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1px;border-top:1px solid #E4DFD2;background:#E4DFD2">
+            <sc-for list="{{ mMeta }}" as="m" hint-placeholder-count="4">
+              <div style="background:#F5F2EA;padding:11px 16px">
+                <div style="font-size:10px;color:#8A8577">{{ m.k }}</div>
+                <div style="margin-top:3px;font-family:ui-monospace,Menlo,monospace;font-size:11.5px;color:#26241F">{{ m.v }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="flex:none;display:flex;align-items:center;gap:9px;border-top:1px solid #E4DFD2;background:#F5F2EA;padding:13px 22px">
+          <button onClick="{{ prevMark }}" style="border:1px solid #E4DFD2;border-radius:9px;background:#F0EEE6;font-family:inherit;font-size:12px;color:#26241F;padding:7px 12px;cursor:pointer">↑ Thay đổi trước</button>
+          <button onClick="{{ nextMark }}" style="border:1px solid #E4DFD2;border-radius:9px;background:#F0EEE6;font-family:inherit;font-size:12px;color:#26241F;padding:7px 12px;cursor:pointer">Thay đổi tiếp ↓</button>
+          <span style="font-family:ui-monospace,Menlo,monospace;font-size:11px;color:#8A8577">{{ mPos }}</span>
+          <span style="flex:1"></span>
+          <span style="border:1px solid #E4DFD2;border-radius:9px;background:#F0EEE6;font-size:12px;color:#26241F;padding:7px 12px">Hỏi Lexi</span>
+          <span style="border-radius:9px;background:#CC785C;color:#fff;font-size:12px;font-weight:500;padding:7px 14px">Mở toàn văn {{ mSrcCode }} ↗</span>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</div>
+</div>
+<p class="dv-next">Turn 1 bên dưới là 4 hướng bố cục ban đầu.</p>
+</section>
+
+<section class="dv-turn" id="t1">
+<div class="dv-thd"><a class="dv-tid" href="#t1">1</a><span class="dv-tname">Toàn văn + đánh dấu điều khoản bị tác động</span></div>
+<p class="dv-lede">Dữ liệu mẫu: Thông tư 40/2024/TT-NHNN (nguyên văn Điều 25–27 lấy từ <code>data/fixtures</code>), bị tác động bởi TT 17/2024 và TT 18/2024. Đánh dấu tới <strong>cấp Khoản</strong> theo <code>data-dia-chi</code> đã có sẵn trong <code>docs/[docId]/page.tsx</code>. <a class="dv-oid" href="#1a">1a</a> là bản tái tạo hiện trạng để đối chiếu.</p>
+
+<div class="dv-opts">
+
+<!-- ===================== 1a — HIỆN TRẠNG ===================== -->
+<div class="dv-opt" id="1a">
+<div class="dv-olabel"><a class="dv-oid" href="#1a">1a</a><span>Hiện trạng — tái tạo <code>/docs/[docId]</code>. Một cột 768px, vạch lề clay cho khoản bị tác động, dòng chú thích 11.5px dưới tiêu đề Điều. Không có mục lục, không biết nội dung mới là gì.</span></div>
+<div class="dv-card" style="width:1140px;height:840px;display:flex">
+  <aside style="width:260px;flex:none;display:flex;flex-direction:column;background:#F5F2EA;border-right:1px solid #E4DFD2">
+    <div style="display:flex;align-items:center;gap:10px;padding:16px 16px 0">
+      <span style="display:grid;place-items:center;width:28px;height:28px;flex:none;border-radius:8px;background:#CC785C;color:#fff;font-size:14px;font-weight:700">⎈</span>
+      <div style="min-width:0;line-height:1.25"><div style="font-size:14px;font-weight:600">Hoa Tiêu Pháp Lý</div><div style="font-family:ui-monospace,Menlo,monospace;font-size:10px;color:#8A8577">LexFlow</div></div>
+    </div>
+    <div style="padding:16px 14px 0"><div style="border-radius:10px;background:#CC785C;color:#fff;font-size:13px;font-weight:500;text-align:center;padding:10px 13px">✚ Tra cứu mới</div></div>
+    <nav style="display:flex;flex-direction:column;gap:2px;padding:16px 10px 0">
+      <sc-for list="{{ nav }}" as="n" hint-placeholder-count="5">
+        <div style="{{ n.st }}"><span style="width:16px;text-align:center">{{ n.g }}</span><span style="flex:1">{{ n.l }}</span></div>
+      </sc-for>
+    </nav>
+    <div style="flex:1"></div>
+    <div style="display:flex;align-items:center;gap:10px;border-top:1px solid #E4DFD2;padding:12px 12px">
+      <span style="display:grid;place-items:center;width:30px;height:30px;flex:none;border-radius:50%;background:#E7DDCB;color:#8F4A30;font-size:11px;font-weight:600">AT</span>
+      <div style="min-width:0;flex:1;line-height:1.25"><div style="font-size:12.5px;font-weight:500">an.tran</div><div style="font-family:ui-monospace,Menlo,monospace;font-size:10px;color:#8A8577;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">an.tran@shb.com.vn</div></div>
+      <span style="color:#8A8577">⚙</span>
+    </div>
+  </aside>
+
+  <main style="flex:1;min-width:0;overflow-y:auto">
+    <div style="max-width:768px;margin:0 auto;padding:40px 24px 60px">
+      <div style="font-size:12px;color:#6E6A5E">← Thư viện văn bản</div>
+      <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:8px">
+        <span style="border-radius:4px;background:#F0EBE0;color:#6E6A5E;font-size:12px;padding:2px 8px">Thông tư</span>
+        <span style="font-family:ui-monospace,Menlo,monospace;font-size:12px;color:#8F4A30">40/2024/TT-NHNN</span>
+        <span style="margin-left:auto;font-family:ui-monospace,Menlo,monospace;font-size:12px;color:#8A8577">hiệu lực từ 2024-07-01</span>
+      </div>
+      <h1 style="margin:4px 0 0;font-size:20px;font-weight:600;line-height:1.35">Quy định về hoạt động cung ứng dịch vụ trung gian thanh toán</h1>
+      <div style="display:flex;width:fit-content;margin-top:24px;border:1px solid #E4DFD2;border-radius:8px;background:#F0EEE6;padding:2px;font-size:14px">
+        <span style="border-radius:6px;background:#CC785C;color:#fff;padding:4px 16px;white-space:nowrap">Nội dung</span>
+        <span style="color:#6E6A5E;padding:4px 16px;white-space:nowrap">Thuộc tính</span>
+        <span style="color:#6E6A5E;padding:4px 16px;white-space:nowrap">Lược đồ</span>
+      </div>
+
+      <div style="margin-top:32px">
+        <sc-for list="{{ groupsA }}" as="g" hint-placeholder-count="3">
+          <section style="margin-top:28px">
+            <h3 style="margin:0;font-family:'Newsreader',Georgia,serif;font-size:16.5px;font-weight:600;line-height:1.35">{{ g.head }}</h3>
+            <sc-if value="{{ g.hasMark }}" hint-placeholder-val="{{ false }}">
+              <ul style="margin:8px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px">
+                <sc-for list="{{ g.notes }}" as="nt" hint-placeholder-count="1">
+                  <li style="{{ nt.st }}">{{ nt.t }}</li>
+                </sc-for>
+              </ul>
+            </sc-if>
+            <sc-for list="{{ g.items }}" as="d" hint-placeholder-count="4">
+              <div style="{{ d.wSt }}"><p style="{{ d.pSt }}">{{ d.t }}<span style="{{ d.badgeSt }}">{{ d.badge }}</span></p></div>
+            </sc-for>
+          </section>
+        </sc-for>
+      </div>
+    </div>
+  </main>
+</div>
+</div>
+
+<!-- ===================== 1b — ĐỌC / RÀ SOÁT ===================== -->
+<div class="dv-opt" id="1b">
+<div class="dv-olabel"><a class="dv-oid" href="#1b">1b</a><span>Hai chế độ. <strong>Đọc</strong> = bản in sạch, chỉ chấm lề. <strong>Rà soát</strong> = mở nội dung mới ngay tại chỗ + panel tác động bên phải. Mục lục trái có bộ lọc “chỉ điều bị tác động”. Bấm khoản bất kỳ để chọn.</span></div>
+<div class="dv-card" style="width:1400px;height:880px;display:flex">
+  <div style="width:56px;flex:none;display:flex;flex-direction:column;align-items:center;gap:6px;background:#F5F2EA;border-right:1px solid #E4DFD2;padding:14px 0">
+    <span style="display:grid;place-items:center;width:28px;height:28px;border-radius:8px;background:#CC785C;color:#fff;font-size:14px;font-weight:700">⎈</span>
+    <div style="height:10px"></div>
+    <sc-for list="{{ nav }}" as="n" hint-placeholder-count="5">
+      <span style="{{ n.railSt }}">{{ n.g }}</span>
+    </sc-for>
+  </div>
+
+  <aside style="width:274px;flex:none;display:flex;flex-direction:column;background:#F5F2EA;border-right:1px solid #E4DFD2;min-height:0">
+    <div style="padding:16px 16px 12px;border-bottom:1px solid #E4DFD2">
+      <div style="font-size:9.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#B4633E">Mục lục</div>
+      <div style="margin-top:6px;font-family:ui-monospace,Menlo,monospace;font-size:11px;color:#8A8577">40/2024/TT-NHNN · 53 điều</div>
+      <button onClick="{{ toggleOnly }}" style="{{ onlySt }}"><span style="{{ onlyBoxSt }}">✓</span><span style="flex:1;text-align:left">Chỉ điều bị tác động</span><span style="font-family:ui-monospace,Menlo,monospace">3</span></button>
+    </div>
+    <div style="flex:1;min-height:0;overflow-y:auto;padding:10px 10px 20px">
+      <sc-for list="{{ toc }}" as="c" hint-placeholder-count="8">
+        <div style="{{ c.st }}">
+          <span style="{{ c.numSt }}">{{ c.num }}</span>
+          <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ c.name }}</span>
+          <span style="{{ c.dotSt }}">{{ c.dot }}</span>
+        </div>
+      </sc-for>
+    </div>
+  </aside>
+
+  <main style="flex:1;min-width:0;display:flex;flex-direction:column">
+    <header style="flex:none;background:#FAF9F5;border-bottom:1px solid #E4DFD2;padding:12px 26px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="border-radius:5px;background:#EAE4D6;color:#26241F;font-size:11px;font-weight:600;padding:3px 8px">Thông tư</span>
+        <span style="font-family:ui-monospace,Menlo,monospace;font-size:12.5px;color:#8F4A30">40/2024/TT-NHNN</span>
+        <span style="display:inline-flex;align-items:center;gap:5px;border:1px solid #CFE0C6;border-radius:999px;background:#EAF0E7;color:#5B7A5B;font-size:11px;padding:2px 9px"><span style="width:6px;height:6px;border-radius:50%;background:#5B7A5B"></span>Đang hiệu lực</span>
+        <span style="flex:1"></span>
+        <label style="font-size:11.5px;color:#8A8577">Hiệu lực tại</label>
+        <span style="border:1px solid #E4DFD2;border-radius:8px;background:#F0EEE6;font-family:ui-monospace,Menlo,monospace;font-size:11.5px;color:#26241F;padding:5px 10px">07/08/2026</span>
+        <div style="display:flex;border:1px solid #E4DFD2;border-radius:9px;background:#EAE4D6;padding:2px;margin-left:4px">
+          <button onClick="{{ setDoc }}" style="{{ segDocSt }}">Đọc</button>
+          <button onClick="{{ setReview }}" style="{{ segRevSt }}">Rà soát</button>
+        </div>
+      </div>
+      <h1 style="margin:8px 0 0;font-family:'Newsreader',Georgia,serif;font-size:19px;font-weight:500;line-height:1.3">Quy định về hoạt động cung ứng dịch vụ trung gian thanh toán</h1>
+    </header>
+
+    <div style="flex:1;min-height:0;display:flex">
+      <div style="flex:1;min-width:0;overflow-y:auto;background:#F0EEE6">
+        <div style="max-width:680px;margin:0 auto;padding:30px 20px 80px">
+          <sc-for list="{{ groupsB }}" as="g" hint-placeholder-count="3">
+            <section style="{{ g.secSt }}">
+              <div style="display:flex;align-items:baseline;gap:10px">
+                <h3 style="margin:0;font-family:'Newsreader',Georgia,serif;font-size:17px;font-weight:600;line-height:1.35">{{ g.head }}</h3>
+                <sc-if value="{{ g.hasMark }}" hint-placeholder-val="{{ false }}">
+                  <span style="flex:none;border:1px solid #E7C9B6;border-radius:999px;background:#F7EDE6;color:#8F4A30;font-size:10px;font-weight:600;letter-spacing:.04em;padding:2px 8px">{{ g.markLabel }}</span>
+                </sc-if>
+              </div>
+              <sc-for list="{{ g.items }}" as="d" hint-placeholder-count="4">
+                <div onClick="{{ d.pick }}" style="{{ d.wSt }}">
+                  <span style="{{ d.railSt }}"></span>
+                  <p style="{{ d.pSt }}">{{ d.t }}</p>
+                  <sc-if value="{{ d.showNew }}" hint-placeholder-val="{{ false }}">
+                    <div style="margin:9px 0 2px;border:1px solid #E7C9B6;border-radius:11px;background:#F7EDE6;padding:11px 13px">
+                      <div style="display:flex;align-items:center;gap:8px;font-size:9.5px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:#B4633E">{{ d.newLabel }}<span style="flex:1"></span><span style="font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:0;text-transform:none;font-weight:400;color:#8A8577">áp dụng từ {{ d.from }}</span></div>
+                      <p style="{{ d.newSt }}">{{ d.moi }}</p>
+                      <div style="margin-top:8px;font-family:ui-monospace,Menlo,monospace;font-size:10.5px;color:#8F4A30">{{ d.by }}</div>
+                    </div>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </section>
+          </sc-for>
+        </div>
+      </div>
+
+      <aside style="{{ panelSt }}">
+        <div style="padding:16px 18px;border-bottom:1px solid #E4DFD2">
+          <div style="font-size:9.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#B4633E">Tác động lên khoản đang chọn</div>
+          <div style="margin-top:6px;font-family:ui-monospace,Menlo,monospace;font-size:13px;color:#26241F">{{ selAddr }}</div>
+        </div>
+        <div style="flex:1;min-height:0;overflow-y:auto;padding:16px 18px 30px;display:flex;flex-direction:column;gap:14px">
+          <div style="flex:none;border:1px solid #E4DFD2;border-radius:12px;background:#F0EEE6;padding:12px 13px">
+            <div style="font-size:10px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:#8A8577">Nguyên văn gốc</div>
+            <p style="margin:7px 0 0;font-family:'Newsreader',Georgia,serif;font-size:13.5px;line-height:1.6;color:#6E6A5E;text-decoration:{{ selStrike }}">{{ selCu }}</p>
+          </div>
+          <div style="flex:none;display:flex;align-items:center;gap:8px;color:#B0A895;font-size:12px"><span style="flex:1;height:1px;background:#E4DFD2"></span>↓<span style="flex:1;height:1px;background:#E4DFD2"></span></div>
+          <div style="flex:none;border:1px solid #E7C9B6;border-radius:12px;background:#F7EDE6;padding:12px 13px">
+            <div style="font-size:10px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:#B4633E">{{ selKindLabel }}</div>
+            <p style="margin:7px 0 0;font-family:'Newsreader',Georgia,serif;font-size:13.5px;line-height:1.6;color:#26241F">{{ selMoi }}</p>
+          </div>
+          <div style="flex:none;border:1px solid #E4DFD2;border-radius:12px;background:#F0EEE6;overflow:hidden">
+            <sc-for list="{{ selMeta }}" as="m" hint-placeholder-count="4">
+              <div style="display:flex;gap:10px;border-bottom:1px solid #E4DFD2;padding:8px 12px"><span style="width:96px;flex:none;font-size:11.5px;color:#8A8577">{{ m.k }}</span><span style="flex:1;font-family:ui-monospace,Menlo,monospace;font-size:11px;color:#26241F">{{ m.v }}</span></div>
+            </sc-for>
+          </div>
+          <div style="flex:none;display:flex;flex-direction:column;gap:7px">
+            <div style="border:1px solid #E4DFD2;border-radius:9px;background:#FAF9F5;font-size:12px;color:#26241F;padding:8px 11px;text-align:center">Mở văn bản sửa đổi ↗</div>
+            <div style="border:1px solid #E4DFD2;border-radius:9px;background:#FAF9F5;font-size:12px;color:#26241F;padding:8px 11px;text-align:center">Hỏi Lexi về khoản này</div>
+          </div>
+          <div style="flex:none;border-top:1px solid #E4DFD2;padding-top:12px">
+            <div style="font-size:9.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#8A8577">Chiều ngược lại</div>
+            <p style="margin:7px 0 0;font-size:12px;line-height:1.55;color:#6E6A5E">Thông tư này bãi bỏ toàn bộ <span style="font-family:ui-monospace,Menlo,monospace;color:#8F4A30">TT 23/2019/TT-NHNN</span> kể từ 01/07/2024.</p>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </main>
+</div>
+</div>
+
+<!-- ===================== 1c — HAI CỘT GỐC ↔ HỢP NHẤT ===================== -->
+<div class="dv-opt" id="1c">
+<div class="dv-olabel"><a class="dv-oid" href="#1c">1c</a><span>Hai cột cuộn đồng bộ: <strong>bản gốc</strong> ↔ <strong>bản hợp nhất tại mốc</strong>. Thanh thời gian ở trên đổi mốc as-of; số thay đổi đang áp dụng cập nhật theo. Chỉ hiện các điều có khác biệt.</span></div>
+<div class="dv-card" style="width:1400px;height:880px;display:flex;flex-direction:column">
+  <header style="flex:none;background:#FAF9F5;border-bottom:1px solid #E4DFD2;padding:14px 26px 0">
+    <div style="display:flex;align-items:center;gap:10px">
+      <span style="font-family:ui-monospace,Menlo,monospace;font-size:12.5px;color:#8F4A30">40/2024/TT-NHNN</span>
+      <h1 style="margin:0;font-family:'Newsreader',Georgia,serif;font-size:18px;font-weight:500">Quy định về hoạt động cung ứng dịch vụ trung gian thanh toán</h1>
+      <span style="flex:1"></span>
+      <span style="border:1px solid #E4DFD2;border-radius:9px;background:#F0EEE6;font-size:11.5px;color:#6E6A5E;padding:6px 11px">Chỉ điều có thay đổi · 3/53</span>
+      <span style="border:1px solid #E4DFD2;border-radius:9px;background:#F0EEE6;font-size:11.5px;color:#6E6A5E;padding:6px 11px">⧉ Xuất bản đối chiếu</span>
+    </div>
+    <div style="display:flex;align-items:flex-end;gap:0;margin-top:16px;padding-bottom:0">
+      <sc-for list="{{ timeline }}" as="t" hint-placeholder-count="3">
+        <button onClick="{{ t.pick }}" style="{{ t.st }}">
+          <span style="{{ t.dotSt }}"></span>
+          <span style="font-family:ui-monospace,Menlo,monospace;font-size:11.5px">{{ t.date }}</span>
+          <span style="font-size:11.5px">{{ t.label }}</span>
+        </button>
+      </sc-for>
+      <span style="flex:1;border-bottom:1px solid #E4DFD2;height:34px"></span>
+    </div>
+  </header>
+
+  <div style="flex:none;display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#E4DFD2;border-bottom:1px solid #E4DFD2">
+    <div style="background:#F0EDE5;padding:9px 26px;display:flex;align-items:center;gap:9px"><span style="font-size:9.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#8A8577">Bản gốc</span><span style="font-family:ui-monospace,Menlo,monospace;font-size:11px;color:#9C9686">ban hành 15/06/2024</span></div>
+    <div style="background:#F7EDE6;padding:9px 26px;display:flex;align-items:center;gap:9px"><span style="font-size:9.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#B4633E">Bản hợp nhất</span><span style="font-family:ui-monospace,Menlo,monospace;font-size:11px;color:#8F4A30">tại {{ asofDate }} · {{ appliedCount }} thay đổi</span></div>
+  </div>
+
+  <div style="flex:1;min-height:0;overflow-y:auto;background:#F0EEE6">
+    <sc-for list="{{ pairs }}" as="p" hint-placeholder-count="4">
+      <div style="border-bottom:1px solid #E4DFD2">
+        <div style="display:flex;align-items:center;gap:10px;padding:12px 26px 0">
+          <span style="font-family:ui-monospace,Menlo,monospace;font-size:12px;color:#8F4A30">{{ p.addr }}</span>
+          <span style="{{ p.tagSt }}">{{ p.tag }}</span>
+          <span style="flex:1"></span>
+          <span style="font-family:ui-monospace,Menlo,monospace;font-size:10.5px;color:#8A8577">{{ p.by }}</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:26px;padding:8px 26px 18px">
+          <p style="{{ p.cuSt }}">{{ p.cu }}</p>
+          <p style="{{ p.moiSt }}">{{ p.moi }}</p>
+        </div>
+      </div>
+    </sc-for>
+    <div style="padding:16px 26px 40px;font-size:11.5px;color:#B0A895">Các điều không có khác biệt tại mốc này đã được ẩn — bỏ chọn “Chỉ điều có thay đổi” để xem toàn văn.</div>
+  </div>
+</div>
+</div>
+
+<!-- ===================== 1d — BẢN IN + GHI CHÚ LỀ ===================== -->
+<div class="dv-opt" id="1d">
+<div class="dv-olabel"><a class="dv-oid" href="#1d">1d</a><span>Ưu tiên đọc. Cột chữ 640px như bản in thật, mọi tác động nằm ở <strong>lề phải</strong> dưới dạng ghi chú thu gọn; minimap dọc bên trái cho biết thay đổi nằm ở đâu trong 53 điều. Bật/tắt ghi chú bằng công tắc.</span></div>
+<div class="dv-card" style="width:1200px;height:880px;display:flex;flex-direction:column;background:#FAF9F5">
+  <header style="flex:none;display:flex;align-items:center;gap:12px;border-bottom:1px solid #E4DFD2;padding:13px 28px">
+    <span style="font-family:ui-monospace,Menlo,monospace;font-size:12px;color:#8F4A30">40/2024/TT-NHNN</span>
+    <span style="font-size:12.5px;color:#6E6A5E">Điều 25–27 / 53</span>
+    <span style="flex:1"></span>
+    <button onClick="{{ toggleNotes }}" style="{{ notesBtnSt }}"><span style="{{ notesKnobSt }}"></span></button>
+    <span style="font-size:11.5px;color:#6E6A5E">Ghi chú lề</span>
+    <span style="border-left:1px solid #E4DFD2;height:18px;margin:0 4px"></span>
+    <span style="font-family:ui-monospace,Menlo,monospace;font-size:11px;color:#8A8577">Aa</span>
+  </header>
+  <div style="flex:1;min-height:0;display:flex">
+    <div style="width:44px;flex:none;border-right:1px solid #EDE8DC;padding:20px 0;display:flex;flex-direction:column;align-items:center;gap:3px">
+      <sc-for list="{{ minimap }}" as="m" hint-placeholder-count="30">
+        <span style="{{ m.st }}"></span>
+      </sc-for>
+    </div>
+    <div style="flex:1;min-width:0;overflow-y:auto">
+      <div style="max-width:960px;margin:0 auto;padding:34px 28px 90px">
+        <sc-for list="{{ groupsD }}" as="g" hint-placeholder-count="3">
+          <section style="margin-top:34px">
+            <h3 style="margin:0 0 2px;max-width:620px;font-family:'Newsreader',Georgia,serif;font-size:17.5px;font-weight:600;line-height:1.35">{{ g.head }}</h3>
+            <sc-for list="{{ g.items }}" as="d" hint-placeholder-count="4">
+              <div style="display:grid;grid-template-columns:620px 1fr;gap:22px;align-items:start">
+                <p style="{{ d.pSt }}">{{ d.t }}</p>
+                <sc-if value="{{ d.hasNote }}" hint-placeholder-val="{{ false }}">
+                  <div style="{{ d.noteSt }}">
+                    <div style="display:flex;align-items:center;gap:6px"><span style="{{ d.noteDotSt }}"></span><span style="font-size:9.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#B4633E">{{ d.noteKind }}</span></div>
+                    <div style="margin-top:5px;font-family:ui-monospace,Menlo,monospace;font-size:10.5px;color:#8F4A30">{{ d.by }}</div>
+                    <div style="margin-top:3px;font-family:ui-monospace,Menlo,monospace;font-size:10px;color:#8A8577">từ {{ d.from }}</div>
+                    <p style="margin:7px 0 0;font-family:'Newsreader',Georgia,serif;font-size:12.5px;line-height:1.55;color:#26241F">{{ d.noteText }}</p>
+                    <div style="margin-top:7px;font-size:11px;color:#8F4A30">Xem đối chiếu →</div>
+                  </div>
+                </sc-if>
+              </div>
+            </sc-for>
+          </section>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+</div>
+<p class="dv-next">Thử tiếp: “gộp panel phải của <a class="dv-oid" href="#1b">1b</a> vào lề của <a class="dv-oid" href="#1d">1d</a>” · “cho <a class="dv-oid" href="#1c">1c</a> diff nội dòng thay vì cả đoạn” · “dựng thêm trạng thái văn bản đã hết hiệu lực”</p>
+</section>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1480,&quot;height&quot;:1000}}">
+const SERIF = "'Newsreader',Georgia,serif";
+const THAN = `font-family:${SERIF};text-align:justify;font-size:16px;line-height:1.75;color:#26241F;margin:10px 0 0`;
+
+// Nguyên văn Điều 25-27, TT 40/2024/TT-NHNN (data/fixtures). mark: sua | bai_bo | bo_sung
+const ART = [
+  { so: "25", tieude: "Sử dụng dịch vụ ví điện tử", items: [
+    { id: "25.1", cap: "khoan", t: "1. Việc nạp tiền vào ví điện tử được thực hiện thông qua:" },
+    { id: "25.1a", cap: "diem", t: "a) Nộp tiền mặt vào tài khoản đảm bảo thanh toán của tổ chức cung ứng dịch vụ trung gian thanh toán (cho dịch vụ ví điện tử) mở tại ngân hàng hợp tác;" },
+    { id: "25.1b", cap: "diem", t: "b) Nhận tiền từ tài khoản đồng Việt Nam của chủ ví điện tử tại ngân hàng liên kết;" },
+    { id: "25.1c", cap: "diem", t: "c) Nhận tiền từ tài khoản đồng Việt Nam mở tại ngân hàng, chi nhánh ngân hàng nước ngoài, trừ trường hợp quy định tại điểm b khoản này;" },
+    { id: "25.2", cap: "khoan", t: "2. Chủ ví điện tử được sử dụng ví điện tử để:" },
+    { id: "25.2a", cap: "diem", t: "a) Rút tiền ra khỏi ví điện tử về tài khoản đồng Việt Nam của chủ ví điện tử tại ngân hàng liên kết;" },
+    { id: "25.2b", cap: "diem", t: "b) Chuyển tiền đến tài khoản đồng Việt Nam mở tại ngân hàng, chi nhánh ngân hàng nước ngoài, trừ trường hợp quy định tại điểm a khoản này;" },
+    { id: "25.3", cap: "khoan", t: "3. Khách hàng không được sử dụng ví điện tử để thực hiện các giao dịch cho các mục đích rửa tiền, tài trợ khủng bố, tài trợ phổ biến vũ khí hủy diệt hàng loạt, lừa đảo, gian lận và các hành vi vi phạm pháp luật khác." },
+    { id: "25.6", cap: "khoan", t: "6. Tổ chức cung ứng dịch vụ ví điện tử hướng dẫn khách hàng sử dụng ví điện tử đảm bảo nguyên tắc:" },
+    { id: "25.6c", cap: "diem", mark: "sua", from: "01/01/2025", by: "TT 17/2024/TT-NHNN · Điều 11",
+      t: "c) Chỉ được sử dụng ví điện tử để thực hiện các giao dịch theo quy định tại khoản 2 Điều 25 Thông tư này bằng phương tiện điện tử khi đã hoàn thành việc đối chiếu khớp đúng giấy tờ tùy thân và thông tin sinh trắc học của chủ ví điện tử hoặc người đại diện với dữ liệu sinh trắc học lưu trong thẻ căn cước hoặc tài khoản định danh điện tử.",
+      moi: "c) Chỉ được sử dụng ví điện tử để thực hiện các giao dịch theo quy định tại khoản 2 Điều 25 Thông tư này bằng phương tiện điện tử khi đã hoàn thành việc đối chiếu khớp đúng giấy tờ tùy thân và thông tin sinh trắc học, và định kỳ tối thiểu 12 tháng thực hiện lại việc đối chiếu đối với khách hàng có giao dịch vượt hạn mức tại điểm a khoản này." },
+  ]},
+  { so: "26", tieude: "Hạn mức giao dịch qua ví điện tử", items: [
+    { id: "26.1", cap: "khoan", mark: "sua", from: "01/07/2025", by: "TT 18/2024/TT-NHNN · Điều 9",
+      t: "1. Tổng hạn mức giao dịch qua các ví điện tử cá nhân của 01 khách hàng tại 01 tổ chức cung ứng dịch vụ ví điện tử (bao gồm giao dịch chuyển tiền và thanh toán theo quy định tại điểm b, điểm c, điểm d, điểm đ khoản 2 Điều 25 Thông tư này) tối đa là 100 (một trăm) triệu đồng Việt Nam trong một tháng.",
+      moi: "1. Tổng hạn mức giao dịch qua các ví điện tử cá nhân của 01 khách hàng tại 01 tổ chức cung ứng dịch vụ ví điện tử (bao gồm giao dịch chuyển tiền và thanh toán theo quy định tại điểm b, điểm c, điểm d, điểm đ khoản 2 Điều 25 Thông tư này) tối đa là 200 (hai trăm) triệu đồng Việt Nam trong một tháng." },
+    { id: "26.2", cap: "khoan", t: "2. Quy định tại khoản 1 Điều này không áp dụng đối với:" },
+    { id: "26.2a", cap: "diem", mark: "bai_bo", from: "01/07/2025", by: "TT 18/2024/TT-NHNN · Điều 13",
+      t: "a) Ví điện tử cá nhân của người có ký hợp đồng hoặc thỏa thuận làm đơn vị chấp nhận thanh toán với tổ chức cung ứng dịch vụ ví điện tử;",
+      moi: "Điểm này bị bãi bỏ. Ví điện tử cá nhân của đơn vị chấp nhận thanh toán từ 01/07/2025 chịu chung hạn mức tại khoản 1 Điều này." },
+    { id: "26.2b", cap: "diem", t: "b) Các giao dịch thanh toán: Thanh toán trực tuyến trên Cổng Dịch vụ công quốc gia; điện; nước; viễn thông; các loại phí, giá, tiền dịch vụ liên quan đến hoạt động giao thông của phương tiện giao thông đường bộ; học phí; viện phí; đóng bảo hiểm xã hội, bảo hiểm y tế." },
+    { id: "26.3", cap: "khoan", t: "3. Tổ chức cung ứng dịch vụ ví điện tử phải quy định tổng hạn mức cho các giao dịch thanh toán quy định tại điểm b khoản 2 Điều này qua các ví điện tử cá nhân của 01 (một) khách hàng không lớn hơn tổng hạn mức giao dịch qua các ví điện tử cá nhân đã được cấp cho khách hàng đó theo quy định tại khoản 1 Điều này." },
+    { id: "26.4", cap: "khoan", t: "4. Tổ chức cung ứng dịch vụ ví điện tử có trách nhiệm kiểm tra, giám sát và đảm bảo việc sử dụng ví điện tử cá nhân của khách hàng là phù hợp với hạn mức đã được cấp cho khách hàng đó." },
+  ]},
+  { so: "27", tieude: "Sử dụng tài khoản đảm bảo thanh toán cho dịch vụ ví điện tử", items: [
+    { id: "27.1", cap: "khoan", t: "1. Tổ chức cung ứng dịch vụ ví điện tử phải đảm bảo duy trì tổng số dư trên tất cả các tài khoản đảm bảo thanh toán cho dịch vụ ví điện tử mở tại các ngân hàng hợp tác không thấp hơn tổng số dư tất cả các ví điện tử đã phát hành cho khách hàng tại cùng một thời điểm." },
+    { id: "27.2", cap: "khoan", t: "2. Trường hợp đồng thời cung ứng dịch vụ ví điện tử và dịch vụ hỗ trợ thu hộ, chi hộ, tổ chức cung ứng dịch vụ trung gian thanh toán phải đảm bảo:" },
+    { id: "27.2a", cap: "diem", t: "a) Tài khoản đảm bảo thanh toán cho dịch vụ ví điện tử không được sử dụng chung với tài khoản đảm bảo thanh toán cho dịch vụ hỗ trợ thu hộ, chi hộ và phải tách bạch với các tài khoản thanh toán khác tại ngân hàng hợp tác;" },
+    { id: "27.3", cap: "khoan", t: "3. Tài khoản đảm bảo thanh toán cho dịch vụ ví điện tử chỉ được sử dụng vào việc:" },
+    { id: "27.3a", cap: "diem", t: "a) Chuyển tiền đến tài khoản đồng Việt Nam của chủ ví điện tử tại ngân hàng liên kết (cho việc sử dụng ví điện tử quy định tại điểm a khoản 2 Điều 25 Thông tư này);" },
+    { id: "27.3g", cap: "diem", mark: "bo_sung", from: "01/07/2025", by: "TT 18/2024/TT-NHNN · Điều 14",
+      t: "g) Tổ chức cung ứng dịch vụ ví điện tử được rút tiền phí mà các bên khấu trừ từ tài khoản đảm bảo thanh toán cho dịch vụ ví điện tử trong trường hợp các bên liên quan khấu trừ trực tiếp tiền phí dịch vụ trên ví điện tử.",
+      moi: "h) (bổ sung) Chuyển tiền đến tài khoản đảm bảo thanh toán cho dịch vụ ví điện tử mở tại ngân hàng hợp tác khác của chính tổ chức cung ứng dịch vụ ví điện tử trong trường hợp thay đổi ngân hàng hợp tác." },
+  ]},
+];
+
+const KIND = {
+  sua:     { label: "Bị sửa đổi",  short: "Sửa đổi", newLabel: "Nội dung áp dụng hiện nay", color: "#B4633E", tt: "đã bị sửa đổi" },
+  bai_bo:  { label: "Bị bãi bỏ",   short: "Bãi bỏ",  newLabel: "Hiệu lực hiện nay",          color: "#A8412F", tt: "đã bị bãi bỏ" },
+  bo_sung: { label: "Được bổ sung", short: "Bổ sung", newLabel: "Nội dung bổ sung",           color: "#5B7A5B", tt: "được bổ sung" },
+};
+
+const ALL = ART.flatMap((a) => a.items.map((d) => ({ ...d, art: a.so })));
+const byId = (id) => ALL.find((d) => d.id === id) ?? ALL[0];
+const diaChi = (d) => {
+  const p = d.id.split(".");
+  const k = p[1].match(/^\d+/)[0];
+  const dm = p[1].slice(k.length);
+  return `Điều ${p[0]} · Khoản ${k}${dm ? ` · Điểm ${dm}` : ""}`;
+};
+
+const MOC = [
+  { date: "01/07/2024", label: "Bản gốc có hiệu lực", applied: [] },
+  { date: "01/01/2025", label: "TT 17/2024 có hiệu lực", applied: ["25.6c"] },
+  { date: "07/08/2026", label: "Hôm nay", applied: ["25.6c", "26.1", "26.2a", "27.3g"] },
+];
+
+// Nguyên văn điều khoản của VĂN BẢN TÁC ĐỘNG (chiều gây tác động)
+const SRC = {
+  "25.6c": { code: "TT 17/2024/TT-NHNN", art: "Điều 11. Sửa đổi, bổ sung một số điều của Thông tư 40/2024/TT-NHNN",
+    text: "3. Sửa đổi, bổ sung điểm c khoản 6 Điều 25 như sau: “c) Chỉ được sử dụng ví điện tử để thực hiện các giao dịch theo quy định tại khoản 2 Điều 25 Thông tư này bằng phương tiện điện tử khi đã hoàn thành việc đối chiếu khớp đúng giấy tờ tùy thân và thông tin sinh trắc học, và định kỳ tối thiểu 12 tháng thực hiện lại việc đối chiếu đối với khách hàng có giao dịch vượt hạn mức tại điểm a khoản này.”" },
+  "26.1": { code: "TT 18/2024/TT-NHNN", art: "Điều 9. Sửa đổi hạn mức giao dịch qua ví điện tử",
+    text: "1. Sửa đổi khoản 1 Điều 26 Thông tư số 40/2024/TT-NHNN: thay cụm từ “100 (một trăm) triệu đồng Việt Nam” bằng cụm từ “200 (hai trăm) triệu đồng Việt Nam”. Hạn mức mới áp dụng cho kỳ tính hạn mức bắt đầu từ ngày 01 tháng 7 năm 2025." },
+  "26.2a": { code: "TT 18/2024/TT-NHNN", art: "Điều 13. Bãi bỏ một số quy định",
+    text: "2. Bãi bỏ điểm a khoản 2 Điều 26 Thông tư số 40/2024/TT-NHNN. Kể từ ngày Thông tư này có hiệu lực, ví điện tử cá nhân của người ký hợp đồng làm đơn vị chấp nhận thanh toán chịu chung hạn mức quy định tại khoản 1 Điều 26." },
+  "27.3g": { code: "TT 18/2024/TT-NHNN", art: "Điều 14. Bổ sung quy định về tài khoản đảm bảo thanh toán",
+    text: "1. Bổ sung điểm h vào sau điểm g khoản 3 Điều 27 Thông tư số 40/2024/TT-NHNN như sau: “h) Chuyển tiền đến tài khoản đảm bảo thanh toán cho dịch vụ ví điện tử mở tại ngân hàng hợp tác khác của chính tổ chức cung ứng dịch vụ ví điện tử trong trường hợp thay đổi ngân hàng hợp tác.”" },
+};
+const MARKED = ALL.filter((d) => d.mark);
+
+class Component extends DCLogic {
+  state = { review: true, only: false, sel: "26.1", asof: 2, notes: true, modal: null };
+
+  renderVals() {
+    const s = this.state;
+    const review = s.review;
+
+    const nav = [
+      { g: "⌘", l: "Tra cứu" }, { g: "▤", l: "Thư viện văn bản", on: true },
+      { g: "⎗", l: "Kiểm tra tài liệu" }, { g: "◰", l: "Đồ thị tri thức" }, { g: "⚠", l: "Cảnh báo" },
+    ].map((n) => ({
+      ...n,
+      st: `display:flex;align-items:center;gap:10px;border-radius:8px;padding:8px 10px;font-size:13px;${n.on ? "background:#EAE4D6;color:#191919;font-weight:500" : "color:#6E6A5E"}`,
+      railSt: `display:grid;place-items:center;width:32px;height:32px;border-radius:8px;font-size:14px;${n.on ? "background:#EAE4D6;color:#191919" : "color:#8A8577"}`,
+    }));
+
+    // ---- 1a: hiện trạng
+    const groupsA = ART.map((a) => {
+      const marked = a.items.filter((d) => d.mark);
+      return {
+        head: `Điều ${a.so}. ${a.tieude}`,
+        hasMark: marked.length > 0,
+        markLabel: "Bị sửa đổi",
+        notes: marked.map((d) => ({
+          t: `${diaChi(d).replace("Điều " + a.so + " · ", "")} — ${KIND[d.mark].tt} bởi ${d.by} (từ ${d.from})`,
+          st: `font-size:11.5px;line-height:1.5;color:${d.mark === "bai_bo" ? "#A8412F" : "#8F4A30"}`,
+        })),
+        items: a.items.map((d) => ({
+          t: d.t,
+          pSt: `${THAN};text-indent:28px;${d.cap === "diem" ? "padding-left:28px;" : ""}`,
+          wSt: d.mark ? "margin-left:-12px;border-left:2px solid #CC785C;padding-left:12px" : "",
+          badge: d.mark ? KIND[d.mark].short : "",
+          badgeSt: d.mark
+            ? `margin-left:8px;vertical-align:middle;display:inline-block;border:1px solid ${d.mark === "bai_bo" ? "#A8412F" : "#CC785C"};border-radius:4px;color:${d.mark === "bai_bo" ? "#A8412F" : "#8F4A30"};font-family:system-ui;font-size:11px;text-indent:0;padding:1px 6px`
+            : "display:none",
+        })),
+      };
+    });
+
+    // ---- 1b
+    const groupsB = ART.filter((a) => !s.only || a.items.some((d) => d.mark)).map((a) => {
+      const marked = a.items.filter((d) => d.mark);
+      return {
+        head: `Điều ${a.so}. ${a.tieude}`,
+        hasMark: marked.length > 0,
+        markLabel: `${marked.length} khoản bị tác động`,
+        secSt: "margin-top:30px",
+        items: a.items.map((d) => {
+          const on = d.id === s.sel;
+          const k = d.mark ? KIND[d.mark] : null;
+          return {
+            t: d.t,
+            pick: () => this.setState({ sel: d.id }),
+            wSt: `position:relative;margin-left:-16px;padding-left:16px;border-radius:8px;cursor:pointer;${
+              d.mark ? `background:${on ? "#F7EDE6" : "transparent"};` : on ? "background:#F5F2EA;" : ""
+            }${d.mark ? "padding-right:10px;padding-bottom:4px;" : ""}`,
+            railSt: d.mark
+              ? `position:absolute;left:0;top:12px;bottom:6px;width:3px;border-radius:2px;background:${k.color}`
+              : "display:none",
+            pSt: `${THAN};text-indent:28px;${d.cap === "diem" ? "padding-left:28px;" : ""}${
+              d.mark === "bai_bo" && review ? "color:#9C9686;text-decoration:line-through;text-decoration-color:#C9B9A8;" : ""
+            }`,
+            showNew: !!(d.mark && review),
+            newLabel: k ? k.newLabel : "",
+            newSt: `margin:7px 0 0;font-family:${SERIF};font-size:14.5px;line-height:1.65;color:#26241F`,
+            moi: d.moi,
+            by: d.by,
+            from: d.from,
+          };
+        }),
+      };
+    });
+
+    const toc = ART.flatMap((a) => {
+      const marked = a.items.filter((d) => d.mark).length;
+      const on = byId(s.sel).art === a.so;
+      return [{
+        num: `Điều ${a.so}`,
+        name: a.tieude,
+        st: `display:flex;align-items:center;gap:8px;border-radius:8px;padding:7px 9px;font-size:12.5px;cursor:pointer;${on ? "background:#EAE4D6;color:#191919;font-weight:500" : "color:#6E6A5E"}`,
+        numSt: "flex:none;width:52px;font-family:ui-monospace,Menlo,monospace;font-size:11px;color:#8F4A30",
+        dot: marked ? String(marked) : "",
+        dotSt: marked
+          ? "flex:none;display:grid;place-items:center;min-width:17px;height:17px;border-radius:999px;background:#CC785C;color:#fff;font-family:ui-monospace,Menlo,monospace;font-size:9.5px;font-weight:600"
+          : "display:none",
+      }];
+    }).concat(
+      ["28", "29", "30", "31", "32", "33"].map((n) => ({
+        num: `Điều ${n}`, name: "…", dot: "", dotSt: "display:none",
+        st: `display:flex;align-items:center;gap:8px;border-radius:8px;padding:7px 9px;font-size:12.5px;color:${s.only ? "#D0C9B8" : "#B0A895"}`,
+        numSt: "flex:none;width:52px;font-family:ui-monospace,Menlo,monospace;font-size:11px;color:#B0A895",
+      }))
+    );
+
+    const seg = (on) =>
+      `border:0;border-radius:7px;font-family:inherit;font-size:12px;padding:5px 14px;cursor:pointer;${
+        on ? "background:#FAF9F5;color:#191919;font-weight:500;box-shadow:0 1px 2px rgba(40,34,24,.12)" : "background:transparent;color:#8A8577"
+      }`;
+
+    const sd = byId(s.sel);
+    const sk = sd.mark ? KIND[sd.mark] : null;
+
+    // ---- 1c
+    const moc = MOC[s.asof];
+    const pairs = ALL.filter((d) => d.mark).map((d) => {
+      const applied = moc.applied.includes(d.id);
+      const k = KIND[d.mark];
+      return {
+        addr: diaChi(d),
+        tag: applied ? k.label : "Chưa áp dụng tại mốc này",
+        tagSt: `border:1px solid ${applied ? (d.mark === "bai_bo" ? "#E6BFB2" : "#E7C9B6") : "#E4DFD2"};border-radius:999px;background:${
+          applied ? (d.mark === "bai_bo" ? "#F7E6E1" : "#F7EDE6") : "#F0EDE5"
+        };color:${applied ? (d.mark === "bai_bo" ? "#A8412F" : "#8F4A30") : "#9C9686"};font-size:10.5px;font-weight:600;padding:2px 9px`,
+        by: `${d.by} · từ ${d.from}`,
+        cu: d.t,
+        moi: applied ? d.moi : d.t,
+        cuSt: `margin:0;font-family:${SERIF};font-size:14.5px;line-height:1.68;text-align:justify;color:${
+          applied ? "#9C9686" : "#26241F"
+        };${applied && d.mark !== "bo_sung" ? "text-decoration:line-through;text-decoration-color:#D3C6B6;" : ""}`,
+        moiSt: `margin:0;font-family:${SERIF};font-size:14.5px;line-height:1.68;text-align:justify;color:#26241F;${
+          applied ? "background:#F7EDE6;box-shadow:0 0 0 6px #F7EDE6;border-radius:2px;" : "color:#9C9686;"
+        }`,
+      };
+    });
+
+    const timeline = MOC.map((m, i) => ({
+      date: m.date,
+      label: m.label,
+      pick: () => this.setState({ asof: i }),
+      st: `display:flex;align-items:center;gap:8px;border:0;border-bottom:2px solid ${
+        i === s.asof ? "#CC785C" : "#E4DFD2"
+      };background:transparent;font-family:inherit;color:${i === s.asof ? "#191919" : "#8A8577"};padding:8px 16px;cursor:pointer`,
+      dotSt: `width:7px;height:7px;border-radius:50%;background:${i === s.asof ? "#CC785C" : "#D8CFBB"}`,
+    }));
+
+    // ---- 1d
+    const groupsD = ART.map((a) => ({
+      head: `Điều ${a.so}. ${a.tieude}`,
+      items: a.items.map((d) => {
+        const k = d.mark ? KIND[d.mark] : null;
+        return {
+          t: d.t,
+          pSt: `${THAN};text-indent:28px;${d.cap === "diem" ? "padding-left:28px;" : ""}${
+            d.mark ? `background:linear-gradient(transparent 62%, ${d.mark === "bai_bo" ? "#F1D9D1" : "#F3E0CF"} 62%);` : ""
+          }`,
+          hasNote: !!(d.mark && s.notes),
+          noteSt: "margin-top:14px;border-left:2px solid #E7C9B6;padding:0 0 0 12px",
+          noteDotSt: `width:6px;height:6px;border-radius:50%;background:${k ? k.color : "#CC785C"}`,
+          noteKind: k ? k.label : "",
+          noteText: d.moi,
+          by: d.by,
+          from: d.from,
+        };
+      }),
+    }));
+
+    const minimap = Array.from({ length: 34 }, (_, i) => {
+      const hit = i === 6 || i === 12 || i === 13 || i === 24;
+      return {
+        st: `width:${hit ? 16 : 10}px;height:${hit ? 4 : 2}px;border-radius:2px;background:${hit ? "#CC785C" : "#E4DFD2"}`,
+      };
+    });
+
+    // ---- 2a: đánh dấu tại chỗ + modal
+    const groupsE = ART.map((a) => ({
+      head: `Điều ${a.so}. ${a.tieude}`,
+      items: a.items.map((d) => {
+        const k = d.mark ? KIND[d.mark] : null;
+        const i = MARKED.findIndex((m) => m.id === d.id);
+        return {
+          t: d.t,
+          open: d.mark ? () => this.setState({ modal: d.id }) : () => {},
+          wSt: `position:relative;margin-left:-46px;padding-left:46px;padding-right:8px;border-radius:8px;${
+            d.mark ? "cursor:pointer;" : ""
+          }`,
+          pin: d.mark ? String(i + 1) : "",
+          pinSt: d.mark
+            ? `position:absolute;left:14px;top:16px;display:grid;place-items:center;width:20px;height:20px;border-radius:6px;background:${k.color};color:#fff;font-family:ui-monospace,Menlo,monospace;font-size:10.5px;font-weight:600`
+            : "display:none",
+          pSt: `${THAN};text-indent:28px;${d.cap === "diem" ? "padding-left:28px;" : ""}`,
+          hlSt: d.mark
+            ? `background:${d.mark === "bai_bo" ? "#F5E2DC" : d.mark === "bo_sung" ? "#E7EFE4" : "#F7E7DA"};box-shadow:0 0 0 3px ${
+                d.mark === "bai_bo" ? "#F5E2DC" : d.mark === "bo_sung" ? "#E7EFE4" : "#F7E7DA"
+              };border-radius:2px;border-bottom:1.5px solid ${k.color};${d.mark === "bai_bo" ? "color:#7A7266;" : ""}`
+            : "",
+          hint: d.mark ? `${k.label} · ${d.by} · từ ${d.from} — bấm để đối chiếu` : "",
+          hintSt: d.mark
+            ? `display:block;margin-top:6px;font-size:11px;color:${k.color};${d.cap === "diem" ? "padding-left:28px;" : ""}`
+            : "display:none",
+        };
+      }),
+    }));
+
+    const md = s.modal ? byId(s.modal) : null;
+    const mk = md && md.mark ? KIND[md.mark] : null;
+    const src = md ? SRC[md.id] : null;
+    const mi = md ? MARKED.findIndex((m) => m.id === md.id) : -1;
+    const jump = (step) => () =>
+      this.setState({ modal: MARKED[(mi + step + MARKED.length) % MARKED.length].id });
+
+    return {
+      nav, groupsA, groupsB, toc, groupsD, minimap, pairs, timeline, groupsE,
+
+      modalOpen: !!md,
+      closeModal: () => this.setState({ modal: null }),
+      stop: (e) => e.stopPropagation(),
+      mKind: mk ? mk.label : "",
+      mKindSt: mk
+        ? `border:1px solid ${mk.color};border-radius:999px;color:${mk.color};font-size:10.5px;font-weight:600;letter-spacing:.04em;padding:3px 10px`
+        : "display:none",
+      mAddr: md ? diaChi(md) : "",
+      mFrom: md ? md.from : "",
+      mArtHead: md ? `Điều ${md.art}. ${ART.find((a) => a.so === md.art).tieude}` : "",
+      mCu: md ? md.t : "",
+      mCuSt: `margin:12px 0 0;font-family:${SERIF};font-size:14.5px;line-height:1.72;text-align:justify;color:${
+        md && md.mark === "bai_bo" ? "#9C9686" : "#26241F"
+      };${md && md.mark === "bai_bo" ? "text-decoration:line-through;text-decoration-color:#D3C6B6;" : ""}`,
+      mSrcCode: src ? src.code : "",
+      mSrcArt: src ? src.art : "",
+      mSrcText: src ? src.text : "",
+      mMoi: md ? md.moi : "",
+      mMoiSt: `margin:11px 0 0;border-left:2px solid #5B7A5B;padding-left:14px;font-family:${SERIF};font-size:15px;line-height:1.72;text-align:justify;color:#26241F`,
+      mMeta: md
+        ? [
+            { k: "Loại tác động", v: mk.label },
+            { k: "Văn bản tác động", v: src.code },
+            { k: "Hiệu lực từ", v: md.from },
+            { k: "Địa chỉ neo", v: md.id },
+          ]
+        : [],
+      mPos: md ? `${mi + 1} / ${MARKED.length}` : "",
+      prevMark: jump(-1),
+      nextMark: jump(1),
+
+      asofDate: moc.date,
+      appliedCount: moc.applied.length,
+
+      setDoc: () => this.setState({ review: false }),
+      setReview: () => this.setState({ review: true }),
+      segDocSt: seg(!review),
+      segRevSt: seg(review),
+
+      toggleOnly: () => this.setState({ only: !s.only }),
+      onlySt: `display:flex;align-items:center;gap:8px;width:100%;margin-top:11px;border:1px solid ${
+        s.only ? "#E7C9B6" : "#E4DFD2"
+      };border-radius:8px;background:${s.only ? "#F7EDE6" : "#F0EEE6"};color:${
+        s.only ? "#8F4A30" : "#6E6A5E"
+      };font-family:inherit;font-size:11.5px;padding:7px 9px;cursor:pointer`,
+      onlyBoxSt: `display:grid;place-items:center;width:15px;height:15px;flex:none;border-radius:4px;font-size:10px;${
+        s.only ? "background:#CC785C;color:#fff" : "border:1px solid #D8CFBB;color:transparent"
+      }`,
+
+      panelSt: `width:340px;flex:none;display:flex;flex-direction:column;background:#FAF9F5;border-left:1px solid #E4DFD2;min-height:0;${
+        review ? "" : "display:none"
+      }`,
+      selAddr: diaChi(sd),
+      selCu: sd.t,
+      selMoi: sd.moi ?? "Khoản này chưa ghi nhận tác động nào.",
+      selStrike: sd.mark && sd.mark !== "bo_sung" ? "line-through" : "none",
+      selKindLabel: sk ? sk.newLabel : "Không có thay đổi",
+      selMeta: [
+        { k: "Loại tác động", v: sk ? sk.label : "—" },
+        { k: "Bởi văn bản", v: sd.by ?? "—" },
+        { k: "Hiệu lực từ", v: sd.from ?? "—" },
+        { k: "Địa chỉ", v: sd.id },
+      ],
+
+      toggleNotes: () => this.setState({ notes: !s.notes }),
+      notesBtnSt: `position:relative;width:34px;height:19px;flex:none;border:0;border-radius:999px;background:${
+        s.notes ? "#CC785C" : "#DED8C9"
+      };cursor:pointer;padding:0`,
+      notesKnobSt: `position:absolute;top:2px;left:${s.notes ? 17 : 2}px;width:15px;height:15px;border-radius:50%;background:#fff;transition:left .15s`,
+    };
+  }
+}
+
+</script>
+</body>
+</html>

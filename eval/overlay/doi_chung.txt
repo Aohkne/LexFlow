@@ -12,9 +12,8 @@
 [-] Điều 23 nguồn ghi ['sua_doi_bo_sung'] mà không có cạnh
 [-] Điều 23 nguồn ghi ['sua_doi_bo_sung'] mà không có cạnh
 [-] Điều 23 nguồn ghi ['sua_doi_bo_sung'] mà không có cạnh
-=== 40/2024/TT-NHNN (83 mục nguồn, 14 lệch) ===
+=== 40/2024/TT-NHNN (83 mục nguồn, 13 lệch) ===
 [+] 40/2024/TT-NHNN#than/dieu_41 không có trong dieu_khoan_bi_tac_dong
-[+] 40/2024/TT-NHNN#than/dieu_5 không có trong dieu_khoan_bi_tac_dong
 [+] 40/2024/TT-NHNN#than/dieu_41 không có trong dieu_khoan_bi_tac_dong
 [+] 40/2024/TT-NHNN#than/dieu_46#khoan_1 không có trong dieu_khoan_bi_tac_dong
 [+] 40/2024/TT-NHNN#than/dieu_46#khoan_3 không có trong dieu_khoan_bi_tac_dong
