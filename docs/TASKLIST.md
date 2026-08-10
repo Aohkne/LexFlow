@@ -218,12 +218,15 @@ này là cây cầu. Tức **mọi** văn bản đi qua `/admin` (upload → ext
 - Vì sao quan trọng: đây là đường duyệt trên production (T5), và lớp phủ + `related_docs`
   đọc đúng cái node bị bỏ lại. Hôm nay tác hại còn nhỏ vì bucket mới có ít văn bản, nhưng nó
   lớn dần theo mỗi lượt duyệt.
-- **Bước đầu tiên (một dòng):** truyền `so_hieu=meta["so_hieu"]` vào `CorpusDocument(...)`
-  trong `extract_document`, kèm một ca test rằng file có dòng số hiệu thì `doc.so_hieu` khác
-  `None`. Việc này đóng phần lớn ca, và làm được ngay — nó chỉ là điền một trường đã tính sẵn.
-- Còn lại sau bước đó: PDF scan/layout hỏng không rút được số hiệu. Lúc ấy mới phải quyết
-  **đổi khoá khớp** của hàm dọn (ví dụ khớp thêm theo `doc_id`, hoặc để admin nhập số hiệu
-  trong ô JSON trước khi duyệt) — đó là quyết định thiết kế, không phải việc sửa kèm.
+- **Bước đầu tiên — ĐÃ LÀM 10/08.** `extract_document` nay truyền `so_hieu=meta["so_hieu"]`
+  vào `CorpusDocument`, kèm ca `test_extract_document_dien_so_hieu_vao_van_ban` chạy qua
+  parser thật (chỉ giả lập lời gọi Gemini). Nghiệm thu là ca đó ĐỎ trước khi sửa với đúng
+  `assert None == '52/2024/NĐ-CP'`. Việc này đóng phần lớn ca: mọi văn bản có số hiệu đọc
+  được nay điền đúng.
+- **Còn mở:** PDF scan/layout hỏng không rút được số hiệu thì `so_hieu` vẫn `None`, và hàm dọn
+  vẫn không khớp. Lúc ấy mới phải quyết **đổi khoá khớp** của hàm dọn (khớp thêm theo `doc_id`,
+  hoặc để admin nhập số hiệu trong ô JSON trước khi duyệt) — quyết định thiết kế, không phải
+  việc sửa kèm. Chưa có số đo tần suất ca này; lượt nghiệm thu T5 là dịp đầu tiên để đếm.
 
 ### [ ] T21 · `download_storage` nuốt 400/404 cho mọi caller
 
