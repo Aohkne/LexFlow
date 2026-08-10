@@ -32,7 +32,7 @@ Applies to every commit in this repo (humans and AI agents). Base standard: [Con
 
 ## Scopes (closed list)
 
-`web` (Next.js) · `api` (FastAPI: `app/api`, `app/core`, `app/reasoning`) · `ingest` (`app/ingestion`) · `kg` (Neo4j / `app/knowledge`) · `ontology` (`app/ontology`: tầng chuẩn tắc — parser giữ offset, phân loại vai, trích Compliance Unit) · `eval` (benchmarks) · `design` (handoffs in `design/`) · `docs` · `scripts` · `data` (corpus) · `ci`
+`web` (Next.js) · `api` (FastAPI: `app/api`, `app/core`, `app/reasoning`) · `ingest` (`app/ingestion`) · `kg` (Neo4j / `app/knowledge`) · `ontology` (`app/ontology`: tầng chuẩn tắc — parser giữ offset, phân loại vai, trích Compliance Unit) · `db` (Supabase schema/RLS: `supabase/migrations/`) · `eval` (benchmarks) · `design` (handoffs in `design/`) · `docs` · `scripts` · `data` (corpus) · `ci`
 
 - Change spans multiple scopes → pick the main one; if there is no clear main scope, omit it (`feat: ...`) — and consider splitting the commit.
 - Need a new scope → add it to this table in the same commit.

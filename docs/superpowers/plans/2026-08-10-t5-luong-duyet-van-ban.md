@@ -714,8 +714,19 @@ tài khoản Supabase và Cloud Run — **chủ repo chạy**, agent không có 
 - [ ] **Step 1: Áp migration**
 
 Supabase Dashboard → SQL Editor → dán `supabase/migrations/0007_vai_tro_mot_nguon.sql` → Run.
-Kiểm: `select public.is_admin();` → kỳ vọng `false` (SQL Editor chạy dưới service-role, không
-có JWT người dùng).
+
+Kiểm **cả hai nhánh** — nhánh `false` chỉ chứng minh hàm không nổ khi không có JWT, còn nhánh
+`true` mới là toàn bộ tiền đề của migration này:
+
+```sql
+select public.is_admin();   -- kỳ vọng: false (SQL Editor chạy dưới service-role, không có JWT)
+
+begin;
+  set local role authenticated;
+  set local request.jwt.claims = '{"app_metadata":{"role":"admin"}}';
+  select public.is_admin();   -- kỳ vọng: true
+rollback;
+```
 
 - [ ] **Step 2: Cấp quyền admin** theo ba bước ở `docs/ARCHITECTURE.md`, rồi đăng nhập lại web.
 
