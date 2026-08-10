@@ -10,13 +10,24 @@ router = APIRouter(tags=["admin"])
 
 @router.get("/health")
 def health() -> dict:
+    """Tình trạng vận hành. HTTP luôn 200 — đây là tín hiệu cho người đọc sau mỗi deploy
+    (`docs/ROADMAP-SPRINT.md`), không phải probe của Cloud Run.
+
+    `status` xuống `degraded` khi lớp phủ được BẬT mà artefact không nạp được: mọi thứ khác
+    vẫn chạy (fail-open có chủ đích), nhưng badge hiệu lực cấp khoản vắng mặt trên toàn sản
+    phẩm — thứ trước đây không có cách nào phát hiện ngoài việc tự đi hỏi một câu.
+    """
+    from app.knowledge.lop_phu import tinh_trang
+
+    overlay = tinh_trang()
     return {
-        "status": "ok",
+        "status": "degraded" if overlay.get("bat") and not overlay.get("nap") else "ok",
         "gemini_configured": bool(settings.gemini_api_key),
         "neo4j_configured": settings.neo4j_enabled,
         "supabase_auth": settings.supabase_auth_enabled,
         "queue": settings.queue_enabled,
         "lancedb": "cloud" if settings.lancedb_cloud_enabled else "local",
+        "overlay": overlay,
     }
 
 

@@ -6,6 +6,39 @@
 
 ---
 
+## 2026-08-07 (T6) — thuộc tính văn bản: 1/26 → 14/26, và đường lên canonical
+
+- **Done.** Bản crawl vbpl.vn có đủ bảng Thuộc tính cho 22 văn bản, nhưng corpus canonical chỉ
+  mang thuộc tính của **TT15-2024** — `scripts/enrich_corpus_from_vbpl.py` ghép **từng file
+  một** và 13 văn bản còn lại chưa bao giờ được chạy qua. Thêm chế độ `--tu-thu-muc` khớp cả
+  thư mục theo `doc_id`, và bổ sung `source_files` vào danh sách trường được chép — thiếu nó
+  thì endpoint tải file gốc của #10 không có gì để phục vụ.
+- **Số đo.** Độ phủ thuộc tính **1/26 → 14/26** văn bản (`co_quan_ban_hanh`, `nguoi_ky`,
+  `chuc_danh`, `ngay_ban_hanh`, `tinh_trang_hieu_luc`, `source_url`, `source_files`);
+  `provisions` 1/26 → **13/26**. Badge cấp khoản gắn được vào cây điều khoản **26/124 → 104/124**
+  đơn vị bị tác động; 20 mục còn lại thuộc ND101-2012 (16) và TT39-2014 (4) — hai văn bản **chưa
+  cào**, nên chưa có cây để gắn. 12 văn bản chưa có thuộc tính = 4 quy định nội bộ SHB (vbpl.vn
+  không có) + 8 văn bản ngoài chưa cào.
+- **Kiểm trước khi ghi.** Dựng lại 22 bản corpus từ `raw/` bằng parser ở HEAD: **0/22 lệch** so
+  với bản dump 05/08 ⇒ bản đang ghép đúng là bản parser hiện tại sinh ra. Sau khi ghép:
+  `doc_id`/`title`/hiệu lực/`articles`/`relationships` **giữ nguyên từng byte**, 26/26 văn bản
+  vẫn hợp lệ với `DocumentDetail`.
+- **Decision.** `articles`/`title`/hiệu lực không bao giờ nhận từ bản crawl. Ca cụ thể:
+  crawl **ND52-2024** mang `valid_from: 2027-07-01` trong khi corpus curate tay ghi
+  `2024-07-01` — chép sang là đẩy một nghị định đang hiệu lực ra tương lai.
+- **Ship.** `a2ff265`, `0a4f06d`. 704 test xanh, ruff sạch, CI xanh cả hai commit.
+- **Chưa tới production.** Backend đọc canonical **trên Supabase Storage** (file trong image chỉ
+  là fallback), nên sửa local chưa đổi gì ở prod. Mở rộng `scripts/sync_corpus_storage.py`: ngoài
+  anchors, nay bổ sung cả thuộc tính/cây/file gốc, **chỉ thêm không xoá** (văn bản chỉ có trên
+  canonical vẫn còn, `articles` trên Storage là bản đã duyệt nên không đụng), sao lưu canonical
+  về `data/backup/` trước khi ghi đè, có `--dry-run`. Chạy được cần tài khoản admin Supabase.
+- **Next.** (1) Chạy sync canonical bằng tài khoản admin → xác minh `/documents/TT40-2024` trên
+  prod có `co_quan_ban_hanh`/`source_files`. (2) Cào 8 văn bản ngoài còn thiếu (ND101-2012,
+  TT17-2024, TT18-2024, TT20-2016, TT23-2014, TT23-2019, TT39-2014, TT46-2014) — `vbpl search`
+  không tìm ra URL của chúng qua sitemap, phải lấy URL tay.
+
+---
+
 ## 2026-08-06 (T5) — đợt 5: nối lớp phủ vào sản phẩm (P4), 10 task subagent-driven TDD
 
 - **Done.** Lớp phủ dưới-văn-bản đi hết đường từ artefact tới UI: `app/ontology/dong_goi.py`

@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING, Literal
 
 from pydantic import BaseModel
 
-from app.ingestion.vbpl_corpus import doc_id_theo_corpus
+from app.core.config import settings
 from app.ontology.dinh_tuyen import dinh_tuyen, khoa_tu_chunk_id
 from app.ontology.dong_goi import CanhGoi, GoiLopPhu
 from app.ontology.hien_hanh import phien_ban_hien_hanh
@@ -58,6 +58,13 @@ class LopPhuRuntime:
     canh: list[CanhTacDong]
     goi_theo_canh: dict[tuple, CanhGoi]
     so_hieu_theo_doc: dict[str, str]
+    #: Chiều ngược, dựng sẵn một lần. `doc_id` là thứ corpus TỰ ĐẶT, không suy ra được từ số
+    #: hiệu — đo 09/08 trên artefact thật: 4/26 văn bản (toàn bộ nhóm nội bộ SHB) có `doc_id`
+    #: khác hẳn thứ quy ước `<loại><số>-<năm>` sinh ra. Nên chỗ nào cần `doc_id` thật thì phải
+    #: hỏi bảng này, không được suy.
+    doc_id_theo_so_hieu: dict[str, str]
+    #: Ngày artefact được sinh — để `/health` nói được đang phục vụ bản lớp phủ nào.
+    sinh_luc: str
 
 
 def _khoa_canh(c: CanhTacDong | CanhGoi) -> tuple:
@@ -65,9 +72,16 @@ def _khoa_canh(c: CanhTacDong | CanhGoi) -> tuple:
 
 
 @lru_cache(maxsize=4)
-def tai_lop_phu(duong_dan: str = DUONG_DAN_MAC_DINH) -> LopPhuRuntime | None:
-    """Nạp artefact một lần. Hỏng/thiếu ⇒ None (fail-open), không ném lỗi."""
+def tai_lop_phu(duong_dan: str | None = None) -> LopPhuRuntime | None:
+    """Nạp artefact một lần. Hỏng/thiếu ⇒ None (fail-open), không ném lỗi.
+
+    Đường dẫn mặc định giải bên TRONG chứ không đặt ở chữ ký: đặt ở chữ ký thì mọi lượt gọi
+    không tham số và mọi lượt gọi truyền đúng đường dẫn đó thành hai khoá cache khác nhau —
+    artefact bị parse và giữ hai bản. Giải bên trong cũng là thứ cho test đổi
+    `DUONG_DAN_MAC_DINH` mà không phải sửa nơi gọi.
+    """
     try:
+        duong_dan = duong_dan or DUONG_DAN_MAC_DINH
         goi = GoiLopPhu.model_validate_json(Path(duong_dan).read_text(encoding="utf-8"))
     except (OSError, ValueError, json.JSONDecodeError):
         return None
@@ -79,11 +93,43 @@ def tai_lop_phu(duong_dan: str = DUONG_DAN_MAC_DINH) -> LopPhuRuntime | None:
         canh=canh,
         goi_theo_canh={_khoa_canh(c): c for c in goi.canh},
         so_hieu_theo_doc=goi.so_hieu_theo_doc,
+        doc_id_theo_so_hieu={sh: d for d, sh in goi.so_hieu_theo_doc.items()},
+        sinh_luc=goi.sinh_luc,
     )
 
 
-def tach_khoa(khoa: str) -> tuple[str | None, str | None]:
-    """Khoá overlay → (`doc_id`, nhãn kiểu `"Điều 1 Khoản 2"`). Không giải được ⇒ (None, None)."""
+def tinh_trang() -> dict:
+    """Lớp phủ hiện đang ở tình trạng nào — cho `/health` và log lúc khởi động.
+
+    Tồn tại vì fail-open không có tiếng nói: artefact thiếu trong image thì badge hiệu lực
+    biến mất khỏi toàn sản phẩm và không có chỗ nào nói ra. Đây là chỗ nói ra.
+
+    Dùng lại `tai_lop_phu()` (đã `lru_cache`) nên không thêm lượt đọc đĩa nào; gọi lúc khởi
+    động thì lượt chat đầu tiên khỏi trả giá parse.
+    """
+    if not settings.overlay_router:
+        return {"bat": False}
+    lp = tai_lop_phu()
+    if lp is None:
+        return {"bat": True, "nap": False, "duong_dan": DUONG_DAN_MAC_DINH}
+    return {
+        "bat": True,
+        "nap": True,
+        "so_canh": len(lp.canh),
+        "sinh_luc": lp.sinh_luc,
+        "duong_dan": DUONG_DAN_MAC_DINH,
+    }
+
+
+def tach_khoa(khoa: str, lp: LopPhuRuntime) -> tuple[str | None, str | None]:
+    """Khoá overlay → (`doc_id`, nhãn kiểu `"Điều 1 Khoản 2"`). Không giải được ⇒ (None, None).
+
+    `doc_id` tra từ bảng của artefact, **không suy theo quy ước đặt tên**. Số hiệu không có
+    trong bảng nghĩa là văn bản nằm ngoài corpus (vd `135/2015/NĐ-CP`, đích của 39/178 cạnh) —
+    khi đó không có `doc_id` nào đúng, nên trả `None` chứ không sinh ra một mã trông như thật:
+    phía web dựng link `/docs/{id}` từ giá trị này, và một mã bịa dẫn thẳng tới trang trống.
+    Nhãn vẫn giải được nên vẫn trả — mất `doc_id` không có nghĩa là mất địa chỉ.
+    """
     m = _KHOA_RE.match(khoa)
     if not m:
         return None, None
@@ -92,7 +138,7 @@ def tach_khoa(khoa: str) -> tuple[str | None, str | None]:
         nhan += f" Khoản {m.group('khoan')}"
     if m.group("diem"):
         nhan += f" Điểm {m.group('diem')}"
-    return doc_id_theo_corpus(m.group("sh")), nhan
+    return lp.doc_id_theo_so_hieu.get(m.group("sh")), nhan
 
 
 def _span_loi_van(chunk: dict, lp: LopPhuRuntime) -> tuple[int, int] | None:
@@ -135,7 +181,7 @@ def tac_dong_cua_van_ban(
         return []
     ra: list[TacDongDonVi] = []
     for khoa in sorted({c.dich for c in lp.canh}):
-        d_id, _nhan = tach_khoa(khoa)
+        d_id, _nhan = tach_khoa(khoa, lp)
         if d_id != doc_id:
             continue
         pb = phien_ban_hien_hanh(khoa, lp.canh, as_of)
@@ -145,7 +191,7 @@ def tac_dong_cua_van_ban(
         if m is None:
             continue
         c = pb.cac_lan[-1]
-        boi_doc, boi_art = tach_khoa(c.nguon)
+        boi_doc, boi_art = tach_khoa(c.nguon, lp)
         # Chữ đã được `dong_goi` giải sẵn vào gói; đọc kèm ở đây để trình xem dựng được bảng
         # đối chiếu ngay, khỏi phải mở `raw/` (thứ API không phục vụ) hay hỏi thêm một lượt.
         g = lp.goi_theo_canh.get(_khoa_canh(c))
@@ -193,7 +239,7 @@ def chu_thich_chunk(
 
     sua_boi_doc = sua_boi_art = ban_hien_hanh = xx_doc = xx_art = None
     if kq.canh is not None:
-        sua_boi_doc, sua_boi_art = tach_khoa(kq.canh.nguon)
+        sua_boi_doc, sua_boi_art = tach_khoa(kq.canh.nguon, lp)
         g = lp.goi_theo_canh.get(_khoa_canh(kq.canh))
         if g is not None:
             xx_doc, xx_art = g.xuat_xu_doc_id, g.xuat_xu_article
