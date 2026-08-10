@@ -71,6 +71,22 @@ def test_nhan_gop_khoan_khong_bia_khoa_khoan():
     assert khoa_tu_chunk_id("TT40-2024::Điều 8 (phần 2)", _SH) is None
 
 
+def test_hau_to_phan_biet_ro_ve_khoa_cap_dieu_chu_khong_rot():
+    """Nhãn `"… Khoản 2 (2)"` — hậu tố do `_split_khoan` thêm khi một điều chứa nhiều khối
+    đánh số lặp lại (điều sửa đổi chép nguyên văn nhiều điều của văn bản bị sửa).
+
+    Hai điều phải đúng cùng lúc. Một, KHÔNG được trả `None`: cả hai regex nhãn đều neo `$`,
+    nên nếu không xử hậu tố thì chunk rơi khỏi mọi cạnh tác động **trong im lặng** — đúng loại
+    hỏng mà cả `_NHAN_GOP_KHOAN_RE` sinh ra để chặn. Hai, KHÔNG được mint khoá khoản: số `2`
+    trong nhãn ấy là khoản của một văn bản KHÁC đang được trích, không định danh khoản nào
+    của chính văn bản này. Nên rơi về khoá cấp điều, y như nhãn gộp.
+    """
+    assert khoa_tu_chunk_id("TT40-2024::Điều 8 Khoản 2 (2)", _SH) == "40/2024/TT-NHNN#than/dieu_8"
+    assert khoa_tu_chunk_id("TT40-2024::Điều 8 (2)", _SH) == "40/2024/TT-NHNN#than/dieu_8"
+    # `(phần 2)` vẫn là dạng khác và vẫn ngoài phạm vi — hậu tố phân biệt chỉ là `(số)`.
+    assert khoa_tu_chunk_id("TT40-2024::Điều 8 (phần 2)", _SH) is None
+
+
 @pytest.mark.skipif(
     not Path("data/corpus.real.json").exists()
     or not Path("eval/overlay/canh_tac_dong.jsonl").exists(),

@@ -17,6 +17,7 @@ văn bản bị sửa, gắn nhãn `"Điểm đ"` cho chúng là khai man địa
 """
 from __future__ import annotations
 
+from collections import Counter
 from pathlib import Path
 
 import pytest
@@ -140,6 +141,53 @@ def test_TT66_dieu_6_khong_con_cat_giua_cau():
     for nhan, t in out:
         assert _dong(t) <= hop_le, f"{nhan} cắt giữa dòng — đúng lỗi đang sửa"
     assert _dong("\n".join(t for _, t in out)) == hop_le, "mất nội dung"
+
+
+# ---------- Nhãn phải định danh được đúng một chunk ----------
+
+
+def _dieu_danh_so_lap_lai() -> str:
+    """Hình dạng `TT23-2019 Điều 1`: một điều SỬA ĐỔI chép nguyên văn nhiều điều của văn bản
+    bị sửa, nên số khoản khởi động lại nhiều lần trong cùng một điều."""
+    khoi = []
+    for lan in range(1, 4):
+        khoi.append(f"Sửa đổi Điều {lan * 5} như sau:")
+        khoi += [f"{i}. Khối {lan} khoản {i}. " + "nội dung " * 90 for i in range(1, 4)]
+    return "\n".join(khoi)
+
+
+def test_nhan_trung_trong_mot_dieu_duoc_danh_so_phan_biet():
+    out = _split_khoan("Điều 1", _dieu_danh_so_lap_lai())
+    nhan = [n for n, _ in out]
+    assert len(nhan) == len(set(nhan)), f"nhãn trùng ⇒ hai chunk khác nhau cùng một id: {nhan}"
+    assert any("(2)" in n for n in nhan), "phải có hậu tố phân biệt, không phải đổi cách chẻ"
+
+
+def test_nhan_dai_khoan_khong_bao_gio_nguoc():
+    """`"Khoản 18-1"` nói dối: nó tuyên bố một dải từ 18 đến 1."""
+    out = _split_khoan("Điều 1", _dieu_danh_so_lap_lai())
+    for nhan, _ in out:
+        if " Khoản " not in nhan:
+            continue
+        dai = nhan.split(" Khoản ")[-1].split(" (")[0]
+        if "-" not in dai:
+            continue
+        dau, cuoi = dai.split("-")
+        assert int(dau) < int(cuoi), f"nhãn dải ngược: {nhan!r}"
+
+
+@pytest.mark.skipif(not _CORPUS_REAL.exists(), reason="thiếu data/corpus.real.json")
+def test_khong_chunk_nao_trung_id_tren_corpus_that():
+    """Bất biến toàn corpus. `id` là khoá của mọi thứ phía sau: `_rrf` gom kết quả vào dict
+    theo `id`, nên hai chunk trùng id thì một cái bị nuốt và trích dẫn trỏ tới một địa chỉ có
+    nhiều nội dung khác nhau. Đo 09/08 trước khi sửa: 5 id trùng, 7 hàng đụng nhau, toàn bộ ở
+    TT23-2019.
+    """
+    docs, _ = load_corpus(_CORPUS_REAL)
+    rows = build_chunks(docs)
+    dem = Counter(r["id"] for r in rows)
+    trung = {k: v for k, v in dem.items() if v > 1}
+    assert not trung, "id trùng:\n" + "\n".join(f"  {k} x{v}" for k, v in trung.items())
 
 
 @pytest.mark.skipif(not _CORPUS_REAL.exists(), reason="thiếu data/corpus.real.json")

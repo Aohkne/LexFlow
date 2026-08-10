@@ -151,17 +151,45 @@ def _split_khoan(article: str, text: str) -> list[tuple[str, str]]:
             (f"{article} (phần {i + 1})", t) for i, t in enumerate(_cat_du_phong(text))
         ]
 
-    return [
-        (_khoan_label(article, nhom), "\n".join(x for _, x in nhom))
-        for nhom in _gop_lien_ke(khoan)
-    ]
+    nhom = _gop_lien_ke(khoan)
+    nhan = _lam_duy_nhat([_khoan_label(article, g) for g in nhom])
+    return [(n, "\n".join(x for _, x in g)) for n, g in zip(nhan, nhom)]
 
 
 def _khoan_label(article: str, buf: list[tuple[str | None, str]]) -> str:
     nums = [n for n, _ in buf if n]
     if not nums:
         return article
-    return f"{article} Khoản {nums[0]}" if len(nums) == 1 else f"{article} Khoản {nums[0]}-{nums[-1]}"
+    if len(nums) == 1 or int(nums[0]) >= int(nums[-1]):
+        # Số cuối không lớn hơn số đầu ⇒ đánh số đã khởi động lại giữa chừng (điều sửa đổi
+        # chép nguyên văn nhiều điều của văn bản bị sửa). Nhãn dải `"Khoản 18-1"` khi đó NÓI
+        # DỐI — nó tuyên bố một dải từ 18 đến 1. Lấy số đầu: chunk đúng là bắt đầu từ đó.
+        return f"{article} Khoản {nums[0]}"
+    return f"{article} Khoản {nums[0]}-{nums[-1]}"
+
+
+def _lam_duy_nhat(nhan: list[str]) -> list[str]:
+    """Nhãn trùng trong CÙNG một điều thì thêm hậu tố thứ tự: `"Điều 1 Khoản 2 (2)"`.
+
+    Trùng xảy ra khi một điều chứa nhiều khối đánh số lặp lại — ca thật `TT23-2019 Điều 1`
+    (55.902 ký tự, 27 mảnh) chép lại nguyên văn nhiều điều của TT39-2014, nên "Khoản 2" xuất
+    hiện ba lần. Vì `id = f"{doc_id}::{nhãn}"`, ba chunk khác nhau lĩnh cùng một id; `_rrf`
+    gom kết quả vào dict theo id nên một cái bị nuốt, và trích dẫn trỏ tới một địa chỉ mang
+    ba nội dung khác nhau.
+
+    Hậu tố là thứ phân biệt, KHÔNG phải địa chỉ pháp lý — `khoa_tu_chunk_id` bóc nó ra rồi rơi
+    về khoá cấp điều, y như cách nó xử nhãn gộp nhiều khoản.
+    """
+    da_dung: set[str] = set()
+    ra: list[str] = []
+    for n in nhan:
+        m, k = n, 1
+        while m in da_dung:  # vòng lặp chứ không phải đếm: `"A (2)"` có thể đã tồn tại sẵn
+            k += 1
+            m = f"{n} ({k})"
+        da_dung.add(m)
+        ra.append(m)
+    return ra
 
 
 def build_chunks(docs: list[CorpusDocument]) -> list[dict]:
@@ -237,6 +265,38 @@ def build_change_events(docs: list[CorpusDocument], rels: list[Relationship]) ->
     return events
 
 
+#: Artefact lớp phủ — cùng đường dẫn `app.knowledge.lop_phu` dùng lúc chạy.
+_DUONG_DAN_LOP_PHU = Path("data/overlay/lop_phu.json")
+
+
+def _noi_lai_lop_phu() -> None:
+    """Đẩy lại node/cạnh lớp phủ NGAY SAU `push_corpus`.
+
+    Bắt buộc, không phải tuỳ chọn: `push_corpus` mở đầu bằng
+    `MATCH (d:Document) DETACH DELETE d`, mà `DETACH` xoá **mọi** cạnh chạm các node đó — kể cả
+    `THUOC` phát từ `(:DonVi)`. Node `DonVi` và cạnh `TAC_DONG` không mang nhãn `Document` nên
+    sống sót, khiến đồ thị sau đó *trông vẫn có lớp phủ*: đủ nút, đủ cạnh tác động, chỉ mất
+    sạch đường nối về văn bản. Không lỗi, không cảnh báo.
+
+    Trước 10/08 đây là việc người chạy phải tự nhớ (xem docstring `push_overlay`) — tức là một
+    bước bắt buộc nằm ngoài mã, loại thoả thuận chỉ đúng tới lần đầu có người quên.
+    """
+    from app.knowledge.graph import push_overlay
+    from app.ontology.dong_goi import GoiLopPhu
+
+    try:
+        goi = GoiLopPhu.model_validate_json(
+            _DUONG_DAN_LOP_PHU.read_text(encoding="utf-8")
+        )
+    except (OSError, ValueError) as exc:
+        print(
+            f"[ingest] CẢNH BÁO: không đọc được lớp phủ {_DUONG_DAN_LOP_PHU} ({exc}). "
+            "Đồ thị vừa nạp KHÔNG có cạnh THUOC nối đơn vị về văn bản."
+        )
+        return
+    push_overlay(goi)
+
+
 def ingest_docs(docs: list[CorpusDocument], rels: list[Relationship]) -> int:
     """Lõi ingest: chunks → LanceDB (+ Neo4j nếu có). Trả về số chunk."""
     rows = build_chunks(docs)
@@ -259,6 +319,7 @@ def ingest_docs(docs: list[CorpusDocument], rels: list[Relationship]) -> int:
             f"[ingest] Đã nạp {len(docs)} node + {len(rong)} node RỖNG (chưa có toàn văn) "
             f"+ {len(canh)} cạnh vào Neo4j Aura."
         )
+        _noi_lai_lop_phu()
     else:
         print("[ingest] Bỏ qua Neo4j (chưa cấu hình NEO4J_URI/PASSWORD).")
     return n

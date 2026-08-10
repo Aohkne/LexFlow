@@ -43,6 +43,11 @@ _NHAN_RE = re.compile(r"^Điều\s+(\d+[a-zđ]?)(?:\s+Khoản\s+(\d+[a-zđ]?))?$
 #: điều là khoá THẬT, chunk chắc chắn là một phần của điều đó — review round 2, F1).
 _NHAN_GOP_KHOAN_RE = re.compile(r"^Điều\s+(\d+[a-zđ]?)\s+Khoản\s+\d+-\d+$")
 
+#: Hậu tố phân biệt do `pipeline._lam_duy_nhat` thêm vào nhãn trùng trong cùng một điều.
+#: `\(\d+\)` chứ không phải `\(.+\)`: nhãn cắt cửa sổ `"(phần 2)"` là dạng KHÁC và phải tiếp
+#: tục nằm ngoài phạm vi — nó không giải được thành một khoá nào cả.
+_HAU_TO_PHAN_BIET_RE = re.compile(r"\s+\(\d+\)$")
+
 # `_KHOA_RE` = `app.ontology.tac_dong._DICH_RE` — cùng bóc một khoá overlay
 # `{so_hieu}#than/dieu_N[#khoan_M[#diem_x]]` thành các phần, tái dùng thay vì khai lại
 # byte-for-byte (review round 1, minor 1).
@@ -60,6 +65,12 @@ def khoa_tu_chunk_id(chunk_id: str, so_hieu_theo_doc: dict[str, str]) -> str | N
     không tồn tại trong overlay, không cạnh nào trỏ tới). Rơi về khoá CẤP ĐIỀU thay: khoá đó
     thật (chunk chắc chắn nằm trong điều này) và đủ để `dinh_tuyen` dò tiếp cạnh sâu hơn bên
     trong điều qua `_canh_deeper_ap_duoc` (review round 2, F1).
+
+    Hậu tố phân biệt `"(2)"` (`_lam_duy_nhat` của pipeline thêm khi một điều chứa nhiều khối
+    đánh số lặp lại) được bóc ra trước khi khớp, rồi xử **y như nhãn gộp**: hai regex đều neo
+    `$` nên không bóc thì chunk trả `None` và rớt khỏi mọi cạnh tác động trong im lặng; mà giữ
+    nguyên số khoản thì cũng sai — số ấy là khoản của văn bản ĐANG BỊ TRÍCH, không định danh
+    khoản nào của chính văn bản này.
     """
     doc_id, sep, nhan = chunk_id.partition("::")
     if not sep:
@@ -67,9 +78,10 @@ def khoa_tu_chunk_id(chunk_id: str, so_hieu_theo_doc: dict[str, str]) -> str | N
     so_hieu = so_hieu_theo_doc.get(doc_id)
     if so_hieu is None:
         return None
+    nhan, n_bo = _HAU_TO_PHAN_BIET_RE.subn("", nhan)
     m = _NHAN_RE.match(nhan)
     if m:
-        dieu, khoan = m.group(1), m.group(2)
+        dieu, khoan = m.group(1), (None if n_bo else m.group(2))
     else:
         m_gop = _NHAN_GOP_KHOAN_RE.match(nhan)
         if not m_gop:
