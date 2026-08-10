@@ -13,17 +13,7 @@
 
 ## Chặn — cần người quyết trước khi làm
 
-### [ ] T17 · Deploy để mã khớp với dữ liệu vừa nạp
-
-Sau lượt re-ingest 10/08, LanceDB có **10 nhãn mang hậu tố phân biệt** (`Điều 1 Khoản 2 (2)`…),
-tất cả thuộc TT23-2019. Nhưng revision đang phục vụ (`00020-2c7`) chạy mã **trước** commit
-`3219fba`, nên `khoa_tu_chunk_id` chưa biết bóc hậu tố ⇒ 10 chunk đó trả `None` và rớt khỏi mọi
-cạnh tác động **trong im lặng**.
-
-- Tác hại thực tế ~0: cả 10 thuộc TT23-2019, đã hết hiệu lực nên bị lọc khỏi truy hồi mặc định.
-- Nhưng đây là **lệch giữa mã và dữ liệu** — đúng loại nợ sinh ra lỗi khó hiểu về sau.
-- Bước đầu: `gcloud run deploy lexflow-api --source . --region asia-southeast1` (chủ repo chạy
-  — lớp phân loại quyền chặn AI gọi lệnh này), rồi nghiệm thu `/health` trên revision mới.
+*(Hiện không có mục nào chặn.)*
 
 ---
 
@@ -165,6 +155,11 @@ Chủ repo tự chuẩn bị — đã nói rõ 07/08: "về bộ câu hỏi thì
   tới trang trống. `tach_khoa` nay tra bảng, không có thì trả `None`. Không đổi một ký tự nào
   trong response hôm nay (mọi `nguon` đều có trong bảng). Ba chỗ còn lại → **T15** + dây bẫy.
   Commit `27abe0d`.
+- **10/08 · T17** — Deploy để mã khớp dữ liệu vừa nạp: rev `lexflow-api-00021-jvs`, 100%
+  traffic. Nghiệm thu đúng thứ cần chứng minh chứ không chỉ `/health` (nó không phân biệt được
+  revision cũ với mới): tra thẳng 10 nhãn có hậu tố trên **bảng LanceDB đang phục vụ** —
+  **10/10 giải được** bằng mã mới, **0/10** bằng regex cũ. Cả 10 rơi về khoá cấp điều
+  `23/2019/TT-NHNN#than/dieu_1`, đúng thiết kế.
 - **10/08 · T1 + T2** — Re-ingest mang cả hai bản vá chunking sang dữ liệu đang phục vụ.
   LanceDB: **661 hàng / 661 id phân biệt** (trước: 654 id, 7 hàng đụng nhau). Neo4j về đúng số
   cũ: 26 Document · 293 DonVi · 255 THUOC · 178 TAC_DONG · 35 cạnh văn bản. Nghiệm thu trên
