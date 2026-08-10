@@ -461,6 +461,7 @@ def test_upload_json_doc_id_ban_bi_chan(client, fake_store, monkeypatch):
     )
 
     assert r.status_code == 422, r.text
+    assert "doc_id không hợp lệ" in r.text, "phải ghim đúng lý do là kiem_doc_id từ chối"
     assert fake_store["rows"] == {}
 
 
