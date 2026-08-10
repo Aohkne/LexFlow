@@ -50,7 +50,29 @@ def _quy_ve_chunk(id_llm: str | None, by_id: dict[str, dict]) -> dict | None:
 
 
 @observe(name="conflict.detect")
-def detect_conflicts(chunks: list[dict]) -> list[ConflictAlert]:
+def detect_conflicts(chunks: list[dict], *, chi_noi_bo_voi_luat: bool = True) -> list[ConflictAlert]:
+    """Cặp điều khoản mâu thuẫn trong `chunks`.
+
+    `chi_noi_bo_voi_luat` giữ đúng lời hứa ở đầu module: chỉ trả cặp **nội bộ ↔ luật**, thứ
+    tạo rủi ro tuân thủ. Trước 10/08 mã không hề thực hiện ưu tiên đó và cặp luật↔luật chiếm
+    phần lớn đầu ra — người hỏi "hạn mức rút tiền thẻ tín dụng" nhận về việc TT18 và TT30-2016
+    lệch nhau chuyện thời hạn tra soát.
+
+    Đo 10/08 trên 7 ca có mâu thuẫn + 20 ca không (`eval/results/loc-canh-bao-20260810-085822.json`):
+
+    ```
+    chính sách              recall   ca âm báo   tổng cảnh báo
+    không lọc                7/7       8/20          32
+    bỏ severity=info         7/7       5/20          22
+    chỉ cặp nội bộ×luật      7/7       4/20          13
+    ```
+
+    Recall **không đổi** ở mọi chính sách; lọc theo cặp nguồn đạt đúng 4/20 mà
+    `gemini-2.5-pro` đạt được — nhưng trên `flash-lite`, tức **rẻ hơn 21,7 lần**. Lọc thêm
+    `severity` không cải thiện gì nữa nên không làm.
+
+    Đặt `False` khi cần cả mâu thuẫn luật↔luật (rà soát văn bản pháp quy, không phải tuân thủ).
+    """
     # Cần ít nhất 2 văn bản khác nhau mới có thể mâu thuẫn
     if len({c["doc_id"] for c in chunks}) < 2:
         return []
@@ -73,6 +95,8 @@ def detect_conflicts(chunks: list[dict]) -> list[ConflictAlert]:
                     "id_a=%r id_b=%r — %.120s",
                     item.get("id_a"), item.get("id_b"), item.get("explanation", ""),
                 )
+            continue
+        if chi_noi_bo_voi_luat and {a["source"], b["source"]} != {"internal", "external"}:
             continue
         alerts.append(
             ConflictAlert(

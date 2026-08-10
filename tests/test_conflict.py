@@ -94,6 +94,31 @@ def test_id_khong_giai_duoc_thi_ghi_log_chu_khong_nuot(monkeypatch, hai_phia, ca
     assert "VAN-BAN-LA::Điều 1" in caplog.text
 
 
+def test_chi_giu_cap_noi_bo_voi_luat(monkeypatch, hai_phia):
+    """Cặp luật↔luật bị loại — đúng ưu tiên mà đầu module tuyên bố từ đầu.
+
+    Đo 10/08 (7 ca có mâu thuẫn + 20 ca không): recall giữ nguyên **7/7** ở mọi chính sách lọc,
+    còn số ca âm bị báo rơi từ **8/20 xuống 4/20** — đúng bằng con số `gemini-2.5-pro` đạt
+    được, nhưng trên `flash-lite`, tức rẻ hơn 21,7 lần.
+    """
+    chunks = hai_phia + [
+        _chunk("TT30-2016::Điều 1 Khoản 6-7", "external", "Thời hạn tra soát 45 ngày."),
+    ]
+    _gia_lap(monkeypatch, [
+        {"id_a": "TT18-2024::Điều 13", "id_b": "TT30-2016::Điều 1 Khoản 6-7",
+         "explanation": "Hai thông tư lệch thời hạn.", "severity": "critical"},
+        {"id_a": "SHB-QD-THE-2023::Mục 6.1", "id_b": "TT18-2024::Điều 13",
+         "explanation": "Nội bộ 20 triệu, luật trần 5 triệu.", "severity": "critical"},
+    ])
+
+    ra = conflict.detect_conflicts(chunks)
+    assert len(ra) == 1
+    assert {ra[0].article_a, ra[0].article_b} == {"Mục 6.1", "Điều 13"}
+
+    # Tắt cờ thì lấy lại cả cặp luật↔luật — dùng cho rà soát văn bản pháp quy.
+    assert len(conflict.detect_conflicts(chunks, chi_noi_bo_voi_luat=False)) == 2
+
+
 def test_duoi_hai_van_ban_thi_khong_goi_llm(monkeypatch):
     """Giữ nguyên: một văn bản thì không thể tự mâu thuẫn với chính nó ở tầng này."""
     def _no(*_a, **_k):

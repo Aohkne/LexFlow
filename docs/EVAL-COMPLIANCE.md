@@ -60,6 +60,35 @@ model dựa trên một con số đang lẫn hai thứ khác nhau là quyết đ
 **Việc phải làm trước:** gắn nhãn ở đúng tầng bộ phát hiện làm việc (tập chunk lấy về), rồi mới
 đo lại. Xem §4.
 
+## 2b · Lọc cảnh báo — 10/08: một bộ lọc miễn phí bằng con model đắt gấp 21 lần
+
+Đo trên cùng bộ (7 ca CÓ mâu thuẫn + 20 ca KHÔNG), `gemini-2.5-flash-lite`, đo ở mức **CA**
+chứ không phải mức cảnh báo. Kết quả: `results/loc-canh-bao-20260810-085822.json`.
+
+| chính sách | recall | ca âm bị báo | tổng cảnh báo |
+|---|---|---|---|
+| A · không lọc (hiện trạng cũ) | 7/7 | 8/20 | 32 |
+| B · bỏ `severity=info` | 7/7 | 5/20 | 22 |
+| **C · chỉ cặp nội bộ×luật** | **7/7** | **4/20** | **13** |
+| D · cả hai | 7/7 | 4/20 | 13 |
+
+**Recall không đổi ở mọi chính sách.** Chính sách C đạt đúng **4/20** mà `gemini-2.5-pro` đạt
+được ở §2 — nhưng chạy trên `flash-lite`, tức **rẻ hơn 21,7 lần**. D không hơn C nên lọc
+`severity` là thừa, không làm.
+
+C không phải mẹo: đầu `conflict.py` **đã tuyên bố** ưu tiên cặp nội bộ↔luật ("rủi ro tuân thủ
+lớn nhất") ngay từ đầu — mã chỉ chưa bao giờ thực hiện. Cặp luật↔luật chiếm phần lớn đầu ra cũ
+(39/50 ở nhóm dương, 24/30 ở nhóm âm), nên người hỏi *"hạn mức rút tiền thẻ tín dụng"* nhận về
+việc TT18 và TT30-2016 lệch nhau chuyện thời hạn tra soát. Đã áp mặc định, có cờ
+`chi_noi_bo_voi_luat=False` cho ca rà soát văn bản pháp quy.
+
+**⇒ Không đổi sang `gemini-2.5-pro`.** Lợi thế duy nhất đo được của nó đã lấy lại bằng một bộ
+lọc không tốn gì.
+
+**Một cảnh báo về cách đọc số ở tầng này:** *số lượng* cảnh báo rất không ổn định giữa các lượt
+— cùng bộ dữ liệu, cùng model, hai lượt đo cho 80 và 32 cảnh báo. Kết luận ở **mức ca** thì ổn
+định (7/7 ở cả hai lượt). Đừng so số cảnh báo giữa hai lần chạy.
+
 ## 3 · Chi phí — đo thật, không ước
 
 Cách đo: bọc `client.models.generate_content` đọc `usage_metadata` của chính response. Giá tra
@@ -88,9 +117,9 @@ không đổi kết luận.
 - **Nhãn đang gắn sai tầng.** `expect_conflict` mô tả câu hỏi; bộ phát hiện làm việc trên tập
   chunk. Cần nhãn ở mức "tập chunk này có chứa cặp mâu thuẫn thật nào" thì mới nói được
   precision. Đây là điều kiện tiên quyết để quyết chuyện đổi model.
-- **Chưa phân tích mức nghiêm trọng của cảnh báo thừa.** Nghi vấn: phần lớn là `info` kiểu "hai
-  điều này có thể gây nhầm lẫn" chứ không phải mâu thuẫn. Nếu đúng thì lọc theo `severity` rẻ
-  hơn đổi model 21 lần. Lượt đo 10/08 **rớt giữa chừng** vì LanceDB Cloud reset kết nối — chưa
-  có số, đừng trích dẫn như thể đã có.
+- ~~Chưa phân tích mức nghiêm trọng của cảnh báo thừa.~~ **Đã đo 10/08 — xem §2b.** Giả thuyết
+  "phần lớn là `info`" **đúng về tỷ lệ** (~70% ở cả hai nhóm) nhưng **sai về tác dụng**: lọc
+  `severity` chỉ đưa ca âm từ 8/20 xuống 5/20, còn lọc theo **cặp nguồn** xuống 4/20 và làm
+  luôn phần việc của lọc severity.
 - **`review.py` chưa có phép đo nào.** Toàn bộ mục này nói về `conflict.py`. Đường đối chiếu
   tuân thủ (verdict violation/warning/pass, self-consistency 2+1 lượt) chưa từng được chấm.
