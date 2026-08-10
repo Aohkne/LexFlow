@@ -89,6 +89,39 @@ lọc không tốn gì.
 — cùng bộ dữ liệu, cùng model, hai lượt đo cho 80 và 32 cảnh báo. Kết luận ở **mức ca** thì ổn
 định (7/7 ở cả hai lượt). Đừng so số cảnh báo giữa hai lần chạy.
 
+## 2c · Precision thật ở tầng cặp điều khoản — 10/08
+
+Nhãn cũ (`expect_conflict`) gắn cho **câu hỏi**; bộ phát hiện làm việc trên **tập chunk**. Bộ
+nhãn mới `eval/mau_thuan_vang.jsonl` gắn vào **cặp điều khoản** nên không mục khi retrieval
+đổi: kỳ vọng của mỗi lượt = cặp vàng có **đủ hai phía** trong chunk lấy về.
+
+5 cặp vàng (xác minh tay: đủ hai phía trong `data/corpus.real.json`, số liệu khớp), 27 ca,
+`flash-lite`, bỏ **0/27** ca. Kết quả: `results/precision-cap-20260810-094112.json`.
+
+| chính sách | recall | precision |
+|---|---|---|
+| A · không lọc | 8/10 = **0,800** | 8/55 = **0,145** |
+| C · chỉ cặp nội bộ×luật | 8/10 = **0,800** | 8/13 = **0,615** |
+
+**Hai điều số này nói mà `conflict_recall` không nói được.**
+
+1. **Recall thật là 0,800, không phải 7/7.** Con số cũ hỏi *"ca này có sinh cảnh báo nào
+   không"*; ở tầng cặp thì **2/10 cặp bị bỏ sót**. Cùng một cảnh báo có thể "đúng ca, sai cặp".
+2. **Không lọc thì precision 0,145** — 47/55 cảnh báo là nhiễu. Lọc cặp nội bộ×luật đưa lên
+   **0,615**, gấp 4,2 lần, **recall không đổi**. Đây là bằng chứng đúng thước cho quyết định
+   ở §2b, thay cho con số "ca âm bị báo" vốn còn lẫn ca đúng.
+
+**Cặp duy nhất bị bỏ sót** (bỏ ở cả hai ca chạm tới nó): `SHB-QD-VI-2023::Mục 4.2 ↔
+TT40-2024::Điều 25` (nạp tiền mặt tại quầy vào ví). Log cho thấy bộ phát hiện **có** xử lý Mục
+4.2 nhưng ghép nó với `TT40-2024::Điều 37 Khoản 1(i)(vi)` và `Điều 25 Khoản 1(a)` — hai địa chỉ
+không quy được về chunk nào trong tập lấy về. Nghĩa là **chunk chứa khoản 1 Điều 25 không được
+truy hồi**: đây là lỗ hổng truy hồi, không phải phán định. Cần xác nhận rồi mới sửa.
+
+**Chốt chặn lượt đo vô hiệu.** `do_precision_cap.py` báo hỏng và thoát mã 1 khi bỏ quá 15% ca
+hoặc không ca nào có kỳ vọng. Có chốt vì đã vấp thật cùng ngày: LanceDB Cloud rớt liên tục,
+14/27 ca bị bỏ — trong đó **cả 7 ca có mâu thuẫn** — mà bảng vẫn in `recall 0/0` trông như một
+kết quả. Lượt đó đã bị huỷ, không lưu.
+
 ## 3 · Chi phí — đo thật, không ước
 
 Cách đo: bọc `client.models.generate_content` đọc `usage_metadata` của chính response. Giá tra
@@ -114,9 +147,10 @@ không đổi kết luận.
 - **`run_benchmark` không đo precision.** Nó chỉ gọi `detect_conflicts` khi `expect_conflict`
   là true (7/36 câu), nên một bộ phát hiện báo động mọi thứ vẫn đạt `conflict_recall` 7/7.
   `so_sanh_phan_dinh.py` chạy cả 20 ca âm chính là để bịt chỗ này.
-- **Nhãn đang gắn sai tầng.** `expect_conflict` mô tả câu hỏi; bộ phát hiện làm việc trên tập
-  chunk. Cần nhãn ở mức "tập chunk này có chứa cặp mâu thuẫn thật nào" thì mới nói được
-  precision. Đây là điều kiện tiên quyết để quyết chuyện đổi model.
+- ~~Nhãn đang gắn sai tầng.~~ **Đã sửa 10/08 — xem §2c.** `eval/mau_thuan_vang.jsonl` gắn nhãn
+  vào cặp điều khoản, `eval/cham_mau_thuan.py` chấm, `eval/do_precision_cap.py` chạy.
+- **Cặp `Mục 4.2 ↔ TT40 Điều 25` chưa bao giờ bắt được** — nghi do chunk chứa khoản 1 Điều 25
+  không lọt vào tập truy hồi. Chưa xác nhận, đừng sửa trước khi xác nhận.
 - ~~Chưa phân tích mức nghiêm trọng của cảnh báo thừa.~~ **Đã đo 10/08 — xem §2b.** Giả thuyết
   "phần lớn là `info`" **đúng về tỷ lệ** (~70% ở cả hai nhóm) nhưng **sai về tác dụng**: lọc
   `severity` chỉ đưa ca âm từ 8/20 xuống 5/20, còn lọc theo **cặp nguồn** xuống 4/20 và làm
