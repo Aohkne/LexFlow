@@ -158,6 +158,15 @@ Cảnh báo khi dựng lại chỉ mục 10/08: *"use `create_index()` with `con
 Chữ ký `RemoteTable.create_index` **không có tham số cột** rõ ràng cho FTS, nên chưa đổi —
 đoán mò ở đây là làm hỏng đường ingest. Cần đọc tài liệu rồi mới chuyển.
 
+- Cùng họ deprecated: `db.list_tables()` cũng bị đánh dấu cũ, nhưng đường thay thế
+  `table_names()` là đường **duy nhất chạy được** trên LanceDB Cloud của dự án —
+  `list_tables()` ném `HttpError 400` thật (*"PgCatalog::open_database() requires a table
+  name to resolve the storage path"*), đo 10/08 trong fix round 1 của Task 4. `ingest_one_doc`
+  đã dùng `table_names()`, và `tests/test_ingest_mot_van_ban.py::_FakeDB.list_tables` ghim
+  chuyện này bằng `AssertionError`. Lần chuyển `create_fts_index` sau **đừng** tiện tay đổi
+  luôn `table_names()` → `list_tables()` vì thấy cùng là deprecated — hai cái không cùng số
+  phận trên deployment này.
+
 ---
 
 ## Nợ kỹ thuật (parked từ review P4, 06/08)
@@ -188,6 +197,82 @@ tác hại **bằng 0 hôm nay**.
   mọi văn bản có mặt trong lớp phủ phải có `doc_id` mà quy ước tái tạo được.
 - **Chỉ làm khi ca đó đỏ.** Đỏ nghĩa là đã có văn bản đặt tên lệch quy ước lọt vào lớp phủ
   (nhóm nội bộ SHB là ứng viên đầu tiên) — lúc đó mới đáng trả giá refactor.
+
+### [ ] T20 · Dọn node rỗng khớp bằng `so_hieu`, mà văn bản duyệt qua `/admin` không có
+
+`don_node_rong_da_co_toan_van()` (`app/knowledge/graph.py`) tìm node rỗng cần thay bằng
+`WHERE that.so_hieu = rong.doc_id`. Nhưng `CorpusDocument.so_hieu` là **optional**, nên với
+văn bản không có số hiệu thì `_merge_doc` ghi `n.so_hieu = null` (Neo4j xoá luôn property) và
+câu khớp trên không bao giờ đúng: hàm dọn chạy, tốn một round-trip, trả `[]`, và **đồ thị nằm
+lại với hai node cho một văn bản** — node rỗng giữ hết cạnh đi vào cũ, `related_docs()` lọc
+`co_toan_van=false` ra nên các quan hệ ấy biến mất khỏi truy hồi, `thieu_toan_van()` vẫn kê
+văn bản vừa duyệt vào danh sách cần crawl. Không lỗi, không cảnh báo.
+
+**Đọc mã 10/08 thì ca này còn rộng hơn mô tả ban đầu:** không phải "chỉ hỏng khi không rút
+được số hiệu". `app/ingestion/extract.py:165 extract_document()` dựng `CorpusDocument(...)`
+mà **không truyền `so_hieu` vào**, dù `extract_metadata` ngay bên trên đã tính
+`meta["so_hieu"] = so_hieu_trong(text)` kèm hẳn một đoạn chú thích giải thích vì sao trường
+này là cây cầu. Tức **mọi** văn bản đi qua `/admin` (upload → extract → duyệt) đều có
+`so_hieu = None`, kể cả khi số hiệu nằm nguyên văn ở dòng đầu và parser đọc ra được.
+
+- Vì sao quan trọng: đây là đường duyệt trên production (T5), và lớp phủ + `related_docs`
+  đọc đúng cái node bị bỏ lại. Hôm nay tác hại còn nhỏ vì bucket mới có ít văn bản, nhưng nó
+  lớn dần theo mỗi lượt duyệt.
+- **Bước đầu tiên — ĐÃ LÀM 10/08.** `extract_document` nay truyền `so_hieu=meta["so_hieu"]`
+  vào `CorpusDocument`, kèm ca `test_extract_document_dien_so_hieu_vao_van_ban` chạy qua
+  parser thật (chỉ giả lập lời gọi Gemini). Nghiệm thu là ca đó ĐỎ trước khi sửa với đúng
+  `assert None == '52/2024/NĐ-CP'`. Việc này đóng phần lớn ca: mọi văn bản có số hiệu đọc
+  được nay điền đúng.
+- **Còn mở:** PDF scan/layout hỏng không rút được số hiệu thì `so_hieu` vẫn `None`, và hàm dọn
+  vẫn không khớp. Lúc ấy mới phải quyết **đổi khoá khớp** của hàm dọn (khớp thêm theo `doc_id`,
+  hoặc để admin nhập số hiệu trong ô JSON trước khi duyệt) — quyết định thiết kế, không phải
+  việc sửa kèm. Chưa có số đo tần suất ca này; lượt nghiệm thu T5 là dịp đầu tiên để đếm.
+
+### [ ] T21 · `download_storage` nuốt 400/404 cho mọi caller
+
+`app/core/appdb.py` trả `None` khi Storage đáp 400 **hoặc** 404, không đọc thân lỗi. Hai hệ quả
+đo được 10/08:
+
+- `download_original` (`app/api/documents.py`) biến một lỗi RLS hoặc lỗi truyền tải thành
+  "chưa có file gốc" 404 cho người dùng — sai nguyên nhân, và không cách nào phân biệt.
+- `load_canonical(strict=True)` — hàng rào dựng cho `approve_document` để nó không ghi đè
+  canonical bằng bản đóng gói — **không chặn được nhánh 400/404**, vì `download_storage` đã
+  nuốt trước khi `strict` nhìn thấy. Hàng rào đó hiện an toàn vì quyền ĐỌC bucket yếu hơn
+  quyền GHI (`0001_init.sql:139-142` so với `0004_doc_workflow.sql:7-10`), nên read bị RLS
+  chặn thì upload sau đó chắc chắn cũng chặn. Nhưng đó là lập luận, không phải rào.
+
+- Vì sao quan trọng: phần còn lại là 400/404 **thoáng qua trên một object CÓ THẬT** — lúc đó
+  `approve` merge một văn bản vào corpus 26 bản đóng gói rồi ghi đè `corpus.json`, xoá mọi
+  văn bản đã duyệt trước đó. Im lặng.
+- **Bước đầu tiên:** dùng lại `scripts/sync_corpus_storage._ma_loi_storage` (đã có sẵn, đang
+  không được tái sử dụng) trong `download_storage`: chỉ trả `None` khi thân lỗi nói `NoSuchKey`
+  hoặc `statusCode 404`, còn lại thì ném. Đóng cả hai ca trên bằng một chỗ.
+
+### [ ] T22 · Bốn mẩu nợ nhỏ còn lại của nhánh ingest-một-văn-bản
+
+Đều lộ ra trong review nhánh T5 (10/08), đều đã cân nhắc và cố ý để lại — ghi ở đây để không
+phải phát hiện lại.
+
+- **Lưới test chặn Supabase là "tắt" chứ không phải "bẫy".** `tests/conftest.py` xoá
+  `settings.supabase_url` nên `appdb.enabled()` trả `False` và mọi thứ thành no-op im lặng —
+  khác hẳn hai seam kia (LanceDB, Neo4j) vốn **ném lỗi có thông điệp**. Test nào tự đặt lại
+  `supabase_url` rồi quên vá `appdb` thì không có gì canh.
+- **`don_node_rong_da_co_toan_van` dùng `SET m += properties(e)`** khi dời cạnh khỏi node rỗng.
+  Trước đây hàm này chỉ chạy sau một lượt nạp toàn bộ nên không có gì tươi để đè; nay nó chạy
+  ngay sau khi `push_one_doc` vừa dựng lại cạnh từ corpus hiện tại, nên `note`/`anchors` cũ có
+  thể ghi đè bản vừa ghi.
+- **`canh_vao` gộp toàn bộ cạnh đi vào của corpus**, không phải phần chênh. Mỗi lượt duyệt
+  MERGE lại tất cả, một round-trip mỗi cạnh (`_merge_canh` chưa gộp lô như `push_overlay`).
+  35 cạnh hôm nay nên không đau; nó lớn tuyến tính theo corpus, trên đúng đường đã từng rớt
+  kết nối Aura giữa chừng.
+- **`DocumentMeta.so_hieu` khai hai lần** (`app/core/schemas.py:115` và `:118`, cùng kiểu cùng
+  mặc định). Pydantic v2 lấy khai báo sau, nên vô hại — nhưng đoạn chú thích giải thích ở trên
+  đang gắn vào dòng đã chết.
+
+- Vì sao quan trọng: không mục nào hỏng hôm nay; ba mục đầu là thứ sẽ hỏng khi corpus lớn lên
+  hoặc khi có người viết test tiếp theo.
+- **Bước đầu tiên:** mục cuối là một dòng xoá — làm luôn khi nào chạm `schemas.py`. Ba mục còn
+  lại chỉ mở khi có triệu chứng thật.
 
 ---
 

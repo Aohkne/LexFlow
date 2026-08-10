@@ -84,7 +84,7 @@ export default function AdminPage() {
   async function doApprove(docId: string) {
     setBusy(true);
     setError(null);
-    setNotice("Đang duyệt: merge corpus + re-ingest (embedding lại toàn bộ)… có thể mất 1–3 phút");
+    setNotice("Đang duyệt: merge corpus + nạp lại riêng văn bản này… thường vài giây");
     try {
       const document = JSON.parse(draft);
       const relationships = JSON.parse(rels);
