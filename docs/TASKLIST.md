@@ -138,6 +138,20 @@ chỉ mục mới + Match + Phrase    9.9/10   giấy phép hoạt động 3→9
   `"{doc_title} — {article}: {text}"` còn text đem *index BM25* chỉ là `text` trần, nên hỏi
   "Thông tư 40 quy định gì" thì vector bắt được tên văn bản, BM25 không. Chưa đo tác động.
 
+### [ ] T19 · Không có cách nghiệm thu truy hồi trên production mà không cần đăng nhập
+
+Lộ ra khi deploy T8 (10/08): `/health` nói được lớp phủ có nạp không, nhưng **không có gì**
+nói được nhánh truy hồi đang hành xử ra sao. Mọi endpoint chạm retrieval đều sau `get_current_user`,
+nên sau mỗi deploy chỉ xác minh được "revision đã đổi", không xác minh được "truy hồi vẫn đúng".
+
+- Vì sao quan trọng: đây đúng là khoảng mù mà T9 sinh ra để bịt, chỉ khác tầng. Một thay đổi
+  làm hỏng nhánh BM25 trên production sẽ không bị bắt bởi bất kỳ phép kiểm tự động nào.
+- Hai hướng: (a) thêm vào `/health` một phép **tự kiểm** rẻ — chạy một truy vấn cố định rồi
+  báo số hit của từng nhánh (vector / BM25), không trả nội dung nên không lộ dữ liệu;
+  (b) script nghiệm thu sau deploy dùng token thật, chạy tay.
+- (a) đáng làm hơn: nó biến "truy hồi còn sống không" thành thứ đọc được bằng một lượt `curl`,
+  giống hệt cách T9 làm với lớp phủ.
+
 ### [ ] T18 · `create_fts_index` đã deprecated từ lancedb 0.25
 
 Cảnh báo khi dựng lại chỉ mục 10/08: *"use `create_index()` with `config=FTS()` instead"*.
@@ -215,9 +229,12 @@ Chủ repo tự chuẩn bị — đã nói rõ 07/08: "về bộ câu hỏi thì
   trong response hôm nay (mọi `nguon` đều có trong bảng). Ba chỗ còn lại → **T15** + dây bẫy.
   Commit `27abe0d`.
 - **10/08 · T8** — BM25 chấm điểm cụm: 8.4 → **9.9/10** precision@10. Chi tiết ở mục T8 phía
-  trên. Chỉ mục trên LanceDB Cloud đã dựng lại (không embedding lại chunk nào). **Revision
-  đang phục vụ chưa có phần thưởng này** — nó gửi chuỗi trần, vẫn chạy đúng trên chỉ mục mới
-  nhưng không được cộng điểm cụm; cần một lượt deploy nữa.
+  trên. Chỉ mục trên LanceDB Cloud đã dựng lại (không embedding lại chunk nào). Deploy rev
+  `lexflow-api-00022-242`, 100% traffic.
+  **Giới hạn của phép nghiệm thu:** mọi endpoint chạm truy hồi đều đòi đăng nhập, nên không
+  gọi được từ ngoài để chứng minh phần cộng điểm cụm đang chạy trên chính process đang phục
+  vụ. Đã chứng minh: bản vá đo trên **đúng chỉ mục production đọc**, và revision build từ mã
+  hiện tại. Chưa chứng minh: một lượt truy vấn thật qua production. Xem **T19**.
 - **10/08 · T17** — Deploy để mã khớp dữ liệu vừa nạp: rev `lexflow-api-00021-jvs`, 100%
   traffic. Nghiệm thu đúng thứ cần chứng minh chứ không chỉ `/health` (nó không phân biệt được
   revision cũ với mới): tra thẳng 10 nhãn có hậu tố trên **bảng LanceDB đang phục vụ** —
