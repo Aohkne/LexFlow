@@ -217,9 +217,32 @@ recall 0,800 và 1,000 ở tầng cặp (đo 10/08, `results/precision-cap-20260
 - Bằng chứng đã có: log cho thấy bộ phát hiện **có** xử lý `Mục 4.2`, nhưng ghép nó với
   `TT40-2024::Điều 37 Khoản 1(i)(vi)` và `Điều 25 Khoản 1(a)` — hai địa chỉ **không quy được
   về chunk nào trong tập lấy về**. Tức chunk chứa khoản 1 Điều 25 không được truy hồi.
-- ⇒ Nghi là **lỗ hổng truy hồi, không phải phán định**. **Xác nhận trước, đừng sửa trước:**
-  chỉ cần in tập chunk của câu đó và xem `TT40-2024 Điều 25` được chẻ thành những chunk nào,
-  chunk nào lọt vào top-k.
+**ĐÃ XÁC NHẬN 11/08 — giả thuyết "lỗ hổng truy hồi" ở trên là SAI.** Truy hồi làm đúng việc của
+nó: với cả hai câu hỏi chạm cặp này, `Mục 4.2` về hạng 1–2 và **cả ba chunk của Điều 25** đều
+nằm trong top-6. Bộ phán định cũng đúng — nó trả về đúng cặp cần tìm, kèm giải thích chuẩn:
+
+```
+id_a='SHB-QD-VI-2023::Mục 4.2'  id_b='TT40-2024::Điều 25 Khoản 5'
+"SHB cho phép nộp tiền mặt trực tiếp tại quầy để nạp ví, trong khi Điều 25 Khoản 5 cấm"
+```
+
+Cặp bị **`_quy_ve_chunk` vứt đi**. Hai kiểu trượt khác nhau, đều đo được:
+
+- **Nhãn chunk là DẢI.** Khoản 5 nằm trong chunk mang nhãn `Điều 25 Khoản 4-5`, mà
+  `"…Điều 25 Khoản 5".startswith("…Điều 25 Khoản 4-5 ")` là `False`. Luật tiền tố chỉ đúng khi
+  nhãn chunk **thô hơn** trích dẫn, không đúng khi nhãn là một dải.
+- **Dấu ngăn không phải dấu cách.** `Điều 37 Khoản 1-i-(vi)` không khớp `Điều 37 Khoản 1` vì
+  ký tự kế tiếp là `-` chứ không phải khoảng trắng. Ranh giới nên là "ký tự kế tiếp không phải
+  chữ/số" — vẫn chặn được ca `Điều 1` nuốt `Điều 13` (kế tiếp là chữ số).
+
+Ghi kèm, vì nó chặn một nửa cách sửa: chunk `Điều 25 Khoản 2-3` **thật ra chứa cả khoản 1**
+(thân bắt đầu bằng `1.Việc nạp tiền…`). Nguồn viết `1.Việc` thiếu dấu cách nên bộ chẻ không
+thấy khoản 1 — cùng họ khuyết tật với **T16-b**. Nên trích dẫn `Điều 25 Khoản 1-c` vẫn không
+quy được kể cả khi đã hiểu nhãn dải.
+
+- **Bước tiếp theo:** sửa `_quy_ve_chunk` hai lớp (hiểu nhãn dải `Khoản a-b`; đổi ranh giới
+  thành "không phải chữ/số"), rồi **đo lại bằng `eval/do_precision_cap.py`** — quy được nhiều
+  id hơn thì có thể kéo theo cặp giả, nên phải nhìn cả precision chứ không chỉ recall.
 - Ghi chú: `TT40-2024 Điều 25` **đã có CU trích sẵn** (6 bản ghi trong `eval/ontology/pred.jsonl`),
   nhưng đường phán định không đọc tới — xem **T26**.
 
