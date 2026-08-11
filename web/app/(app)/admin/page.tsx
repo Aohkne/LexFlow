@@ -132,12 +132,19 @@ export default function AdminPage() {
         Upload → hệ thống extract điều/khoản → bạn duyệt JSON → nạp vào hệ thống tra cứu
         (maker-checker: máy đề xuất, người phê duyệt).
       </p>
+      <p className="mt-1 text-sm text-dim">
+        File <span className="mono">.json</span> đã crawl từ vbpl thì dùng thẳng, không qua
+        extract — giữ nguyên cây điều/khoản và <span className="mono">char_span</span>.
+      </p>
 
       {/* Upload */}
       <div className="mt-6 flex flex-wrap items-center gap-3 rounded-xl border border-border bg-panel p-4">
+        {/* `.json` là bản đã crawl từ vbpl (đúng khuôn CorpusDocument): API dùng thẳng, bỏ qua
+            extractor, nên giữ được cây provisions và char_span. Thiếu đuôi này thì ô chọn file
+            lọc mất chính lối nạp chuẩn của dự án. */}
         <input
           type="file"
-          accept=".html,.htm,.pdf,.txt"
+          accept=".json,.html,.htm,.pdf,.txt"
           onChange={(e) => setFile(e.target.files?.[0] ?? null)}
           className="text-sm text-dim file:mr-3 file:rounded-md file:border file:border-border file:bg-background file:px-3 file:py-1.5 file:text-sm file:text-foreground"
         />

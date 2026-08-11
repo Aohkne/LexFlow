@@ -85,17 +85,6 @@ dưới Điều. Đã có `canh_bao` "thiếu dấu cách sau số khoản" bắ
 - Phần thưởng kèm: ND101-2012 (16 đơn vị bị tác động) và TT39-2014 (4) chiếm **toàn bộ 20
   badge cấp khoản đang không bind được**.
 
-### [ ] T5 · Canonical chưa từng tồn tại trên Supabase Storage
-
-Bucket `legal-docs` rỗng, bảng `legal_documents` rỗng — nghĩa là **chưa văn bản nào đi qua
-workflow `/admin` duyệt**. `app/core/corpus.py` fallback về file đóng gói trong image, nên
-production đang phục vụ `data/corpus.real.json` của lần build gần nhất.
-
-- Hệ quả thực dụng: **mọi thay đổi corpus đều phải deploy lại image**, `sync_corpus_storage.py`
-  không giải quyết được.
-- Bước đầu: chạy thử luồng `/admin` duyệt một văn bản để đường đó có ít nhất một lần chạy
-  thật trước kỳ đánh giá — hiện nó chưa từng được kiểm trên production.
-
 ---
 
 ## Độ phủ tri thức
@@ -414,6 +403,28 @@ quyết** viết lại thế nào.
 ### [ ] T14 · Bộ câu hỏi eval cấp khoản (backlog #19)
 
 Chủ repo tự chuẩn bị — đã nói rõ 07/08: "về bộ câu hỏi thì tôi sẽ chuẩn bị riêng".
+
+### [ ] T5 · Nghiệm thu luồng `/admin` trên production — chỉ còn một lượt bấm
+
+Hạ ưu tiên 11/08 theo quyết định của chủ repo: **mã đã xong, chỉ còn phần phải có tay người và
+một tài khoản admin thật.**
+
+Đã xong (11/08): `is_admin()` đọc `app_metadata.role` (migration `0007`) nên đường duyệt qua
+được RLS · `ingest_one_doc`/`push_one_doc` nạp một văn bản thay vì ghi đè bảng đang phục vụ ·
+nhận thẳng file `.json` đã crawl · khoá Storage lấy từ `doc_id` nên tên file tiếng Việt không
+còn làm hỏng upload · lỗi máy chủ nay đọc được trên giao diện.
+
+Chưa xong: **chưa văn bản nào thật sự đi hết đường đó trên production.** Bucket `legal-docs` và
+bảng `legal_documents` vẫn rỗng, nên `app/core/corpus.py` còn fallback về `data/corpus.real.json`
+đóng gói trong image — tức mọi thay đổi corpus vẫn phải deploy lại.
+
+- Vì sao không giao cho AI: cần một tài khoản admin thật trên production và một lượt bấm ở
+  `/admin`; đây cũng chính là chỗ mà 10/08 một lượt chạy test đã lỡ đẩy văn bản bịa `TT99-2026`
+  vào LanceDB và Neo4j thật.
+- Cần gì: upload một file trong `data/raw/vbpl/corpus/`, bấm Approve, rồi kiểm **bốn** thứ —
+  (1) văn bản mới có chunk trong LanceDB; (2) **số chunk của một văn bản khác KHÔNG đổi**;
+  (3) Neo4j thêm đúng một `Document`; (4) **`THUOC` vẫn đúng 254**. Hai mục in đậm mới là phép
+  kiểm thật: chúng phân biệt "nạp một văn bản" với "ghi đè cả bảng".
 
 ### [ ] T25 · 5/12 mục nội bộ chưa có nhãn verdict
 
