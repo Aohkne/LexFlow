@@ -106,8 +106,12 @@ AI track deployed from its own worktree, uploading a `.json` file in `/admin` wo
 git -C <worktree-main> pull                # or: git worktree add ../LexFlow-deploy main
 uv run pytest -q                           # green before shipping
 gcloud run deploy lexflow-api --source . --region asia-southeast1 --allow-unauthenticated `
-  --set-env-vars "GIT_SHA=$(git rev-parse --short HEAD)"
+  --update-env-vars "GIT_SHA=$(git rev-parse --short HEAD)"
 ```
+
+`--update-env-vars`, never `--set-env-vars`. The latter **replaces the whole list**: the service
+carries 16 variables (Gemini, Neo4j, LanceDB, Supabase, Langfuse, `FRONTEND_ORIGIN`) and none of
+them live in git, so setting one would drop the other fifteen and take production down.
 
 `GIT_SHA` is what `/health` reports back, so "which commit is production running?" stays a
 question with an answer. Deploying without it leaves `commit: "không rõ"` — which is honest, and
