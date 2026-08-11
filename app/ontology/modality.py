@@ -14,8 +14,12 @@ from __future__ import annotations
 import difflib
 import re
 from collections import Counter
+from typing import TYPE_CHECKING
 
 from pydantic import BaseModel
+
+if TYPE_CHECKING:
+    from app.ontology.schema import Nguong
 
 # Nhóm dấu hiệu. Thứ tự trong mỗi nhóm không quan trọng — việc khớp dài-nhất-trước
 # được xử lý khi dựng regex bên dưới.
@@ -393,3 +397,67 @@ def gan_modality(text: str) -> str:
                 continue
         groups.add(g)
     return next((g for g in _UU_TIEN if g in groups), "khong_ro")
+
+
+# --- Bóc ngưỡng định lượng tất định (POC GraphCompliance) -----------------
+
+_HUONG = {
+    "tối thiểu": "toi_thieu", "ít nhất": "toi_thieu", "trở lên": "toi_thieu",
+    "tối đa": "toi_da", "nhiều nhất": "toi_da", "không quá": "toi_da",
+    "chậm nhất": "toi_da", "trở xuống": "toi_da", "trong thời hạn": "toi_da",
+}
+_DAU_HIEU_SAU = {"trở lên", "trở xuống"}  # đứng SAU con số: "15 tuổi trở lên"
+_CUA_SO = 40  # số phải nằm trong 40 ký tự quanh dấu hiệu
+_DINH_LUONG_RE = re.compile(
+    r"(?<![\wÀ-ỹ])(" + "|".join(
+        re.escape(p) for p in sorted(MODALITY["dinh_luong"], key=len, reverse=True)
+    ) + r")(?![\wÀ-ỹ])"
+)
+_DON_VI_RE = re.compile(r"[ \t]*([%\wÀ-ỹ][\wÀ-ỹ% ]{0,28})")
+
+
+def _don_vi_sau_so(text: str, num_end: int) -> str | None:
+    m = _DON_VI_RE.match(text, num_end)
+    if not m:
+        return None
+    dv = m.group(1)
+    if dv.startswith("%"):
+        return "%"  # ký hiệu phần trăm không ghép với từ đứng sau ("% số dư")
+    # cắt dấu hiệu đứng sau ("tuổi trở lên" → "tuổi") và từ nối
+    dv = re.split(r"\b(?:trở lên|trở xuống|và|hoặc|mỗi|/)\b", dv)[0].strip(" .,;")
+    return dv or None
+
+
+def boc_nguong(text: str, offset: int = 0) -> tuple[list[Nguong], list[str]]:
+    """→ (list[Nguong], list[cảnh báo]). Dấu hiệu dinh_luong không ghép được số
+    trong cửa sổ → cảnh báo `nguong_bo_sot` (giao thức "ca lạ": không ép, không im lặng)."""
+    from app.ontology.schema import Nguong  # tránh vòng import: schema không import modality
+
+    low = text.lower()
+    ra: list[Nguong] = []
+    canh_bao: list[str] = []
+    da_dung: set[int] = set()  # vị trí số đã ghép — một số không thành hai ngưỡng
+    for m in _DINH_LUONG_RE.finditer(low):
+        dau_hieu = m.group(1)
+        if dau_hieu in _DAU_HIEU_SAU:
+            cua_so = [n for n in _NUM_RE.finditer(text, max(0, m.start() - _CUA_SO), m.start())]
+            num = cua_so[-1] if cua_so else None
+        else:
+            num = _NUM_RE.search(text, m.end(), m.end() + _CUA_SO)
+        if num is None:
+            canh_bao.append(f"nguong_bo_sot: dấu hiệu {dau_hieu!r} không ghép được số")
+            continue
+        if num.start() in da_dung:
+            continue  # "tối thiểu 15 tuổi trở lên" — hai dấu hiệu, một ngưỡng
+        da_dung.add(num.start())
+        don_vi = _don_vi_sau_so(text, num.end())
+        start = min(m.start(), num.start())
+        end = num.end() + (len(don_vi) + 1 if don_vi else 0)
+        ra.append(Nguong(
+            so=_norm_num(num.group()),
+            don_vi=don_vi,
+            huong=_HUONG.get(dau_hieu, "khong_ro"),
+            text=text[start:end].strip(),
+            span=(offset + start, offset + end),
+        ))
+    return ra, canh_bao

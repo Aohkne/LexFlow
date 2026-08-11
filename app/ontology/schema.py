@@ -86,6 +86,20 @@ class Unit(BaseModel):
 # --- Compliance Unit ------------------------------------------------------
 
 
+class Nguong(BaseModel):
+    """Một ràng buộc định lượng, bóc TẤT ĐỊNH từ text đã neo — không hỏi LLM.
+
+    Đứng riêng với `DieuKienCong`: bên đó trả lời "quy định này áp dụng chưa"
+    (gate, mốc ngày), bên này trả lời "hành vi này vượt mức chưa" (nghĩa vụ, số).
+    """
+
+    so: str  # chuẩn hoá như find_numbers: "05" → "5"
+    don_vi: str | None
+    huong: Literal["toi_thieu", "toi_da", "khong_ro"]
+    text: str  # cụm gốc bao trùm dấu hiệu + số + đơn vị
+    span: tuple[int, int]  # neo vào text nguồn (cộng offset khi bóc từ field)
+
+
 class Grounding(BaseModel):
     """Bằng chứng neo một field về ký tự gốc trong `dieu.text`.
 
