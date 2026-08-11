@@ -48,3 +48,8 @@ Thumbs.db
 
 # Ghi chu nghien cuu ca nhan (chua cong bo)
 docs/SCHEMA_KG.md
+
+# Hợp đồng thật (GraphCompliance POC) + nhãn vàng bóc từ chúng — không commit
+docs/compliance/
+eval/compliance/*.jsonl
+eval/compliance/*.md
