@@ -28,6 +28,8 @@ MODALITY: dict[str, list[str]] = {
         "tối thiểu", "tối đa", "ít nhất", "nhiều nhất", "không quá",
         "chậm nhất", "trong thời hạn", "trở lên", "trở xuống",
     ],
+    "chi_duoc": ["chỉ được phép", "chỉ được"],
+    "mien_tru": ["không bắt buộc", "được miễn", "không phải"],
 }
 
 # Thêm dấu hiệu thuộc các nhóm này = bịa ra ràng buộc pháp lý → chặn cứng.
@@ -365,3 +367,29 @@ def explain(claim: str, source: str, max_ops: int = 4) -> str:
             parts.append("…")
             break
     return "; ".join(parts) if parts else "(không khác biệt ở mức từ)"
+
+
+# --- Gán nhãn tình thái cho ActorCU (POC GraphCompliance) ----------------------
+
+#: Thứ tự ưu tiên khi một đoạn chứa nhiều nhóm: nhóm khắt khe hơn thắng.
+#: "cam" trước "chi_duoc": câu cấm thường kèm vế cho phép có điều kiện.
+_UU_TIEN = ("cam", "chi_duoc", "mien_tru", "nghia_vu", "cho_phep")
+
+
+def gan_modality(text: str) -> str:
+    """Nhãn tình thái của MỘT trường đã neo — tất định, chỉ từ điển.
+
+    "không phải là" bị loại: đó là phủ định danh xưng ("không phải là ngân hàng"),
+    không phải miễn trừ nghĩa vụ. Kiểm từ liền sau, cùng cách `_hard_deu_co_can_cu`
+    xét cặp (dấu hiệu + từ liền sau).
+    """
+    low = text.lower()
+    groups: set[str] = set()
+    for m in _MODALITY_RE.finditer(low):
+        g = _PHRASE_GROUP[m.group(1)]
+        if g == "mien_tru" and m.group(1) == "không phải":
+            sau = _WORD_RE.search(low, m.end())
+            if sau and sau.group() == "là":
+                continue
+        groups.add(g)
+    return next((g for g in _UU_TIEN if g in groups), "khong_ro")

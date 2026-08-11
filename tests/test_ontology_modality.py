@@ -116,14 +116,17 @@ def test_mat_dieu_kien_khong_kem_nghia_vu_chi_la_canh_bao():
 def test_hallucination_that_bi_chan_cung(chapeau):
     """Test hồi quy cho lỗi ĐÃ GẶP THẬT ở giai đoạn 1.
 
-    Phép đếm tập con một mình BỎ LỌT case này: đoạn nguồn tình cờ đã có sẵn 2 chữ
-    "phải" ("không phải là ngân hàng", "phải đảm bảo duy trì") nên hiệu bằng 0.
-    Bắt được là nhờ luật "mất điều kiện + có nghĩa vụ".
+    Bắt được là nhờ luật "mất điều kiện + có nghĩa vụ" (`condition_to_obligation`),
+    không phụ thuộc phép đếm thêm/bớt đơn thuần theo vị trí. Từ khi thêm nhóm
+    `mien_tru` ("không phải"), "không phải là ngân hàng" trong nguồn giờ khớp cụm
+    "không phải" thay vì lẫn vào phrase "phải" như trước — đếm thêm/bớt tình cờ cũng
+    thấy dư 1 "phải", không còn triệt tiêu như khi "không phải" chưa có trong từ điển.
+    Đây là hệ quả phụ của việc mở rộng từ điển, không phải bằng chứng cốt lõi của test:
+    cốt lõi vẫn là `condition_to_obligation` bắt được lỗi mà đếm tập hợp một mình bỏ lọt.
     """
     d = modality_delta(_HALLUCINATION, chapeau)
     assert d.hard_error
     assert d.condition_to_obligation
-    assert not d.added.get("nghia_vu")  # chứng minh phép đếm đơn thuần bỏ lọt
     assert any("ĐIỀU KIỆN" in m and "NGHĨA VỤ" in m for m in d.describe())
 
 
