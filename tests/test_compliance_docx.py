@@ -54,3 +54,23 @@ def test_docx_khong_comment(tmp_path):
         z.writestr("word/document.xml", _DOCUMENT)
     doan, binh_luan = doc_docx(p)
     assert len(doan) == 3 and binh_luan == []
+
+
+_DOCUMENT_KHONG_DONG = f"""<?xml version="1.0" encoding="UTF-8"?>
+<w:document xmlns:w="{_W}"><w:body>
+<w:p><w:r><w:t>Điều 1. Phạm vi</w:t></w:r></w:p>
+<w:p><w:commentRangeStart w:id="9"/><w:r><w:t>Bên B thanh toán trong 3 ngày.</w:t></w:r></w:p>
+<w:p><w:r><w:t>Điều 2. Phí</w:t></w:r></w:p>
+</w:body></w:document>"""
+
+
+def test_docx_comment_range_khong_dong(tmp_path):
+    p = tmp_path / "khong_dong.docx"
+    with zipfile.ZipFile(p, "w") as z:
+        z.writestr("[Content_Types].xml", _CONTENT_TYPES)
+        z.writestr("word/document.xml", _DOCUMENT_KHONG_DONG)
+    with pytest.warns(UserWarning, match="không đóng"):
+        doan, binh_luan = doc_docx(p)
+    assert doan[0].comment_ids == []
+    assert doan[1].comment_ids == ["9"]
+    assert doan[2].comment_ids == ["9"]  # leak fail-open: đoạn sau start đều bị neo

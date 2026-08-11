@@ -7,6 +7,7 @@ biết comment thuộc đoạn nào → điều nào của hợp đồng.
 """
 from __future__ import annotations
 
+import warnings
 import zipfile
 from pathlib import Path
 from xml.etree import ElementTree as ET
@@ -60,4 +61,9 @@ def doc_docx(path: Path) -> tuple[list[DoanVan], list[BinhLuan]]:
         text = _text_cua(p)
         if text:
             doan.append(DoanVan(idx=len(doan), text=text, comment_ids=sorted(ids)))
+    if dang_mo:
+        warnings.warn(
+            f"docx {path.name}: comment range không đóng: {sorted(dang_mo)}",
+            stacklevel=2,
+        )
     return doan, binh_luan
