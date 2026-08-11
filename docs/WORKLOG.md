@@ -6,6 +6,44 @@
 
 ---
 
+## 2026-08-11 (T3) — số đầu tiên cho lớp lọc hiệu lực, trên câu hỏi người ngoài soạn
+
+**Giai đoạn:** đo bộ TVPL theo thời điểm (tiếp mục 10/08).
+
+- **Done.** Chạy xong `bo_tvpl_hien_nay.jsonl` — 76 câu hỏi curate từ thuvienphapluat.vn, tất cả
+  hỏi về luật **đã bị thay thế từ 2024-07**, đo với `as_of` = hôm nay. 76/76 câu chạy được, 0 lỗi,
+  `eval/results/20260811-051219-bo_tvpl_hien_nay.json`. Retrieval p50 3767 ms.
+- **Số đo — tránh văn bản hết hiệu lực: baseline 11/76 → LexFlow 76/76.** Tức baseline trả về văn
+  bản đã chết ở **65/76** câu. Đây là con số đầu tiên đo trực tiếp lớp lọc hiệu lực trên câu hỏi
+  **không phải mình tự soạn**. Citation accuracy: baseline 66/76 · hybrid 64/76 · **+graph 71/76**.
+  F2@2 mức văn bản: BM25 0.07 · Naive RAG 0.48 · Advanced RAG 0.11 · **LexFlow 0.73**.
+- **BM25 R@1 = 0.02, Advanced RAG 0.03.** Không phải BM25 yếu chung chung: câu hỏi TVPL viết
+  **từ** văn bản cũ nên dùng đúng từ ngữ của nó, khiến khớp thưa bị **hút về** đúng văn bản đã
+  chết — và Advanced RAG của bài báo đè 75% trọng số lên BM25 nên lãnh trọn. Ca cho thấy điểm khớp
+  từ vựng và tính đúng pháp lý có thể ngược chiều nhau.
+- **Đồ thị lần đầu đóng góp đo được.** Trên 36 câu `+graph` giống hệt `hybrid`; ở đây nâng
+  citation 64/76 → 71/76 (hybrid còn thấp hơn baseline). Cạnh `THAY_THE` chính là đường từ văn bản
+  cũ sang văn bản kế thừa mà bộ này hỏi đúng chỗ. Đổi lại R@1 nhích xuống 0.64 → 0.62 — mở rộng
+  1-hop lợi ở phủ, hại nhẹ ở hạng nhất.
+- **Lớp phủ chạy thật:** 9/76 câu khác khi bật router (36 câu trước là 0/36), 169 hit được nắn
+  trích dẫn, 1 hit bị loại vì bãi bỏ. Nhưng citation ON/OFF đều 71/76 — nắn đổi *nội dung* trích
+  dẫn chứ chưa đổi *văn bản* trả về, mức văn bản không thấy. Muốn đo phải có nhãn cấp điều.
+- **Danh sách văn bản cần cào.** 44 văn bản bộ eval dẫn tới mà corpus chưa có → dựng
+  `research/crawl_list_eval.txt` đúng định dạng `scripts/crawl_vbpl_batch.py` ăn, **chia hai
+  nhóm**: 25 văn bản trong phạm vi sản phẩm (cào hết → 140/251 câu) và 19 văn bản ngoài phạm vi.
+  Ba văn bản "lãi" nhất theo số câu (`09/2020`, `34/2012`, `37/2016` — tổng 90 câu) đều là
+  **CNTT/vận hành hạ tầng**, không phải luật thanh toán: cào chúng là mở rộng sản phẩm, không phải
+  bổ sung dữ liệu.
+- **Chạy nền bị kill hai lần** (36 câu dừng ở 30, TVPL dừng ở 48) vì tiến trình con bị dừng theo
+  phiên. Cách chạy đúng là `Start-Process` tách hẳn — ghi lại ở đây để lần sau khỏi mất công.
+- **Ship.** README + `docs/EVAL-IR.md` §6 có bảng kết quả. Chưa đo `bo_tvpl_dung_thoi.jsonl`
+  (mỗi lượt 76 câu ≈ 1 giờ trên máy này).
+- **Next.** (1) Đo nốt `bo_tvpl_dung_thoi`. (2) Cào đợt đầu 5 văn bản trong phạm vi (`88/2019/NĐ-CP`,
+  `28/2005/PL-UBTVQH11`, `32/2013/TT-NHNN`, `1155/2017/NHCS-KTTC`, Luật các TCTD 2010 + Luật NHNN
+  2010) — +48 câu. (3) Correctness bằng LLM-judge dùng `long_answer` sẵn có, không cần cào thêm gì.
+
+---
+
 ## 2026-08-10 (T2) — dựng tầng đo theo bài báo ACIIDS 2026, và bộ eval biết đến thời gian
 
 **Giai đoạn:** đối chiếu LexFlow với `docs/paper/ACIIDS2026a.pdf` (SBV-LawGraph, HCMUT).
