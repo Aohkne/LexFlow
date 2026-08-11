@@ -416,16 +416,24 @@ _DINH_LUONG_RE = re.compile(
 _DON_VI_RE = re.compile(r"[ \t]*([%\wÀ-ỹ][\wÀ-ỹ% ]{0,28})")
 
 
-def _don_vi_sau_so(text: str, num_end: int) -> str | None:
+def _don_vi_sau_so(text: str, num_end: int) -> tuple[str, int] | None:
+    """→ (đơn vị, vị trí kết thúc THẬT trong `text`) hoặc None.
+
+    Trả cả vị trí kết thúc thay vì để caller suy `len(đơn vị) + khoảng cách giả
+    định` — "%" ghép sát số (0 khoảng trắng) trong khi các đơn vị khác cách một
+    dấu cách, suy định 1 ký tự cố định làm lệch span (đã vỡ ở ca "50%").
+    """
     m = _DON_VI_RE.match(text, num_end)
     if not m:
         return None
+    start = m.start(1)  # đầu đơn vị THẬT, sau khoảng trắng (nếu có) — không giả định độ rộng
     dv = m.group(1)
     if dv.startswith("%"):
-        return "%"  # ký hiệu phần trăm không ghép với từ đứng sau ("% số dư")
+        return "%", start + 1  # ký hiệu % không ghép với từ đứng sau ("% số dư")
     # cắt dấu hiệu đứng sau ("tuổi trở lên" → "tuổi") và từ nối
-    dv = re.split(r"\b(?:trở lên|trở xuống|và|hoặc|mỗi|/)\b", dv)[0].strip(" .,;")
-    return dv or None
+    cut = re.split(r"\b(?:trở lên|trở xuống|và|hoặc|mỗi|/)\b", dv)[0]
+    dv2 = cut.strip(" .,;")  # `start` đã trỏ đúng ký tự đầu (regex ép), chỉ có đuôi bị cắt
+    return (dv2, start + len(dv2)) if dv2 else None
 
 
 def boc_nguong(text: str, offset: int = 0) -> tuple[list[Nguong], list[str]]:
@@ -439,7 +447,8 @@ def boc_nguong(text: str, offset: int = 0) -> tuple[list[Nguong], list[str]]:
     da_dung: set[int] = set()  # vị trí số đã ghép — một số không thành hai ngưỡng
     for m in _DINH_LUONG_RE.finditer(low):
         dau_hieu = m.group(1)
-        if dau_hieu in _DAU_HIEU_SAU:
+        dau_hieu_sau = dau_hieu in _DAU_HIEU_SAU
+        if dau_hieu_sau:
             cua_so = [n for n in _NUM_RE.finditer(text, max(0, m.start() - _CUA_SO), m.start())]
             num = cua_so[-1] if cua_so else None
         else:
@@ -450,9 +459,13 @@ def boc_nguong(text: str, offset: int = 0) -> tuple[list[Nguong], list[str]]:
         if num.start() in da_dung:
             continue  # "tối thiểu 15 tuổi trở lên" — hai dấu hiệu, một ngưỡng
         da_dung.add(num.start())
-        don_vi = _don_vi_sau_so(text, num.end())
+        dv_ket_qua = _don_vi_sau_so(text, num.end())
+        don_vi, end = (dv_ket_qua[0], dv_ket_qua[1]) if dv_ket_qua else (None, num.end())
+        if dau_hieu_sau:
+            # dấu hiệu đứng SAU đơn vị ("15 tuổi trở lên") — text/span phải bao
+            # trùm luôn dấu hiệu, không chỉ đơn vị, để Task 12 giữ chứng cứ hướng.
+            end = max(end, m.end())
         start = min(m.start(), num.start())
-        end = num.end() + (len(don_vi) + 1 if don_vi else 0)
         ra.append(Nguong(
             so=_norm_num(num.group()),
             don_vi=don_vi,

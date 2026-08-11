@@ -17,13 +17,25 @@ def test_cham_nhat_ngay_lam_viec():
 
 
 def test_tro_len_dau_hieu_dung_sau():
-    ns, _ = boc_nguong("khách hàng đủ 15 tuổi trở lên")
-    assert (ns[0].so, ns[0].huong, ns[0].don_vi) == ("15", "toi_thieu", "tuổi")
+    src = "khách hàng đủ 15 tuổi trở lên"
+    ns, _ = boc_nguong(src)
+    n = ns[0]
+    assert (n.so, n.huong, n.don_vi) == ("15", "toi_thieu", "tuổi")
+    # text phải bao trùm luôn dấu hiệu "trở lên" (chứng cứ hướng cho Task 12),
+    # và span phải neo đúng — round-trip vào src như test_offset_span.
+    assert n.text == "15 tuổi trở lên"
+    s, e = n.span
+    assert src[s:e] == n.text
 
 
 def test_phan_tram():
-    ns, _ = boc_nguong("duy trì tối thiểu 50% số dư")
-    assert (ns[0].so, ns[0].huong, ns[0].don_vi) == ("50", "toi_thieu", "%")
+    src = "duy trì tối thiểu 50% số dư"
+    ns, _ = boc_nguong(src)
+    n = ns[0]
+    assert (n.so, n.huong, n.don_vi) == ("50", "toi_thieu", "%")
+    assert n.text == "tối thiểu 50%"
+    s, e = n.span
+    assert src[s:e] == n.text
 
 
 def test_so_khong_dau_hieu_khong_thanh_nguong():
