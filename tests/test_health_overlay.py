@@ -41,6 +41,25 @@ def test_artefact_that_thi_bao_so_canh(client):
     assert body["overlay"]["sinh_luc"] == "2026-08-09"
 
 
+def test_loi_500_van_mang_header_cors(client, monkeypatch):
+    """Không có header này thì trình duyệt chặn phản hồi và JS chỉ thấy "Failed to fetch".
+
+    Mặc định của Starlette đúng như vậy: `ServerErrorMiddleware` nằm NGOÀI `CORSMiddleware`.
+    Hệ quả đo được 11/08 — lỗi 400 InvalidKey của Supabase Storage hiện lên giao diện thành
+    một lỗi mạng vô nghĩa, phải đọc log Cloud Run mới biết chuyện gì.
+    """
+    from app.knowledge import lop_phu as lp
+
+    def _no():
+        raise RuntimeError("hỏng có chủ đích")
+
+    monkeypatch.setattr(lp, "tinh_trang", _no)
+
+    r = client.get("/health", headers={"Origin": settings.frontend_origin.split(",")[0]})
+    assert r.status_code == 500
+    assert r.headers.get("access-control-allow-origin"), "500 phải qua được CORS mới đọc được"
+
+
 def test_commit_lay_tu_bien_moi_truong(client, monkeypatch):
     """Không có cách nào khác để biết production đang chạy mã nào.
 

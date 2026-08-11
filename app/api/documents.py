@@ -14,6 +14,7 @@ import tempfile
 from pathlib import Path
 from urllib.parse import quote
 
+import httpx
 from fastapi import APIRouter, Depends, HTTPException, Response, UploadFile
 from pydantic import BaseModel
 
@@ -153,10 +154,6 @@ async def upload_document(
         raise HTTPException(status_code=400, detail="source phải là external|internal")
     content = await file.read()
     filename = file.filename or "upload.bin"
-    storage_path = f"uploads/{filename}"
-    appdb.upload_storage(
-        user.token, storage_path, content, file.content_type or "application/octet-stream"
-    )
 
     # Bản crawl vbpl mang cây `provisions`, `char_span`, `so_hieu` và bảng thuộc tính. Đẩy nó
     # qua `extract_document` (regex tách Điều + Gemini đoán metadata) là VỨT hết rồi đoán lại
@@ -195,6 +192,25 @@ async def upload_document(
         kiem_doc_id(doc.doc_id)
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+    # Khoá Storage lấy từ `doc_id`, KHÔNG từ tên file. Supabase Storage chỉ nhận khoá khớp
+    # `^(\w|/|!|-|.|*|'|(|)| |&|$|@|=|;|:|+|,|?)*$`, mà `\w` trong regex JavaScript là ASCII —
+    # nên MỌI tên file có dấu tiếng Việt bị trả 400 InvalidKey. Ca thật 11/08:
+    # "Thông tư 28-2026-TT-NHNN.pdf" (ô, ư) — tức gần như mọi văn bản pháp luật tải về đều hỏng.
+    # `doc_id` vừa qua `kiem_doc_id` nên chỉ còn `[A-Za-z0-9._-]`, hợp lệ theo đúng định nghĩa ấy.
+    #
+    # Ghi Storage SAU khi extract xong (trước đây ghi trước): extract hỏng thì không để lại file
+    # mồ côi mà không bản ghi nào trỏ tới.
+    storage_path = f"uploads/{doc.doc_id}{Path(filename).suffix.lower()}"
+    try:
+        appdb.upload_storage(
+            user.token, storage_path, content, file.content_type or "application/octet-stream"
+        )
+    except httpx.HTTPStatusError as exc:
+        raise HTTPException(
+            status_code=502,
+            detail=f"Không lưu được file lên Storage ({exc.response.status_code}): {exc.response.text}",
+        ) from exc
 
     appdb.insert_document(
         user.token,

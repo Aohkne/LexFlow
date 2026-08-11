@@ -1,8 +1,10 @@
 """Test luồng duyệt văn bản (mock appdb + pipeline — offline)."""
 from __future__ import annotations
 
+import re
 import time
 
+import httpx
 import jwt as pyjwt
 import pytest
 from fastapi.testclient import TestClient
@@ -46,7 +48,22 @@ def fake_store(monkeypatch):
     """Giả lập Storage + legal_documents + audit trong bộ nhớ."""
     store: dict = {"storage": {}, "rows": {}, "audit": [], "events": 0, "ingested": 0}
 
-    monkeypatch.setattr(appdb, "upload_storage", lambda tok, path, content, ct: store["storage"].__setitem__(path, content))
+    # Supabase Storage CHỈ nhận khoá khớp regex này (storage/src/storage/limits.ts) — `\w` của
+    # JavaScript là ASCII, nên tên file có dấu tiếng Việt bị trả 400 InvalidKey. Con giả cũ nhận
+    # mọi khoá nên đồng ý với chính giả định của mình: bộ test xanh suốt trong khi production
+    # hỏng với gần như mọi văn bản pháp luật (ca thật 11/08, "Thông tư 28-2026-TT-NHNN.pdf").
+    khoa_hop_le = re.compile(r"^(?:[A-Za-z0-9_]|[/!\-.*'() &$@=;:+,?])+$")
+
+    def _upload(tok, path, content, ct):
+        if not khoa_hop_le.match(path):
+            raise httpx.HTTPStatusError(
+                "Client error '400 Bad Request'",
+                request=httpx.Request("POST", f"https://x.supabase.co/{path}"),
+                response=httpx.Response(400, text=f'{{"error":"InvalidKey","message":"{path}"}}'),
+            )
+        store["storage"][path] = content
+
+    monkeypatch.setattr(appdb, "upload_storage", _upload)
     monkeypatch.setattr(appdb, "download_storage", lambda tok, path: store["storage"].get(path))
     monkeypatch.setattr(appdb, "insert_document", lambda tok, row: store["rows"].__setitem__(row["doc_id"], row))
     monkeypatch.setattr(appdb, "update_document", lambda tok, doc_id, patch: store["rows"][doc_id].update(patch))
@@ -486,3 +503,73 @@ def test_upload_pdf_van_di_duong_extractor(client, fake_store, monkeypatch):
     assert r.status_code == 200, r.text
     assert duoi_da_thay == [".pdf"], "file không phải .json vẫn phải qua extractor"
     assert fake_store["rows"]["TT99-2026"]["status"] == "pending"
+
+
+def _extractor_gia(monkeypatch):
+    import app.ingestion.extract as extract_mod
+
+    monkeypatch.setattr(
+        extract_mod, "extract_document",
+        lambda path, source="external": CorpusDocument.model_validate(_DOC),
+    )
+
+
+def test_ten_file_tieng_viet_van_upload_duoc(client, fake_store, monkeypatch):
+    """Ca hỏng thật trên production 11/08 — và là ca THƯỜNG, không phải ngoại lệ.
+
+    Tên file tải từ vbpl/thuvienphapluat gần như luôn có dấu. Supabase Storage từ chối khoá
+    chứa ký tự ngoài ASCII (400 InvalidKey), nên khoá phải lấy từ `doc_id` đã qua `kiem_doc_id`.
+    """
+    _extractor_gia(monkeypatch)
+
+    r = client.post(
+        "/documents/upload",
+        files={"file": ("Thông tư 28-2026-TT-NHNN.pdf", b"%PDF-1.7 gia", "application/pdf")},
+        headers={"Authorization": f"Bearer {_token('admin')}"},
+    )
+
+    assert r.status_code == 200, r.text
+    assert list(fake_store["storage"]) == ["uploads/TT99-2026.pdf"], "khoá phải theo doc_id"
+
+
+def test_storage_tu_choi_thi_502_doc_duoc_chu_khong_phai_500(client, fake_store, monkeypatch):
+    """500 chưa bắt đi ra ngoài CORS ⇒ trình duyệt chỉ thấy 'Failed to fetch', mất sạch lý do."""
+    _extractor_gia(monkeypatch)
+
+    def _tu_choi(tok, path, content, ct):
+        raise httpx.HTTPStatusError(
+            "Client error '400 Bad Request'",
+            request=httpx.Request("POST", "https://x.supabase.co/o"),
+            response=httpx.Response(400, text='{"error":"InvalidKey"}'),
+        )
+
+    monkeypatch.setattr(appdb, "upload_storage", _tu_choi)
+
+    r = client.post(
+        "/documents/upload",
+        files={"file": ("x.pdf", b"%PDF-1.7 gia", "application/pdf")},
+        headers={"Authorization": f"Bearer {_token('admin')}"},
+    )
+
+    assert r.status_code == 502, r.text
+    assert "InvalidKey" in r.text, "lý do của Storage phải tới được người bấm nút"
+    assert fake_store["rows"] == {}, "không lưu được file thì đừng tạo bản ghi pending"
+
+
+def test_extract_hong_thi_khong_de_lai_file_mo_coi(client, fake_store, monkeypatch):
+    """Ghi Storage sau extract: hỏng thì không có file nào nằm lại mà không bản ghi nào trỏ tới."""
+    import app.ingestion.extract as extract_mod
+
+    def _no(path, source="external"):
+        raise RuntimeError("PDF không đọc được")
+
+    monkeypatch.setattr(extract_mod, "extract_document", _no)
+
+    r = client.post(
+        "/documents/upload",
+        files={"file": ("x.pdf", b"%PDF-1.7 gia", "application/pdf")},
+        headers={"Authorization": f"Bearer {_token('admin')}"},
+    )
+
+    assert r.status_code == 422, r.text
+    assert fake_store["storage"] == {}
