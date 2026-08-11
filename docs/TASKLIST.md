@@ -354,7 +354,7 @@ phải phát hiện lại.
 - **Bước đầu tiên:** mục cuối là một dòng xoá — làm luôn khi nào chạm `schemas.py`. Ba mục còn
   lại chỉ mở khi có triệu chứng thật.
 
-### [ ] T26 · `dong_goi` dựng lớp phủ từ corpus KHÔNG phải corpus đang phục vụ
+### [ ] T27 · `dong_goi` dựng lớp phủ từ corpus KHÔNG phải corpus đang phục vụ
 
 Từ khi T5 đưa canonical lên Supabase Storage, production đọc `legal-docs/corpus.json`, còn
 `data/corpus.real.json` trong image tụt xuống làm bản dự phòng — và nó là **ảnh chụp của lần
@@ -371,6 +371,25 @@ khoảng cách lớn dần theo mỗi lượt duyệt.
 - **Bước đầu tiên:** cho `dong_goi` nhận đường dẫn corpus qua tham số (mặc định giữ nguyên
   `data/corpus.real.json`), rồi thêm một lối tải canonical từ Storage về file tạm trước khi
   dựng. Có `scripts/sync_corpus_storage.py` làm mẫu cho phần tải.
+
+### [ ] T28 · Deploy vẫn là thao tác tay từ một thư mục, không phải từ `main`
+
+`gcloud run deploy --source .` dựng **thư mục làm việc**, không dựng một git ref. Hai track mỗi
+bên một worktree ⇒ ai deploy sau đè mất bên kia, **không lỗi, không cảnh báo**. `ci.yml` chỉ
+chạy test, không có bước deploy nào.
+
+Đã bịt hai lớp rẻ nhất 11/08: quy ước "chỉ deploy từ `main`" (`COMMIT-CONVENTION.md`) và trường
+`commit` trong `/health` (đọc `GIT_SHA`). Cả hai đều **phát hiện** chứ không **ngăn**.
+
+- Vì sao quan trọng: hôm 11/08 production đã có lúc chạy mã của `feat/software` trước khi PR
+  #20 merge. Lần đó vô hại vì nhánh không tụt sau `main` commit nào — nhưng đó là may, không
+  phải cơ chế. Triệu chứng nếu xảy ra thật rất dễ đọc nhầm: upload `.json` ở `/admin` trả
+  `422 Extract thất bại: ...`, trông y hệt một file crawl hỏng.
+- **Bước đầu tiên:** dựng Workload Identity Federation cho repo, rồi thêm job deploy vào
+  `ci.yml` chạy khi `push` vào `main` (`google-github-actions/auth` + `deploy-cloudrun`), truyền
+  `GIT_SHA=${{ github.sha }}`. Xong thì gỡ quyền deploy tay.
+- Không làm trước kỳ đánh giá 04/09 trừ khi có thêm một lần đè nhau nữa — dựng WIF là việc
+  riêng, và hai lớp phát hiện ở trên đủ để không mất hàng giờ chẩn đoán sai.
 
 ---
 

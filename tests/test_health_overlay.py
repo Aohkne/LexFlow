@@ -41,6 +41,22 @@ def test_artefact_that_thi_bao_so_canh(client):
     assert body["overlay"]["sinh_luc"] == "2026-08-09"
 
 
+def test_commit_lay_tu_bien_moi_truong(client, monkeypatch):
+    """Không có cách nào khác để biết production đang chạy mã nào.
+
+    `--source .` dựng từ thư mục, nên "revision đã đổi" KHÔNG đồng nghĩa "mã mới": một track
+    deploy từ worktree của mình là đè mất nhánh kia mà không lỗi, không cảnh báo.
+    """
+    monkeypatch.setenv("GIT_SHA", "abc1234")
+    assert client.get("/health").json()["commit"] == "abc1234"
+
+
+def test_khong_co_git_sha_thi_noi_thang_la_khong_ro(client, monkeypatch):
+    """Thà nói không biết còn hơn bịa một con số — dấu hiệu của deploy tay."""
+    monkeypatch.delenv("GIT_SHA", raising=False)
+    assert client.get("/health").json()["commit"] == "không rõ"
+
+
 def test_thieu_artefact_thi_degraded_nhung_van_200(client, monkeypatch, tmp_path):
     """Đây là ca cả tính năng sinh ra để bắt."""
     monkeypatch.setattr(lop_phu, "DUONG_DAN_MAC_DINH", str(tmp_path / "khong-co.json"))

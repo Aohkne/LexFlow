@@ -213,5 +213,8 @@ Chỉ cần khi văn bản mới **sửa đổi hoặc bãi bỏ** văn bản kh
 ```powershell
 uv run python -m app.ingestion.nap_corpus     # trộn vào corpus.real.json
 uv run python -m app.ontology.dong_goi        # dựng lại lop_phu.json
-gcloud run deploy lexflow-api --source . --region asia-southeast1 --allow-unauthenticated
 ```
+
+rồi deploy **từ `main`** — xem "Deploy rules" trong `docs/COMMIT-CONVENTION.md`. `--source .`
+dựng từ thư mục chứ không từ một git ref, nên deploy từ nhánh track là đè mất track kia mà
+không có lỗi nào báo. Kiểm mã đang chạy bằng `commit` trong `/health`.
