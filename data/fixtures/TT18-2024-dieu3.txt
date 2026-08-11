@@ -1,0 +1,38 @@
+Điều 3. Giải thích từ ngữ
+Trong Thông tư này, các từ ngữ dưới đây được hiểu như sau:
+1. Thẻ ngân hàng là phương tiện thanh toán do tổ chức phát hành thẻ phát hành để thực hiện giao dịch thẻ theo các điều kiện và điều khoản được các bên thoả thuận.
+2. Thẻ ghi nợ (debit card) là thẻ cho phép chủ thẻ thực hiện giao dịch thẻ trong phạm vi số tiền và hạn mức thấu chi (nếu có) trên tài khoản thanh toán của chủ thẻ mở tại tổ chức phát hành thẻ.
+3. Thẻ tín dụng (credit card) là thẻ cho phép chủ thẻ thực hiện giao dịch thẻ trong phạm vi hạn mức tín dụng đã được cấp theo thoả thuận với tổ chức phát hành thẻ.
+4. Thẻ trả trước (prepaid card) là thẻ cho phép chủ thẻ thực hiện giao dịch thẻ trong phạm vi giá trị tiền được nạp vào thẻ tương ứng với số tiền đã trả trước cho tổ chức phát hành thẻ.
+Thẻ trả trước bao gồm: thẻ trả trước định danh (có các thông tin định danh chủ thẻ) và thẻ trả trước vô danh (không có các thông tin định danh chủ thẻ).
+5. Thẻ đồng thương hiệu là thẻ đồng thời có thương hiệu của tổ chức chuyển mạch thẻ tại Việt Nam và thương hiệu của tổ chức thẻ quốc tế hoặc tổ chức chuyển mạch thẻ của quốc gia khác.
+6. Thẻ vật lý là thẻ có hình thức hiện hữu vật chất, thông thường được làm bằng chất liệu nhựa, có gắn chip điện tử để lưu giữ dữ liệu thẻ, có thông tin in trên thẻ theo quy định tại
+Điều 11 Thông tư này.
+7. Thẻ phi vật lý là thẻ không hiện hữu bằng hình thức vật chất, tồn tại dưới dạng điện tử và hiển thị các thông tin trên thẻ theo quy định tại
+Điều 11 Thông tư này. Thẻ phi vật lý có thể được tổ chức phát hành thẻ in ra thẻ vật lý theo thỏa thuận giữa tổ chức phát hành thẻ và chủ thẻ.
+8. Giao dịch thẻ là việc sử dụng thẻ để thực hiện giao dịch thanh toán, rút tiền mặt và các dịch vụ khác do tổ chức phát hành thẻ, tổ chức thanh toán thẻ cung ứng theo quy định của pháp luật.
+9. Giao dịch thanh toán khống tại đơn vị chấp nhận thẻ là việc sử dụng thẻ để thanh toán tiền hàng hóa, dịch vụ nhưng thực tế không phát sinh việc mua bán, cung ứng hàng hóa, dịch vụ.
+10. Giao dịch nội địa xuất trình thẻ là giao dịch thẻ, trong đó thẻ được phát hành bởi tổ chức phát hành thẻ tại Việt Nam và được sử dụng để thực hiện giao dịch thẻ tại máy giao dịch tự động, thiết bị chấp nhận thẻ tại điểm bán tại Việt Nam.
+11. Thẻ giả là thẻ không do tổ chức phát hành thẻ phát hành nhưng có chứa các thông tin của thẻ thật, chủ thẻ thật.
+12. Giao dịch thẻ gian lận, giả mạo là giao dịch bằng thẻ giả, giao dịch sử dụng trái phép thẻ.
+13. Chủ thẻ là cá nhân hoặc tổ chức được tổ chức phát hành thẻ cung cấp thẻ để sử dụng, bao gồm chủ thẻ chính và chủ thẻ phụ.
+14. Chủ thẻ chính là cá nhân hoặc tổ chức đứng tên thực hiện giao kết hợp đồng phát hành và sử dụng thẻ với tổ chức phát hành thẻ.
+15. Chủ thẻ phụ là cá nhân được chủ thẻ chính cho phép sử dụng thẻ và chủ thẻ chính cam kết bằng văn bản thực hiện toàn bộ các nghĩa vụ phát sinh liên quan đến việc sử dụng thẻ theo hợp đồng phát hành và sử dụng thẻ.
+16. Tổ chức phát hành thẻ (viết tắt là TCPHT) là tổ chức tín dụng, chi nhánh ngân hàng nước ngoài được thực hiện phát hành thẻ theo quy định tại
+khoản 1 Điều 8 Thông tư này.
+17. Tổ chức thanh toán thẻ (viết tắt là TCTTT) là tổ chức tín dụng, chi nhánh ngân hàng nước ngoài được thực hiện thanh toán thẻ theo quy định tại
+khoản 1 Điều 20 Thông tư này.
+18. Tổ chức cung ứng dịch vụ trung gian thanh toán (viết tắt là TCTGTT) bao gồm: Tổ chức chuyển mạch thẻ; Tổ chức bù trừ điện tử giao dịch thẻ và TCTGTT có hợp tác với TCTTT.
+19. Tổ chức chuyển mạch thẻ là TCTGTT thực hiện việc chuyển mạch các giao dịch thẻ cho các TCPHT, TCTTT, TCTGTT có hợp tác với TCTTT, tổ chức thẻ quốc tế và đơn vị chấp nhận thẻ theo các thỏa thuận bằng văn bản giữa các bên liên quan.
+20. Tổ chức bù trừ điện tử giao dịch thẻ là TCTGTT thực hiện việc bù trừ điện tử các nghĩa vụ tài chính phát sinh từ các giao dịch thẻ cho các TCPHT, TCTTT, TCTGTT có hợp tác với TCTTT, tổ chức thẻ quốc tế và đơn vị chấp nhận thẻ theo các thỏa thuận bằng văn bản giữa các bên liên quan.
+21. Đơn vị chấp nhận thẻ (viết tắt là ĐVCNT) là đơn vị chấp nhận thanh toán chấp nhận thanh toán hàng hoá, dịch vụ bằng thẻ.
+22. Tổ chức thẻ quốc tế (viết tắt là TCTQT) là tổ chức được thành lập, hoạt động ở nước ngoài theo quy định của pháp luật nước ngoài, có thỏa thuận với các TCPHT, TCTTT, tổ chức chuyển mạch thẻ và/hoặc các bên liên quan để hợp tác về hoạt động thẻ ngân hàng đối với thẻ có mã TCPHT do TCTQT cấp hoặc thẻ có mã TCPHT của quốc gia khác, phù hợp với các quy định của pháp luật Việt Nam và cam kết quốc tế.
+23. Mã số xác định chủ thẻ (Personal Identification Number - viết tắt là PIN) là mã số mật được TCPHT cấp cho chủ thẻ hoặc do chủ thẻ tạo lập theo quy trình được TCPHT quy định để sử dụng trong các giao dịch thẻ.
+24. Thiết bị chấp nhận thẻ tại điểm bán bao gồm Point of Sale (viết tắt là POS), Mobile Point of Sale (viết tắt là mPOS) và các loại thiết bị chấp nhận thẻ khác là các loại thiết bị đọc thẻ, thiết bị đầu cuối được cài đặt và sử dụng tại các ĐVCNT mà chủ thẻ có thể sử dụng thẻ để thanh toán tiền hàng hoá, dịch vụ. Thiết bị chấp nhận thẻ có thể được lắp đặt tại chi nhánh, phòng giao dịch của TCTTT để cung ứng tiền mặt cho chủ thẻ theo thỏa thuận giữa TCTTT và TCPHT phù hợp với phạm vi sử dụng thẻ theo quy định tại Thông tư này.
+25. Máy giao dịch tự động là thiết bị mà chủ thẻ có thể sử dụng để thực hiện một hoặc một số các giao dịch như: gửi, nạp, rút tiền mặt, chuyển khoản, thanh toán hóa đơn hàng hóa, dịch vụ, vấn tin tài khoản, đổi PIN, tra cứu thông tin thẻ hoặc các giao dịch khác theo quy định của pháp luật.
+26. Mã tổ chức phát hành thẻ (Bank Identification Number - viết tắt là BIN) là một dãy chữ số, bao gồm các loại BIN sau: BIN xác định TCPHT theo quy định của Ngân hàng Nhà nước Việt Nam (sau đây gọi là Ngân hàng Nhà nước) tại Quy chế cấp, sử dụng và quản lý mã tổ chức phát hành thẻ ngân hàng; BIN do TCTQT cấp; và BIN của quốc gia khác. Trường hợp thẻ có BIN do TCTQT cấp hoặc thẻ có BIN của quốc gia khác, việc cấp, sử dụng và quản lý BIN được thực hiện theo quy định của TCTQT hoặc quốc gia cấp BIN đó.
+27. Hợp đồng phát hành và sử dụng thẻ là thỏa thuận bằng văn bản giữa TCPHT với chủ thẻ về việc phát hành và sử dụng thẻ.
+28. Hợp đồng thanh toán thẻ là thỏa thuận bằng văn bản giữa TCTTT với ĐVCNT hoặc với TCTQT, TCTGTT (nếu có) về việc chấp nhận thanh toán hàng hóa, dịch vụ bằng thẻ.
+29. Tiêu chuẩn cơ sở về thẻ chip nội địa là Bộ Tiêu chuẩn cơ sở TCCS 01:2018/NHNNVN về Các yêu cầu kỹ thuật thẻ thanh toán nội địa công nghệ chip tiếp xúc tại Việt Nam và TCCS 02:2018/NHNNVN về Các yêu cầu kỹ thuật thẻ thanh toán nội địa công nghệ chip không tiếp xúc tại Việt Nam do Thống đốc Ngân hàng Nhà nước công bố theo Quyết định số
+1927/QĐ-NHNN
+ngày 05 tháng 10 năm 2018 và các văn bản sửa đổi, bổ sung, thay thế (nếu có).
