@@ -209,6 +209,27 @@
   luôn vào `COMMIT-CONVENTION.md` thủ tục git không mang theo được: `.env`, `uv sync`, và
   **junction** trỏ `data/raw/vbpl/raw/` về một checkout duy nhất — riêng cái junction un-skip 52
   test vốn đang bị bỏ qua.
+- **Ship (deploy bù 12 commit tồn đọng).** Production đang chạy revision build từ `3f02a23`,
+  tức **hai thay đổi hành vi chưa tới người dùng**: bộ lọc `chi_noi_bo_voi_luat` (`9328dbf`,
+  precision cặp 0,145 → 0,615) và quy id theo tiền tố (`3751d91`, recall 6/7 → 7/7). Deploy
+  rev **`lexflow-api-00024-jsv`**, 100% traffic; `/health` trả `overlay.nap=true ·
+  so_canh=177 · sinh_luc=2026-08-09` — đúng artefact đã sinh lại, khớp con số lệch một đã báo
+  trước (prod trước đó phục vụ 178 cạnh từ cây trước rebase). **Giới hạn nghiệm thu, ghi rõ:**
+  mọi endpoint chạm truy hồi đều sau `get_current_user`, nên chỉ chứng minh được image đã
+  roll, **không** chạy được hành vi bộ lọc từ ngoài — đúng khoảng mù **T19**.
+- **Done (soi tầng chuẩn tắc → T26).** Câu hỏi: KB có thành phần nào trích premise /
+  Compliance Unit / meta-CU không. **Có** — `app/ontology/schema.py` định nghĩa đủ `ActorCU`,
+  `MetaCU`, `PremiseRecord`, `KhaiNiem`, `Gate`, `DieuKienCong`, kèm phân vai tất định và ba
+  tầng chống bịa. **Nhưng nó không nối vào đâu cả**: không ở LanceDB (chunk có đúng 10 cột),
+  không ở Neo4j (chỉ `:Document` + `:DonVi`), không ở đường phục vụ (`review.py`/`conflict.py`
+  đều nối `text` thô ném thẳng cho LLM). Chạy ngoại tuyến qua `python -m app.ontology`, phủ
+  **49 CU trên 12 Điều / 4 văn bản**, mà một trong bốn còn **không có trong corpus** ⇒
+  **8/425 Điều ≈ 1,9 %**, và **0/94 nhãn người gán**. Phát hiện đáng giá nhất là lỗ hổng
+  schema: **không có ô ngưỡng/số nào**, trong khi cả 5 cặp vàng đều là số chọi số và T24 hỏng
+  đúng ở một cặp số — nên schema phải đi trước độ phủ.
+- **Decision.** Hoãn cả ba hướng (thêm ô ngưỡng+tình thái · mở rộng độ phủ · nối CU vào phán
+  định); chỉ ghi sổ. Lý do: chưa có nhãn người gán thì mọi cải tiến ở tầng này vẫn là máy tự
+  chấm máy — đúng câu hỏi #1 đang chờ mentor trả lời.
 - **Next.** (1) Không còn mục nào chặn. (2) **T5** là rủi ro lớn nhất còn lại cho kỳ đánh giá:
   luồng duyệt văn bản qua `/admin` **chưa từng chạy thật** trên production (bucket `legal-docs`
   rỗng, `legal_documents` rỗng), mà đó là tính năng sẽ được nhìn. (3) **T19** — không có cách
