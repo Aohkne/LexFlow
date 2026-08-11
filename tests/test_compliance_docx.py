@@ -3,7 +3,7 @@ import zipfile
 
 import pytest
 
-from app.compliance.docx_doc import doc_docx
+from app.compliance.docx_doc import doc_docx, doc_numbering
 
 _W = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
 
@@ -74,3 +74,28 @@ def test_docx_comment_range_khong_dong(tmp_path):
     assert doan[0].comment_ids == []
     assert doan[1].comment_ids == ["9"]
     assert doan[2].comment_ids == ["9"]  # leak fail-open: đoạn sau start đều bị neo
+
+
+def test_doan_van_mang_num_id_va_doc_numbering_doc_lvltext(tmp_path):
+    """DoanVan lộ numId/ilvl thô; doc_numbering đọc lvlText cấp 0 từ numbering.xml —
+    dùng cho heading đánh số tự động (số không nằm trong text chạy)."""
+    doc = f"""<?xml version="1.0" encoding="UTF-8"?>
+<w:document xmlns:w="{_W}"><w:body>
+<w:p><w:pPr><w:numPr><w:ilvl w:val="0"/><w:numId w:val="5"/></w:numPr></w:pPr>
+<w:r><w:t>Phạm vi</w:t></w:r></w:p>
+<w:p><w:r><w:t>Nội dung.</w:t></w:r></w:p>
+</w:body></w:document>"""
+    numbering = f"""<?xml version="1.0" encoding="UTF-8"?>
+<w:numbering xmlns:w="{_W}">
+<w:abstractNum w:abstractNumId="5"><w:lvl w:ilvl="0"><w:lvlText w:val="ĐIỀU %1."/></w:lvl></w:abstractNum>
+<w:num w:numId="5"><w:abstractNumId w:val="5"/></w:num>
+</w:numbering>"""
+    p = tmp_path / "num.docx"
+    with zipfile.ZipFile(p, "w") as z:
+        z.writestr("[Content_Types].xml", _CONTENT_TYPES)
+        z.writestr("word/document.xml", doc)
+        z.writestr("word/numbering.xml", numbering)
+    doan, _ = doc_docx(p)
+    assert doan[0].num_id == "5" and doan[0].ilvl == "0"
+    assert doan[1].num_id is None
+    assert doc_numbering(p) == {"5": "ĐIỀU %1."}

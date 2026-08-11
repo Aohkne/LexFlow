@@ -21,6 +21,10 @@ class DoanVan(BaseModel):
     idx: int
     text: str
     comment_ids: list[str] = []
+    #: w:pPr/w:numPr/w:numId — None nếu đoạn không nằm trong danh sách đánh số tự động.
+    num_id: str | None = None
+    #: w:pPr/w:numPr/w:ilvl — cấp lồng của danh sách ("0" = cấp ngoài cùng).
+    ilvl: str | None = None
 
 
 class BinhLuan(BaseModel):
@@ -60,10 +64,51 @@ def doc_docx(path: Path) -> tuple[list[DoanVan], list[BinhLuan]]:
                 dang_mo.discard(el.get(f"{_W}id") or "")
         text = _text_cua(p)
         if text:
-            doan.append(DoanVan(idx=len(doan), text=text, comment_ids=sorted(ids)))
+            num_id = ilvl = None
+            pPr = p.find(f"{_W}pPr")
+            if pPr is not None:
+                numPr = pPr.find(f"{_W}numPr")
+                if numPr is not None:
+                    nid_el = numPr.find(f"{_W}numId")
+                    ilvl_el = numPr.find(f"{_W}ilvl")
+                    num_id = nid_el.get(f"{_W}val") if nid_el is not None else None
+                    ilvl = ilvl_el.get(f"{_W}val") if ilvl_el is not None else None
+            doan.append(DoanVan(
+                idx=len(doan), text=text, comment_ids=sorted(ids), num_id=num_id, ilvl=ilvl,
+            ))
     if dang_mo:
         warnings.warn(
             f"docx {path.name}: comment range không đóng: {sorted(dang_mo)}",
             stacklevel=2,
         )
     return doan, binh_luan
+
+
+def doc_numbering(path: Path) -> dict[str, str]:
+    """numId -> lvlText của cấp 0 (ngoài cùng), đọc từ word/numbering.xml nếu có.
+
+    Heading đánh số tự động của Word (danh sách numPr) không có số trong text chạy —
+    số hiển thị do numbering.xml render (lvlText kiểu "ĐIỀU %1."), không nằm trong
+    <w:t>. Đây là sự thật thô (numId -> mẫu hiển thị); diễn giải "numId nào là Điều"
+    là việc của caller, không phải của module đọc docx chung này.
+    """
+    with zipfile.ZipFile(path) as z:
+        if "word/numbering.xml" not in z.namelist():
+            return {}
+        root = ET.fromstring(z.read("word/numbering.xml"))
+    lvl0_cua_abstract: dict[str, str] = {}
+    for an in root.findall(f"{_W}abstractNum"):
+        aid = an.get(f"{_W}abstractNumId") or ""
+        for lvl in an.findall(f"{_W}lvl"):
+            if lvl.get(f"{_W}ilvl") == "0":
+                lt = lvl.find(f"{_W}lvlText")
+                if lt is not None:
+                    lvl0_cua_abstract[aid] = lt.get(f"{_W}val") or ""
+    ra: dict[str, str] = {}
+    for n in root.findall(f"{_W}num"):
+        nid = n.get(f"{_W}numId") or ""
+        aid_el = n.find(f"{_W}abstractNumId")
+        aid = aid_el.get(f"{_W}val") if aid_el is not None else None
+        if aid in lvl0_cua_abstract:
+            ra[nid] = lvl0_cua_abstract[aid]
+    return ra
