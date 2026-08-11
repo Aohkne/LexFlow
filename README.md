@@ -124,6 +124,21 @@ uv run python -u eval/run_benchmark.py --bo eval/bo_tvpl_dung_thoi.jsonl --bo ev
 ```
 Ba cột baseline không có khái niệm `as_of` nên trả cùng kết quả ở cả hai bộ — xem `docs/EVAL-IR.md` §6.
 
+**Kết quả đầu tiên** — 76 câu hỏi curate từ thuvienphapluat.vn, hỏi về luật đã bị thay thế
+(`bo_tvpl_hien_nay`, đo 11/08, 0 câu lỗi):
+
+| | tránh văn bản hết hiệu lực | citation accuracy | F2@2 |
+|---|---|---|---|
+| BM25 | — | — | 0.07 |
+| Naive RAG (dense thuần) | **11/76** | 66/76 | 0.48 |
+| Advanced RAG (75% BM25) | — | — | 0.11 |
+| **LexFlow hybrid** | **76/76** | 64/76 | **0.73** |
+| **LexFlow +graph** | **76/76** | **71/76** | 0.73 |
+
+Baseline trả về văn bản đã hết hiệu lực ở **65/76** câu; LexFlow không câu nào. BM25 gần như không
+đúng ở hạng 1 (R@1 = 0.02) vì câu hỏi được viết *từ* văn bản cũ nên khớp từ vựng bị hút về đúng
+văn bản đã chết. Cách đo, mẫu số và các cảnh báo: `docs/EVAL-IR.md` §6.
+
 ## Định dạng corpus
 
 `data/corpus.sample.json`:

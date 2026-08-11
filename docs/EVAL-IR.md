@@ -172,7 +172,52 @@ nhau và một mốc chung sẽ âm thầm làm sai nhãn của một phần b�
 
 Nạp thêm văn bản sẽ mở khoá thêm câu (tính tham lam trên 251 câu): `+09/2020/TT-NHNN` → 127 câu,
 `+34/2012/TT-NHNN` → 148, `+37/2016/TT-NHNN` → 166, `+88/2019/NĐ-CP` → 177 (71%). Đó là mở rộng
-**corpus**, không phải tầng đo — mỗi văn bản mới phải kiểm hiệu lực lại từ đầu.
+**corpus**, không phải tầng đo — mỗi văn bản mới phải kiểm hiệu lực lại từ đầu. Danh sách đầy đủ
+44 văn bản còn thiếu, chia theo trong/ngoài phạm vi sản phẩm: `research/crawl_list_eval.txt`
+(T20 trong `docs/TASKLIST.md`).
+
+### Kết quả — `bo_tvpl_hien_nay.jsonl`, 76 câu, đo 2026-08-11
+
+`eval/results/20260811-051219-bo_tvpl_hien_nay.json`, 76/76 câu chạy được, 0 lỗi. Index: LanceDB
+Cloud chưa re-ingest (T1 còn mở). Retrieval p50 3767 ms.
+
+| | citation_accuracy | tránh văn bản hết hiệu lực |
+|---|---|---|
+| baseline (dense thuần) | 66/76 | **11/76** |
+| LexFlow hybrid | 64/76 | **76/76** |
+| LexFlow +graph | **71/76** | **76/76** |
+
+| Model | R@1 | R@2 | R@5 | R@10 | R@20 | MRR@2 | P@2 | F2@2 |
+|---|---|---|---|---|---|---|---|---|
+| BM25 | 0.02 | 0.09 | 0.46 | 0.94 | 0.95 | 0.06 | 0.05 | 0.07 |
+| Naive RAG | 0.30 | 0.57 | 0.96 | 1.00 | 1.00 | 0.45 | 0.30 | 0.48 |
+| Advanced RAG | 0.03 | 0.12 | 0.66 | 0.96 | 0.96 | 0.08 | 0.07 | 0.11 |
+| **LexFlow hybrid** | **0.64** | **0.86** | 0.96 | 1.00 | 1.00 | **0.76** | **0.45** | **0.73** |
+| LexFlow +graph | 0.62 | 0.86 | 0.96 | 1.00 | 1.00 | 0.76 | 0.45 | 0.73 |
+| LexFlow +router | 0.62 | 0.86 | 0.96 | 1.00 | 1.00 | 0.76 | 0.45 | 0.73 |
+
+Mức điều: bộ này cố ý không có `relevant_articles` (xem trên) ⇒ mẫu số 0, bỏ qua.
+
+Bốn điều bảng này nói:
+
+- **Baseline trả văn bản đã chết ở 65/76 câu** (tránh được 11/76). Các cột LexFlow: 76/76. Đây là
+  toàn bộ lý do lớp lọc hiệu lực tồn tại, và là con số duy nhất trong repo đo trực tiếp nó trên
+  câu hỏi do người ngoài soạn.
+- **BM25 gần như không bao giờ đúng ở hạng 1** (R@1 = 0.02), và Advanced RAG — vốn đè 75% trọng
+  số lên BM25 — kéo theo (0.03). Không phải BM25 yếu chung chung: câu hỏi của TVPL được viết
+  **từ** văn bản cũ nên dùng đúng từ ngữ của nó, khiến khớp thưa bị **hút về** đúng văn bản đã
+  chết. Đây là ca cho thấy điểm khớp từ vựng và tính đúng pháp lý có thể ngược chiều nhau.
+- **Đồ thị lần đầu đóng góp đo được.** Trên 36 câu, `+graph` giống hệt `hybrid`; ở đây nó nâng
+  citation_accuracy 64/76 → **71/76** (hybrid còn thấp hơn cả baseline 66/76). Cạnh `THAY_THE`
+  chính là đường từ văn bản cũ sang văn bản kế thừa, mà bộ này hỏi đúng chỗ đó. Lưu ý R@1 lại
+  nhích xuống 0.64 → 0.62: mở rộng 1-hop kéo thêm ứng viên vào top, lợi ở phủ và hại nhẹ ở hạng
+  nhất.
+- **Lớp phủ chạy thật.** 9/76 câu cho kết quả khác khi bật router (trên 36 câu là 0/36), 169 hit
+  được nắn trích dẫn, 1 hit bị loại vì bãi bỏ. Nhưng citation_accuracy ON và OFF đều 71/76 — nắn
+  trích dẫn đổi *nội dung* trích dẫn chứ chưa đổi *văn bản* được trả về, nên mức văn bản không
+  thấy. Muốn đo nó phải có nhãn cấp điều ở luật hiện hành, tức phải gán tay.
+
+Bộ `bo_tvpl_dung_thoi.jsonl` **chưa đo** — mỗi lượt 76 câu mất khoảng một giờ trên máy hiện tại.
 
 ## 7. Vì sao KHÔNG so trực tiếp với bảng số của bài báo
 

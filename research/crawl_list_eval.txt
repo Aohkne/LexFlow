@@ -1,0 +1,189 @@
+# Văn bản bộ eval TVPL dẫn tới mà corpus chưa có.
+# Điền URL vbpl.vn (dạng https://vbpl.vn/.../vbpq-toanvan.aspx?ItemID=...) vào dòng trống
+# dưới mỗi khối, rồi:  uv run python scripts/crawl_vbpl_batch.py research/crawl_list_eval.txt
+# Tra URL: Google `site:vbpl.vn "<số hiệu>"` — đã kiểm chứng đúng ở ca 39/2014/TT-NHNN.
+# Dòng bắt đầu bằng # bị bỏ qua; bỏ trống văn bản nào không định cào cũng được.
+
+# ====================================================================================================
+# TRONG PHẠM VI sản phẩm (thanh toán · tài khoản · thẻ · ngoại hối · PCRT · xử phạt tiền tệ)
+# ====================================================================================================
+
+# [13 câu] 88/2019/ND-CP  (nghi_dinh)
+#   Nghi dinh 88 2019 ND CP xu phat vi pham hanh chinh trong linh vuc tien te va ngan hang
+#   TVPL: https://thuvienphapluat.vn/van-ban/Tien-te-Ngan-hang/Nghi-dinh-88-2019-ND-CP-xu-phat-vi-pham-hanh-chinh-trong-linh-vuc-tien-te-va-ngan-hang-428666.aspx
+
+# [ 8 câu] 28/2005/PL-UBTVQH  (phap_lenh)
+#   Phap lenh ngoai hoi 2005 28 2005 PL UBTVQH11
+#   TVPL: https://thuvienphapluat.vn/van-ban/Tien-te-Ngan-hang/Phap-lenh-ngoai-hoi-2005-28-2005-PL-UBTVQH11-8043.aspx
+
+# [ 8 câu] 32/2013/TT-NHNN  (thong_tu)
+#   Thong tu 32 2013 TT NHNN huong dan han che su dung ngoai hoi Viet Nam
+#   TVPL: https://thuvienphapluat.vn/van-ban/Tien-te-Ngan-hang/Thong-tu-32-2013-TT-NHNN-huong-dan-han-che-su-dung-ngoai-hoi-Viet-Nam-217577.aspx
+
+# [ 6 câu] 1155/2017/NHCS-KTTC  (huong_dan)
+#   Huong dan 1155 NHCS KTTC 2017 mo tai khoan thanh toan tai Ngan hang Chinh sach Xa hoi
+#   TVPL: https://thuvienphapluat.vn/van-ban/Tien-te-Ngan-hang/Huong-dan-1155-NHCS-KTTC-2017-mo-tai-khoan-thanh-toan-tai-Ngan-hang-Chinh-sach-Xa-hoi-483708.aspx
+
+# [ 5 câu] https://thuvienphapluat.vn/van-ban/Tien-te-Ngan-hang/Luat-cac-to-chuc-tin-dung-2010-108079.aspx  (luat)
+#   Luat cac to chuc tin dung 2010
+#   TVPL: https://thuvienphapluat.vn/van-ban/Tien-te-Ngan-hang/Luat-cac-to-chuc-tin-dung-2010-108079.aspx
+
+# [ 4 câu] https://thuvienphapluat.vn/van-ban/Tien-te-Ngan-hang/Luat-Ngan-hang-Nha-nuoc-Viet-Nam-2010-108078.aspx  (luat)
+#   Luat Ngan hang Nha nuoc Viet Nam 2010
+#   TVPL: https://thuvienphapluat.vn/van-ban/Tien-te-Ngan-hang/Luat-Ngan-hang-Nha-nuoc-Viet-Nam-2010-108078.aspx
+
+# [ 3 câu] 681/2002/QD-NHNN-Q  (quyet_dinh)
+#   Quyet dinh 681 2002 QD NHNN Quy che lam viec Ban dieu hanh he thong thanh toan dien tu lien ngan hang
+#   TVPL: https://thuvienphapluat.vn/van-ban/Tien-te-Ngan-hang/Quyet-dinh-681-2002-QD-NHNN-Quy-che-lam-viec-Ban-dieu-hanh-he-thong-thanh-toan-dien-tu-lien-ngan-hang-49647.aspx
+
+# [ 3 câu] 480/2017/QD-NHNN  (quyet_dinh)
+#   Quyet dinh 480 QD NHNN 2017 Quy trinh cho vay qua dem thanh toan dien tu lien ngan hang
+#   TVPL: https://thuvienphapluat.vn/van-ban/Tien-te-Ngan-hang/Quyet-dinh-480-QD-NHNN-2017-Quy-trinh-cho-vay-qua-dem-thanh-toan-dien-tu-lien-ngan-hang-388346.aspx
+
+# [ 3 câu] 35/2007/ND-CP  (nghi_dinh)
+#   Nghi dinh 35 2007 ND CP giao dich dien tu trong hoat dong ngan hang
+#   TVPL: https://thuvienphapluat.vn/van-ban/Thuong-mai/Nghi-dinh-35-2007-ND-CP-giao-dich-dien-tu-trong-hoat-dong-ngan-hang-16969.aspx
+
+# [ 3 câu] https://thuvienphapluat.vn/van-ban/Tien-te-Ngan-hang/Quyet-dinh-40-QD-HDQL-Quy-che-hoat-dong-thanh-toan-trong-nuoc-qua-Ngan-hang-126167.aspx  (quyet_dinh)
+#   Quyet dinh 40 QD HDQL Quy che hoat dong thanh toan trong nuoc qua Ngan hang
+#   TVPL: https://thuvienphapluat.vn/van-ban/Tien-te-Ngan-hang/Quyet-dinh-40-QD-HDQL-Quy-che-hoat-dong-thanh-toan-trong-nuoc-qua-Ngan-hang-126167.aspx
+
+# [ 3 câu] 11/2019/TT-NHNN  (thong_tu)
+#   Thong tu 11 2019 TT NHNN quy dinh ve kiem soat dac biet doi voi to chuc tin dung
+#   TVPL: https://thuvienphapluat.vn/van-ban/Tien-te-Ngan-hang/Thong-tu-11-2019-TT-NHNN-quy-dinh-ve-kiem-soat-dac-biet-doi-voi-to-chuc-tin-dung-422099.aspx
+
+# [ 3 câu] 14/2022/QH  (luat)
+#   Luat 14 2022 QH15 Phong chong rua tien
+#   TVPL: https://thuvienphapluat.vn/van-ban/Tien-te-Ngan-hang/Luat-14-2022-QH15-Phong-chong-rua-tien-519327.aspx
+
+# [ 3 câu] 21/2017/TT-NHNN  (thong_tu)
+#   Thong tu 21 2017 TT NHNN phuong thuc giai ngan von cho vay cua to chuc tin dung voi khach hang
+#   TVPL: https://thuvienphapluat.vn/van-ban/Tien-te-Ngan-hang/Thong-tu-21-2017-TT-NHNN-phuong-thuc-giai-ngan-von-cho-vay-cua-to-chuc-tin-dung-voi-khach-hang-374562.aspx
+
+# [ 2 câu] 19/2016/TT-NHNN  (thong_tu)
+#   Thong tu 19 2016 TT NHNN hoat dong the ngan hang
+#   TVPL: https://thuvienphapluat.vn/van-ban/Tien-te-Ngan-hang/Thong-tu-19-2016-TT-NHNN-hoat-dong-the-ngan-hang-316056.aspx
+
+# [ 2 câu] 143/2021/ND-CP  (nghi_dinh)
+#   Nghi dinh 143 2021 ND CP sua doi Nghi dinh 88 2019 ND CP xu phat hanh chinh linh vuc tien te
+#   TVPL: https://thuvienphapluat.vn/van-ban/Tien-te-Ngan-hang/Nghi-dinh-143-2021-ND-CP-sua-doi-Nghi-dinh-88-2019-ND-CP-xu-phat-hanh-chinh-linh-vuc-tien-te-499644.aspx
+
+# [ 2 câu] 08/2021/TT-NHNN  (thong_tu)
+#   Thong tu 08 2021 TT NHNN cho vay dac biet doi voi to chuc tin dung duoc kiem soat dac biet
+#   TVPL: https://thuvienphapluat.vn/van-ban/Tien-te-Ngan-hang/Thong-tu-08-2021-TT-NHNN-cho-vay-dac-biet-doi-voi-to-chuc-tin-dung-duoc-kiem-soat-dac-biet-481026.aspx
+
+# [ 2 câu] 30/2019/TT-NHNN  (thong_tu)
+#   Thong tu 30 2019 TT NHNN thuc hien du tru bat buoc cua cac to chuc tin dung nuoc ngoai
+#   TVPL: https://thuvienphapluat.vn/van-ban/Tien-te-Ngan-hang/Thong-tu-30-2019-TT-NHNN-thuc-hien-du-tru-bat-buoc-cua-cac-to-chuc-tin-dung-nuoc-ngoai-432093.aspx
+
+# [ 1 câu] 5747/2017/NHNN-PC  (cong_van)
+#   Cong van 5747 NHNN PC 2017 tra loi kien nghi ve thiet ke trung tam may tinh Bitcoin Litecoin
+#   TVPL: https://thuvienphapluat.vn/cong-van/Tien-te-Ngan-hang/Cong-van-5747-NHNN-PC-2017-tra-loi-kien-nghi-ve-thiet-ke-trung-tam-may-tinh-Bitcoin-Litecoin-368960.aspx
+
+# [ 1 câu] 1606/2022/QD-NHNN  (quyet_dinh)
+#   Quyet dinh 1606 QD NHNN 2022 lai suat tai cap von trong thanh toan dien tu lien ngan hang
+#   TVPL: https://thuvienphapluat.vn/van-ban/Tien-te-Ngan-hang/Quyet-dinh-1606-QD-NHNN-2022-lai-suat-tai-cap-von-trong-thanh-toan-dien-tu-lien-ngan-hang-530269.aspx
+
+# [ 1 câu] 116/2013/ND-CP  (nghi_dinh)
+#   Nghi dinh 116 2013 ND CP huong dan Luat phong chong rua tien
+#   TVPL: https://thuvienphapluat.vn/van-ban/Tien-te-Ngan-hang/Nghi-dinh-116-2013-ND-CP-huong-dan-Luat-phong-chong-rua-tien-209305.aspx
+
+# [ 1 câu] 29/2016/TT-NHNN  (thong_tu)
+#   Thong tu 29 2016 TT NHNN thau chi cho vay qua dem thanh toan dien tu lien ngan hang
+#   TVPL: https://thuvienphapluat.vn/van-ban/Tien-te-Ngan-hang/Thong-tu-29-2016-TT-NHNN-thau-chi-cho-vay-qua-dem-thanh-toan-dien-tu-lien-ngan-hang-325534.aspx
+
+# [ 1 câu] https://thuvienphapluat.vn/van-ban/Tien-te-Ngan-hang/Phap-lenh-sua-doi-Phap-lenh-ngoai-hoi-2005-184018.aspx  (phap_lenh)
+#   Phap lenh sua doi Phap lenh ngoai hoi 2005
+#   TVPL: https://thuvienphapluat.vn/van-ban/Tien-te-Ngan-hang/Phap-lenh-sua-doi-Phap-lenh-ngoai-hoi-2005-184018.aspx
+
+# [ 1 câu] 70/2014/ND-CP  (nghi_dinh)
+#   Nghi dinh 70 2014 ND CP huong dan Phap lenh Ngoai hoi va Phap lenh Ngoai hoi sua doi
+#   TVPL: https://thuvienphapluat.vn/van-ban/Tien-te-Ngan-hang/Nghi-dinh-70-2014-ND-CP-huong-dan-Phap-lenh-Ngoai-hoi-va-Phap-lenh-Ngoai-hoi-sua-doi-240350.aspx
+
+# [ 1 câu] 19/2023/ND-CP  (nghi_dinh)
+#   Nghi dinh 19 2023 ND CP huong dan Luat Phong chong rua tien
+#   TVPL: https://thuvienphapluat.vn/van-ban/Tien-te-Ngan-hang/Nghi-dinh-19-2023-ND-CP-huong-dan-Luat-Phong-chong-rua-tien-564905.aspx
+
+# [ 1 câu] 39/2014/ND-CP  (nghi_dinh)
+#   Nghi dinh 39 2014 ND CP hoat dong cua cong ty tai chinh cong ty cho thue tai chinh
+#   TVPL: https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Nghi-dinh-39-2014-ND-CP-hoat-dong-cua-cong-ty-tai-chinh-cong-ty-cho-thue-tai-chinh-228676.aspx
+
+# ====================================================================================================
+# NGOÀI phạm vi hiện tại — cào là mở rộng sản phẩm, cân nhắc trước
+# ====================================================================================================
+
+# [51 câu] 09/2020/TT-NHNN  (thong_tu)
+#   Thong tu 09 2020 TT NHNN an toan he thong thong tin trong hoat dong ngan hang
+#   TVPL: https://thuvienphapluat.vn/van-ban/Tien-te-Ngan-hang/Thong-tu-09-2020-TT-NHNN-an-toan-he-thong-thong-tin-trong-hoat-dong-ngan-hang-455885.aspx
+
+# [21 câu] 34/2012/TT-NHNN  (thong_tu)
+#   Thong tu 34 2012 TT NHNN phat trien bao tri phan mem nghiep vu ngan hang
+#   TVPL: https://thuvienphapluat.vn/van-ban/Tien-te-Ngan-hang/Thong-tu-34-2012-TT-NHNN-phat-trien-bao-tri-phan-mem-nghiep-vu-ngan-hang-162371.aspx
+
+# [18 câu] 37/2016/TT-NHNN  (thong_tu)
+#   Thong tu 37 2016 TT NHNN quan ly van hanh su dung he thong thanh toan dien tu lien ngan hang quoc gia
+#   TVPL: https://thuvienphapluat.vn/van-ban/Tien-te-Ngan-hang/Thong-tu-37-2016-TT-NHNN-quan-ly-van-hanh-su-dung-he-thong-thanh-toan-dien-tu-lien-ngan-hang-quoc-gia-316947.aspx
+
+# [ 5 câu] 31/2021/QD-TT  (quyet_dinh)
+#   Quyet dinh 31 2021 QD TTg Quy che quan ly van hanh Cong Dich vu cong quoc gia
+#   TVPL: https://thuvienphapluat.vn/van-ban/Cong-nghe-thong-tin/Quyet-dinh-31-2021-QD-TTg-Quy-che-quan-ly-van-hanh-Cong-Dich-vu-cong-quoc-gia-491068.aspx
+
+# [ 3 câu] https://thuvienphapluat.vn/van-ban/Vi-pham-hanh-chinh/Luat-xu-ly-vi-pham-hanh-chinh-2012-142766.aspx  (luat)
+#   Luat xu ly vi pham hanh chinh 2012
+#   TVPL: https://thuvienphapluat.vn/van-ban/Vi-pham-hanh-chinh/Luat-xu-ly-vi-pham-hanh-chinh-2012-142766.aspx
+
+# [ 2 câu] https://thuvienphapluat.vn/van-ban/Lao-dong-Tien-luong/Bo-Luat-lao-dong-2019-333670.aspx  (bo_luat)
+#   Bo Luat lao dong 2019
+#   TVPL: https://thuvienphapluat.vn/van-ban/Lao-dong-Tien-luong/Bo-Luat-lao-dong-2019-333670.aspx
+
+# [ 2 câu] https://thuvienphapluat.vn/van-ban/Quyen-dan-su/Bo-luat-dan-su-2015-296215.aspx  (bo_luat)
+#   Bo luat dan su 2015
+#   TVPL: https://thuvienphapluat.vn/van-ban/Quyen-dan-su/Bo-luat-dan-su-2015-296215.aspx
+
+# [ 1 câu] 96/2015/TT-BTC  (thong_tu)
+#   Thong tu 96 2015 TT BTC huong dan thue thu nhap doanh nghiep tai Nghi dinh 12 2015 ND CP
+#   TVPL: https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Thong-tu-96-2015-TT-BTC-huong-dan-thue-thu-nhap-doanh-nghiep-tai-Nghi-dinh-12-2015-ND-CP-279331.aspx
+
+# [ 1 câu] https://thuvienphapluat.vn/cong-van/Thue-Phi-Le-Phi/Cong-van-2543-TCT-KK-chung-tu-thanh-toan-khong-dung-tien-mat-2016-316284.aspx  (cong_van)
+#   Cong van 2543 TCT KK chung tu thanh toan khong dung tien mat 2016
+#   TVPL: https://thuvienphapluat.vn/cong-van/Thue-Phi-Le-Phi/Cong-van-2543-TCT-KK-chung-tu-thanh-toan-khong-dung-tien-mat-2016-316284.aspx
+
+# [ 1 câu] 411/2022/QD-TT  (quyet_dinh)
+#   Quyet dinh 411 QD TTg 2022 phe duyet Chien luoc quoc gia phat trien kinh te so va xa hoi so
+#   TVPL: https://thuvienphapluat.vn/van-ban/Thuong-mai/Quyet-dinh-411-QD-TTg-2022-phe-duyet-Chien-luoc-quoc-gia-phat-trien-kinh-te-so-va-xa-hoi-so-508672.aspx
+
+# [ 1 câu] 59/2020/QH  (luat)
+#   Luat Doanh nghiep so 59 2020 QH14
+#   TVPL: https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Luat-Doanh-nghiep-so-59-2020-QH14-427301.aspx
+
+# [ 1 câu] https://thuvienphapluat.vn/van-ban/Trach-nhiem-hinh-su/Bo-luat-hinh-su-2015-296661.aspx  (bo_luat)
+#   Bo luat hinh su 2015
+#   TVPL: https://thuvienphapluat.vn/van-ban/Trach-nhiem-hinh-su/Bo-luat-hinh-su-2015-296661.aspx
+
+# [ 1 câu] 117/2015/ND-CP  (nghi_dinh)
+#   Nghi dinh 117 2015 ND CP xay dung quan ly su dung he thong thong tin ve nha o thi truong bat dong san
+#   TVPL: https://thuvienphapluat.vn/van-ban/Bat-dong-san/Nghi-dinh-117-2015-ND-CP-xay-dung-quan-ly-su-dung-he-thong-thong-tin-ve-nha-o-thi-truong-bat-dong-san-297203.aspx
+
+# [ 1 câu] 27/2016/TT-BXD  (thong_tu)
+#   Thong tu 27 2016 TT BXD huong dan 117 2015 ND CP he thong thong tin nha o thi truong bat dong san
+#   TVPL: https://thuvienphapluat.vn/van-ban/Bat-dong-san/Thong-tu-27-2016-TT-BXD-huong-dan-117-2015-ND-CP-he-thong-thong-tin-nha-o-thi-truong-bat-dong-san-336207.aspx
+
+# [ 1 câu] https://thuvienphapluat.vn/tcvn/Dien-dien-tu/TCVN-11930-2017-Cong-nghe-thong-tin-Yeu-cau-co-ban-an-toan-he-thong-thong-tin-916781.aspx  (-)
+#   TCVN 11930 2017 Cong nghe thong tin Yeu cau co ban an toan he thong thong tin
+#   TVPL: https://thuvienphapluat.vn/tcvn/Dien-dien-tu/TCVN-11930-2017-Cong-nghe-thong-tin-Yeu-cau-co-ban-an-toan-he-thong-thong-tin-916781.aspx
+
+# [ 1 câu] 39/2014/TT-BTC  (thong_tu)
+#   Thong tu 39 2014 TT BTC huong dan 51 2010 ND CP 04 2014 ND CP hoa don ban hang hoa dich vu
+#   TVPL: https://thuvienphapluat.vn/van-ban/Thuong-mai/Thong-tu-39-2014-TT-BTC-huong-dan-51-2010-ND-CP-04-2014-ND-CP-hoa-don-ban-hang-hoa-dich-vu-229190.aspx
+
+# [ 1 câu] 123/2020/ND-CP  (nghi_dinh)
+#   Nghi dinh 123 2020 ND CP quy dinh hoa don chung tu
+#   TVPL: https://thuvienphapluat.vn/van-ban/Ke-toan-Kiem-toan/Nghi-dinh-123-2020-ND-CP-quy-dinh-hoa-don-chung-tu-445980.aspx
+
+# [ 1 câu] https://thuvienphapluat.vn/van-ban/Dau-tu/Luat-dau-thau-2013-215838.aspx  (luat)
+#   Luat dau thau 2013
+#   TVPL: https://thuvienphapluat.vn/van-ban/Dau-tu/Luat-dau-thau-2013-215838.aspx
+
+# [ 1 câu] 36/2005/QH  (luat)
+#   Luat Thuong mai 2005 36 2005 QH11
+#   TVPL: https://thuvienphapluat.vn/van-ban/Thuong-mai/Luat-Thuong-mai-2005-36-2005-QH11-2633.aspx
