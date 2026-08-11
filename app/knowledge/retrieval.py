@@ -27,14 +27,41 @@ def _qv(query: str) -> tuple[float, ...]:
     return tuple(embed_query(query))
 
 
-def _rrf(vector_hits: list[dict], fts_hits: list[dict], k: int) -> list[dict]:
-    """Trộn 2 bảng xếp hạng bằng Reciprocal Rank Fusion."""
+#: Đóng góp của nhánh BM25 vào điểm RRF; nhánh vector luôn 1.0. RRF gốc dùng 1.0 cho cả hai.
+#:
+#: Hạ xuống 0.1 ngày 11/08 sau khi quét trên ba bộ câu hỏi (`eval/quet_trong_so.py`,
+#: `docs/EVAL-IR.md` §7): ở trọng số cân bằng, nhánh thưa **kéo kết quả sai lên** trên cả ba.
+#: Nặng nhất ở mức điều — R@1 0.17 → 0.38 khi hạ xuống 0.1 — vì BM25 tìm ra đúng văn bản nhưng
+#: không phân biệt nổi điều nào trong đó (R@20 mức điều chỉ 0.21), nên hợp nhất ngang trọng số
+#: đẩy các điều SAI của ĐÚNG văn bản lên top.
+#:
+#: Không đặt 0: ba bộ đo đều là câu hỏi diễn đạt tự nhiên, chưa ép loại truy vấn mà khớp từ khoá
+#: chính xác mới có giá trị (số hiệu, số tiền, tên định chế). Giữ 0.1 để nhánh thưa còn là điểm
+#: phá hoà, và để T8 (sửa index BM25) còn chỗ chứng minh.
+TRONG_SO_THUA = 0.1
+
+
+def _rrf(
+    vector_hits: list[dict],
+    fts_hits: list[dict],
+    k: int,
+    *,
+    trong_so_thua: float = TRONG_SO_THUA,
+) -> list[dict]:
+    """Trộn 2 bảng xếp hạng bằng Reciprocal Rank Fusion.
+
+    `trong_so_thua` nhân vào đóng góp của nhánh BM25; nhánh vector luôn là 1.0, nên chỉ **tỷ lệ**
+    giữa hai nhánh có nghĩa. Trọng số 0 thì bỏ hẳn nhánh thưa — không phải cộng 0 điểm, vì như thế
+    các hit chỉ có ở nhánh thưa vẫn lọt vào đuôi bảng xếp hạng với điểm 0.
+    """
     scores: dict[str, float] = {}
     rows: dict[str, dict] = {}
-    for ranked in (vector_hits, fts_hits):
+    for ranked, w in ((vector_hits, 1.0), (fts_hits, trong_so_thua)):
+        if w == 0:
+            continue
         for rank, row in enumerate(ranked):
             rid = row["id"]
-            scores[rid] = scores.get(rid, 0.0) + 1.0 / (_RRF_K + rank)
+            scores[rid] = scores.get(rid, 0.0) + w / (_RRF_K + rank)
             rows[rid] = row
     ordered = sorted(scores, key=lambda r: scores[r], reverse=True)
     return [rows[r] for r in ordered[:k]]

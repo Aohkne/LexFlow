@@ -130,3 +130,10 @@ GraphRAG community-summary · lớp không gian (đã loại trong spec) · form
 
 Mọi thay đổi retrieval verify bằng `uv run pytest -q` + benchmark 36 case không tụt
 (stale-avoidance 36/36 là gate hồi quy).
+
+**11/08 — hai nhánh RRF không còn ngang trọng số.** Nhánh BM25 đóng góp `0.1`
+(`app/knowledge/retrieval.py::TRONG_SO_THUA`), nhánh vector `1.0`. Lý do đo được: ở trọng số cân
+bằng, nhánh thưa kéo thứ hạng xuống trên cả ba bộ câu hỏi — nặng nhất ở mức điều, nơi BM25 tìm ra
+đúng văn bản nhưng không phân biệt nổi điều nào trong đó. Bảng quét và cách đo: `docs/EVAL-IR.md`
+§7; công cụ: `eval/quet_trong_so.py`. Gate sau khi đổi: stale-avoidance vẫn 36/36, `R@1` cột
+LexFlow 0.72 → 0.78.

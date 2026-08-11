@@ -139,11 +139,19 @@ Baseline trả về văn bản đã hết hiệu lực ở **65/76** câu; LexFl
 đúng ở hạng 1 (R@1 = 0.02) vì câu hỏi được viết *từ* văn bản cũ nên khớp từ vựng bị hút về đúng
 văn bản đã chết.
 
-Nhưng bảng ở **mức điều** (bộ `bo_tvpl_dung_thoi`, 71 câu có nhãn cấp điều) nói ngược: R@1 của
-Naive RAG là 0.26 còn LexFlow 0.15 — LexFlow tìm đúng *văn bản* sớm nhưng đẩy đúng *điều* lên
-muộn, chỉ vượt lên ở R@20 (0.90 so với 0.85). Nguyên nhân là nhánh BM25 gần như vô dụng ở mức điều
-(R@20 = 0.21) nên kéo các điều sai của đúng văn bản lên. Cách đo, mẫu số và các cảnh báo:
-`docs/EVAL-IR.md` §6.
+Bảng ở **mức điều** (bộ `bo_tvpl_dung_thoi`, 71 câu có nhãn cấp điều) lại nói ngược, và chính nó
+dẫn tới một thay đổi retrieval: LexFlow tìm đúng *văn bản* sớm nhưng đẩy đúng *điều* lên muộn, vì
+nhánh BM25 gần như vô dụng ở mức đó (R@20 = 0.21) nên kéo các điều sai của đúng văn bản lên. Quét
+trọng số nhánh thưa trên cả ba bộ câu hỏi (`uv run python eval/quet_trong_so.py`) rồi hạ
+`TRONG_SO_THUA` 1.0 → 0.1:
+
+| | R@1 mức điều | R@1 mức văn bản (36 câu) |
+|---|---|---|
+| trọng số 1.0 | 0.17 | 0.72 |
+| **trọng số 0.1** | **0.38** | **0.78** |
+
+Gate hồi quy giữ nguyên (stale-avoidance 36/36, 0 câu lỗi). Cách đo, mẫu số và các cảnh báo:
+`docs/EVAL-IR.md` §6–§7.
 
 ## Định dạng corpus
 

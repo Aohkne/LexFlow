@@ -126,6 +126,11 @@ nhưng đó là trần độ phủ hiện tại. Muốn nâng thì phải **mở
   Tức nó tìm được đúng văn bản nhưng không phân biệt nổi điều nào trong đó. Vì `hybrid_search` hợp
   nhất nhánh này qua RRF, nó kéo các điều **sai** của **đúng văn bản** lên top và làm LexFlow xếp
   hạng mức điều thua cả dense thuần từ R@1 tới R@10. Xem `docs/EVAL-IR.md` §6.
+- **Đã giảm thiệt hại 11/08, chưa sửa nguyên nhân:** trọng số nhánh thưa hạ 1.0 → 0.1 (§7), lấy
+  lại phần lớn thứ hạng. Nhưng index vẫn hỏng như mô tả trên — T8 xong mới biết nhánh thưa **đáng**
+  bao nhiêu, và mới có căn cứ nâng trọng số trở lại. Bước đầu vẫn là dựng lại FTS index có tách từ
+  ghép và phủ `doc_title`, rồi chạy `eval/quet_trong_so.py` lần nữa: nếu trọng số tối ưu nhích lên
+  khỏi 0.1 thì index mới có giá trị, còn giữ nguyên 0.1 thì nhánh thưa không cứu được.
 
 ### [ ] T20 · Corpus phủ 4/37 văn bản mà bộ eval TVPL hỏi tới
 
@@ -168,9 +173,11 @@ Bài báo (§4.3) xếp lại top-k bằng ViRanker + `bge-reranker-v2-m3`; `doc
 - Bước tiếp: rerank top-20 của cột `lexflow` ở **mức điều**, đo lại đúng bảng đó. Mục tiêu tối
   thiểu là R@1 mức điều vượt 0.26 của Naive RAG — không đạt thì reranker không đáng một lượt gọi API.
 - Chủ repo đã chốt dùng **cloud/API** (Gemini hoặc rerank API), không tải model HF về máy yếu.
-- Cân nhắc rẻ hơn trước khi làm T16: phần lớn thiệt hại đến từ nhánh BM25 (T8), R@20 mức điều chỉ
-  0.21. Hạ trọng số nhánh thưa trong `_rrf`, hoặc sửa index theo T8, có thể lấy lại phần lớn mà
-  không thêm lượt gọi nào.
+- ~~Cân nhắc rẻ hơn trước khi làm T16: hạ trọng số nhánh thưa trong `_rrf`.~~ **Đã làm 11/08** —
+  `TRONG_SO_THUA` 1.0 → 0.1, R@1 mức điều **0.17 → 0.38**, mức văn bản 0.51 → 0.60, và trên 36 câu
+  0.72 → 0.78; gate stale-avoidance vẫn 36/36 (`docs/EVAL-IR.md` §7). Mốc T16 phải vượt vì thế
+  **cao lên**: reranker giờ phải đánh bại R@1 mức điều 0.38, không phải 0.17. Đo lại mốc đó trước
+  khi bắt đầu.
 
 ### [ ] T17 · Ngưỡng điểm τ + fallback "không đủ căn cứ"
 

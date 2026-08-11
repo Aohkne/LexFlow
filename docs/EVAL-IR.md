@@ -176,6 +176,10 @@ Nạp thêm văn bản sẽ mở khoá thêm câu (tính tham lam trên 251 câu
 44 văn bản còn thiếu, chia theo trong/ngoài phạm vi sản phẩm: `research/crawl_list_eval.txt`
 (T20 trong `docs/TASKLIST.md`).
 
+> **Hai bảng dưới đây đo TRƯỚC khi hạ trọng số nhánh thưa** (§7, cùng ngày). Chúng vẫn đúng như
+> bằng chứng cho quyết định đó, nhưng **không** phải số của bản hiện tại — cột LexFlow nay cao
+> hơn. Đo lại cả hai bộ với trọng số mới là việc còn nợ.
+
 ### Kết quả — `bo_tvpl_hien_nay.jsonl`, 76 câu, đo 2026-08-11
 
 `eval/results/20260811-051219-bo_tvpl_hien_nay.json`, 76/76 câu chạy được, 0 lỗi. Index: LanceDB
@@ -266,7 +270,39 @@ citation 64→71): ở `as_of` trong cửa sổ, không có văn bản nào bị
 qua. Router nắn 150 trích dẫn, 0 hit bị loại vì bãi bỏ, 9/75 câu khác kết quả — nhưng không đổi
 citation_accuracy, cùng lý do như bộ kia.
 
-## 7. Vì sao KHÔNG so trực tiếp với bảng số của bài báo
+## 7. Trọng số nhánh thưa trong RRF — 1.0 → 0.1 (11/08)
+
+Bảng mức điều ở §6 cho thấy nhánh BM25 kéo kết quả xuống. `eval/quet_trong_so.py` kiểm điều đó
+trực tiếp: **truy hồi một lượt cho mỗi câu, quét nhiều trọng số trong bộ nhớ** — RRF là phép xếp
+hạng thuần trên hai danh sách đã có, nên chạy full benchmark cho từng trọng số vừa mất mỗi lần một
+giờ vừa không cho thêm thông tin nào.
+
+Kết quả trên **cả ba** bộ câu hỏi (R@1 · F2@2):
+
+| bộ / mức | w = 1.0 (cũ) | w = 0.1 | w = 0 |
+|---|---|---|---|
+| `bo_tvpl_dung_thoi` · **điều** | 0.17 · 0.25 | 0.38 · 0.52 | **0.42 · 0.55** |
+| `bo_tvpl_dung_thoi` · văn bản | 0.51 · 0.64 | 0.60 · 0.73 | **0.60 · 0.75** |
+| `questions.jsonl` (36 câu) | 0.72 · 0.79 | 0.78 · 0.81 | **0.78 · 0.83** |
+| `bo_tvpl_hien_nay` | 0.65 · 0.73 | **0.64 · 0.76** | 0.62 · 0.76 |
+
+Đơn điệu và cùng chiều ở mọi bộ: ở trọng số cân bằng, nhánh thưa là **lỗ ròng**. Nặng nhất ở mức
+điều, đúng như §6 đoán — BM25 tìm ra đúng văn bản nhưng không phân biệt nổi điều nào trong đó
+(R@20 mức điều 0.21 so với 0.82 ở mức văn bản), nên hợp nhất ngang trọng số đẩy các điều **sai**
+của **đúng văn bản** lên top.
+
+**Chốt 0.1, không phải 0.** Lấy gần hết phần lợi ở mọi bộ, và ở `bo_tvpl_hien_nay` còn nhỉnh hơn
+w=0. Đặt 0 sẽ là kết luận rộng hơn bằng chứng: ba bộ này đều là câu hỏi diễn đạt tự nhiên, chưa ép
+loại truy vấn mà khớp từ khoá chính xác mới có giá trị (số hiệu, số tiền, tên định chế). Và T8 nói
+index BM25 **hỏng**, không nói truy hồi thưa vô giá trị — đặt 0 là chôn luôn khả năng T8 cứu lại
+nhánh này. Hằng số ở `app/knowledge/retrieval.py::TRONG_SO_THUA`.
+
+Xác nhận bằng lượt chạy thật (`eval/results/20260811-095117.json`): `n_errors` 0/36,
+`citation_accuracy` 36/36, **`stale_avoidance` 36/36** (gate hồi quy giữ nguyên), `conflict_recall`
+6/7, và `R@1` cột LexFlow **0.72 → 0.78** — khớp đúng con số sweep dự đoán, tức phép quét trong bộ
+nhớ tái lập được đường thật.
+
+## 8. Vì sao KHÔNG so trực tiếp với bảng số của bài báo
 
 | | Bài báo | LexFlow |
 |---|---|---|
@@ -279,7 +315,7 @@ citation_accuracy, cùng lý do như bộ kia.
 Với 26 văn bản, `R@20` sẽ bão hoà gần 1.0 và mất khả năng phân biệt — đó là tính chất của mẫu nhỏ,
 không phải bằng chứng hệ tốt. Bảng ở §5 chỉ dùng để **so các cột với nhau trên cùng corpus**.
 
-## 8. Cảnh báo khi đọc số
+## 9. Cảnh báo khi đọc số
 
 - **Index có thể cũ.** `docs/TASKLIST.md` T1: LanceDB Cloud còn giữ chunk cũ của `TT66-2025 Điều 6`.
   Ghi ngày đo và trạng thái index cạnh mỗi bảng kết quả.
@@ -289,7 +325,7 @@ không phải bằng chứng hệ tốt. Bảng ở §5 chỉ dùng để **so c
   mà tên trường đổi theo thì `retrieval._lay_diem` **ném lỗi** thay vì âm thầm cho điểm 0 — nếu
   thấy `KeyError` từ đó, đây là chỗ cần sửa, không phải bỏ qua.
 
-## 9. Chưa làm (khoảng cách còn lại so với bài báo)
+## 10. Chưa làm (khoảng cách còn lại so với bài báo)
 
 Xem `docs/TASKLIST.md` (nhóm "Khoảng cách với bài báo SBV-LawGraph"): cross-encoder rerank, ngưỡng
 điểm τ trên đường sản phẩm, NER câu hỏi → anchor đồ thị, hậu kiểm `HasCitations`/`EvidenceMismatch`,
