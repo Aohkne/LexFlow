@@ -342,6 +342,13 @@ class ActorCU(GroundedUnit):
     # Tương ứng condition {"all": [...]} / {"any": [...]} của GraphCompliance.
     logic: Literal["all", "any", "unknown"] = "unknown"
     conditions: list[ConditionItem] = Field(default_factory=list)
+    # Tình thái + ngưỡng — GÁN TẤT ĐỊNH ở build_actor_cu từ text đã neo, không phải
+    # lời khai của LLM. 6 nhãn VN thay cho must/must_not/may: "chỉ được…khi" và
+    # miễn trừ nghĩa vụ bị 3 nhãn Tây đọc ngược nghĩa. Xem spec 2026-08-11.
+    modality: Literal[
+        "nghia_vu", "cam", "cho_phep", "chi_duoc", "mien_tru", "khong_ro"
+    ] = "khong_ro"
+    nguong: list[Nguong] = Field(default_factory=list)
 
 
 class MetaCU(GroundedUnit):

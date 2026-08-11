@@ -20,7 +20,10 @@ from collections import Counter
 from app.core.llm import chat_json
 from app.ontology.citation import parse_citations, to_node_ids
 from app.ontology.modality import (
+    boc_nguong,
     explain,
+    gan_modality,
+    groups_in,
     modality_delta,
     relax_absence,
     relax_dereference,
@@ -578,6 +581,22 @@ def build_actor_cu(
     errors += e
     warnings += w
 
+    modality = gan_modality(action.text)
+    khoan_text = dieu.text[khoan.start:khoan.end]
+    if modality == "khong_ro" and groups_in(khoan_text) & {"nghia_vu", "cam", "chi_duoc"}:
+        warnings.append(
+            "tinh_thai_kho: action không mang dấu hiệu tình thái nhưng khoản có "
+            "ràng buộc cứng — cần người xem lại field action"
+        )
+    nguong = []
+    fields = [(action.text, action.grounding.char_span)] + [
+        (c.text, c.grounding.char_span) for c in conditions
+    ]
+    for f_text, span in fields:
+        ns, ws = boc_nguong(f_text, offset=span[0] if span else 0)
+        nguong += ns
+        warnings += ws
+
     refs, hep_hon = _resolve_references(khoan, dieu)
     return ActorCU(
         id=khoan.id,
@@ -586,6 +605,8 @@ def build_actor_cu(
         action=action,
         logic=_logic(data),  # type: ignore[arg-type]
         conditions=conditions,
+        modality=modality,  # type: ignore[arg-type]
+        nguong=nguong,
         references=refs,
         references_hep_hon=hep_hon,
         warnings=warnings,
