@@ -174,3 +174,44 @@ set local request.jwt.claims = '{"app_metadata":{"role":"admin"}}';
 select public.is_admin();   -- kỳ vọng: true
 rollback;
 ```
+
+## Nạp văn bản từ vbpl
+
+Nguồn thật của corpus là **crawl vbpl.vn**, không phải upload PDF. Bản crawl mang cây
+`provisions`, `char_span` khớp từng ký tự, `so_hieu` và bảng thuộc tính — thứ mà
+`extract_document` (regex + Gemini) không dựng lại được.
+
+Crawl **chạy trên máy chủ repo, không trên server**: vbpl nạp nội dung Điều/Khoản qua Server
+Action sau khi JS chạy, nên phải có Playwright + Chromium. Image production có gói Python
+`playwright` (`pyproject.toml:16`) nhưng `Dockerfile` không chạy `playwright install chromium`
+nên không có binary trình duyệt, và Cloud Run đang ở **512Mi** (đo 11/08) — dưới mức Chromium
+headless cần.
+
+```powershell
+# 1 — crawl (máy chủ repo)
+uv run python scripts/crawl_vbpl_batch.py danh_sach_url.txt
+#     → data/raw/vbpl/raw/<slug>.json  và  data/raw/vbpl/corpus/<slug>.json
+
+# 2 — upload `corpus/<slug>.json` ở /admin → xem JSON → gán relationships nếu có → Approve
+```
+
+`/documents/upload` nhận file `.json` đúng khuôn `CorpusDocument` và **bỏ qua extractor**.
+Không đúng khuôn thì 422 kèm lý do Pydantic — không âm thầm rơi về extractor.
+
+Quan hệ (`THAY_THE`/`BAI_BO`/…) vẫn **gán tay**, có chủ đích: mỗi cạnh trong
+`app/ingestion/nap_corpus.py::CANH_MOI` kèm `note` trích nguyên văn làm bằng chứng. Gán chúng
+trong ô `relationships` lúc bấm Approve.
+
+**Lớp phủ — giới hạn cần biết.** `data/overlay/lop_phu.json` dựng offline bởi
+`python -m app.ontology.dong_goi`, đọc `data/raw/vbpl` và `data/corpus.real.json` — cả hai chỉ
+có trên máy chủ repo. Nên văn bản vừa duyệt có chunk và có node, nhưng **không cạnh `TAC_DONG`
+nào** cho tới khi artefact được dựng lại và deploy: huy hiệu "điều bị tác động" không hiện gì,
+không lỗi, không cảnh báo.
+
+Chỉ cần khi văn bản mới **sửa đổi hoặc bãi bỏ** văn bản khác:
+
+```powershell
+uv run python -m app.ingestion.nap_corpus     # trộn vào corpus.real.json
+uv run python -m app.ontology.dong_goi        # dựng lại lop_phu.json
+gcloud run deploy lexflow-api --source . --region asia-southeast1 --allow-unauthenticated
+```

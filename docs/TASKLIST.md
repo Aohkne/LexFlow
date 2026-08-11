@@ -304,6 +304,24 @@ phải phát hiện lại.
 - **Bước đầu tiên:** mục cuối là một dòng xoá — làm luôn khi nào chạm `schemas.py`. Ba mục còn
   lại chỉ mở khi có triệu chứng thật.
 
+### [ ] T26 · `dong_goi` dựng lớp phủ từ corpus KHÔNG phải corpus đang phục vụ
+
+Từ khi T5 đưa canonical lên Supabase Storage, production đọc `legal-docs/corpus.json`, còn
+`data/corpus.real.json` trong image tụt xuống làm bản dự phòng — và nó là **ảnh chụp của lần
+build cuối**, không nhận được văn bản nào duyệt qua `/admin` sau đó.
+
+`app/ontology/dong_goi.py:203` đọc đúng file đóng gói ấy (`Path("data/corpus.real.json")`).
+Nghĩa là artefact lớp phủ đang được dựng từ một corpus **không phải** corpus đang phục vụ, và
+khoảng cách lớn dần theo mỗi lượt duyệt.
+
+- Vì sao quan trọng: cạnh `TAC_DONG` là thứ sinh ra huy hiệu "điều bị tác động" và modal đối
+  chiếu. Dựng nó từ một corpus cũ nghĩa là văn bản duyệt sau lần build cuối **không tồn tại**
+  với tầng lớp phủ, và không có gì báo.
+- Hôm nay chưa đau vì mới có ít lượt duyệt. Nó lớn tuyến tính theo số lượt.
+- **Bước đầu tiên:** cho `dong_goi` nhận đường dẫn corpus qua tham số (mặc định giữ nguyên
+  `data/corpus.real.json`), rồi thêm một lối tải canonical từ Storage về file tạm trước khi
+  dựng. Có `scripts/sync_corpus_storage.py` làm mẫu cho phần tải.
+
 ---
 
 ## Tài liệu lệch với thực tế

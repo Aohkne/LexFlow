@@ -6,6 +6,83 @@
 
 ---
 
+## 2026-08-11 (T3) — "admin" có hai định nghĩa, và một văn bản bịa lọt vào production
+
+> Phần lớn commit dưới đây mang dấu thời gian **10/08 chiều tối** (14:00–23:13); mục 10/08 đã
+> chốt trước khi đợt này bắt đầu nên ghi gọn ở đây thay vì chèn ngược. Hôm nay 11/08 chỉ thêm
+> commit tài liệu `9e9e517`.
+
+### T5 — luồng `/admin` duyệt văn bản
+
+- **Done (nguyên nhân gốc: "admin" có hai định nghĩa, không phải chuyện hiệu năng).** RLS
+  `is_admin()` đọc `public.profiles.role`, còn FastAPI `require_admin` và web (4 chỗ) đọc
+  `app_metadata.role` trong JWT — **không đường nào ghi sang đường kia**. Trigger
+  `handle_new_user` luôn đặt `profiles.role='staff'`, còn `app_metadata` thì không gì tự đặt.
+  Hệ quả là một cái bẫy đối xứng: đặt `profiles.role='admin'` thì FastAPI chặn ở cửa (403);
+  đặt `app_metadata.role='admin'` thì FastAPI cho qua rồi RLS chặn lúc ghi Storage. Luồng duyệt
+  **chưa bao giờ qua nổi cửa đầu tiên** — đó là lý do bucket `legal-docs` và bảng
+  `legal_documents` rỗng, không phải vì chưa ai thử. Migration `0007` cho RLS hỏi đúng chỗ hai
+  bên kia đang hỏi; bỏ luôn `security definer` vì hàm không còn đọc bảng nào.
+- **Decision: GIỮ cột `public.profiles.role`, không `drop`.** Lỗ hổng leo thang quyền ở policy
+  `"profiles: sửa của mình"` (thiếu `with check` nên user tự đặt `role='admin'` cho chính mình)
+  tồn tại **chỉ vì** `is_admin()` đọc cột đó — đổi hàm là nó tắt theo. `drop column` là lệnh
+  không lùi được trên dữ liệu thật, đổi lấy sự gọn mắt. Đề xuất `drop` là của chính tôi, tự rút
+  lại sau khi soi lại bằng thang ponytail.
+- **Done (nạp một văn bản thay vì ghi đè cả bảng).** `write_lancedb` gọi
+  `create_table(mode="overwrite")` — mỗi lượt duyệt là ghi đè bảng **đang phục vụ người dùng**
+  và embed lại toàn bộ chunk không hề đổi. `ingest_one_doc` (LanceDB `delete`+`add`) và
+  `push_one_doc` (Neo4j `MERGE` một node, xoá cạnh **có phạm vi** thay vì `DETACH DELETE` toàn
+  đồ thị). Đo 10/08: 661 chunk ≈ **52 s** so với 23 chunk của một thông tư ≈ **1,8 s**.
+- **Đính chính (giả thuyết của tôi sai).** Tôi nói đường duyệt sẽ **timeout**; đo thật thì cả
+  lượt duyệt hết ~90–120 s dưới trần 300 s — **không hề timeout**. Lý do làm ingest tăng dần
+  vẫn đúng nhưng là lý do **khác**: chi phí embed lại và việc bảng đang phục vụ bị ghi đè giữa
+  chừng. Ghi vào spec để không ai đi lại đường cụt này.
+- **SỰ CỐ — một văn bản bịa lọt vào production.** Một lượt chạy TDD ở pha RED đẩy thật
+  `TT99-2026` lên LanceDB Cloud (**661 → 662 hàng**) và Neo4j (**26 → 27 `Document`**). Phát
+  hiện được vì **không tin** một bản review kết luận lượt chạy 82 giây đó là vô hại. Đã dọn và
+  đếm lại về đúng mốc cũ: **661 chunk · 26 Document · 292 DonVi · 254 THUOC · 177 TAC_DONG ·
+  35 cạnh văn bản**. Lưới chặn hạ tầng (`tests/conftest.py`) ra đời từ đây: chặn
+  `vectordb.connect`, `graph.session`, `settings.supabase_url`.
+- **Done (`db.list_tables()` hỏng trên LanceDB Cloud).** Ném `HttpError 400:
+  PgCatalog::open_database() requires a table name`. Test vẫn xanh vì **con giả tự cài hàm đó
+  cho mình**. Đổi sang `table_names()`; `_FakeDB.list_tables()` nay **ném lỗi** để không con
+  giả nào che được nữa.
+- **Vết lặp đáng ghi: năm lần một test khẳng định an toàn về một đường nó chưa từng đi qua.**
+  Đều cùng một hình dạng — đúng mã trả về, sai hoàn toàn lý do (ca gần nhất: 422 vì
+  `_cam_extractor` nổ `AssertionError` bị `except Exception` nuốt, chứ không phải vì hàng rào
+  `kiem_doc_id` chặn). Cách bịt cũng chỉ một: ghim **nội dung** lỗi, đừng ghim mỗi mã số.
+- **Ship.** PR **#15** (`9c592ba`) và **#17** (`af27137`) đã merge. Cấp quyền admin chạy thật
+  trên production bằng SQL trên `auth.users.raw_app_meta_data` — chủ repo xác nhận thấy mục
+  "Quản trị văn bản" sau khi đăng xuất/đăng nhập lại. Tài liệu `ARCHITECTURE.md` thay các bước
+  Dashboard **chưa hề kiểm** bằng đúng đoạn SQL đã chạy được.
+
+### Nạp văn bản vbpl qua `/admin`
+
+- **Done (một nhánh `if`, không phải một endpoint).** Nguồn thật của corpus là crawl vbpl, mà
+  `POST /documents/upload` luôn chạy `extract_document` (regex tách Điều + Gemini đoán
+  metadata) — tức **vứt** cây `provisions`, `char_span`, `so_hieu`, bảng thuộc tính rồi đoán
+  lại một thứ đã đọc được chính xác. Kiểm 10/08: 22 file `data/raw/vbpl/corpus/*.json` **vốn đã
+  đúng khuôn `CorpusDocument`** — không cần chuyển đổi khuôn dạng nào, cả tính năng rút về một
+  nhánh rẽ theo đuôi file. JSON hỏng thì **422 kèm lý do Pydantic**, không âm thầm rơi về
+  extractor (rơi về là biến file hỏng thành văn bản trông như thật với vài điều rỗng).
+- **Decision: crawl trên máy chủ repo, `/admin` nhận kết quả.** Crawl bắt buộc có Playwright +
+  Chromium; image có gói Python `playwright` nhưng `Dockerfile` không chạy
+  `playwright install chromium`, và Cloud Run ở **512Mi** (đo 11/08). Thêm ~150 MB trình duyệt
+  và nâng RAM bốn lần cho một thao tác vài lần một tuần, ngay trước kỳ đánh giá — không đáng.
+- **Ship.** `6b6fd4e`, `40ce479`, `9e9e517`. **801 test xanh**, ruff sạch.
+- **Nợ mở: T26** — `dong_goi` dựng lớp phủ từ `data/corpus.real.json` trong image, tức **ảnh
+  chụp của lần build cuối**, trong khi production đọc canonical trên Storage. Artefact lớp phủ
+  đang được dựng từ một corpus **không phải** corpus đang phục vụ; khoảng cách lớn dần theo mỗi
+  lượt duyệt. (Plan gọi mục này là T23, nhưng T23–T25 đã bị nhánh compliance chiếm ở PR #18.)
+- **Next.** (1) **Nghiệm thu T5 trên production** — chưa làm: cần một lượt upload + Approve
+  thật, kiểm 4 thứ, trong đó 2 là bất biến (số chunk của **văn bản khác** không đổi; `THUOC`
+  vẫn **254**). Đó mới là phép kiểm thật cho `ingest_one_doc`. (2) **Nhánh `.json` chưa lên
+  production**: revision đang phục vụ là `lexflow-api-00024-jsv`, tạo 10/08 21:38 — **trước**
+  cả PR #17 lẫn các commit vbpl. Muốn dùng ở `/admin` thì phải deploy lại. (3) Mở PR cho
+  `feat/software`.
+
+---
+
 ## 2026-08-10 (CN) — mã, dữ liệu và đồ thị khớp nhau; và một cạnh tác động không có thật
 
 - **Done (compliance — `conflict_recall` 6/7 → 7/7).** Ca trượt là *"Số dư tối đa trên thẻ trả

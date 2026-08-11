@@ -158,19 +158,43 @@ async def upload_document(
         user.token, storage_path, content, file.content_type or "application/octet-stream"
     )
 
-    # Extract (tái dùng extractor CLI) — ghi file tạm đúng đuôi để chọn parser
-    from app.ingestion.extract import extract_document
+    # Bản crawl vbpl mang cây `provisions`, `char_span`, `so_hieu` và bảng thuộc tính. Đẩy nó
+    # qua `extract_document` (regex tách Điều + Gemini đoán metadata) là VỨT hết rồi đoán lại
+    # một thứ đã đọc được chính xác. File `.json` đúng khuôn thì dùng thẳng.
+    if Path(filename).suffix.lower() == ".json":
+        from pydantic import ValidationError
 
-    suffix = Path(filename).suffix or ".txt"
-    with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
-        tmp.write(content)
-        tmp_path = Path(tmp.name)
+        try:
+            doc = CorpusDocument.model_validate_json(content)
+        except ValidationError as exc:
+            # KHÔNG rơi về extractor. Rơi về là biến một file hỏng thành một văn bản trông
+            # như thật với vài điều rỗng — hỏng phải đọc kỹ mới thấy.
+            raise HTTPException(
+                status_code=422, detail=f"JSON không đúng khuôn CorpusDocument: {exc}"
+            ) from exc
+    else:
+        # Extract (tái dùng extractor CLI) — ghi file tạm đúng đuôi để chọn parser
+        from app.ingestion.extract import extract_document
+
+        suffix = Path(filename).suffix or ".txt"
+        with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
+            tmp.write(content)
+            tmp_path = Path(tmp.name)
+        try:
+            doc = extract_document(tmp_path, source=source)
+        except Exception as exc:  # noqa: BLE001
+            raise HTTPException(status_code=422, detail=f"Extract thất bại: {exc}") from exc
+        finally:
+            tmp_path.unlink(missing_ok=True)
+
+    # Gác CHUNG cho cả hai nhánh: `doc_id` chảy vào chuỗi điều kiện của `tbl.delete(...)` ở
+    # bước duyệt, và nó có thể đến từ JSON sửa tay HOẶC từ metadata Gemini đoán.
+    from app.ingestion.pipeline import kiem_doc_id
+
     try:
-        doc = extract_document(tmp_path, source=source)
-    except Exception as exc:  # noqa: BLE001
-        raise HTTPException(status_code=422, detail=f"Extract thất bại: {exc}") from exc
-    finally:
-        tmp_path.unlink(missing_ok=True)
+        kiem_doc_id(doc.doc_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
 
     appdb.insert_document(
         user.token,

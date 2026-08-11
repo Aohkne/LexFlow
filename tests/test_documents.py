@@ -9,6 +9,7 @@ from fastapi.testclient import TestClient
 
 from app.core import appdb
 from app.core.config import settings
+from app.core.schemas import CorpusDocument
 from app.main import app
 
 SECRET = "test-secret-0123456789-0123456789-xx"
@@ -388,3 +389,100 @@ def test_approve_khong_doc_duoc_canonical_thi_502_chu_khong_de_ban_dong_goi_len(
     assert fake_store["rows"]["TT99-2026"]["status"] == "pending"
     assert fake_store["ingested"] == 0, "chưa đọc được canonical thì không được nạp gì"
     assert "doc_approve_failed" in fake_store["audit"]
+
+
+# --- Nạp thẳng bản đã crawl từ vbpl (không qua extractor) ---
+
+#: File thật trong repo, không bịa: 3 điều, 3 nút cây, có bảng thuộc tính và char_span.
+_FILE_CRAWL = (
+    "data/raw/vbpl/corpus/"
+    "thong-tu-21-2026-tt-nhnn-sua-doi-bo-sung-dieu-15-thong-tu-so-15-2024-tt-nhnn-quy.json"
+)
+
+
+def _cam_extractor(monkeypatch):
+    """Bắt quả tang nếu extractor chạy — chạy là mất provisions/so_hieu/char_span."""
+    import app.ingestion.extract as extract_mod
+
+    def _no(*_a, **_kw):
+        raise AssertionError("extract_document chạy trên file đã đúng khuôn CorpusDocument")
+
+    monkeypatch.setattr(extract_mod, "extract_document", _no)
+
+
+def test_upload_json_da_crawl_giu_nguyen_cay_va_thuoc_tinh(client, fake_store, monkeypatch):
+    """Bản crawl giàu hơn hẳn bản extract — đẩy nó qua regex + Gemini là vứt hết rồi đoán lại."""
+    from pathlib import Path
+
+    _cam_extractor(monkeypatch)
+    noi_dung = Path(_FILE_CRAWL).read_bytes()
+
+    r = client.post(
+        "/documents/upload",
+        files={"file": (Path(_FILE_CRAWL).name, noi_dung, "application/json")},
+        headers={"Authorization": f"Bearer {_token('admin')}"},
+    )
+
+    assert r.status_code == 200, r.text
+    assert r.json()["doc_id"] == "TT21-2026"
+    luu = fake_store["rows"]["TT21-2026"]["extracted"]
+    assert luu["so_hieu"] == "21/2026/TT-NHNN"
+    assert len(luu["provisions"]) == 3, "cây điều khoản phải sống sót"
+    assert luu["co_quan_ban_hanh"] == "Ngân hàng Nhà nước Việt Nam"
+    assert luu["articles"][0]["char_start"] == 958, "char_span phải giữ nguyên từng con số"
+
+
+def test_upload_json_hong_thi_422_chu_khong_roi_ve_extractor(client, fake_store, monkeypatch):
+    """Rơi về extractor là biến một file hỏng thành văn bản trông như thật với vài điều rỗng."""
+    _cam_extractor(monkeypatch)
+
+    r = client.post(
+        "/documents/upload",
+        files={"file": ("hong.json", b'{"doc_id": "TT99-2026"}', "application/json")},
+        headers={"Authorization": f"Bearer {_token('admin')}"},
+    )
+
+    assert r.status_code == 422, r.text
+    assert "title" in r.text, "phải nói rõ thiếu trường nào, không nuốt lý do"
+    assert fake_store["rows"] == {}, "không được tạo bản ghi pending cho file hỏng"
+
+
+def test_upload_json_doc_id_ban_bi_chan(client, fake_store, monkeypatch):
+    """`doc_id` chảy vào chuỗi điều kiện của `tbl.delete` ở bước duyệt — chặn từ cửa vào."""
+    import json
+
+    _cam_extractor(monkeypatch)
+    xau = json.dumps({**_DOC, "doc_id": "TT99'; --"}, ensure_ascii=False).encode("utf-8")
+
+    r = client.post(
+        "/documents/upload",
+        files={"file": ("xau.json", xau, "application/json")},
+        headers={"Authorization": f"Bearer {_token('admin')}"},
+    )
+
+    assert r.status_code == 422, r.text
+    assert "doc_id không hợp lệ" in r.text, "phải ghim đúng lý do là kiem_doc_id từ chối"
+    assert fake_store["rows"] == {}
+
+
+def test_upload_pdf_van_di_duong_extractor(client, fake_store, monkeypatch):
+    """Đường cũ không được đụng: văn bản nội bộ SHB không có trang vbpl để cào."""
+    import app.ingestion.extract as extract_mod
+
+    duoi_da_thay: list[str] = []
+
+    def _gia(path, source="external"):
+        duoi_da_thay.append(path.suffix)
+        return CorpusDocument.model_validate(_DOC)
+
+    monkeypatch.setattr(extract_mod, "extract_document", _gia)
+
+    r = client.post(
+        "/documents/upload",
+        files={"file": ("quy-dinh.pdf", b"%PDF-1.7 gia", "application/pdf")},
+        headers={"Authorization": f"Bearer {_token('admin')}"},
+    )
+
+    assert r.status_code == 200, r.text
+    assert duoi_da_thay == [".pdf"], "file không phải .json vẫn phải qua extractor"
+    assert fake_store["rows"]["TT99-2026"]["status"] == "pending"
