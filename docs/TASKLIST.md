@@ -407,7 +407,13 @@ Chủ repo tự chuẩn bị — đã nói rõ 07/08: "về bộ câu hỏi thì
 ### [ ] T5 · Nghiệm thu luồng `/admin` trên production — chỉ còn một lượt bấm
 
 Hạ ưu tiên 11/08 theo quyết định của chủ repo: **mã đã xong, chỉ còn phần phải có tay người và
-một tài khoản admin thật.**
+một tài khoản admin thật.** Cùng ngày, chủ repo **tạm gác hẳn tính năng** để ưu tiên tầng AI.
+
+**Đang có một bản ghi `pending` chưa duyệt** — chủ repo thử upload thành công 11/08 06:55 (log
+Cloud Run: `POST /documents/upload` 200, ~17 s) rồi cố ý **không bấm Approve** để chưa làm loãng
+corpus. Bản ghi đó nằm trong `legal_documents` cùng file gốc ở `uploads/`; canonical, LanceDB và
+Neo4j chưa bị đụng. Ai mở lại mục này thì xử lý nó trước: duyệt, hoặc `reject` (chỉ đổi `status`,
+không xoá gì).
 
 Đã xong (11/08): `is_admin()` đọc `app_metadata.role` (migration `0007`) nên đường duyệt qua
 được RLS · `ingest_one_doc`/`push_one_doc` nạp một văn bản thay vì ghi đè bảng đang phục vụ ·
