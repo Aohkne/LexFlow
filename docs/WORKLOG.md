@@ -48,9 +48,26 @@
   bản** lên trên. Đây là số cụ thể cho **T8** (trước nay chỉ là nhận định) và là căn cứ để làm
   **T16** (cross-encoder rerank) trước các mục khác — "đúng văn bản, sai thứ tự điều" đúng là dạng
   lỗi reranker sửa.
-- **Ship.** README + `docs/EVAL-IR.md` §6 có cả hai bảng. `20260811-051219-bo_tvpl_hien_nay.json`,
-  `20260811-080300-bo_tvpl_dung_thoi.json`.
-- **Next.** (1) **T16 cross-encoder rerank** — nay đã có thước để chứng minh nó đáng hay không.
+- **Done — và tầng đo lập tức trả công: hạ trọng số nhánh thưa, R@1 mức điều 0.17 → 0.38.**
+  `eval/quet_trong_so.py` truy hồi **một lượt** mỗi câu rồi quét 6 trọng số **trong bộ nhớ** (RRF
+  là phép xếp hạng thuần trên hai danh sách đã có; chạy full benchmark cho từng trọng số mất mỗi
+  lần một giờ mà không thêm thông tin). Kết quả đơn điệu và cùng chiều trên **cả ba** bộ câu hỏi:
+  ở trọng số cân bằng, nhánh BM25 là **lỗ ròng**. Hạ `TRONG_SO_THUA` 1.0 → **0.1**.
+- **Decision — 0.1 chứ không phải 0.** w=0 nhỉnh hơn ở mức điều (0.42 vs 0.38) nhưng đó là kết
+  luận rộng hơn bằng chứng: ba bộ đo đều là câu hỏi diễn đạt tự nhiên, chưa ép loại truy vấn mà
+  khớp từ khoá chính xác mới có giá trị (số hiệu, số tiền, tên định chế). T8 nói index BM25
+  **hỏng**, không nói truy hồi thưa vô giá trị — đặt 0 là chôn luôn khả năng T8 cứu lại nhánh này.
+- **Gate sau khi đổi** (`eval/results/20260811-095117.json`): `n_errors` 0/36, citation 36/36,
+  **stale-avoidance 36/36**, conflict 6/7, `R@1` cột LexFlow 0.72 → **0.78** — khớp đúng con số
+  sweep dự đoán, tức phép quét trong bộ nhớ tái lập được đường thật. 775 test xanh (6 test mới ghim
+  cách RRF cân hai nhánh), ruff sạch.
+- **T16 đắt hơn trước.** Mốc reranker phải vượt nay là R@1 mức điều **0.38**, không còn là 0.17 —
+  phần dễ đã lấy xong bằng một hằng số, không tốn lượt gọi API nào.
+- **Ship.** README + `docs/EVAL-IR.md` §6–§7 + `docs/RAG-DESIGN.md` §7.
+  `20260811-051219-bo_tvpl_hien_nay.json`, `20260811-080300-bo_tvpl_dung_thoi.json`,
+  `20260811-095117.json`. **Lưu ý:** hai bảng §6 đo *trước* khi đổi trọng số, chưa đo lại.
+- **Next.** (0) Đo lại hai bộ TVPL với trọng số mới để §6 khỏi lệch. (1) **T16 cross-encoder
+  rerank** — nay đã có thước, và có mốc phải vượt.
   (2) Cào đợt đầu 5 văn bản trong phạm vi (`88/2019/NĐ-CP`, `28/2005/PL-UBTVQH11`,
   `32/2013/TT-NHNN`, `1155/2017/NHCS-KTTC`, Luật các TCTD 2010 + Luật NHNN 2010) — +48 câu.
   (3) Correctness bằng LLM-judge dùng `long_answer` sẵn có, không cần cào thêm gì.
