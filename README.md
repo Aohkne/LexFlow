@@ -137,7 +137,13 @@ Ba cột baseline không có khái niệm `as_of` nên trả cùng kết quả �
 
 Baseline trả về văn bản đã hết hiệu lực ở **65/76** câu; LexFlow không câu nào. BM25 gần như không
 đúng ở hạng 1 (R@1 = 0.02) vì câu hỏi được viết *từ* văn bản cũ nên khớp từ vựng bị hút về đúng
-văn bản đã chết. Cách đo, mẫu số và các cảnh báo: `docs/EVAL-IR.md` §6.
+văn bản đã chết.
+
+Nhưng bảng ở **mức điều** (bộ `bo_tvpl_dung_thoi`, 71 câu có nhãn cấp điều) nói ngược: R@1 của
+Naive RAG là 0.26 còn LexFlow 0.15 — LexFlow tìm đúng *văn bản* sớm nhưng đẩy đúng *điều* lên
+muộn, chỉ vượt lên ở R@20 (0.90 so với 0.85). Nguyên nhân là nhánh BM25 gần như vô dụng ở mức điều
+(R@20 = 0.21) nên kéo các điều sai của đúng văn bản lên. Cách đo, mẫu số và các cảnh báo:
+`docs/EVAL-IR.md` §6.
 
 ## Định dạng corpus
 

@@ -121,7 +121,11 @@ nhưng đó là trần độ phủ hiện tại. Muốn nâng thì phải **mở
 - Bất đối xứng: text đem **embed** là `"{doc_title} — {article}: {text}"` (có tiêu đề làm ngữ
   cảnh), text đem **index BM25** chỉ là `text` trần. Hỏi "Thông tư 40 quy định gì" thì nhánh
   vector bắt được tên văn bản, nhánh BM25 không.
-- Chưa đo tác động — cần một bộ câu hỏi có số hiệu/thuật ngữ ghép để biết mất bao nhiêu.
+- ~~Chưa đo tác động.~~ **Đã đo 11/08** trên 71 câu có nhãn cấp điều: BM25 ở **mức điều** đạt
+  R@1 = 0.02 và **R@20 = 0.21** — gần như vô dụng, trong khi chính nó ở mức văn bản đạt R@20 0.82.
+  Tức nó tìm được đúng văn bản nhưng không phân biệt nổi điều nào trong đó. Vì `hybrid_search` hợp
+  nhất nhánh này qua RRF, nó kéo các điều **sai** của **đúng văn bản** lên top và làm LexFlow xếp
+  hạng mức điều thua cả dense thuần từ R@1 tới R@10. Xem `docs/EVAL-IR.md` §6.
 
 ### [ ] T20 · Corpus phủ 4/37 văn bản mà bộ eval TVPL hỏi tới
 
@@ -156,9 +160,17 @@ sau nếu bảng đo cho thấy mẫu 76 câu chưa đủ phân biệt.
 Bài báo (§4.3) xếp lại top-k bằng ViRanker + `bge-reranker-v2-m3`; `docs/RAG-DESIGN.md:116` chốt
 "không reranker cross-encoder ở quy mô này" — quyết định lấy từ hồi corpus 15 văn bản.
 
-- Bước đầu: đo cột `lexflow` hiện tại ở R@1 vs R@5. Chênh lệch lớn = thứ hạng đang kém và rerank
-  có chỗ để cải thiện; chênh lệch nhỏ = rerank chỉ tốn thêm một lượt gọi API.
+- ~~Bước đầu: đo cột `lexflow` ở R@1 vs R@5.~~ **Đã đo 11/08** (`bo_tvpl_dung_thoi`, 71 câu có
+  nhãn cấp điều) và kết quả nói nên làm: ở **mức điều**, LexFlow R@1 = 0.15 → R@20 = 0.90, tức
+  đúng điều gần như luôn nằm trong top-20 nhưng **không** nằm ở đầu. Tệ hơn, dense thuần xếp hạng
+  tốt hơn LexFlow từ R@1 tới R@10 (0.26/0.44/0.71/0.80 so với 0.15/0.28/0.57/0.78). "Đúng văn bản,
+  sai thứ tự điều" đúng là dạng lỗi cross-encoder sửa. Xem `docs/EVAL-IR.md` §6.
+- Bước tiếp: rerank top-20 của cột `lexflow` ở **mức điều**, đo lại đúng bảng đó. Mục tiêu tối
+  thiểu là R@1 mức điều vượt 0.26 của Naive RAG — không đạt thì reranker không đáng một lượt gọi API.
 - Chủ repo đã chốt dùng **cloud/API** (Gemini hoặc rerank API), không tải model HF về máy yếu.
+- Cân nhắc rẻ hơn trước khi làm T16: phần lớn thiệt hại đến từ nhánh BM25 (T8), R@20 mức điều chỉ
+  0.21. Hạ trọng số nhánh thưa trong `_rrf`, hoặc sửa index theo T8, có thể lấy lại phần lớn mà
+  không thêm lượt gọi nào.
 
 ### [ ] T17 · Ngưỡng điểm τ + fallback "không đủ căn cứ"
 

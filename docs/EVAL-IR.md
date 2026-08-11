@@ -217,7 +217,54 @@ Bốn điều bảng này nói:
   trích dẫn đổi *nội dung* trích dẫn chứ chưa đổi *văn bản* được trả về, nên mức văn bản không
   thấy. Muốn đo nó phải có nhãn cấp điều ở luật hiện hành, tức phải gán tay.
 
-Bộ `bo_tvpl_dung_thoi.jsonl` **chưa đo** — mỗi lượt 76 câu mất khoảng một giờ trên máy hiện tại.
+### Kết quả — `bo_tvpl_dung_thoi.jsonl`, 75/76 câu, đo 2026-08-11
+
+`eval/results/20260811-080300-bo_tvpl_dung_thoi.json`. Một câu rơi vì `HttpError` thoáng qua từ
+LanceDB Cloud — try/except mỗi câu bắt đúng như thiết kế, **mẫu số là 75, không phải 76**.
+Retrieval p50 3594 ms.
+
+citation_accuracy: baseline 64/75 · hybrid 64/75 · **+graph 67/75**. `stale_avoidance` bằng 1.0 ở
+mọi cột nhưng **rỗng nghĩa** — bộ này không có `must_not_doc` (ở `as_of` trong cửa sổ thì không
+văn bản nào là lỗi thời), nên chỉ số đó mặc định đúng chứ không đo gì.
+
+| Mức **văn bản** (75 câu) | R@1 | R@2 | R@5 | R@10 | R@20 | MRR@2 | P@2 | F2@2 |
+|---|---|---|---|---|---|---|---|---|
+| BM25 | 0.04 | 0.09 | 0.49 | 0.82 | 0.82 | 0.07 | 0.05 | 0.07 |
+| Naive RAG | 0.37 | 0.62 | 0.92 | 0.92 | 0.92 | 0.50 | 0.32 | 0.52 |
+| Advanced RAG | 0.07 | 0.17 | 0.53 | 0.93 | 0.95 | 0.13 | 0.09 | 0.14 |
+| **LexFlow hybrid** | **0.51** | **0.76** | 0.92 | **0.99** | **0.99** | **0.64** | **0.39** | **0.64** |
+| LexFlow +graph | 0.51 | 0.76 | 0.92 | 0.99 | 0.99 | 0.64 | 0.39 | 0.64 |
+| LexFlow +router | 0.51 | 0.76 | 0.92 | 0.99 | 0.99 | 0.64 | 0.39 | 0.64 |
+
+| Mức **điều** (71 câu) | R@1 | R@2 | R@5 | R@10 | R@20 | MRR@2 | P@2 | F2@2 |
+|---|---|---|---|---|---|---|---|---|
+| BM25 | 0.02 | 0.05 | 0.10 | 0.13 | 0.21 | 0.05 | 0.04 | 0.05 |
+| **Naive RAG** | **0.26** | **0.44** | **0.71** | **0.80** | 0.85 | **0.36** | **0.23** | **0.37** |
+| Advanced RAG | 0.05 | 0.09 | 0.17 | 0.39 | 0.73 | 0.09 | 0.06 | 0.08 |
+| LexFlow hybrid | 0.15 | 0.28 | 0.57 | 0.78 | **0.90** | 0.24 | 0.15 | 0.24 |
+| LexFlow +graph | 0.15 | 0.28 | 0.57 | 0.78 | 0.90 | 0.24 | 0.15 | 0.24 |
+| LexFlow +router | 0.15 | 0.28 | 0.57 | 0.78 | 0.90 | 0.24 | 0.15 | 0.24 |
+
+**Đây là bảng mức điều đầu tiên của dự án, và nó lật một kết luận.** Ở mức văn bản LexFlow hơn mọi
+baseline (R@1 0.51 so với 0.37 của Naive RAG). Ở mức điều thì **ngược lại từ R@1 tới R@10**: Naive
+RAG 0.26/0.44/0.71/0.80 so với LexFlow 0.15/0.28/0.57/0.78. Chỉ tới R@20 LexFlow mới vượt lên
+(0.90 so với 0.85).
+
+Đọc thẳng: **LexFlow tìm đúng *văn bản* sớm nhưng đẩy đúng *điều* lên muộn.** Trần phủ của nó cao
+hơn (R@20), phần xếp hạng trong nhóm đầu thì kém hơn dense thuần. Nguyên nhân nằm ở nhánh thưa của
+RRF: BM25 ở mức điều gần như vô dụng (R@1 0.02, R@20 0.21 — thua cả mức văn bản của chính nó rất
+xa), nên hợp nhất với nó kéo các điều sai của **đúng văn bản** lên trên. Đây là số đo cụ thể cho
+hai mục đã mở sẵn:
+
+- **T8** (BM25 không hiểu từ ghép tiếng Việt, không index tiêu đề) — trước nay chỉ là nhận định,
+  nay có số: R@20 mức điều 0.21.
+- **T16** (cross-encoder rerank sau RRF) — "đúng văn bản, sai thứ tự điều" đúng là dạng lỗi mà
+  reranker sửa. Bảng này là căn cứ để làm T16 trước các mục khác.
+
+`+graph` và `+router` không đổi gì ở cả hai mức trong bộ này (khác bộ `hien_nay`, nơi `+graph` nâng
+citation 64→71): ở `as_of` trong cửa sổ, không có văn bản nào bị thay thế để cạnh `THAY_THE` dẫn
+qua. Router nắn 150 trích dẫn, 0 hit bị loại vì bãi bỏ, 9/75 câu khác kết quả — nhưng không đổi
+citation_accuracy, cùng lý do như bộ kia.
 
 ## 7. Vì sao KHÔNG so trực tiếp với bảng số của bài báo
 
