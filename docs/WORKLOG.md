@@ -36,11 +36,24 @@
   bổ sung dữ liệu.
 - **Chạy nền bị kill hai lần** (36 câu dừng ở 30, TVPL dừng ở 48) vì tiến trình con bị dừng theo
   phiên. Cách chạy đúng là `Start-Process` tách hẳn — ghi lại ở đây để lần sau khỏi mất công.
-- **Ship.** README + `docs/EVAL-IR.md` §6 có bảng kết quả. Chưa đo `bo_tvpl_dung_thoi.jsonl`
-  (mỗi lượt 76 câu ≈ 1 giờ trên máy này).
-- **Next.** (1) Đo nốt `bo_tvpl_dung_thoi`. (2) Cào đợt đầu 5 văn bản trong phạm vi (`88/2019/NĐ-CP`,
-  `28/2005/PL-UBTVQH11`, `32/2013/TT-NHNN`, `1155/2017/NHCS-KTTC`, Luật các TCTD 2010 + Luật NHNN
-  2010) — +48 câu. (3) Correctness bằng LLM-judge dùng `long_answer` sẵn có, không cần cào thêm gì.
+- **Bảng mức điều đầu tiên của dự án — và nó lật một kết luận.** Chạy nốt `bo_tvpl_dung_thoi`
+  (75/76 câu; một câu rơi vì `HttpError` thoáng qua của LanceDB Cloud, try/except bắt đúng nên mẫu
+  số là 75). Bộ này có `relevant_articles` nên lần đầu đo được **mức điều**: ở mức **văn bản**
+  LexFlow hơn mọi baseline (R@1 0.51 vs Naive RAG 0.37), nhưng ở mức **điều thì ngược lại từ R@1
+  tới R@10** — Naive RAG 0.26/0.44/0.71/0.80 so với LexFlow 0.15/0.28/0.57/0.78, mãi tới R@20
+  LexFlow mới vượt (0.90 vs 0.85).
+- **Đọc thẳng: LexFlow tìm đúng *văn bản* sớm nhưng đẩy đúng *điều* lên muộn.** Trần phủ cao hơn,
+  xếp hạng trong nhóm đầu kém hơn dense thuần. Nguyên nhân ở nhánh thưa của RRF: BM25 mức điều gần
+  như vô dụng (R@1 0.02, **R@20 0.21**), nên hợp nhất với nó kéo các điều **sai** của **đúng văn
+  bản** lên trên. Đây là số cụ thể cho **T8** (trước nay chỉ là nhận định) và là căn cứ để làm
+  **T16** (cross-encoder rerank) trước các mục khác — "đúng văn bản, sai thứ tự điều" đúng là dạng
+  lỗi reranker sửa.
+- **Ship.** README + `docs/EVAL-IR.md` §6 có cả hai bảng. `20260811-051219-bo_tvpl_hien_nay.json`,
+  `20260811-080300-bo_tvpl_dung_thoi.json`.
+- **Next.** (1) **T16 cross-encoder rerank** — nay đã có thước để chứng minh nó đáng hay không.
+  (2) Cào đợt đầu 5 văn bản trong phạm vi (`88/2019/NĐ-CP`, `28/2005/PL-UBTVQH11`,
+  `32/2013/TT-NHNN`, `1155/2017/NHCS-KTTC`, Luật các TCTD 2010 + Luật NHNN 2010) — +48 câu.
+  (3) Correctness bằng LLM-judge dùng `long_answer` sẵn có, không cần cào thêm gì.
 
 ---
 
