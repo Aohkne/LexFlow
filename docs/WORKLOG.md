@@ -70,10 +70,11 @@
   `playwright install chromium`, và Cloud Run ở **512Mi** (đo 11/08). Thêm ~150 MB trình duyệt
   và nâng RAM bốn lần cho một thao tác vài lần một tuần, ngay trước kỳ đánh giá — không đáng.
 - **Ship.** `6b6fd4e`, `40ce479`, `9e9e517`. **801 test xanh**, ruff sạch.
-- **Nợ mở: T26** — `dong_goi` dựng lớp phủ từ `data/corpus.real.json` trong image, tức **ảnh
+- **Nợ mở: T27** — `dong_goi` dựng lớp phủ từ `data/corpus.real.json` trong image, tức **ảnh
   chụp của lần build cuối**, trong khi production đọc canonical trên Storage. Artefact lớp phủ
   đang được dựng từ một corpus **không phải** corpus đang phục vụ; khoảng cách lớn dần theo mỗi
-  lượt duyệt. (Plan gọi mục này là T23, nhưng T23–T25 đã bị nhánh compliance chiếm ở PR #18.)
+  lượt duyệt. (Plan gọi mục này là T23; T23–T25 đã bị nhánh compliance chiếm ở PR #18, rồi T26
+  bị chiếm nốt ở PR #19 — hai track đánh số song song nên đụng nhau hai lần trong một ngày.)
 - **Next.** (1) **Nghiệm thu T5 trên production** — chưa làm: cần một lượt upload + Approve
   thật, kiểm 4 thứ, trong đó 2 là bất biến (số chunk của **văn bản khác** không đổi; `THUOC`
   vẫn **254**). Đó mới là phép kiểm thật cho `ingest_one_doc`. (2) **Nhánh `.json` chưa lên

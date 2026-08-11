@@ -1,4 +1,6 @@
 """Endpoint vận hành: kích hoạt ingest, kiểm tra sức khoẻ."""
+import os
+
 from fastapi import APIRouter, Depends, HTTPException
 
 from app.core import appdb
@@ -16,12 +18,18 @@ def health() -> dict:
     `status` xuống `degraded` khi lớp phủ được BẬT mà artefact không nạp được: mọi thứ khác
     vẫn chạy (fail-open có chủ đích), nhưng badge hiệu lực cấp khoản vắng mặt trên toàn sản
     phẩm — thứ trước đây không có cách nào phát hiện ngoài việc tự đi hỏi một câu.
+
+    `commit` trả lời "production đang chạy mã nào". Cần vì `gcloud run deploy --source .` dựng
+    từ THƯ MỤC chứ không từ một git ref: hai track mỗi bên một worktree thì ai deploy sau đè
+    mất bên kia, im lặng, và triệu chứng đọc lên giống lỗi dữ liệu. `"không rõ"` nghĩa là ai đó
+    deploy tay mà không truyền `GIT_SHA` — xem mục "Deploy rules" trong `COMMIT-CONVENTION.md`.
     """
     from app.knowledge.lop_phu import tinh_trang
 
     overlay = tinh_trang()
     return {
         "status": "degraded" if overlay.get("bat") and not overlay.get("nap") else "ok",
+        "commit": os.environ.get("GIT_SHA") or "không rõ",
         "gemini_configured": bool(settings.gemini_api_key),
         "neo4j_configured": settings.neo4j_enabled,
         "supabase_auth": settings.supabase_auth_enabled,
