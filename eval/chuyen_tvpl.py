@@ -93,7 +93,7 @@ def _nhan_dieu(article: str | None) -> str | None:
     return f"Điều {m.group(1)}" if m else None
 
 
-def _truoc(ngay: str) -> str:
+def truoc_mot_ngay(ngay: str) -> str:
     """Ngày cuối cùng nhãn vàng còn đúng — `valid_to` là mốc **mở**, nên phải lùi một ngày."""
     return (date.fromisoformat(ngay) - timedelta(days=1)).isoformat()
 
@@ -141,7 +141,7 @@ def chuyen(rows: list[dict], corpus: dict, hom_nay: str) -> tuple[list[dict], li
             **chung,
             # Ngày cuối cửa sổ: mốc chặt nhất mà nhãn vàng còn đúng. Văn bản chưa hết hiệu lực
             # thì cửa sổ mở tới nay, lấy luôn hôm nay.
-            "as_of": _truoc(den) if den != XA else hom_nay,
+            "as_of": truoc_mot_ngay(den) if den != XA else hom_nay,
             "expected_doc": docs[0],
             "relevant_docs": docs,
             "relevant_articles": arts,

@@ -21,8 +21,9 @@ Chạy:
 from __future__ import annotations
 
 import re
+from collections import Counter
 
-from eval.chuyen_tvpl import chuan_so_hieu
+from eval.chuyen_tvpl import XA, chuan_so_hieu, cua_so, tra_cuu, truoc_mot_ngay
 
 _SO_DIEU = re.compile(r"^\d+[a-zđ]?$")
 _DIEU_TRONG_NHAN = re.compile(r"^Điều\s+(\d+[a-zđ]?)")
@@ -70,3 +71,68 @@ def dieu_co_that(corpus: dict) -> dict[str, set[str]]:
                 so.add(m.group(1))
         ra[d["doc_id"]] = so
     return ra
+
+
+def chuyen(
+    rows: list[dict], corpus: dict, hom_nay: str
+) -> tuple[list[dict], list[dict], Counter]:
+    """100 câu nguồn → (bộ dùng được, bộ không căn cứ, đếm lý do bị loại).
+
+    Ba nhánh, và ba nhánh đó phải cộng lại đúng bằng số câu vào — kiểm ở `main()`. Một câu biến
+    mất im lặng làm mẫu số nhỏ đi mà bảng vẫn trông bình thường.
+    """
+    so_hieu2id, hieu_luc, _ = tra_cuu(corpus)
+    co_that = dieu_co_that(corpus)
+    dung: list[dict] = []
+    khong_can_cu: list[dict] = []
+    bo: Counter = Counter()
+
+    for r in rows:
+        cap = [tach_nhan(a) for a in (r.get("relevant_articles") or [])]
+        if not cap:
+            bo["không có nhãn"] += 1
+            continue
+
+        labs = {lab for lab, _ in cap}
+        thieu = sorted(labs - set(so_hieu2id))
+        if thieu:
+            # Negative sạch: không văn bản nào trong câu này có mặt trong corpus. Câu trả lời
+            # đúng là "không đủ căn cứ" — dữ liệu cho T17, không phải câu bị hỏng.
+            khong_can_cu.append({
+                "query": r["question"],
+                "question_id": r["question_id"],
+                "van_ban_thieu": thieu,
+                "nguon": "sbv",
+            })
+            continue
+
+        docs = sorted({so_hieu2id[lab] for lab in labs})
+        cs = cua_so(docs, hieu_luc)
+        if cs is None:
+            bo["các văn bản không cùng hiệu lực (cửa sổ rỗng)"] += 1
+            continue
+        tu, den = cs
+
+        if any(sd not in co_that[so_hieu2id[lab]] for lab, sd in cap):
+            bo["nhãn trỏ vào điều không có trong corpus"] += 1
+            continue
+
+        dung.append({
+            "query": r["question"],
+            "question_id": r["question_id"],
+            "group": "sbv",
+            "nguon": "sbv",
+            # Tính từ cửa sổ chứ không hard-code hôm nay: khi một trong các văn bản bị thay thế,
+            # `as_of` tự lùi về ngày cuối cửa sổ thay vì lặng lẽ sai.
+            "as_of": truoc_mot_ngay(den) if den != XA else hom_nay,
+            "cua_so": [tu, None if den == XA else den],
+            "expected_doc": docs[0],
+            "relevant_docs": docs,
+            "relevant_articles": sorted(
+                {f"{so_hieu2id[lab]}::Điều {sd}" for lab, sd in cap}
+            ),
+            # KHÔNG có `must_not_doc`: bộ này không có mặt lỗi thời nào để đo, nên
+            # `stale_avoidance` sẽ bằng 1.0 và rỗng nghĩa — ghi rõ cạnh bảng, đừng tạo nhãn giả.
+        })
+
+    return dung, khong_can_cu, bo

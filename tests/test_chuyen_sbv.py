@@ -8,6 +8,7 @@ from __future__ import annotations
 import pytest
 
 from eval.chuyen_sbv import NhanHong, tach_nhan, dieu_co_that
+from eval.chuyen_sbv import chuyen  # thêm vào dòng import sẵn có
 
 
 def test_tach_tu_phai_khong_phai_tu_trai():
@@ -79,3 +80,91 @@ def test_van_ban_khong_co_dieu_nao_thi_tap_rong():
     corpus = {"documents": [{"doc_id": "X", "so_hieu": "1/2020/TT-NHNN", "articles": []}],
               "relationships": []}
     assert dieu_co_that(corpus) == {"X": set()}
+
+
+HOM_NAY = "2026-08-12"
+
+
+def _cau(arts: list[str], qid: int = 1) -> dict:
+    return {
+        "question_id": qid,
+        "question": "câu hỏi thử",
+        "url": "https://thuvienphapluat.vn/hoi-dap-phap-luat/x.html",
+        "relevant_articles": arts,
+        "reference_answer": "trả lời tham chiếu",
+    }
+
+
+def test_cau_du_van_ban_vao_bo_dung_duoc():
+    dung, kcc, bo = chuyen([_cau(["40/2024/tt-nhnn_18"])], _corpus(), HOM_NAY)
+    assert len(dung) == 1 and not kcc and not bo
+    assert dung[0]["relevant_articles"] == ["TT40-2024::Điều 18"]
+    assert dung[0]["relevant_docs"] == ["TT40-2024"]
+    assert dung[0]["expected_doc"] == "TT40-2024"
+    assert dung[0]["question_id"] == 1
+
+
+def test_cau_ngoai_corpus_vao_bo_khong_can_cu():
+    dung, kcc, bo = chuyen([_cau(["12/2022/tt-nhnn_3"])], _corpus(), HOM_NAY)
+    assert not dung and not bo
+    assert kcc[0]["van_ban_thieu"] == ["12/2022/TT-NHNN"]
+    assert "relevant_docs" not in kcc[0] and "relevant_articles" not in kcc[0]
+
+
+def test_dieu_khong_ton_tai_thi_loai_va_dem_rieng():
+    """Nhãn trỏ vào Điều 99 của văn bản chỉ có Điều 18/23 ⇒ recall vĩnh viễn 0, phải loại."""
+    dung, kcc, bo = chuyen([_cau(["40/2024/tt-nhnn_99"])], _corpus(), HOM_NAY)
+    assert not dung and not kcc
+    assert bo["nhãn trỏ vào điều không có trong corpus"] == 1
+
+
+def test_dieu_bi_che_khoan_khong_bi_loai():
+    """Corpus giữ "Điều 23 Khoản 1-3"; nhãn vàng là "Điều 23" — vẫn phải nhận."""
+    dung, _, bo = chuyen([_cau(["40/2024/tt-nhnn_23"])], _corpus(), HOM_NAY)
+    assert len(dung) == 1 and not bo
+
+
+def test_nhieu_dieu_cung_mot_van_ban():
+    dung, _, _ = chuyen([_cau(["40/2024/tt-nhnn_18", "40/2024/tt-nhnn_23"])], _corpus(), HOM_NAY)
+    assert dung[0]["relevant_articles"] == ["TT40-2024::Điều 18", "TT40-2024::Điều 23"]
+    assert dung[0]["relevant_docs"] == ["TT40-2024"]
+
+
+def test_as_of_la_hom_nay_khi_moi_van_ban_con_hieu_luc():
+    dung, _, _ = chuyen([_cau(["40/2024/tt-nhnn_18"])], _corpus(), HOM_NAY)
+    assert dung[0]["as_of"] == HOM_NAY
+    assert dung[0]["cua_so"] == ["2024-07-17", None]
+
+
+def test_as_of_lui_mot_ngay_khi_cua_so_dong():
+    """TT23-2014 chết 2024-07-01; `valid_to` là mốc MỞ nên ngày cuối còn đúng là 30/06."""
+    dung, _, _ = chuyen([_cau(["23/2014/tt-nhnn_5"])], _corpus(), HOM_NAY)
+    assert dung[0]["as_of"] == "2024-06-30"
+
+
+def test_khong_sinh_must_not_doc():
+    """Bộ này không có mặt lỗi thời để đo; sinh `must_not_doc` sẽ làm stale_avoidance giả."""
+    dung, _, _ = chuyen([_cau(["40/2024/tt-nhnn_18"])], _corpus(), HOM_NAY)
+    assert "must_not_doc" not in dung[0]
+
+
+def test_khong_mang_reference_answer_sang_file_nhan():
+    """Giữ file nhãn sạch; Correctness sẽ join lại theo `question_id`."""
+    dung, _, _ = chuyen([_cau(["40/2024/tt-nhnn_18"])], _corpus(), HOM_NAY)
+    assert "reference_answer" not in dung[0]
+
+
+def test_khong_mat_cau_nao():
+    rows = [
+        _cau(["40/2024/tt-nhnn_18"], qid=1),
+        _cau(["12/2022/tt-nhnn_3"], qid=2),
+        _cau(["40/2024/tt-nhnn_99"], qid=3),
+        _cau([], qid=4),
+    ]
+    dung, kcc, bo = chuyen(rows, _corpus(), HOM_NAY)
+    assert len(dung) + len(kcc) + sum(bo.values()) == len(rows)
+
+
+def test_cau_khong_co_nhan_bi_loai():
+    dung, kcc, bo = chuyen([_cau([])], _corpus(), HOM_NAY)
+    assert not dung and not kcc and bo["không có nhãn"] == 1
