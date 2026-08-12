@@ -52,9 +52,19 @@ def chuan_so_hieu(s: str) -> str:
     `law_label` của bộ gốc được tách từ slug URL nên còn dính đuôi chữ thường
     ("23/2014/TT-NHNN-huong-dan-mo..."). Phải cắt đuôi **trước** khi viết hoa: viết hoa trước
     thì "huong" thành "HUONG" và không còn phân biệt được với ký hiệu cơ quan ban hành.
+
+    Xoá sạch khoảng trắng trước khi khớp regex: vbpl.vn để lọt dấu cách vào giữa số hiệu
+    ("21/2017/TT- NHNN", "81 /2025/TT- NHNN" — gặp thật khi cào 12/08). Regex dừng ở dấu cách
+    nên không xoá thì "21/2017/TT- NHNN" còn "21/2017/TT", không khớp nhãn nào và cũng không
+    ném lỗi — văn bản lặng lẽ biến mất khỏi mọi phép nối. Số hiệu không bao giờ chứa dấu cách
+    có nghĩa, nên xoá hết là an toàn; chuỗi không có dấu cách thì đây là phép đồng nhất, không
+    đụng tới ca đuôi slug ở trên.
     """
-    m = _SO_HIEU.match(s)
-    return (m.group(0) if m else s).upper().replace("Đ", "D")
+    sach = re.sub(r"\s+", "", s)
+    m = _SO_HIEU.match(sach)
+    # Cả hai nhánh đều dùng bản đã xoá khoảng trắng: nhánh dự phòng ăn chuỗi viết thường (nhãn
+    # bộ SBV), mà chuỗi đó cũng có thể dính dấu cách — trả `s` gốc thì lỗi im lặng quay lại.
+    return (m.group(0) if m else sach).upper().replace("Đ", "D")
 
 
 def tra_cuu(corpus: dict) -> tuple[dict[str, str], dict[str, tuple[str, str]], dict[str, str]]:

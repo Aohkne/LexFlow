@@ -58,6 +58,29 @@ def test_bo_dau_de_khop_nghi_dinh():
     assert chuan_so_hieu("101/2012/NĐ-CP") == chuan_so_hieu("101/2012/ND-CP")
 
 
+def test_bo_dau_cach_thua_tu_vbpl():
+    """vbpl.vn để lọt dấu cách vào số hiệu ("TT- NHNN"), gặp thật khi cào 21/2017 ngày 12/08.
+
+    Regex cắt đuôi slug dừng ở dấu cách nên không xoá thì còn "21/2017/TT" — không khớp nhãn
+    nào, không ném lỗi, văn bản lặng lẽ biến mất khỏi mọi phép nối.
+    """
+    assert chuan_so_hieu("21/2017/TT- NHNN") == "21/2017/TT-NHNN"
+
+
+def test_bo_dau_cach_truoc_dau_gach_cheo():
+    """Cùng lượt cào: nguồn dẫn "Thông tư số 81 /2025/TT- NHNN" — dấu cách trước dấu `/`."""
+    assert chuan_so_hieu("81 /2025/TT- NHNN") == "81/2025/TT-NHNN"
+
+
+def test_bo_dau_cach_ca_o_nhanh_du_phong():
+    """Chuỗi viết thường không khớp regex nên rơi vào nhánh dự phòng — nhánh đó cũng phải sạch.
+
+    Nhãn bộ SBV viết thường hoàn toàn; nếu một nhãn như thế dính dấu cách mà nhánh dự phòng trả
+    chuỗi gốc thì lỗi im lặng quay lại đúng chỗ vừa vá.
+    """
+    assert chuan_so_hieu("21/2017/tt- nhnn") == "21/2017/TT-NHNN"
+
+
 # --- cửa sổ hiệu lực -----------------------------------------------------------------------
 
 def test_cua_so_la_giao_cua_cac_khoang():

@@ -160,15 +160,20 @@ sai, chỉ làm mẫu số nhỏ lại.
   trăm mỗi lượt gọi, nới retry/backoff quanh lời gọi LanceDB Cloud trong `retrieval.py` là đủ;
   nếu tăng dần theo thời gian thì báo hạ tầng (đổi region, kiểm quota) trước khi vá code.
 
-### [ ] T23 · `so_hieu` dính dấu cách thừa từ nguồn làm `chuan_so_hieu` cắt cụt — lỗi CÂM
+### [x] T23 · `so_hieu` dính dấu cách thừa từ nguồn làm `chuan_so_hieu` cắt cụt — ĐÃ SỬA 12/08
 
-Đo 12/08 trên 23 văn bản vừa cào cho bộ eval SBV (`research/crawl_list_sbv.txt`):
+Phát hiện và sửa cùng ngày. Trước khi sửa:
 
 ```
-corpus  '21/2017/TT- NHNN'   -> chuan_so_hieu -> '21/2017/TT'
-eval    '21/2017/tt-nhnn_4'  -> tach_nhan     -> '21/2017/TT-NHNN'
-khớp?   False
+corpus  '21/2017/TT- NHNN'   -> chuan_so_hieu -> '21/2017/TT'      khớp? False
+sau khi sửa                  -> chuan_so_hieu -> '21/2017/TT-NHNN' khớp? True
 ```
+
+**Cách sửa:** xoá sạch khoảng trắng **trước** khi khớp regex, và dùng bản đã xoá ở **cả hai**
+nhánh — nhánh dự phòng (chuỗi viết thường, tức nhãn bộ SBV) ban đầu vẫn trả chuỗi gốc, tức lỗi
+im lặng quay lại đúng chỗ vừa vá. Ba test ghim ở `tests/test_chuyen_tvpl.py`: `'21/2017/TT-
+NHNN'`, `'81 /2025/TT- NHNN'` (dấu cách trước dấu `/`), và ca nhánh dự phòng `'21/2017/tt-
+nhnn'`. Ca đuôi slug cũ không đổi hành vi — chuỗi không có dấu cách thì phép xoá là đồng nhất.
 
 - Vì sao quan trọng: vbpl.vn để lọt dấu cách vào `so_hieu` (`TT- NHNN`), mà regex `_SO_HIEU`
   trong `eval/chuyen_tvpl.py` dừng ở dấu cách nên cắt còn `21/2017/TT`. Không ném lỗi, không
@@ -176,10 +181,9 @@ khớp?   False
   khoá. Cùng lỗi này sẽ ăn bất kỳ văn bản nào cào về sau có dấu cách thừa; bộ cào **đã** cảnh
   báo đúng hiện tượng đó ở `ND26-2025` (`'Thông tư số 81 /2025/TT- NHNN'`), tức nguồn hay lỗi
   kiểu này chứ không phải ca cá biệt.
-- Bước đầu: chuẩn hoá khoảng trắng **trước** khi khớp regex trong `chuan_so_hieu`
-  (`re.sub(r"\s+", "", s)` trên phần số hiệu), thêm test ghim đúng chuỗi `'21/2017/TT- NHNN'`.
-  Cẩn thận không phá ca đuôi slug đang được ghim ở `tests/test_chuyen_tvpl.py` — đó là lý do
-  hàm này khớp regex trên chuỗi thô.
+- Còn lại: 23 văn bản đã cào **chưa vào** `data/corpus.real.json`. Cào chỉ sinh
+  `data/raw/vbpl/corpus/*.json`; muốn bộ SBV lên 56/100 câu thì phải gộp vào corpus rồi
+  re-ingest LanceDB + Neo4j — **T1 đang chặn đúng chỗ đó** (re-ingest ghi lên cloud, cần duyệt).
 - **Bốn cảnh báo còn lại của lượt cào 12/08 đã truy tới cùng — không mục nào cần sửa code**, ghi
   lại để khỏi điều tra lại. Cả bốn đều **không ảnh hưởng corpus hay truy hồi**, vì `articles`
   dựng từ toàn văn chứ không từ cây điều khoản:
