@@ -7,7 +7,9 @@
 # Dòng bắt đầu bằng # bị bỏ qua; bỏ trống văn bản nào không định cào cũng được.
 #
 # CẢNH BÁO VỀ CỘT "cộng dồn": tính tham lam theo THỨ TỰ trong file này. Bỏ qua một khối thì
-# các con số dưới nó không còn đúng — chạy lại scratchpad/thieu_sbv.py để tính lại.
+# các con số dưới nó không còn đúng. Tính lại bằng tay theo đúng thuật tham lam: lặp lại bước
+# "thêm văn bản làm nhiều câu hỏi ĐỦ CĂN CỨ nhất vào tập đang cộng dồn" — một câu hỏi chỉ tính
+# là đủ căn cứ khi TẤT CẢ văn bản nó dẫn đã có mặt trong tập đó.
 #
 # Tên văn bản dưới đây SUY TỪ câu hỏi và slug URL của bộ eval, KHÔNG phải đọc văn bản gốc.
 # Kiểm lại tên khi tra URL; sai tên thì cào nhầm văn bản mà không ai biết.

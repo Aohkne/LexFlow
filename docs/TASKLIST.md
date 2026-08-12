@@ -136,10 +136,16 @@ nhưng đó là trần độ phủ hiện tại. Muốn nâng thì phải **mở
 ### [ ] T21 · Trọng số nhánh thưa có thể lệch giữa luật đã chết và luật hiện hành
 
 - Đo 12/08: sweep trên `eval/bo_sbv.jsonl` (29 câu, luật ĐANG hiệu lực, người ngoài soạn) cho
-  tối ưu 0.25 chứ không phải 0.1 — mà 0.1 được chỉnh trên ba bộ đều thiên về luật
-  đã chết. Chưa đổi: 29 câu với |R| = 1 thì một câu = 3,4 điểm R@1.
-- Bước đầu: cào 7 văn bản trong phạm vi ở T20 để bộ này lên 56/100 câu, quét lại. Còn lệch thì
-  mới đổi.
+  tối ưu 0.25 ở **R@1/MRR@2** mức điều (0.76/0.86 so với 0.69/0.83 của 0.1 hiện tại) — nhưng
+  **thua** 0.1 ở R@5 mức điều (0.94 vs 0.98) và **hoà** ở R@2/P@2/F2@2; từ R@5 các cột đã bão hoà
+  trên mẫu 26 văn bản này nên chỉ R@1/MRR@2 đáng đọc (`docs/EVAL-IR.md` §11). 0.1 được chỉnh trên
+  ba bộ đều thiên về luật đã chết. Chưa đổi: 29 câu với |R| = 1 thì một câu = 3,4 điểm R@1.
+- Bước đầu: **trước khi cào thêm**, xác định `question_id` nào đổi hạng giữa w=0.1 và w=0.25 ở
+  R@1 mức điều, và kiểm xem có trùng một trong ba cặp câu hỏi trùng lặp đã biết không (`question_id`
+  6/30, 7/31, 61/63 — cả ba đều TT17-2024, chiếm 14/29 câu, xem `docs/EVAL-IR.md` §11). Gap R@1 là
+  2 câu/29; nếu hai câu đổi hạng đó rơi vào cùng một cặp trùng thì cả phát hiện T21 chỉ đứng trên
+  một câu hỏi phân biệt duy nhất. Gần như miễn phí ở lượt sweep kế tiếp. Còn lệch thật (không phải
+  trùng lặp) thì mới cào 7 văn bản trong phạm vi ở T20 để bộ này lên 56/100 câu rồi quét lại.
 
 ### [ ] T22 · `HttpError` thoáng qua từ LanceDB Cloud làm rớt câu khi benchmark
 

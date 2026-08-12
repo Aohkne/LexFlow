@@ -326,7 +326,7 @@ quét lại trước rồi mới chạy full.
 | | Bài báo | LexFlow |
 |---|---|---|
 | Corpus | 840 văn bản → 9.661 điều; LKG 5.221 node / 6.019 cạnh | 26 văn bản → 425 điều / 661 chunk; 35 quan hệ |
-| Bộ câu hỏi | ALQAC2025 (729 QA) + SBV Legal (100 QA) | 36 câu tự soạn (+ bộ đang soạn) |
+| Bộ câu hỏi | ALQAC2025 (729 QA) + SBV Legal (100 QA) | 36 câu tự soạn · 76 câu TVPL · 29/100 câu SBV Legal của chính bài báo |
 | Embedding | `paraphrase-vietnamese-law` (fine-tune trên ViLQA/ALQAC2024) | `gemini-embedding-001`, 768 chiều |
 | Rerank | ViRanker + `bge-reranker-v2-m3` (cross-encoder) | **không có** |
 | Vector store | Qdrant | LanceDB |
@@ -373,17 +373,26 @@ câu nào dẫn lẫn một văn bản corpus có; chúng nằm ở `eval/bo_sbv
 ### Vì sao KHÔNG chạy 71 câu kia
 
 71 câu đó dẫn văn bản ngoài corpus nên không kết quả nào khớp được: `recall = precision = rr = 0`
-ở **mọi** cột. `metrics.tong_hop` là macro-average, nên thêm 71 số 0 vào trung bình của 29 câu
-làm `recall`, `precision`, `mrr` nhân `29/100`. `f2 = 5PR/(4P+R)` cũng vậy: nhân cả `P` và `R`
-với `c` cho `5c²PR / c(4P+R) = c · 5PR/(4P+R)`.
+ở **mọi cột của hai bảng IR** (mức văn bản, mức điều). `metrics.tong_hop` là macro-average, nên
+thêm 71 số 0 vào trung bình của 29 câu làm `recall`, `precision`, `mrr` nhân `29/100`. `f2 =
+5PR/(4P+R)` cũng vậy: nhân cả `P` và `R` với `c` cho `5c²PR / c(4P+R) = c · 5PR/(4P+R)`.
 
-Tức **mọi ô của bảng 100 câu = ô tương ứng của bảng 29 câu × 0.29**. Chạy 71 câu tốn ~70 phút và
-71 lượt gọi API để thu về một hằng số nhân, và vì mọi cột co cùng tỷ lệ, nó không phân biệt được
-cột nào với cột nào.
+Tức **mọi ô của hai bảng IR (mức văn bản, mức điều) trên 100 câu = ô tương ứng của bảng 29 câu ×
+0.29**. Chạy 71 câu tốn ~70 phút và 71 lượt gọi API để thu về một hằng số nhân, và vì mọi cột co
+cùng tỷ lệ, nó không phân biệt được cột nào với cột nào.
 
-Nên khi đặt cạnh Table 3 của bài báo, con số phải đọc là: *trên đúng 100 câu của bài báo, mọi số
-của LexFlow phải nhân 0.29 vì corpus thiếu 71/100 văn bản được hỏi.* Con số đó nói về **corpus**,
-không nói về truy hồi. Cảnh báo ở §8 vẫn nguyên giá trị.
+Phép nhân này **không** áp cho bảng citation/tránh-hết-hiệu-lực/mâu-thuẫn ở đầu §11: thêm 71 câu
+hỏi về văn bản mà cả bốn văn bản corpus phủ đều còn hiệu lực sẽ cho `stale_avoidance` đọc
+100/100 = 1.0, không phải × 0.29 — chỉ số đó vốn đã **rỗng nghĩa trên cả hai mẫu** vì bộ này không
+có văn bản hết hiệu lực nào để đo (xem cảnh báo cạnh bảng dưới). `conflict_recall` có mẫu số 0 trên
+cả 29 lẫn 100 câu, cũng vô nghĩa theo cùng lý do.
+
+Nên khi đặt cạnh Table 3 của bài báo, con số phải đọc là: *trên đúng 100 câu của bài báo, hai bảng
+IR của LexFlow phải nhân 0.29 vì corpus thiếu 71/100 văn bản được hỏi.* Con số đó nói về
+**corpus**, không nói về truy hồi. Ở §8, cảnh báo về **corpus** (26 văn bản, `R@20` bão hoà) và về
+**rerank** (LexFlow không có) vẫn nguyên giá trị; dòng **bộ câu hỏi** thì không còn đúng nữa — từ
+đợt đo này LexFlow đã có kết quả trên 29/100 câu của chính bộ SBV Legal và 76 câu TVPL, không còn
+gói gọn trong "36 câu tự soạn" như bảng đó từng ghi.
 
 ### Bộ có trùng câu hỏi — không khử
 
@@ -470,10 +479,15 @@ Mức điều (29 câu có nhãn) — trọng số nhánh thưa trong RRF
 | 1 | 0.67 | 0.75 | 0.94 | 0.94 | 0.99 | 0.74 | 0.41 | 0.65 |
 
 `TRONG_SO_THUA` đang là **0.1**, chỉnh hôm 11/08 bằng ba bộ đều hỏi về luật đã chết (§7). Trên bộ
-này — dữ liệu ngoài, hỏi về luật **đang hiệu lực** — 0.1 **không** thắng: 0.25 hơn ở cả hai mức,
-rõ nhất ở mức điều (R@1 0.76 vs 0.69, chênh 0.07 ≈ 2/29 câu; MRR@2 0.86 vs 0.83) và cũng hơn ở
-mức văn bản (R@1 0.93 vs 0.90, MRR@2 0.97 vs 0.95). Đây là bằng chứng cho thấy hằng số chỉnh hôm
-qua **có thể đang overfit** vào loại câu hỏi luật đã chết — nên đọc thẳng, không nên chôn.
+này — dữ liệu ngoài, hỏi về luật **đang hiệu lực** — 0.1 không thắng ở **R@1/MRR@2**: 0.25 hơn ở
+cả hai mức, rõ nhất ở mức điều (R@1 0.76 vs 0.69, chênh 0.07 ≈ 2/29 câu; MRR@2 0.86 vs 0.83) và
+cũng hơn ở mức văn bản (R@1 0.93 vs 0.90, MRR@2 0.97 vs 0.95). Nhưng ở mức điều, 0.25 lại **thua**
+tại R@5 (0.94 vs 0.98) và **hoà** với 0.1 ở R@2/P@2/F2@2 — tức "0.25 hơn" chỉ đúng cho 2/8 cột của
+bảng trên. Đây đúng là hiện tượng đã nói ở bullet cuối phần trên: từ R@5 các cột đã bão hoà và hết
+khả năng phân biệt trên mẫu 26 văn bản này, nên R@1/MRR@2 mới là hai cột còn đọc được — thua ở R@5
+không phản bác kết luận vì R@5 vốn không phân biệt được ranking tốt hay dở. Trong phạm vi hai cột
+đó, đây là bằng chứng cho thấy hằng số chỉnh hôm qua **có thể đang overfit** vào loại câu hỏi luật
+đã chết — nên đọc thẳng, không nên chôn.
 
 **Không đổi `TRONG_SO_THUA`.** Luật đã chốt trước khi biết số (thiết kế 12/08): 29 câu với
 `|R| = 1` cho gần như mọi câu nghĩa là một câu bằng 3,4 điểm R@1 — quá mỏng để dịch một hằng số

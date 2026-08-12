@@ -156,9 +156,11 @@ nguyên (stale-avoidance 36/36).
 
 **Bộ test của bài báo** — 100 câu SBV-LawGraph, corpus phủ 29 (`eval/bo_sbv.jsonl`, đo 12/08).
 Đây là bộ duy nhất hỏi về luật **đang hiệu lực**; ba bộ trên đều hỏi về luật đã chết từ 2024-07.
-71 câu còn lại dẫn văn bản corpus không có ⇒ mọi cột ăn 0, nên bảng trên đúng 100 câu của bài báo
-chỉ là bảng 29 câu **× 0.29** — con số đó nói về corpus, không nói về truy hồi (`docs/EVAL-IR.md`
-§11).
+71 câu còn lại dẫn văn bản corpus không có ⇒ hai bảng IR (mức văn bản, mức điều) ăn 0 ở mọi cột,
+nên trên đúng 100 câu của bài báo, hai bảng IR 29 câu ở `docs/EVAL-IR.md` §11 chỉ cần nhân
+**× 0.29** — con số đó nói về corpus, không nói về truy hồi. Không áp cho `stale_avoidance` (sẽ
+đọc 1.0 trên 100 câu, và vốn đã rỗng nghĩa trên cả hai mẫu vì bộ này không có văn bản hết hiệu lực
+nào để đo).
 
 Cách đo, mẫu số và các cảnh báo: `docs/EVAL-IR.md` §6–§7.
 
