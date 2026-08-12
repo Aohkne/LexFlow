@@ -44,3 +44,9 @@ Thumbs.db
 
 # Ghi chu nghien cuu ca nhan (chua cong bo)
 docs/SCHEMA_KG.md
+
+# Bo test SBV-LawGraph xin tu tac gia bai bao, khong phai quyet dinh cua repo nay ve viec
+# phat tan lai. README (checksum + huong dan) van duoc version, xem
+# data/evaluate/svb_graph/README.md
+data/evaluate/svb_graph/sbv_testset_tvpl.json
+!data/evaluate/svb_graph/README.md

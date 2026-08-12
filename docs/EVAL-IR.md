@@ -359,6 +359,11 @@ sang định dạng ở §4, dùng lại các hàm tra cứu corpus của `eval/
 `tra_cuu`, `cua_so`) thay vì chép lại — chép lại thì hai bản quy tắc chuẩn hoá số hiệu sẽ trôi
 khỏi nhau, và lệch chuẩn hoá là kiểu lỗi làm phủ tụt về 0 trong khi bảng vẫn trông bình thường.
 
+File nguồn **không có trong repo**: xin trực tiếp từ tác giả bài báo, việc phát tán lại không phải
+quyết định của repo này. `data/evaluate/svb_graph/README.md` (có version) giữ checksum SHA-256,
+kích thước, số bản ghi và đường dẫn cần đặt file vào — kiểm hash trước khi chạy lại
+`chuyen_sbv.py`, vì hash khác nghĩa là dữ liệu khác và split 29/71/100 dưới đây sẽ không tái lập.
+
 Khác ba bộ trước ở ba điểm: (1) hỏi về luật **đang hiệu lực** — bốn văn bản corpus phủ được
 (TT17-2024, TT18-2024, TT40-2024, NĐ52-2024) đều còn hiệu lực, trong khi mọi số IR trước nay đo
 trên luật đã chết từ 2024-07, tức ca biên nơi lớp lọc hiệu lực toả sáng, không phải ca thường
