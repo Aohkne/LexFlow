@@ -6,6 +6,41 @@
 
 ---
 
+## 2026-08-12 (T4) — đo lại hai bộ TVPL với trọng số mới; kết luận mức điều đảo chiều
+
+**Giai đoạn:** trả nốt món nợ đo lường của 11/08.
+
+- **Done.** Chạy lại đầy đủ cả hai bộ TVPL với `TRONG_SO_THUA = 0.1` (~3 giờ, chạy tách phiên bằng
+  `Start-Process`): `eval/results/20260812-042253-bo_tvpl_dung_thoi.json` (71/76 câu) và
+  `20260812-054048-bo_tvpl_hien_nay.json` (74/76 câu). Bảy câu rơi vì `HttpError` thoáng qua của
+  LanceDB Cloud — try/except mỗi câu bắt đúng như thiết kế, mẫu số ghi rõ ở mọi bảng.
+- **Kết luận mức điều đảo chiều.** Ngày 11/08 bảng mức điều nói Naive RAG hơn LexFlow ở mọi k ≤ 10;
+  với trọng số 0.1 thì LexFlow hơn ở **mọi** k: 0.38/0.62/0.82/0.91/0.93 so với
+  0.26/0.44/0.73/0.82/0.85. Mức văn bản R@1 0.51 → **0.60**.
+- **Phép kiểm nhiễu tự nhiên.** Ba cột baseline không phụ thuộc trọng số, nên độ lệch của chúng
+  giữa hai lượt (mẫu số khác nhau vì lỗi mạng rơi vào câu khác) đúng bằng nhiễu do đổi mẫu: **≤
+  0.02 ở mọi ô**, Naive RAG ở `bo_tvpl_hien_nay` khớp từng chữ số. Chênh lệch của cột LexFlow lớn
+  hơn nhiều lần ⇒ là của trọng số, không phải của mẫu. Đây là thứ khiến bảng này đọc được, không
+  cần thêm lượt chạy nào.
+- **`+graph` đạt trần trên `bo_tvpl_hien_nay`: citation 74/74.** Hôm 11/08 là 71/76, và `+graph`
+  còn làm R@1 **tụt** 0.64 → 0.62 (mở rộng 1-hop kéo thêm ứng viên vào top). Với trọng số 0.1 nó
+  bằng đúng `hybrid` ở mọi k — xếp hạng đã đủ chắc để chịu được ứng viên thêm vào.
+- **`quet_trong_so.py` được xác nhận là công cụ quyết định.** Ba cặp (dự đoán ↔ đo thật) lệch tối
+  đa 0.01: điều 0.38·0.52 ↔ 0.38·0.53, văn bản 0.60·0.73 ↔ 0.60·0.73, `hien_nay` 0.64·0.76 ↔
+  0.63·0.77. Quét trong bộ nhớ vài phút thay được ba giờ benchmark. Khi T8 sửa xong index BM25:
+  quét trước, chạy full sau.
+- **Decision.** Bỏ hẳn bảng của lượt 11/08 khỏi §6 thay vì giữ song song — số cũ vẫn còn nguyên
+  trong §7 đúng chức năng của nó (bằng chứng cho quyết định hạ trọng số) và trong
+  `eval/results/`. Hai bảng cùng đo một thứ ở hai thời điểm là chỗ người đọc trích nhầm.
+- **Ship.** README (bảng kết quả + bảng trước/sau), `docs/EVAL-IR.md` §6 (viết lại) + §7 (thêm
+  bảng đối chiếu sweep ↔ đo thật), `docs/TASKLIST.md` T8 (R@20 mức điều 0.21 → **0.22**) và T16
+  (mốc phải vượt: R@1 mức điều **0.38**).
+- **Next.** (1) **T16 cross-encoder rerank** — mốc 0.38, dùng cloud/API. (2) Cào đợt đầu 5 văn bản
+  trong phạm vi (`research/crawl_list_eval.txt`, T20) — +48 câu. (3) Correctness bằng LLM-judge
+  dùng `long_answer` sẵn có.
+
+---
+
 ## 2026-08-11 (T3) — số đầu tiên cho lớp lọc hiệu lực, trên câu hỏi người ngoài soạn
 
 **Giai đoạn:** đo bộ TVPL theo thời điểm (tiếp mục 10/08).
@@ -65,7 +100,7 @@
   phần dễ đã lấy xong bằng một hằng số, không tốn lượt gọi API nào.
 - **Ship.** README + `docs/EVAL-IR.md` §6–§7 + `docs/RAG-DESIGN.md` §7.
   `20260811-051219-bo_tvpl_hien_nay.json`, `20260811-080300-bo_tvpl_dung_thoi.json`,
-  `20260811-095117.json`. **Lưu ý:** hai bảng §6 đo *trước* khi đổi trọng số, chưa đo lại.
+  `20260811-095117.json`. **Lưu ý:** hai bảng §6 đo *trước* khi đổi trọng số (đã đo lại 12/08).
 - **Next.** (0) Đo lại hai bộ TVPL với trọng số mới để §6 khỏi lệch. (1) **T16 cross-encoder
   rerank** — nay đã có thước, và có mốc phải vượt.
   (2) Cào đợt đầu 5 văn bản trong phạm vi (`88/2019/NĐ-CP`, `28/2005/PL-UBTVQH11`,

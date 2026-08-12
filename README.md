@@ -124,34 +124,35 @@ uv run python -u eval/run_benchmark.py --bo eval/bo_tvpl_dung_thoi.jsonl --bo ev
 ```
 Ba cột baseline không có khái niệm `as_of` nên trả cùng kết quả ở cả hai bộ — xem `docs/EVAL-IR.md` §6.
 
-**Kết quả đầu tiên** — 76 câu hỏi curate từ thuvienphapluat.vn, hỏi về luật đã bị thay thế
-(`bo_tvpl_hien_nay`, đo 11/08, 0 câu lỗi):
+**Kết quả** — 76 câu hỏi curate từ thuvienphapluat.vn, hỏi về luật đã bị thay thế
+(`bo_tvpl_hien_nay`, đo 12/08; 74/76 câu chạy được, 2 câu rơi vì lỗi mạng LanceDB):
 
 | | tránh văn bản hết hiệu lực | citation accuracy | F2@2 |
 |---|---|---|---|
 | BM25 | — | — | 0.07 |
-| Naive RAG (dense thuần) | **11/76** | 66/76 | 0.48 |
+| Naive RAG (dense thuần) | **11/74** | 64/74 | 0.48 |
 | Advanced RAG (75% BM25) | — | — | 0.11 |
-| **LexFlow hybrid** | **76/76** | 64/76 | **0.73** |
-| **LexFlow +graph** | **76/76** | **71/76** | 0.73 |
+| **LexFlow hybrid** | **74/74** | 69/74 | **0.77** |
+| **LexFlow +graph** | **74/74** | **74/74** | 0.77 |
 
-Baseline trả về văn bản đã hết hiệu lực ở **65/76** câu; LexFlow không câu nào. BM25 gần như không
+Baseline trả về văn bản đã hết hiệu lực ở **63/74** câu; LexFlow không câu nào. BM25 gần như không
 đúng ở hạng 1 (R@1 = 0.02) vì câu hỏi được viết *từ* văn bản cũ nên khớp từ vựng bị hút về đúng
 văn bản đã chết.
 
-Bảng ở **mức điều** (bộ `bo_tvpl_dung_thoi`, 71 câu có nhãn cấp điều) lại nói ngược, và chính nó
-dẫn tới một thay đổi retrieval: LexFlow tìm đúng *văn bản* sớm nhưng đẩy đúng *điều* lên muộn, vì
-nhánh BM25 gần như vô dụng ở mức đó (R@20 = 0.21) nên kéo các điều sai của đúng văn bản lên. Quét
+Chính điều đó dẫn tới một thay đổi retrieval. Bảng ở **mức điều** (bộ `bo_tvpl_dung_thoi`) ban đầu
+nói ngược hẳn bảng mức văn bản: LexFlow tìm đúng *văn bản* sớm nhưng đẩy đúng *điều* lên muộn, vì
+nhánh BM25 gần như vô dụng ở mức đó (R@20 = 0.22) nên kéo các điều sai của đúng văn bản lên. Quét
 trọng số nhánh thưa trên cả ba bộ câu hỏi (`uv run python eval/quet_trong_so.py`) rồi hạ
 `TRONG_SO_THUA` 1.0 → 0.1:
 
-| | R@1 mức điều | R@1 mức văn bản (36 câu) |
-|---|---|---|
-| trọng số 1.0 | 0.17 | 0.72 |
-| **trọng số 0.1** | **0.38** | **0.78** |
+| R@1 | mức điều (TVPL) | mức văn bản (TVPL) | mức văn bản (36 câu) |
+|---|---|---|---|
+| trọng số 1.0 | 0.15 | 0.51 | 0.72 |
+| **trọng số 0.1** | **0.38** | **0.60** | **0.78** |
 
-Gate hồi quy giữ nguyên (stale-avoidance 36/36, 0 câu lỗi). Cách đo, mẫu số và các cảnh báo:
-`docs/EVAL-IR.md` §6–§7.
+Ở mức điều, LexFlow từ chỗ thua Naive RAG ở mọi k ≤ 10 thành hơn ở **mọi** k, trong khi ba cột
+baseline đứng yên (chúng không phụ thuộc trọng số — đó cũng là phép kiểm nhiễu). Gate hồi quy giữ
+nguyên (stale-avoidance 36/36). Cách đo, mẫu số và các cảnh báo: `docs/EVAL-IR.md` §6–§7.
 
 ## Định dạng corpus
 

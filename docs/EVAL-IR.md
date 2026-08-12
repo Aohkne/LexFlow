@@ -176,98 +176,104 @@ Nạp thêm văn bản sẽ mở khoá thêm câu (tính tham lam trên 251 câu
 44 văn bản còn thiếu, chia theo trong/ngoài phạm vi sản phẩm: `research/crawl_list_eval.txt`
 (T20 trong `docs/TASKLIST.md`).
 
-> **Hai bảng dưới đây đo TRƯỚC khi hạ trọng số nhánh thưa** (§7, cùng ngày). Chúng vẫn đúng như
-> bằng chứng cho quyết định đó, nhưng **không** phải số của bản hiện tại — cột LexFlow nay cao
-> hơn. Đo lại cả hai bộ với trọng số mới là việc còn nợ.
+Số dưới đây là **lượt đo 12/08, sau khi hạ trọng số nhánh thưa xuống 0.1** (§7). Bảng của lượt
+11/08 (trọng số 1.0) không giữ lại ở đây — nó nằm trong §7 dưới dạng đúng chức năng của nó: bằng
+chứng cho quyết định hạ trọng số. File kết quả cũ vẫn còn trong `eval/results/` nếu cần đối chiếu.
 
-### Kết quả — `bo_tvpl_hien_nay.jsonl`, 76 câu, đo 2026-08-11
+**Mẫu số hai lượt khác nhau** (75/76 → 71/76 và 76/76 → 74/76) vì `HttpError` thoáng qua từ
+LanceDB Cloud rơi vào các câu khác nhau. Ba cột baseline **không phụ thuộc trọng số**, nên độ lệch
+của chúng giữa hai lượt đo đúng bằng nhiễu do đổi mẫu: ≤ 0.02 ở mọi ô (Naive RAG ở `hien_nay`
+khớp từng chữ số). Chênh lệch của cột LexFlow lớn hơn mức đó nhiều lần, nên nó là của trọng số,
+không phải của mẫu.
 
-`eval/results/20260811-051219-bo_tvpl_hien_nay.json`, 76/76 câu chạy được, 0 lỗi. Index: LanceDB
-Cloud chưa re-ingest (T1 còn mở). Retrieval p50 3767 ms.
+### Kết quả — `bo_tvpl_hien_nay.jsonl`, 74/76 câu, đo 2026-08-12
+
+`eval/results/20260812-054048-bo_tvpl_hien_nay.json`. Hai câu rơi vì `HttpError` từ LanceDB Cloud
+— try/except mỗi câu bắt đúng như thiết kế, **mẫu số là 74, không phải 76**. Index: LanceDB Cloud
+chưa re-ingest (T1 còn mở). Retrieval p50 3535 ms.
 
 | | citation_accuracy | tránh văn bản hết hiệu lực |
 |---|---|---|
-| baseline (dense thuần) | 66/76 | **11/76** |
-| LexFlow hybrid | 64/76 | **76/76** |
-| LexFlow +graph | **71/76** | **76/76** |
+| baseline (dense thuần) | 64/74 | **11/74** |
+| LexFlow hybrid | 69/74 | **74/74** |
+| LexFlow +graph | **74/74** | **74/74** |
 
 | Model | R@1 | R@2 | R@5 | R@10 | R@20 | MRR@2 | P@2 | F2@2 |
 |---|---|---|---|---|---|---|---|---|
-| BM25 | 0.02 | 0.09 | 0.46 | 0.94 | 0.95 | 0.06 | 0.05 | 0.07 |
+| BM25 | 0.02 | 0.09 | 0.45 | 0.93 | 0.93 | 0.06 | 0.05 | 0.07 |
 | Naive RAG | 0.30 | 0.57 | 0.96 | 1.00 | 1.00 | 0.45 | 0.30 | 0.48 |
-| Advanced RAG | 0.03 | 0.12 | 0.66 | 0.96 | 0.96 | 0.08 | 0.07 | 0.11 |
-| **LexFlow hybrid** | **0.64** | **0.86** | 0.96 | 1.00 | 1.00 | **0.76** | **0.45** | **0.73** |
-| LexFlow +graph | 0.62 | 0.86 | 0.96 | 1.00 | 1.00 | 0.76 | 0.45 | 0.73 |
-| LexFlow +router | 0.62 | 0.86 | 0.96 | 1.00 | 1.00 | 0.76 | 0.45 | 0.73 |
+| Advanced RAG | 0.03 | 0.13 | 0.66 | 0.96 | 0.96 | 0.08 | 0.07 | 0.11 |
+| **LexFlow hybrid** | **0.63** | **0.91** | **0.99** | 1.00 | 1.00 | **0.78** | **0.47** | **0.77** |
+| LexFlow +graph | 0.63 | 0.91 | 0.99 | 1.00 | 1.00 | 0.78 | 0.47 | 0.77 |
+| LexFlow +router | 0.63 | 0.91 | 0.99 | 1.00 | 1.00 | 0.78 | 0.47 | 0.77 |
 
 Mức điều: bộ này cố ý không có `relevant_articles` (xem trên) ⇒ mẫu số 0, bỏ qua.
 
 Bốn điều bảng này nói:
 
-- **Baseline trả văn bản đã chết ở 65/76 câu** (tránh được 11/76). Các cột LexFlow: 76/76. Đây là
+- **Baseline trả văn bản đã chết ở 63/74 câu** (tránh được 11/74). Các cột LexFlow: 74/74. Đây là
   toàn bộ lý do lớp lọc hiệu lực tồn tại, và là con số duy nhất trong repo đo trực tiếp nó trên
   câu hỏi do người ngoài soạn.
 - **BM25 gần như không bao giờ đúng ở hạng 1** (R@1 = 0.02), và Advanced RAG — vốn đè 75% trọng
   số lên BM25 — kéo theo (0.03). Không phải BM25 yếu chung chung: câu hỏi của TVPL được viết
   **từ** văn bản cũ nên dùng đúng từ ngữ của nó, khiến khớp thưa bị **hút về** đúng văn bản đã
-  chết. Đây là ca cho thấy điểm khớp từ vựng và tính đúng pháp lý có thể ngược chiều nhau.
-- **Đồ thị lần đầu đóng góp đo được.** Trên 36 câu, `+graph` giống hệt `hybrid`; ở đây nó nâng
-  citation_accuracy 64/76 → **71/76** (hybrid còn thấp hơn cả baseline 66/76). Cạnh `THAY_THE`
-  chính là đường từ văn bản cũ sang văn bản kế thừa, mà bộ này hỏi đúng chỗ đó. Lưu ý R@1 lại
-  nhích xuống 0.64 → 0.62: mở rộng 1-hop kéo thêm ứng viên vào top, lợi ở phủ và hại nhẹ ở hạng
-  nhất.
-- **Lớp phủ chạy thật.** 9/76 câu cho kết quả khác khi bật router (trên 36 câu là 0/36), 169 hit
-  được nắn trích dẫn, 1 hit bị loại vì bãi bỏ. Nhưng citation_accuracy ON và OFF đều 71/76 — nắn
+  chết. Đây là ca cho thấy điểm khớp từ vựng và tính đúng pháp lý có thể ngược chiều nhau, và là
+  lý do trực tiếp khiến trọng số nhánh thưa bị hạ ở §7.
+- **Đồ thị đóng góp đo được, và giờ là trần.** Trên 36 câu, `+graph` giống hệt `hybrid`; ở đây nó
+  nâng citation_accuracy 69/74 → **74/74**, tức không còn câu nào sai. Cạnh `THAY_THE` chính là
+  đường từ văn bản cũ sang văn bản kế thừa, mà bộ này hỏi đúng chỗ đó. Ở lượt trọng số cũ, `+graph`
+  làm R@1 **tụt** 0.64 → 0.62 (mở rộng 1-hop kéo thêm ứng viên vào top); với trọng số 0.1 nó bằng
+  đúng `hybrid` ở mọi k — xếp hạng đã đủ chắc để chịu được ứng viên thêm vào.
+- **Lớp phủ chạy thật.** 12/74 câu cho kết quả khác khi bật router (trên 36 câu là 0/36), 128 hit
+  được nắn trích dẫn, 5 hit bị loại vì bãi bỏ. Nhưng citation_accuracy ON và OFF đều 74/74 — nắn
   trích dẫn đổi *nội dung* trích dẫn chứ chưa đổi *văn bản* được trả về, nên mức văn bản không
   thấy. Muốn đo nó phải có nhãn cấp điều ở luật hiện hành, tức phải gán tay.
 
-### Kết quả — `bo_tvpl_dung_thoi.jsonl`, 75/76 câu, đo 2026-08-11
+### Kết quả — `bo_tvpl_dung_thoi.jsonl`, 71/76 câu, đo 2026-08-12
 
-`eval/results/20260811-080300-bo_tvpl_dung_thoi.json`. Một câu rơi vì `HttpError` thoáng qua từ
-LanceDB Cloud — try/except mỗi câu bắt đúng như thiết kế, **mẫu số là 75, không phải 76**.
-Retrieval p50 3594 ms.
+`eval/results/20260812-042253-bo_tvpl_dung_thoi.json`. Năm câu rơi vì `HttpError` từ LanceDB Cloud
+(cùng nguyên nhân như bộ kia, khác câu), **mẫu số là 71**. Retrieval p50 4020 ms.
 
-citation_accuracy: baseline 64/75 · hybrid 64/75 · **+graph 67/75**. `stale_avoidance` bằng 1.0 ở
+citation_accuracy: baseline 62/71 · **hybrid 65/71 · +graph 65/71**. `stale_avoidance` bằng 1.0 ở
 mọi cột nhưng **rỗng nghĩa** — bộ này không có `must_not_doc` (ở `as_of` trong cửa sổ thì không
 văn bản nào là lỗi thời), nên chỉ số đó mặc định đúng chứ không đo gì.
 
-| Mức **văn bản** (75 câu) | R@1 | R@2 | R@5 | R@10 | R@20 | MRR@2 | P@2 | F2@2 |
+| Mức **văn bản** (71 câu) | R@1 | R@2 | R@5 | R@10 | R@20 | MRR@2 | P@2 | F2@2 |
 |---|---|---|---|---|---|---|---|---|
-| BM25 | 0.04 | 0.09 | 0.49 | 0.82 | 0.82 | 0.07 | 0.05 | 0.07 |
-| Naive RAG | 0.37 | 0.62 | 0.92 | 0.92 | 0.92 | 0.50 | 0.32 | 0.52 |
-| Advanced RAG | 0.07 | 0.17 | 0.53 | 0.93 | 0.95 | 0.13 | 0.09 | 0.14 |
-| **LexFlow hybrid** | **0.51** | **0.76** | 0.92 | **0.99** | **0.99** | **0.64** | **0.39** | **0.64** |
-| LexFlow +graph | 0.51 | 0.76 | 0.92 | 0.99 | 0.99 | 0.64 | 0.39 | 0.64 |
-| LexFlow +router | 0.51 | 0.76 | 0.92 | 0.99 | 0.99 | 0.64 | 0.39 | 0.64 |
+| BM25 | 0.06 | 0.11 | 0.50 | 0.84 | 0.84 | 0.08 | 0.06 | 0.09 |
+| Naive RAG | 0.37 | 0.63 | 0.92 | 0.92 | 0.92 | 0.51 | 0.32 | 0.53 |
+| Advanced RAG | 0.09 | 0.18 | 0.54 | 0.92 | 0.94 | 0.14 | 0.09 | 0.15 |
+| **LexFlow hybrid** | **0.60** | **0.86** | **0.97** | **0.97** | **0.97** | **0.74** | **0.45** | **0.73** |
+| LexFlow +graph | 0.60 | 0.86 | 0.97 | 0.97 | 0.97 | 0.74 | 0.45 | 0.73 |
+| LexFlow +router | 0.60 | 0.86 | 0.97 | 0.97 | 0.97 | 0.74 | 0.45 | 0.73 |
 
-| Mức **điều** (71 câu) | R@1 | R@2 | R@5 | R@10 | R@20 | MRR@2 | P@2 | F2@2 |
+| Mức **điều** (68 câu) | R@1 | R@2 | R@5 | R@10 | R@20 | MRR@2 | P@2 | F2@2 |
 |---|---|---|---|---|---|---|---|---|
-| BM25 | 0.02 | 0.05 | 0.10 | 0.13 | 0.21 | 0.05 | 0.04 | 0.05 |
-| **Naive RAG** | **0.26** | **0.44** | **0.71** | **0.80** | 0.85 | **0.36** | **0.23** | **0.37** |
-| Advanced RAG | 0.05 | 0.09 | 0.17 | 0.39 | 0.73 | 0.09 | 0.06 | 0.08 |
-| LexFlow hybrid | 0.15 | 0.28 | 0.57 | 0.78 | **0.90** | 0.24 | 0.15 | 0.24 |
-| LexFlow +graph | 0.15 | 0.28 | 0.57 | 0.78 | 0.90 | 0.24 | 0.15 | 0.24 |
-| LexFlow +router | 0.15 | 0.28 | 0.57 | 0.78 | 0.90 | 0.24 | 0.15 | 0.24 |
+| BM25 | 0.02 | 0.07 | 0.10 | 0.13 | 0.22 | 0.06 | 0.04 | 0.06 |
+| Naive RAG | 0.26 | 0.44 | 0.73 | 0.82 | 0.85 | 0.36 | 0.23 | 0.37 |
+| Advanced RAG | 0.07 | 0.10 | 0.18 | 0.39 | 0.75 | 0.10 | 0.06 | 0.08 |
+| **LexFlow hybrid** | **0.38** | **0.62** | **0.82** | **0.91** | **0.93** | **0.52** | **0.34** | **0.53** |
+| LexFlow +graph | 0.38 | 0.62 | 0.82 | 0.91 | 0.93 | 0.52 | 0.34 | 0.53 |
+| LexFlow +router | 0.38 | 0.62 | 0.82 | 0.91 | 0.93 | 0.52 | 0.34 | 0.53 |
 
-**Đây là bảng mức điều đầu tiên của dự án, và nó lật một kết luận.** Ở mức văn bản LexFlow hơn mọi
-baseline (R@1 0.51 so với 0.37 của Naive RAG). Ở mức điều thì **ngược lại từ R@1 tới R@10**: Naive
-RAG 0.26/0.44/0.71/0.80 so với LexFlow 0.15/0.28/0.57/0.78. Chỉ tới R@20 LexFlow mới vượt lên
-(0.90 so với 0.85).
+**Bảng mức điều là bảng đáng đọc nhất ở đây, vì nó đã đảo chiều hai lần.** Lượt 11/08 (trọng số
+1.0) cho Naive RAG hơn LexFlow từ R@1 tới R@10 — LexFlow tìm đúng *văn bản* sớm nhưng đẩy đúng
+*điều* lên muộn, do nhánh BM25 ở mức điều gần như vô dụng (R@20 0.22, so với 0.84 ở mức văn bản
+của chính nó) nên hợp nhất ngang trọng số kéo các điều **sai** của **đúng văn bản** lên top. Hạ
+trọng số nhánh thưa xuống 0.1 (§7) xoá hẳn khoảng cách đó: LexFlow nay hơn Naive RAG ở **mọi** k
+(0.38/0.62/0.82/0.91/0.93 so với 0.26/0.44/0.73/0.82/0.85), trong khi ba cột baseline đứng yên.
 
-Đọc thẳng: **LexFlow tìm đúng *văn bản* sớm nhưng đẩy đúng *điều* lên muộn.** Trần phủ của nó cao
-hơn (R@20), phần xếp hạng trong nhóm đầu thì kém hơn dense thuần. Nguyên nhân nằm ở nhánh thưa của
-RRF: BM25 ở mức điều gần như vô dụng (R@1 0.02, R@20 0.21 — thua cả mức văn bản của chính nó rất
-xa), nên hợp nhất với nó kéo các điều sai của **đúng văn bản** lên trên. Đây là số đo cụ thể cho
-hai mục đã mở sẵn:
+Hai mục đã mở sẵn vẫn giữ nguyên căn cứ, chỉ đổi mốc:
 
-- **T8** (BM25 không hiểu từ ghép tiếng Việt, không index tiêu đề) — trước nay chỉ là nhận định,
-  nay có số: R@20 mức điều 0.21.
-- **T16** (cross-encoder rerank sau RRF) — "đúng văn bản, sai thứ tự điều" đúng là dạng lỗi mà
-  reranker sửa. Bảng này là căn cứ để làm T16 trước các mục khác.
+- **T8** (BM25 không hiểu từ ghép tiếng Việt, không index tiêu đề) — R@20 mức điều **0.22**. Chừng
+  nào con số đó chưa lên, trọng số 0.1 vẫn là mức đúng; sửa được index thì chạy lại
+  `eval/quet_trong_so.py`, trọng số tối ưu nhích lên là bằng chứng index mới có giá trị.
+- **T16** (cross-encoder rerank sau RRF) — vẫn là dạng lỗi mà reranker sửa, nhưng **mốc phải vượt
+  giờ là R@1 mức điều 0.38, không còn là 0.15**. Phần dễ ăn đã lấy bằng một hằng số.
 
 `+graph` và `+router` không đổi gì ở cả hai mức trong bộ này (khác bộ `hien_nay`, nơi `+graph` nâng
-citation 64→71): ở `as_of` trong cửa sổ, không có văn bản nào bị thay thế để cạnh `THAY_THE` dẫn
-qua. Router nắn 150 trích dẫn, 0 hit bị loại vì bãi bỏ, 9/75 câu khác kết quả — nhưng không đổi
+citation 69→74): ở `as_of` trong cửa sổ, không có văn bản nào bị thay thế để cạnh `THAY_THE` dẫn
+qua. Router nắn 100 trích dẫn, 0 hit bị loại vì bãi bỏ, 20/71 câu khác kết quả — nhưng không đổi
 citation_accuracy, cùng lý do như bộ kia.
 
 ## 7. Trọng số nhánh thưa trong RRF — 1.0 → 0.1 (11/08)
@@ -301,6 +307,19 @@ Xác nhận bằng lượt chạy thật (`eval/results/20260811-095117.json`): 
 `citation_accuracy` 36/36, **`stale_avoidance` 36/36** (gate hồi quy giữ nguyên), `conflict_recall`
 6/7, và `R@1` cột LexFlow **0.72 → 0.78** — khớp đúng con số sweep dự đoán, tức phép quét trong bộ
 nhớ tái lập được đường thật.
+
+Hai bộ TVPL chạy lại đầy đủ ngày 12/08 (§6) khớp nốt phần còn lại của cột `w = 0.1`, dù mẫu số
+lệch vài câu vì lỗi mạng:
+
+| dự đoán của sweep (R@1 · F2@2) | đo thật 12/08 |
+|---|---|
+| `dung_thoi` · điều — 0.38 · 0.52 | **0.38 · 0.53** |
+| `dung_thoi` · văn bản — 0.60 · 0.73 | **0.60 · 0.73** |
+| `hien_nay` — 0.64 · 0.76 | **0.63 · 0.77** |
+
+Nghĩa là `quet_trong_so.py` dùng được như công cụ quyết định: quét trong bộ nhớ vài phút thay cho
+ba giờ chạy benchmark, và chưa lần nào lệch quá 0.01 so với đường thật. Khi T8 sửa xong index BM25,
+quét lại trước rồi mới chạy full.
 
 ## 8. Vì sao KHÔNG so trực tiếp với bảng số của bài báo
 
