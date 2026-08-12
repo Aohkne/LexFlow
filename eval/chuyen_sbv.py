@@ -25,6 +25,7 @@ import re
 from eval.chuyen_tvpl import chuan_so_hieu
 
 _SO_DIEU = re.compile(r"^\d+[a-zđ]?$")
+_DIEU_TRONG_NHAN = re.compile(r"^Điều\s+(\d+[a-zđ]?)")
 
 
 class NhanHong(ValueError):
@@ -51,3 +52,21 @@ def tach_nhan(nhan: str) -> tuple[str, str]:
     if not sep or not _SO_DIEU.match(so_dieu):
         raise NhanHong(f"nhãn {nhan!r} không đúng dạng {{số hiệu}}_{{số điều}}")
     return chuan_so_hieu(so_hieu), so_dieu
+
+
+def dieu_co_that(corpus: dict) -> dict[str, set[str]]:
+    """`doc_id` → tập **số điều** có thật trong corpus.
+
+    Gom về số điều chứ không giữ nhãn nguyên văn: `pipeline._split_khoan` chẻ một điều dài thành
+    `"Điều 23 Khoản 1-3"` / `"Điều 23 Khoản 4-6"`, nên so khớp nguyên văn sẽ coi mọi điều dài là
+    không tồn tại và loại sạch những câu hỏi đáng giá nhất.
+    """
+    ra: dict[str, set[str]] = {}
+    for d in corpus["documents"]:
+        so: set[str] = set()
+        for a in d.get("articles", []):
+            m = _DIEU_TRONG_NHAN.match(a.get("article", ""))
+            if m:
+                so.add(m.group(1))
+        ra[d["doc_id"]] = so
+    return ra
