@@ -169,7 +169,7 @@ def chuyen(rows: list[dict], corpus: dict, hom_nay: str) -> tuple[list[dict], li
     return dung_thoi, hien_nay, bo
 
 
-def _ghi(duong_dan: Path, rows: list[dict]) -> None:
+def ghi_jsonl(duong_dan: Path, rows: list[dict]) -> None:
     duong_dan.write_text(
         "".join(json.dumps(r, ensure_ascii=False) + "\n" for r in rows), encoding="utf-8"
     )
@@ -184,8 +184,8 @@ def main() -> None:
     corpus = json.loads(CORPUS.read_text(encoding="utf-8"))
     dung_thoi, hien_nay, bo = chuyen(rows, corpus, date.today().isoformat())
 
-    _ghi(RA_DUNG_THOI, dung_thoi)
-    _ghi(RA_HIEN_NAY, hien_nay)
+    ghi_jsonl(RA_DUNG_THOI, dung_thoi)
+    ghi_jsonl(RA_HIEN_NAY, hien_nay)
 
     print(f"nguồn: {len(rows)} câu")
     print(f"  → {RA_DUNG_THOI.name}: {len(dung_thoi)} câu")

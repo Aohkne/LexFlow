@@ -20,10 +20,25 @@ Chạy:
 """
 from __future__ import annotations
 
+import json
 import re
+import sys
 from collections import Counter
+from datetime import date
+from pathlib import Path
 
-from eval.chuyen_tvpl import XA, chuan_so_hieu, cua_so, tra_cuu, truoc_mot_ngay
+# Chạy như một SCRIPT (`python eval/chuyen_sbv.py`) đặt `sys.path[0]` là `eval/`, không phải gốc
+# repo ⇒ `from eval.chuyen_tvpl import ...` ném `ModuleNotFoundError`. Cùng vá như
+# `eval/run_benchmark.py`.
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+from eval.chuyen_tvpl import XA, chuan_so_hieu, cua_so, ghi_jsonl, tra_cuu, truoc_mot_ngay  # noqa: E402
+
+GOC = Path(__file__).resolve().parent.parent
+NGUON = GOC / "data/evaluate/svb_graph/sbv_testset_tvpl.json"
+CORPUS = GOC / "data/corpus.real.json"
+RA_DUNG = GOC / "eval/bo_sbv.jsonl"
+RA_KHONG_CAN_CU = GOC / "eval/bo_sbv_khong_can_cu.jsonl"
 
 _SO_DIEU = re.compile(r"^\d+[a-zđ]?$")
 _DIEU_TRONG_NHAN = re.compile(r"^Điều\s+(\d+[a-zđ]?)")
@@ -136,3 +151,28 @@ def chuyen(
         })
 
     return dung, khong_can_cu, bo
+
+
+def main() -> None:
+    rows = json.loads(NGUON.read_text(encoding="utf-8"))
+    corpus = json.loads(CORPUS.read_text(encoding="utf-8"))
+    dung, khong_can_cu, bo = chuyen(rows, corpus, date.today().isoformat())
+
+    con = len(dung) + len(khong_can_cu) + sum(bo.values())
+    if con != len(rows):
+        raise AssertionError(f"mất câu: vào {len(rows)}, ra {con}")
+
+    ghi_jsonl(RA_DUNG, dung)
+    ghi_jsonl(RA_KHONG_CAN_CU, khong_can_cu)
+
+    print(f"nguồn: {len(rows)} câu")
+    print(f"  → {RA_DUNG.name}: {len(dung)} câu")
+    print(f"  → {RA_KHONG_CAN_CU.name}: {len(khong_can_cu)} câu (negative, KHÔNG chạy benchmark)")
+    if bo:
+        print("bỏ:")
+        for ly_do, n in bo.most_common():
+            print(f"  {n:4d}  {ly_do}")
+
+
+if __name__ == "__main__":
+    main()
