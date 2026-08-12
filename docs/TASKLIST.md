@@ -7,7 +7,7 @@
 > (hoặc chính mình ba tuần sau) bắt tay vào mà không phải điều tra lại. Mọi con số đều kèm
 > ngày đo; số không có ngày là số chưa kiểm.
 >
-> Cập nhật gần nhất: 2026-08-09.
+> Cập nhật gần nhất: 2026-08-12.
 
 ---
 
@@ -135,8 +135,8 @@ nhưng đó là trần độ phủ hiện tại. Muốn nâng thì phải **mở
 
 ### [ ] T21 · Trọng số nhánh thưa có thể lệch giữa luật đã chết và luật hiện hành
 
-- Sweep trên `eval/bo_sbv.jsonl` (29 câu, luật ĐANG hiệu lực, người ngoài soạn) cho tối ưu
-  0.25 chứ không phải 0.1 — mà 0.1 được chỉnh trên ba bộ đều thiên về luật
+- Đo 12/08: sweep trên `eval/bo_sbv.jsonl` (29 câu, luật ĐANG hiệu lực, người ngoài soạn) cho
+  tối ưu 0.25 chứ không phải 0.1 — mà 0.1 được chỉnh trên ba bộ đều thiên về luật
   đã chết. Chưa đổi: 29 câu với |R| = 1 thì một câu = 3,4 điểm R@1.
 - Bước đầu: cào 8 văn bản ở T20 để bộ này lên 72/100 câu, quét lại. Còn lệch thì mới đổi.
 
