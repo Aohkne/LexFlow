@@ -7,11 +7,20 @@ from app.ontology.schema import ActorCU, MetaCU
 from tests.test_compliance_policy_graph import _actor, _field
 
 
-def _meta(id, gates, dieu_kien_cong=None):
+def _meta(id, gates, dieu_kien_cong=None, conditions=()):
     return {
         "type": "meta_cu", "id": id, "references": [], "references_hep_hon": False,
         "warnings": [], "errors": [], "gates": gates, "dieu_kien_cong": dieu_kien_cong,
-        "menh_de": _field("có hiệu lực thi hành"), "logic": "all", "conditions": [],
+        "menh_de": _field("có hiệu lực thi hành"), "logic": "any", "conditions": list(conditions),
+    }
+
+
+def _condition(text, object_label="", constraint_label=""):
+    return {
+        "source_diem": None, "text": text, "object_label": object_label,
+        "constraint_label": constraint_label,
+        "grounding": {"units": [1], "char_span": [0, len(text)], "status": "unit", "quote": ""},
+        "logic": "unknown", "sub": [], "ap_dung_khi": None, "guard_phan_hoach": None, "issues": [],
     }
 
 
@@ -66,6 +75,44 @@ def test_gate_khong_xac_quyet_thi_fail_open(monkeypatch):
     assert len(plan.items) == 1
     assert plan.items[0].gate_chua_xac_quyet is True
     assert any("lanh_tho" in g for g in plan.ghi_chu)
+
+
+def _pg_voi_cong_chu_the_phu_dinh():
+    # Mẫu thật TT40 Đ26 k2 (pred.jsonl): targets của gate là KHOÁ NODE bị chặn
+    # ("…#khoan_1"), KHÔNG phải tên chủ thể — tên chủ thể bị loại trừ nằm ở
+    # conditions[], do mệnh đề "…không áp dụng đối với:" liệt kê ở các Điểm con.
+    return _pg([
+        _actor("A/1#than/dieu_5#khoan_1"),
+        _meta("A/1#than/dieu_5#khoan_2", gates=[{
+            "kind": "chu_the", "pham_vi": "khoan", "targets": ["A/1#than/dieu_5#khoan_1"],
+            "suy_ra_duoc": True, "phu_dinh": True, "ngoai_tru": [], "ghi_chu": "",
+        }], conditions=[_condition(
+            "a) Đại lý thanh toán;",
+            object_label="Đại lý thanh toán", constraint_label="Đại lý thanh toán",
+        )]),
+    ])
+
+
+def test_chu_the_phu_dinh_loai_theo_dieu_kien(monkeypatch):
+    # party khớp hypernym của chủ thể bị phủ định (trong conditions[], không phải
+    # gate.targets) → actor-CU trong phạm vi gate bị loại.
+    monkeypatch.setattr(gate, "search_in_docs", lambda *a, **k: [_CHUNK_DIEU_5])
+    monkeypatch.setattr(gate, "chu_thich_ket_qua", lambda c, *a, **k: (c, {}))
+    hypernyms = [DeXuat(entity="X", hypernym="Đại lý thanh toán", do_tin=0.9, manh=True)]
+    plan = lap_cu_plan("điều hợp đồng", hypernyms, _pg_voi_cong_chu_the_phu_dinh(),
+                        ["DOC-A"], as_of="2026-08-11", so_hieu_cua={"DOC-A": "A/1"})
+    assert plan.items == []
+    assert any("phủ định" in g for g in plan.ghi_chu)
+
+
+def test_chu_the_phu_dinh_khong_khop_thi_khong_loai(monkeypatch):
+    # party KHÔNG phải loại chủ thể bị phủ định → không bị loại
+    monkeypatch.setattr(gate, "search_in_docs", lambda *a, **k: [_CHUNK_DIEU_5])
+    monkeypatch.setattr(gate, "chu_thich_ket_qua", lambda c, *a, **k: (c, {}))
+    hypernyms = [DeXuat(entity="X", hypernym="tổ chức tín dụng", do_tin=0.9, manh=True)]
+    plan = lap_cu_plan("điều hợp đồng", hypernyms, _pg_voi_cong_chu_the_phu_dinh(),
+                        ["DOC-A"], as_of="2026-08-11", so_hieu_cua={"DOC-A": "A/1"})
+    assert len(plan.items) == 1
 
 
 def test_subject_khop_hypernym_duoc_them(monkeypatch):

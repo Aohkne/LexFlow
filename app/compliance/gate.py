@@ -42,6 +42,29 @@ def _khop_subject(cu: ActorCU, hypernym: str) -> bool:
     return hypernym.lower() in (cu.subject.text + " " + cu.subject.label).lower()
 
 
+def _khop_dieu_kien_phu_dinh(m: MetaCU, hyp_set: set[str]) -> set[str]:
+    """Hypernym nào khớp đối tượng bị loại trừ trong `m.conditions`.
+
+    `Gate.targets` của cổng `chu_the` là khoá node (phạm vi bị chặn — vd
+    ["…#khoan_1"], xem `classify.py:296-300`), KHÔNG phải tên chủ thể — giao thẳng
+    với hypernym set (chuỗi như "đại lý thanh toán") luôn rỗng. Tên chủ thể bị loại
+    trừ thật sự nằm ở `conditions[].object_label`/`constraint_label`/`text` (mẫu
+    thật TT40 Đ26 k2: `pred.jsonl` dòng "chu_the"), do mệnh đề "…không áp dụng đối
+    với:" liệt kê chúng ở các Điểm con, không nằm trong bản thân Gate.
+    """
+    text = " ".join(
+        f"{c.text} {c.object_label} {c.constraint_label}" for c in m.conditions
+    ).lower()
+    return {hy for hy in hyp_set if hy.lower() in text}
+
+
+def _fail_open(g: Gate, cands: dict[str, tuple[ComplianceUnit, str]], unresolved: set[str]) -> None:
+    unresolved.update(
+        cid for cid, (cu, _) in cands.items()
+        if isinstance(cu, ActorCU) and _target_hit(cid, g.targets)
+    )
+
+
 def _ung_vien(
     text_dieu_hd: str, hypernyms: list[DeXuat], pg: PolicyGraph,
     against_ids: list[str], as_of: str, so_hieu_cua: dict[str, str],
@@ -93,20 +116,14 @@ def _ap_dung_gate(
     cands: dict[str, tuple[ComplianceUnit, str]], unresolved: set[str], ghi_chu: list[str],
 ) -> None:
     if not g.suy_ra_duoc:
-        unresolved.update(
-            cid for cid, (cu, _) in cands.items()
-            if isinstance(cu, ActorCU) and _target_hit(cid, g.targets)
-        )
+        _fail_open(g, cands, unresolved)
         ghi_chu.append(f"meta {m.id} gate {g.kind} không xác quyết được (suy_ra_duoc=False)")
         return
 
     if g.kind == "thoi_gian":
         dkc = m.dieu_kien_cong
         if dkc is None or not dkc.ngay:
-            unresolved.update(
-                cid for cid, (cu, _) in cands.items()
-                if isinstance(cu, ActorCU) and _target_hit(cid, g.targets)
-            )
+            _fail_open(g, cands, unresolved)
             ghi_chu.append(f"meta {m.id} gate thoi_gian thiếu ngày, không xác quyết được")
             return
         chan = (dkc.moc == "bat_dau" and dkc.ngay > as_of) or (
@@ -123,22 +140,22 @@ def _ap_dung_gate(
         return
 
     if g.kind == "chu_the":
-        khop = set(g.targets) & hyp_set
-        if khop and g.phu_dinh:
-            bi_loai = [
-                cid for cid, (cu, _) in cands.items()
-                if isinstance(cu, ActorCU) and any(_khop_subject(cu, hy) for hy in khop)
-            ]
-            for cid in bi_loai:
-                del cands[cid]
-            ghi_chu.append(f"meta {m.id} loại {bi_loai}: chủ thể khớp phủ định {sorted(khop)}")
+        if g.phu_dinh:
+            khop = _khop_dieu_kien_phu_dinh(m, hyp_set)
+            if khop:
+                bi_loai = [
+                    cid for cid, (cu, _) in cands.items()
+                    if isinstance(cu, ActorCU) and _target_hit(cid, g.targets)
+                ]
+                for cid in bi_loai:
+                    del cands[cid]
+                ghi_chu.append(
+                    f"meta {m.id} loại {bi_loai}: chủ thể khớp phủ định {sorted(khop)}"
+                )
         return
 
     # lanh_tho, khac — không có cách đánh giá tất định
-    unresolved.update(
-        cid for cid, (cu, _) in cands.items()
-        if isinstance(cu, ActorCU) and _target_hit(cid, g.targets)
-    )
+    _fail_open(g, cands, unresolved)
     ghi_chu.append(f"meta {m.id} gate {g.kind} không xác quyết được")
 
 
