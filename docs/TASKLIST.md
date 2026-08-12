@@ -160,6 +160,32 @@ sai, chỉ làm mẫu số nhỏ lại.
   trăm mỗi lượt gọi, nới retry/backoff quanh lời gọi LanceDB Cloud trong `retrieval.py` là đủ;
   nếu tăng dần theo thời gian thì báo hạ tầng (đổi region, kiểm quota) trước khi vá code.
 
+### [ ] T23 · `so_hieu` dính dấu cách thừa từ nguồn làm `chuan_so_hieu` cắt cụt — lỗi CÂM
+
+Đo 12/08 trên 23 văn bản vừa cào cho bộ eval SBV (`research/crawl_list_sbv.txt`):
+
+```
+corpus  '21/2017/TT- NHNN'   -> chuan_so_hieu -> '21/2017/TT'
+eval    '21/2017/tt-nhnn_4'  -> tach_nhan     -> '21/2017/TT-NHNN'
+khớp?   False
+```
+
+- Vì sao quan trọng: vbpl.vn để lọt dấu cách vào `so_hieu` (`TT- NHNN`), mà regex `_SO_HIEU`
+  trong `eval/chuyen_tvpl.py` dừng ở dấu cách nên cắt còn `21/2017/TT`. Không ném lỗi, không
+  cảnh báo — văn bản chỉ **lặng lẽ không khớp** nhãn eval, và 2 câu của nó không bao giờ mở
+  khoá. Cùng lỗi này sẽ ăn bất kỳ văn bản nào cào về sau có dấu cách thừa; bộ cào **đã** cảnh
+  báo đúng hiện tượng đó ở `ND26-2025` (`'Thông tư số 81 /2025/TT- NHNN'`), tức nguồn hay lỗi
+  kiểu này chứ không phải ca cá biệt.
+- Bước đầu: chuẩn hoá khoảng trắng **trước** khi khớp regex trong `chuan_so_hieu`
+  (`re.sub(r"\s+", "", s)` trên phần số hiệu), thêm test ghim đúng chuỗi `'21/2017/TT- NHNN'`.
+  Cẩn thận không phá ca đuôi slug đang được ghim ở `tests/test_chuyen_tvpl.py` — đó là lý do
+  hàm này khớp regex trên chuỗi thô.
+- Kèm theo, cùng lượt cào (chưa chặn gì, ghi để khỏi phát hiện lại):
+  `TT45-2024` cây điều khoản rỗng hoàn toàn (cây 0 điều / 0 khoản, toàn văn 46 điều) —
+  phải dump DOM kiểm chứng trước khi kết luận tại nguồn; `TT32-2024` Điều 36 có **hai** khoản 4
+  nội dung khác nhau; `TT12-2022` lệch cây 51 / toàn văn 52; `TT39-2016` nguồn thiếu dấu cách
+  sau số khoản (`'4.Phí cam kết…'`) nên bộ tách khoản sẽ không nhận ra dòng đó.
+
 ### [ ] T20 · Corpus phủ 4/37 văn bản mà bộ eval TVPL hỏi tới
 
 Đo 10/08 trên `data/evaluate/eval_filtered_clean.jsonl` (251 câu): chỉ **76 câu** dẫn toàn văn

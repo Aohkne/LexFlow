@@ -1,0 +1,936 @@
+{
+ "doc_id": "TT02-2025",
+ "title": "Thông tư 02/2025/TT-NHNN của Ngân hàng Nhà nước Việt Nam",
+ "doc_type": "Thông tư",
+ "source": "external",
+ "valid_from": "2025-06-16",
+ "valid_to": null,
+ "so_hieu": "02/2025/TT-NHNN",
+ "co_quan_ban_hanh": "Ngân hàng Nhà nước Việt Nam",
+ "nguoi_ky": "Phạm Thanh Hà",
+ "chuc_danh": "Phó Thống đốc",
+ "nganh": "Ngân hàng",
+ "linh_vuc": "Chính sách tiền tệ",
+ "ngay_ban_hanh": "2025-04-29",
+ "tinh_trang_hieu_luc": "Còn hiệu lực",
+ "source_url": "https://vbpl.vn/van-ban/chi-tiet/thong-tu-so-02-2025-tt-nhnn-quy-dinh-ve-phat-hanh-chung-chi-tien-gui-trong-nuoc-cua-to-chuc-tin-dung-chi-nhanh-ngan-hang-nuoc-ngoai--177273",
+ "source_files": [
+  {
+   "ten": "Thông tư 02-2025-TT-NHNN.docx",
+   "kich_thuoc": "0.05MB",
+   "url": "https://vbpl-bientap-gateway.moj.gov.vn/api/qtdc/public/doc/minio/buckets/vbpl/177273/Th%C3%B4ng%20t%C6%B0%2002-2025-TT-NHNN.docx/download"
+  },
+  {
+   "ten": "VanBanGoc_Thông tư 02-2025-TT-NHNN.pdf",
+   "kich_thuoc": "2.1MB",
+   "url": "https://vbpl-bientap-gateway.moj.gov.vn/api/qtdc/public/doc/minio/buckets/vbpl/177273/VanBanGoc_Th%C3%B4ng%20t%C6%B0%2002-2025-TT-NHNN.pdf/download"
+  }
+ ],
+ "co_toan_van": true,
+ "canh_bao": [],
+ "articles": [
+  {
+   "article": "Điều 1",
+   "text": "Phạm vi điều chỉnh\nThông tư này quy định việc phát hành chứng chỉ tiền gửi trong nước của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài trên phạm vi lãnh thổ Việt Nam.",
+   "chapter": null,
+   "section": null,
+   "superseded": false,
+   "char_start": 769,
+   "char_end": 939
+  },
+  {
+   "article": "Điều 2",
+   "text": "Đối tượng phát hành chứng chỉ tiền gửi\nTổ chức tín dụng, chi nhánh ngân hàng nước ngoài phát hành chứng chỉ tiền gửi theo Giấy phép thành lập và hoạt động của tổ chức tín dụng, Giấy phép thành lập chi nhánh ngân hàng nước ngoài bao gồm:\n1. Ngân hàng thương mại.\n2. Ngân hàng hợp tác xã.\n3. Công ty tài chính tổng hợp, công ty tài chính chuyên ngành.\n4. Chi nhánh ngân hàng nước ngoài.",
+   "chapter": null,
+   "section": null,
+   "superseded": false,
+   "char_start": 948,
+   "char_end": 1332
+  },
+  {
+   "article": "Điều 3",
+   "text": "Đối tượng mua chứng chỉ tiền gửi\n1. Đối tượng mua chứng chỉ tiền gửi do ngân hàng thương mại, ngân hàng hợp tác xã, chi nhánh ngân hàng nước ngoài phát hành là tổ chức (bao gồm cả tổ chức tín dụng, chi nhánh ngân hàng nước ngoài), cá nhân Việt Nam và tổ chức, cá nhân nước ngoài.\n2. Đối tượng mua chứng chỉ tiền gửi do công ty tài chính tổng hợp, công ty tài chính chuyên ngành phát hành là tổ chức Việt Nam (bao gồm cả tổ chức tín dụng, chi nhánh ngân hàng nước ngoài) và tổ chức nước ngoài.",
+   "chapter": null,
+   "section": null,
+   "superseded": false,
+   "char_start": 1341,
+   "char_end": 1833
+  },
+  {
+   "article": "Điều 4",
+   "text": "Giải thích từ ngữ\nTrong Thông tư này, từ ngữ dưới đây được hiểu như sau:\nChứng chỉ tiền gửi là một hình thức tiền gửi dưới dạng giấy tờ có giá và là bằng chứng xác nhận nghĩa vụ trả nợ của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phát hành đối với người mua chứng chỉ tiền gửi trong một thời hạn nhất định, điều kiện trả lãi và các điều kiện khác.",
+   "chapter": null,
+   "section": null,
+   "superseded": false,
+   "char_start": 1842,
+   "char_end": 2197
+  },
+  {
+   "article": "Điều 5",
+   "text": "Đồng tiền phát hành và thanh toán\nChứng chỉ tiền gửi được phát hành và thanh toán bằng đồng Việt Nam.",
+   "chapter": null,
+   "section": null,
+   "superseded": false,
+   "char_start": 2206,
+   "char_end": 2307
+  },
+  {
+   "article": "Điều 6",
+   "text": "Lãi suất\n1. Lãi suất chứng chỉ tiền gửi do tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phát hành quyết định phù hợp với quy định về lãi suất của Ngân hàng Nhà nước Việt Nam (sau đây gọi là Ngân hàng Nhà nước) trong từng thời kỳ.\n2. Phương pháp tính lãi chứng chỉ tiền gửi thực hiện theo quy định của Ngân hàng Nhà nước.",
+   "chapter": null,
+   "section": null,
+   "superseded": false,
+   "char_start": 2316,
+   "char_end": 2640
+  },
+  {
+   "article": "Điều 7",
+   "text": "Thời hạn, ngày phát hành và ngày đến hạn thanh toán của chứng chỉ tiền gửi\n1. Thời hạn, ngày phát hành và ngày đến hạn thanh toán của chứng chỉ tiền gửi do tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phát hành quyết định.\n2. Trường hợp người mua là tổ chức tín dụng, chi nhánh ngân hàng nước ngoài khác thì tổ chức tín dụng, chi nhánh ngân hàng nước ngoài chỉ được phát hành chứng chỉ tiền gửi có thời hạn dưới 12 tháng.",
+   "chapter": null,
+   "section": null,
+   "superseded": false,
+   "char_start": 2649,
+   "char_end": 3074
+  },
+  {
+   "article": "Điều 8",
+   "text": "Mệnh giá của chứng chỉ tiền gửi\nMệnh giá của chứng chỉ tiền gửi là 100.000 (một trăm nghìn) đồng Việt Nam hoặc bội số của 100.000 (một trăm nghìn) đồng Việt Nam. Mệnh giá của chứng chỉ tiền gửi cụ thể do tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phát hành quyết định hoặc theo thỏa thuận của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài với người mua.",
+   "chapter": null,
+   "section": null,
+   "superseded": false,
+   "char_start": 3083,
+   "char_end": 3445
+  },
+  {
+   "article": "Điều 9",
+   "text": "Phương thức phát hành\n1. Tổ chức tín dụng, chi nhánh ngân hàng nước ngoài trực tiếp phát hành chứng chỉ tiền gửi cho chính người mua tại địa điểm giao dịch hợp pháp thuộc mạng lưới hoạt động trong nước của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phát hành (sau đây gọi là địa điểm giao dịch) hoặc bằng phương tiện điện tử.\n2. Trường hợp phát hành bằng phương tiện điện tử, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phát hành cấp cho người mua chứng nhận quyền sở hữu chứng chỉ tiền gửi trên môi trường điện tử.\n3. Trường hợp phát hành chứng chỉ tiền gửi cho người mua tại địa điểm giao dịch, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài cấp cho người mua chứng chỉ tiền gửi dưới hình thức chứng chỉ. Tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phải thiết kế và in ấn chứng chỉ để đảm bảo khả năng chống giả cao.\n4. Trường hợp người không cư trú là tổ chức, cá nhân và người cư trú là cá nhân nước ngoài mua chứng chỉ tiền gửi, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài chỉ được phát hành chứng chỉ tiền gửi tại địa điểm giao dịch cho chính người mua.",
+   "chapter": null,
+   "section": null,
+   "superseded": false,
+   "char_start": 3454,
+   "char_end": 4536
+  },
+  {
+   "article": "Điều 10",
+   "text": "Nội dung của chứng chỉ tiền gửi\n1. Chứng chỉ tiền gửi dưới hình thức chứng chỉ hoặc chứng nhận quyền sở hữu chứng chỉ tiền gửi trên môi trường điện tử phải bao gồm các nội dung sau:\na) Tên tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phát hành;\nb) Tên gọi của chứng chỉ tiền gửi;\nc) Ký hiệu hoặc số sê-ri phát hành;\nd) Mệnh giá, thời hạn, ngày phát hành, ngày đến hạn thanh toán;\nđ) Lãi suất, phương thức trả lãi, thời điểm trả lãi;\ne) Địa điểm giao dịch thanh toán gốc, lãi hoặc tài khoản thanh toán của người mua chứng chỉ tiền gửi nhận thanh toán gốc, lãi;\ng) Họ tên của người mua, số định danh cá nhân hoặc số hộ chiếu còn thời hạn hiệu lực (nếu người mua là cá nhân); tên tổ chức mua, số giấy phép thành lập hoặc mã số doanh nghiệp (nếu người mua là tổ chức); địa chỉ của người mua;\nh) Biện pháp để người mua tra cứu thông tin của chứng chỉ tiền gửi;\ni) Chữ ký của người đại diện hợp pháp của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phát hành;\nk) Riêng đối với chứng chỉ tiền gửi do công ty tài chính tổng hợp, công ty tài chính chuyên ngành phát hành phải ghi rõ người mua chỉ được chuyển quyền sở hữu cho tổ chức.\n2. Các nội dung khác của chứng chỉ tiền gửi do tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phát hành quy định nhưng không được trái với quy định của pháp luật hiện hành.",
+   "chapter": null,
+   "section": null,
+   "superseded": false,
+   "char_start": 4546,
+   "char_end": 5854
+  },
+  {
+   "article": "Điều 11",
+   "text": "Sử dụng chứng chỉ tiền gửi làm tài sản bảo đảm\nChứng chỉ tiền gửi được sử dụng để làm tài sản bảo đảm theo hướng dẫn của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phù hợp với quy định của pháp luật về bảo đảm thực hiện nghĩa vụ.",
+   "chapter": null,
+   "section": null,
+   "superseded": false,
+   "char_start": 5864,
+   "char_end": 6099
+  },
+  {
+   "article": "Điều 12",
+   "text": "Chuyển quyền sở hữu chứng chỉ tiền gửi và xử lý các trường hợp rủi ro khác\n1. Chứng chỉ tiền gửi được chuyển quyền sở hữu dưới các hình thức mua, bán, cho, tặng, trao đổi, thừa kế và các hình thức khác phù hợp với các quy định của pháp luật.\n2. Thủ tục chuyển quyền sở hữu chứng chỉ tiền gửi, xử lý các trường hợp nhàu nát, rách, mất chứng chỉ tiền gửi và các trường hợp rủi ro khác do tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phát hành quy định phù hợp với các quy định của pháp luật có liên quan, đặc điểm điều kiện kinh doanh của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phát hành, đảm bảo quyền lợi hợp pháp của người mua chứng chỉ tiền gửi và an toàn hoạt động của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài.\nThủ tục nhận chuyển quyền sở hữu chứng chỉ tiền gửi của người không cư trú là tổ chức, cá nhân và người cư trú là cá nhân nước ngoài phải được thực hiện trực tiếp tại địa điểm giao dịch của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phát hành.\n3. Chứng chỉ tiền gửi do công ty tài chính tổng hợp, công ty tài chính chuyên ngành phát hành chỉ được chuyển quyền sở hữu giữa các tổ chức.",
+   "chapter": null,
+   "section": null,
+   "superseded": false,
+   "char_start": 6109,
+   "char_end": 7235
+  },
+  {
+   "article": "Điều 13",
+   "text": "Biện pháp tra cứu thông tin và biện pháp thông báo khi có thay đổi thông tin của chứng chỉ tiền gửi\n1. Tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phải cung cấp tối thiểu một biện pháp để người mua tra cứu thông tin về chứng chỉ tiền gửi đã mua.\n2. Tổ chức tín dụng, chi nhánh ngân hàng nước ngoài và người mua được thỏa thuận thêm biện pháp ngoài biện pháp quy định tại khoản 1 Điều này để người mua tra cứu thông tin về chứng chỉ tiền gửi đã mua và biện pháp tổ chức tín dụng, chi nhánh ngân hàng nước ngoài thông báo cho người mua khi có thay đổi thông tin đối với chứng chỉ tiền gửi đã mua.\n3. Tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phải đảm bảo lưu giữ theo quy định của pháp luật các thông tin liên quan đến việc phát hành, thanh toán chứng chỉ tiền gửi, các thông tin liên quan đến sử dụng chứng chỉ tiền gửi làm tài sản bảo đảm (nếu có) và chuyển quyền sở hữu chứng chỉ tiền gửi để đáp ứng yêu cầu của người mua trong việc tra soát, kiểm tra thông tin về chứng chỉ tiền gửi và giải quyết tranh chấp.",
+   "chapter": null,
+   "section": null,
+   "superseded": false,
+   "char_start": 7245,
+   "char_end": 8267
+  },
+  {
+   "article": "Điều 14",
+   "text": "Thanh toán chứng chỉ tiền gửi\n1. Tổ chức tín dụng, chi nhánh ngân hàng nước ngoài có trách nhiệm thanh toán tiền gốc, lãi chứng chỉ tiền gửi đầy đủ và đúng hạn cho người mua chứng chỉ tiền gửi theo thỏa thuận phù hợp với quy định tại Thông tư này và quy định của pháp luật có liên quan.\n2. Phương thức thanh toán gốc, lãi chứng chỉ tiền gửi do tổ chức tín dụng, chi nhánh ngân hàng nước ngoài quy định phù hợp với các quy định của pháp luật có liên quan, được thông tin cho người mua chứng chỉ tiền gửi trước khi phát hành chứng chỉ tiền gửi.\n3. Việc thanh toán trước hạn chứng chỉ tiền gửi theo đề nghị của người mua chứng chỉ tiền gửi do tổ chức tín dụng, chi nhánh ngân hàng nước ngoài quy định, bảo đảm an toàn hoạt động của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài. Lãi suất áp dụng trong trường hợp thanh toán trước hạn chứng chỉ tiền gửi phù hợp với quy định của Ngân hàng Nhà nước về việc áp dụng lãi suất rút trước hạn tiền gửi tại tổ chức tín dụng, chi nhánh ngân hàng nước ngoài.\n4. Trường hợp người không cư trú là tổ chức, cá nhân và người cư trú là cá nhân nước ngoài mua chứng chỉ tiền gửi bằng tiền mặt, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài chỉ được thanh toán gốc và lãi tương ứng bằng tiền mặt.",
+   "chapter": null,
+   "section": null,
+   "superseded": false,
+   "char_start": 8277,
+   "char_end": 9509
+  },
+  {
+   "article": "Điều 15",
+   "text": "Quy trình phát hành và thanh toán chứng chỉ tiền gửi\n1. Quy trình phát hành và thanh toán chứng chỉ tiền gửi, bao gồm cả quy trình phát hành và thanh toán chứng chỉ tiền gửi bằng phương tiện điện tử (nếu có), do tổ chức tín dụng, chi nhánh ngân hàng nước ngoài quy định phù hợp với quy định tại Thông tư này, quy định về mở và sử dụng tài khoản, quy định về an toàn thông tin mạng, an ninh mạng, quy định về giao dịch điện tử, quy định về phòng, chống rửa tiền và các quy định pháp luật có liên quan; phù hợp với đặc điểm, mô hình quản lý của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài; đảm bảo việc phát hành và thanh toán chứng chỉ tiền gửi được chính xác; đảm bảo an toàn hoạt động của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài và an toàn tài sản cho người mua chứng chỉ tiền gửi.\n2. Tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phải thông tin đầy đủ cho người mua chứng chỉ tiền gửi về các quyền, nghĩa vụ của người mua, quy trình phát hành và thanh toán chứng chỉ tiền gửi giữa người mua và tổ chức tín dụng, chi nhánh ngân hàng nước ngoài.",
+   "chapter": null,
+   "section": null,
+   "superseded": false,
+   "char_start": 9519,
+   "char_end": 10581
+  },
+  {
+   "article": "Điều 16",
+   "text": "Phát hành và thanh toán chứng chỉ tiền gửi bằng phương tiện điện tử\n1. Việc phát hành và thanh toán chứng chỉ tiền gửi bằng phương tiện điện tử do tổ chức tín dụng, chi nhánh ngân hàng nước ngoài hướng dẫn phù hợp với quy định tại Thông tư này và quy định của pháp luật có liên quan.\n2. Đối với phương thức phát hành chứng chỉ tiền gửi bằng phương tiện điện tử, việc chuyển tiền mua và nhận thanh toán chứng chỉ tiền gửi được thực hiện thông qua tài khoản thanh toán của chính người mua tại các tổ chức tín dụng, chi nhánh ngân hàng nước ngoài; hoặc thông qua tài khoản thanh toán tại Ngân hàng Nhà nước của chính người mua là tổ chức tín dụng, chi nhánh ngân hàng nước ngoài.\n3. Tổ chức tín dụng, chi nhánh ngân hàng nước ngoài hiển thị cho người mua tối thiểu các thông tin về nội dung của chứng chỉ tiền gửi quy định tại Điều 10 Thông tư này và có giải pháp kỹ thuật để người mua xác nhận đã đọc đầy đủ các nội dung của chứng chỉ tiền gửi.",
+   "chapter": null,
+   "section": null,
+   "superseded": false,
+   "char_start": 10591,
+   "char_end": 11533
+  },
+  {
+   "article": "Điều 17",
+   "text": "Quy định nội bộ\nCăn cứ quy định tại Luật Các tổ chức tín dụng, Thông tư này và các quy định của pháp luật có liên quan, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài ban hành Quy định nội bộ về phát hành và thanh toán chứng chỉ tiền gửi, bao gồm cả quy định về phát hành và thanh toán chứng chỉ tiền gửi bằng phương tiện điện tử (nếu có), phù hợp với mô hình quản lý, đặc điểm, điều kiện kinh doanh, đảm bảo an toàn hoạt động cho tổ chức tín dụng, chi nhánh ngân hàng nước ngoài. Quy định nội bộ phải quy định rõ trách nhiệm và nghĩa vụ của từng bộ phận, cá nhân có liên quan đến việc phát hành chứng chỉ tiền gửi.",
+   "chapter": null,
+   "section": null,
+   "superseded": false,
+   "char_start": 11543,
+   "char_end": 12160
+  },
+  {
+   "article": "Điều 18",
+   "text": "Điều khoản thi hành\n1. Thông tư này có hiệu lực thi hành từ ngày 16 tháng 6 năm 2025.\n2. Thông tư này bãi bỏ:\na) Thông tư số 01/2021/TT-NHNN ngày 31 tháng 3 năm 2021 của Thống đốc Ngân hàng Nhà nước quy định về phát hành kỳ phiếu, tín phiếu, chứng chỉ tiền gửi, trái phiếu trong nước của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài;\nb) Khoản 2 Điều 6 Thông tư số 12/2021/TT-NHNN ngày 30 tháng 7 năm 2021 của Thống đốc Ngân hàng Nhà nước quy định về việc tổ chức tín dụng, chi nhánh ngân hàng nước ngoài mua, bán kỳ phiếu, tín phiếu, chứng chỉ tiền gửi, trái phiếu do tổ chức tín dụng, chi nhánh ngân hàng nước ngoài khác phát hành trong nước.\n3. Đối với chứng chỉ tiền gửi đã phát hành còn số dư đến ngày Thông tư này có hiệu lực thi hành, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài và người mua chứng chỉ tiền gửi tiếp tục thực hiện theo các nội dung đã thỏa thuận cho đến khi thanh toán hết chứng chỉ tiền gửi.",
+   "chapter": null,
+   "section": null,
+   "superseded": false,
+   "char_start": 12170,
+   "char_end": 13093
+  },
+  {
+   "article": "Điều 19",
+   "text": "Tổ chức thực hiện\nChánh Văn phòng, Vụ trưởng Vụ Chính sách tiền tệ, Thủ trưởng các đơn vị thuộc Ngân hàng Nhà nước; tổ chức tín dụng, chi nhánh ngân hàng nước ngoài chịu trách nhiệm tổ chức thực hiện Thông tư này./.\nKT. THỐNG ĐỐC\nPHÓ THỐNG ĐỐC\n(Đã ký)\nPhạm Thanh Hà",
+   "chapter": null,
+   "section": null,
+   "superseded": false,
+   "char_start": 13103,
+   "char_end": 13368
+  }
+ ],
+ "provisions": [
+  {
+   "id": "id_6a53589a-e16c-11f0-8f10-9114dd30b004",
+   "cap": "dieu",
+   "so": "1",
+   "tieu_de": "Phạm vi điều chỉnh",
+   "text": "Thông tư này quy định việc phát hành chứng chỉ tiền gửi trong nước của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài trên phạm vi lãnh thổ Việt Nam.",
+   "html": "Thông tư này quy định việc phát hành chứng chỉ tiền gửi trong nước của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài trên phạm vi lãnh thổ Việt Nam.",
+   "bi_tac_dong": null,
+   "an": false,
+   "con": []
+  },
+  {
+   "id": "id_6a5358a4-e16c-11f0-a5b9-d315006bf440",
+   "cap": "dieu",
+   "so": "2",
+   "tieu_de": "Đối tượng phát hành chứng chỉ tiền gửi",
+   "text": "Tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phát hành chứng chỉ tiền gửi theo Giấy phép thành lập và hoạt động của tổ chức tín dụng, Giấy phép thành lập chi nhánh ngân hàng nước ngoài bao gồm:",
+   "html": "Tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phát hành chứng chỉ tiền gửi theo Giấy phép thành lập và hoạt động của tổ chức tín dụng, Giấy phép thành lập chi nhánh ngân hàng nước ngoài bao gồm:",
+   "bi_tac_dong": null,
+   "an": false,
+   "con": [
+    {
+     "id": "id_6a5358ae-e16c-11f0-b5c0-7d96843bafd6",
+     "cap": "khoan",
+     "so": "1",
+     "tieu_de": "",
+     "text": "Ngân hàng thương mại.",
+     "html": "1. Ngân hàng thương mại.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_6a5358b8-e16c-11f0-8127-516011206b7d",
+     "cap": "khoan",
+     "so": "2",
+     "tieu_de": "",
+     "text": "Ngân hàng hợp tác xã.",
+     "html": "2. Ngân hàng hợp tác xã.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_6a5358c2-e16c-11f0-a50c-991492bdd8c4",
+     "cap": "khoan",
+     "so": "3",
+     "tieu_de": "",
+     "text": "Công ty tài chính tổng hợp, công ty tài chính chuyên ngành.",
+     "html": "3. Công ty tài chính tổng hợp, công ty tài chính chuyên ngành.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_6a5358cc-e16c-11f0-9320-7d22e1aead20",
+     "cap": "khoan",
+     "so": "4",
+     "tieu_de": "",
+     "text": "Chi nhánh ngân hàng nước ngoài.",
+     "html": "4. Chi nhánh ngân hàng nước ngoài.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    }
+   ]
+  },
+  {
+   "id": "id_6a5358d6-e16c-11f0-ad6f-df8af02dcb15",
+   "cap": "dieu",
+   "so": "3",
+   "tieu_de": "Đối tượng mua chứng chỉ tiền gửi",
+   "text": "",
+   "html": "",
+   "bi_tac_dong": null,
+   "an": false,
+   "con": [
+    {
+     "id": "id_6a5358e0-e16c-11f0-9020-81960e611a3e",
+     "cap": "khoan",
+     "so": "1",
+     "tieu_de": "",
+     "text": "Đối tượng mua chứng chỉ tiền gửi do ngân hàng thương mại, ngân hàng hợp tác xã, chi nhánh ngân hàng nước ngoài phát hành là tổ chức (bao gồm cả tổ chức tín dụng, chi nhánh ngân hàng nước ngoài), cá nhân Việt Nam và tổ chức, cá nhân nước ngoài.",
+     "html": "1. Đối tượng mua chứng chỉ tiền gửi do ngân hàng thương mại, ngân hàng hợp tác xã, chi nhánh ngân hàng nước ngoài phát hành là tổ chức (bao gồm cả tổ chức tín dụng, chi nhánh ngân hàng nước ngoài), cá nhân Việt Nam và tổ chức, cá nhân nước ngoài.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_6a5358ea-e16c-11f0-b818-077184f8912d",
+     "cap": "khoan",
+     "so": "2",
+     "tieu_de": "",
+     "text": "Đối tượng mua chứng chỉ tiền gửi do công ty tài chính tổng hợp, công ty tài chính chuyên ngành phát hành là tổ chức Việt Nam (bao gồm cả tổ chức tín dụng, chi nhánh ngân hàng nước ngoài) và tổ chức nước ngoài.",
+     "html": "2. Đối tượng mua chứng chỉ tiền gửi do công ty tài chính tổng hợp, công ty tài chính chuyên ngành phát hành là tổ chức Việt Nam (bao gồm cả tổ chức tín dụng, chi nhánh ngân hàng nước ngoài) và tổ chức nước ngoài.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    }
+   ]
+  },
+  {
+   "id": "id_6a5358f4-e16c-11f0-b278-3b1569a55ce9",
+   "cap": "dieu",
+   "so": "4",
+   "tieu_de": "Giải thích từ ngữ",
+   "text": "Trong Thông tư này, từ ngữ dưới đây được hiểu như sau:\nChứng chỉ tiền gửi là một hình thức tiền gửi dưới dạng giấy tờ có giá và là bằng chứng xác nhận nghĩa vụ trả nợ của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phát hành đối với người mua chứng chỉ tiền gửi trong một thời hạn nhất định, điều kiện trả lãi và các điều kiện khác.",
+   "html": "Trong Thông tư này, từ ngữ dưới đây được hiểu như sau:<br><em>Chứng chỉ tiền gửi</em> là một hình thức tiền gửi dưới dạng giấy tờ có giá và là bằng chứng xác nhận nghĩa vụ trả nợ của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phát hành đối với người mua chứng chỉ tiền gửi trong một thời hạn nhất định, điều kiện trả lãi và các điều kiện khác.",
+   "bi_tac_dong": null,
+   "an": false,
+   "con": []
+  },
+  {
+   "id": "id_6a5358fe-e16c-11f0-b52a-e54182ed8d71",
+   "cap": "dieu",
+   "so": "5",
+   "tieu_de": "Đồng tiền phát hành và thanh toán",
+   "text": "Chứng chỉ tiền gửi được phát hành và thanh toán bằng đồng Việt Nam.",
+   "html": "Chứng chỉ tiền gửi được phát hành và thanh toán bằng đồng Việt Nam.",
+   "bi_tac_dong": null,
+   "an": false,
+   "con": []
+  },
+  {
+   "id": "id_6a535908-e16c-11f0-a757-4354e589e8c0",
+   "cap": "dieu",
+   "so": "6",
+   "tieu_de": "Lãi suất",
+   "text": "",
+   "html": "",
+   "bi_tac_dong": null,
+   "an": false,
+   "con": [
+    {
+     "id": "id_6a535912-e16c-11f0-b6d5-e7f4ea9802e3",
+     "cap": "khoan",
+     "so": "1",
+     "tieu_de": "",
+     "text": "Lãi suất chứng chỉ tiền gửi do tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phát hành quyết định phù hợp với quy định về lãi suất của Ngân hàng Nhà nước Việt Nam (sau đây gọi là Ngân hàng Nhà nước) trong từng thời kỳ.",
+     "html": "1. Lãi suất chứng chỉ tiền gửi do tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phát hành quyết định phù hợp với quy định về lãi suất của Ngân hàng Nhà nước Việt Nam (sau đây gọi là Ngân hàng Nhà nước) trong từng thời kỳ.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_6a53591c-e16c-11f0-a424-cb45ae64da88",
+     "cap": "khoan",
+     "so": "2",
+     "tieu_de": "",
+     "text": "Phương pháp tính lãi chứng chỉ tiền gửi thực hiện theo quy định của Ngân hàng Nhà nước.",
+     "html": "2. Phương pháp tính lãi chứng chỉ tiền gửi thực hiện theo quy định của Ngân hàng Nhà nước.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    }
+   ]
+  },
+  {
+   "id": "id_6a535926-e16c-11f0-81d7-cbb42f0acc19",
+   "cap": "dieu",
+   "so": "7",
+   "tieu_de": "Thời hạn, ngày phát hành và ngày đến hạn thanh toán của chứng chỉ tiền gửi",
+   "text": "",
+   "html": "",
+   "bi_tac_dong": null,
+   "an": false,
+   "con": [
+    {
+     "id": "id_6a535930-e16c-11f0-9343-dd4c8b33bfa5",
+     "cap": "khoan",
+     "so": "1",
+     "tieu_de": "",
+     "text": "Thời hạn, ngày phát hành và ngày đến hạn thanh toán của chứng chỉ tiền gửi do tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phát hành quyết định.",
+     "html": "1. Thời hạn, ngày phát hành và ngày đến hạn thanh toán của chứng chỉ tiền gửi do tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phát hành quyết định.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_6a53593a-e16c-11f0-9dd7-9dc8eb58fe13",
+     "cap": "khoan",
+     "so": "2",
+     "tieu_de": "",
+     "text": "Trường hợp người mua là tổ chức tín dụng, chi nhánh ngân hàng nước ngoài khác thì tổ chức tín dụng, chi nhánh ngân hàng nước ngoài chỉ được phát hành chứng chỉ tiền gửi có thời hạn dưới 12 tháng.",
+     "html": "2. Trường hợp người mua là tổ chức tín dụng, chi nhánh ngân hàng nước ngoài khác thì tổ chức tín dụng, chi nhánh ngân hàng nước ngoài chỉ được phát hành chứng chỉ tiền gửi có thời hạn dưới 12 tháng.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    }
+   ]
+  },
+  {
+   "id": "id_6a535944-e16c-11f0-82bb-9d1314ced835",
+   "cap": "dieu",
+   "so": "8",
+   "tieu_de": "Mệnh giá của chứng chỉ tiền gửi",
+   "text": "Mệnh giá của chứng chỉ tiền gửi là 100.000 (một trăm nghìn) đồng Việt Nam hoặc bội số của 100.000 (một trăm nghìn) đồng Việt Nam. Mệnh giá của chứng chỉ tiền gửi cụ thể do tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phát hành quyết định hoặc theo thỏa thuận của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài với người mua.",
+   "html": "Mệnh giá của chứng chỉ tiền gửi là 100.000 (một trăm nghìn) đồng Việt Nam hoặc bội số của 100.000 (một trăm nghìn) đồng Việt Nam. Mệnh giá của chứng chỉ tiền gửi cụ thể do tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phát hành quyết định hoặc theo thỏa thuận của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài với người mua.",
+   "bi_tac_dong": null,
+   "an": false,
+   "con": []
+  },
+  {
+   "id": "id_6a53594e-e16c-11f0-9662-6360d4ecdaa2",
+   "cap": "dieu",
+   "so": "9",
+   "tieu_de": "Phương thức phát hành",
+   "text": "",
+   "html": "",
+   "bi_tac_dong": null,
+   "an": false,
+   "con": [
+    {
+     "id": "id_6a535958-e16c-11f0-bbfb-851611cc54bd",
+     "cap": "khoan",
+     "so": "1",
+     "tieu_de": "",
+     "text": "Tổ chức tín dụng, chi nhánh ngân hàng nước ngoài trực tiếp phát hành chứng chỉ tiền gửi cho chính người mua tại địa điểm giao dịch hợp pháp thuộc mạng lưới hoạt động trong nước của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phát hành (sau đây gọi là địa điểm giao dịch) hoặc bằng phương tiện điện tử.",
+     "html": "1. Tổ chức tín dụng, chi nhánh ngân hàng nước ngoài trực tiếp phát hành chứng chỉ tiền gửi cho chính người mua tại địa điểm giao dịch hợp pháp thuộc mạng lưới hoạt động trong nước của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phát hành (sau đây gọi là địa điểm giao dịch) hoặc bằng phương tiện điện tử.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_6a535962-e16c-11f0-a3c3-bbd80c8e333a",
+     "cap": "khoan",
+     "so": "2",
+     "tieu_de": "",
+     "text": "Trường hợp phát hành bằng phương tiện điện tử, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phát hành cấp cho người mua chứng nhận quyền sở hữu chứng chỉ tiền gửi trên môi trường điện tử.",
+     "html": "2. Trường hợp phát hành bằng phương tiện điện tử, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phát hành cấp cho người mua chứng nhận quyền sở hữu chứng chỉ tiền gửi trên môi trường điện tử.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_6a53596c-e16c-11f0-8ba1-590fec34f484",
+     "cap": "khoan",
+     "so": "3",
+     "tieu_de": "",
+     "text": "Trường hợp phát hành chứng chỉ tiền gửi cho người mua tại địa điểm giao dịch, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài cấp cho người mua chứng chỉ tiền gửi dưới hình thức chứng chỉ. Tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phải thiết kế và in ấn chứng chỉ để đảm bảo khả năng chống giả cao.",
+     "html": "3. Trường hợp phát hành chứng chỉ tiền gửi cho người mua tại địa điểm giao dịch, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài cấp cho người mua chứng chỉ tiền gửi dưới hình thức chứng chỉ. Tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phải thiết kế và in ấn chứng chỉ để đảm bảo khả năng chống giả cao.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_6a535976-e16c-11f0-889e-55e44dcf5b7e",
+     "cap": "khoan",
+     "so": "4",
+     "tieu_de": "",
+     "text": "Trường hợp người không cư trú là tổ chức, cá nhân và người cư trú là cá nhân nước ngoài mua chứng chỉ tiền gửi, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài chỉ được phát hành chứng chỉ tiền gửi tại địa điểm giao dịch cho chính người mua.",
+     "html": "4. Trường hợp người không cư trú là tổ chức, cá nhân và người cư trú là cá nhân nước ngoài mua chứng chỉ tiền gửi, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài chỉ được phát hành chứng chỉ tiền gửi tại địa điểm giao dịch cho chính người mua.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    }
+   ]
+  },
+  {
+   "id": "id_6a535980-e16c-11f0-b047-d52e31205b7d",
+   "cap": "dieu",
+   "so": "10",
+   "tieu_de": "Nội dung của chứng chỉ tiền gửi",
+   "text": "",
+   "html": "",
+   "bi_tac_dong": null,
+   "an": false,
+   "con": [
+    {
+     "id": "id_6a53598a-e16c-11f0-ab6d-158785d25e37",
+     "cap": "khoan",
+     "so": "1",
+     "tieu_de": "",
+     "text": "Chứng chỉ tiền gửi dưới hình thức chứng chỉ hoặc chứng nhận quyền sở hữu chứng chỉ tiền gửi trên môi trường điện tử phải bao gồm các nội dung sau:",
+     "html": "1. Chứng chỉ tiền gửi dưới hình thức chứng chỉ hoặc chứng nhận quyền sở hữu chứng chỉ tiền gửi trên môi trường điện tử phải bao gồm các nội dung sau:",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": [
+      {
+       "id": "id_6a535994-e16c-11f0-93a3-c5f363b37156",
+       "cap": "diem",
+       "so": "a",
+       "tieu_de": "",
+       "text": "Tên tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phát hành;",
+       "html": "a) Tên tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phát hành;",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_6a53599e-e16c-11f0-9196-a54ab4a8b7ef",
+       "cap": "diem",
+       "so": "b",
+       "tieu_de": "",
+       "text": "Tên gọi của chứng chỉ tiền gửi;",
+       "html": "b) Tên gọi của chứng chỉ tiền gửi;",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_6a5359a8-e16c-11f0-aadf-0b5cdda28d12",
+       "cap": "diem",
+       "so": "c",
+       "tieu_de": "",
+       "text": "Ký hiệu hoặc số sê-ri phát hành;",
+       "html": "c) Ký hiệu hoặc số sê-ri phát hành;",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_6a5359b2-e16c-11f0-a98f-43cb5794afb1",
+       "cap": "diem",
+       "so": "d",
+       "tieu_de": "",
+       "text": "Mệnh giá, thời hạn, ngày phát hành, ngày đến hạn thanh toán;",
+       "html": "d) Mệnh giá, thời hạn, ngày phát hành, ngày đến hạn thanh toán;",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_6a5359bc-e16c-11f0-9f5a-111422b1ae26",
+       "cap": "diem",
+       "so": "đ",
+       "tieu_de": "",
+       "text": "Lãi suất, phương thức trả lãi, thời điểm trả lãi;",
+       "html": "đ) Lãi suất, phương thức trả lãi, thời điểm trả lãi;",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_6a5359c6-e16c-11f0-aedc-ab510b2fcecd",
+       "cap": "diem",
+       "so": "e",
+       "tieu_de": "",
+       "text": "Địa điểm giao dịch thanh toán gốc, lãi hoặc tài khoản thanh toán của người mua chứng chỉ tiền gửi nhận thanh toán gốc, lãi;",
+       "html": "e) Địa điểm giao dịch thanh toán gốc, lãi hoặc tài khoản thanh toán của người mua chứng chỉ tiền gửi nhận thanh toán gốc, lãi;",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_6a5359d0-e16c-11f0-915a-b1e0573f9c8a",
+       "cap": "diem",
+       "so": "g",
+       "tieu_de": "",
+       "text": "Họ tên của người mua, số định danh cá nhân hoặc số hộ chiếu còn thời hạn hiệu lực (nếu người mua là cá nhân); tên tổ chức mua, số giấy phép thành lập hoặc mã số doanh nghiệp (nếu người mua là tổ chức); địa chỉ của người mua;",
+       "html": "g) Họ tên của người mua, số định danh cá nhân hoặc số hộ chiếu còn thời hạn hiệu lực (nếu người mua là cá nhân); tên tổ chức mua, số giấy phép thành lập hoặc mã số doanh nghiệp (nếu người mua là tổ chức); địa chỉ của người mua;",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_6a5359da-e16c-11f0-b061-1bd2ab571bc0",
+       "cap": "diem",
+       "so": "h",
+       "tieu_de": "",
+       "text": "Biện pháp để người mua tra cứu thông tin của chứng chỉ tiền gửi;",
+       "html": "h) Biện pháp để người mua tra cứu thông tin của chứng chỉ tiền gửi;",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_6a5359e4-e16c-11f0-9715-0379bf1bbc1a",
+       "cap": "diem",
+       "so": "i",
+       "tieu_de": "",
+       "text": "Chữ ký của người đại diện hợp pháp của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phát hành;",
+       "html": "i) Chữ ký của người đại diện hợp pháp của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phát hành;",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_6a5359ee-e16c-11f0-b83e-c3361b680bdc",
+       "cap": "diem",
+       "so": "k",
+       "tieu_de": "",
+       "text": "Riêng đối với chứng chỉ tiền gửi do công ty tài chính tổng hợp, công ty tài chính chuyên ngành phát hành phải ghi rõ người mua chỉ được chuyển quyền sở hữu cho tổ chức.",
+       "html": "k) Riêng đối với chứng chỉ tiền gửi do công ty tài chính tổng hợp, công ty tài chính chuyên ngành phát hành phải ghi rõ người mua chỉ được chuyển quyền sở hữu cho tổ chức.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      }
+     ]
+    },
+    {
+     "id": "id_6a5359f8-e16c-11f0-86b2-cd76bd3190e8",
+     "cap": "khoan",
+     "so": "2",
+     "tieu_de": "",
+     "text": "Các nội dung khác của chứng chỉ tiền gửi do tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phát hành quy định nhưng không được trái với quy định của pháp luật hiện hành.",
+     "html": "2. Các nội dung khác của chứng chỉ tiền gửi do tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phát hành quy định nhưng không được trái với quy định của pháp luật hiện hành.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    }
+   ]
+  },
+  {
+   "id": "id_6a535a02-e16c-11f0-ba73-0d95c7c6841b",
+   "cap": "dieu",
+   "so": "11",
+   "tieu_de": "Sử dụng chứng chỉ tiền gửi làm tài sản bảo đảm",
+   "text": "Chứng chỉ tiền gửi được sử dụng để làm tài sản bảo đảm theo hướng dẫn của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phù hợp với quy định của pháp luật về bảo đảm thực hiện nghĩa vụ.",
+   "html": "Chứng chỉ tiền gửi được sử dụng để làm tài sản bảo đảm theo hướng dẫn của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phù hợp với quy định của pháp luật về bảo đảm thực hiện nghĩa vụ.",
+   "bi_tac_dong": null,
+   "an": false,
+   "con": []
+  },
+  {
+   "id": "id_6a535a0c-e16c-11f0-9fd5-6bf8bc7525a9",
+   "cap": "dieu",
+   "so": "12",
+   "tieu_de": "Chuyển quyền sở hữu chứng chỉ tiền gửi và xử lý các trường hợp rủi ro khác",
+   "text": "Thủ tục nhận chuyển quyền sở hữu chứng chỉ tiền gửi của người không cư trú là tổ chức, cá nhân và người cư trú là cá nhân nước ngoài phải được thực hiện trực tiếp tại địa điểm giao dịch của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phát hành.",
+   "html": "Thủ tục nhận chuyển quyền sở hữu chứng chỉ tiền gửi của người không cư trú là tổ chức, cá nhân và người cư trú là cá nhân nước ngoài phải được thực hiện trực tiếp tại địa điểm giao dịch của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phát hành.",
+   "bi_tac_dong": null,
+   "an": false,
+   "con": [
+    {
+     "id": "id_6a535a16-e16c-11f0-954d-d5f04b9f3013",
+     "cap": "khoan",
+     "so": "1",
+     "tieu_de": "",
+     "text": "Chứng chỉ tiền gửi được chuyển quyền sở hữu dưới các hình thức mua, bán, cho, tặng, trao đổi, thừa kế và các hình thức khác phù hợp với các quy định của pháp luật.",
+     "html": "1. Chứng chỉ tiền gửi được chuyển quyền sở hữu dưới các hình thức mua, bán, cho, tặng, trao đổi, thừa kế và các hình thức khác phù hợp với các quy định của pháp luật.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_6a535a20-e16c-11f0-8b46-957099bf18c3",
+     "cap": "khoan",
+     "so": "2",
+     "tieu_de": "",
+     "text": "Thủ tục chuyển quyền sở hữu chứng chỉ tiền gửi, xử lý các trường hợp nhàu nát, rách, mất chứng chỉ tiền gửi và các trường hợp rủi ro khác do tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phát hành quy định phù hợp với các quy định của pháp luật có liên quan, đặc điểm điều kiện kinh doanh của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phát hành, đảm bảo quyền lợi hợp pháp của người mua chứng chỉ tiền gửi và an toàn hoạt động của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài.",
+     "html": "2. Thủ tục chuyển quyền sở hữu chứng chỉ tiền gửi, xử lý các trường hợp nhàu nát, rách, mất chứng chỉ tiền gửi và các trường hợp rủi ro khác do tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phát hành quy định phù hợp với các quy định của pháp luật có liên quan, đặc điểm điều kiện kinh doanh của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phát hành, đảm bảo quyền lợi hợp pháp của người mua chứng chỉ tiền gửi và an toàn hoạt động của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_6a535a2a-e16c-11f0-b81d-b9809420a134",
+     "cap": "khoan",
+     "so": "3",
+     "tieu_de": "",
+     "text": "Chứng chỉ tiền gửi do công ty tài chính tổng hợp, công ty tài chính chuyên ngành phát hành chỉ được chuyển quyền sở hữu giữa các tổ chức.",
+     "html": "3. Chứng chỉ tiền gửi do công ty tài chính tổng hợp, công ty tài chính chuyên ngành phát hành chỉ được chuyển quyền sở hữu giữa các tổ chức.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    }
+   ]
+  },
+  {
+   "id": "id_6a535a34-e16c-11f0-ba0e-fddcb3a9e6dc",
+   "cap": "dieu",
+   "so": "13",
+   "tieu_de": "Biện pháp tra cứu thông tin và biện pháp thông báo khi có thay đổi thông tin của chứng chỉ tiền gửi",
+   "text": "",
+   "html": "",
+   "bi_tac_dong": null,
+   "an": false,
+   "con": [
+    {
+     "id": "id_6a535a3e-e16c-11f0-973c-e7edffd8cfc0",
+     "cap": "khoan",
+     "so": "1",
+     "tieu_de": "",
+     "text": "Tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phải cung cấp tối thiểu một biện pháp để người mua tra cứu thông tin về chứng chỉ tiền gửi đã mua.",
+     "html": "1. Tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phải cung cấp tối thiểu một biện pháp để người mua tra cứu thông tin về chứng chỉ tiền gửi đã mua.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_6a535a48-e16c-11f0-886d-e5279c83776b",
+     "cap": "khoan",
+     "so": "2",
+     "tieu_de": "",
+     "text": "Tổ chức tín dụng, chi nhánh ngân hàng nước ngoài và người mua được thỏa thuận thêm biện pháp ngoài biện pháp quy định tại khoản 1 Điều này để người mua tra cứu thông tin về chứng chỉ tiền gửi đã mua và biện pháp tổ chức tín dụng, chi nhánh ngân hàng nước ngoài thông báo cho người mua khi có thay đổi thông tin đối với chứng chỉ tiền gửi đã mua.",
+     "html": "2. Tổ chức tín dụng, chi nhánh ngân hàng nước ngoài và người mua được thỏa thuận thêm biện pháp ngoài biện pháp quy định tại khoản 1 Điều này để người mua tra cứu thông tin về chứng chỉ tiền gửi đã mua và biện pháp tổ chức tín dụng, chi nhánh ngân hàng nước ngoài thông báo cho người mua khi có thay đổi thông tin đối với chứng chỉ tiền gửi đã mua.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_6a535a52-e16c-11f0-a48a-d1cbb10605b0",
+     "cap": "khoan",
+     "so": "3",
+     "tieu_de": "",
+     "text": "Tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phải đảm bảo lưu giữ theo quy định của pháp luật các thông tin liên quan đến việc phát hành, thanh toán chứng chỉ tiền gửi, các thông tin liên quan đến sử dụng chứng chỉ tiền gửi làm tài sản bảo đảm (nếu có) và chuyển quyền sở hữu chứng chỉ tiền gửi để đáp ứng yêu cầu của người mua trong việc tra soát, kiểm tra thông tin về chứng chỉ tiền gửi và giải quyết tranh chấp.",
+     "html": "3. Tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phải đảm bảo lưu giữ theo quy định của pháp luật các thông tin liên quan đến việc phát hành, thanh toán chứng chỉ tiền gửi, các thông tin liên quan đến sử dụng chứng chỉ tiền gửi làm tài sản bảo đảm (nếu có) và chuyển quyền sở hữu chứng chỉ tiền gửi để đáp ứng yêu cầu của người mua trong việc tra soát, kiểm tra thông tin về chứng chỉ tiền gửi và giải quyết tranh chấp.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    }
+   ]
+  },
+  {
+   "id": "id_6a535a5c-e16c-11f0-91aa-0fe427d67e46",
+   "cap": "dieu",
+   "so": "14",
+   "tieu_de": "Thanh toán chứng chỉ tiền gửi",
+   "text": "",
+   "html": "",
+   "bi_tac_dong": null,
+   "an": false,
+   "con": [
+    {
+     "id": "id_6a535a66-e16c-11f0-8654-4d34aaf42c10",
+     "cap": "khoan",
+     "so": "1",
+     "tieu_de": "",
+     "text": "Tổ chức tín dụng, chi nhánh ngân hàng nước ngoài có trách nhiệm thanh toán tiền gốc, lãi chứng chỉ tiền gửi đầy đủ và đúng hạn cho người mua chứng chỉ tiền gửi theo thỏa thuận phù hợp với quy định tại Thông tư này và quy định của pháp luật có liên quan.",
+     "html": "1. Tổ chức tín dụng, chi nhánh ngân hàng nước ngoài có trách nhiệm thanh toán tiền gốc, lãi chứng chỉ tiền gửi đầy đủ và đúng hạn cho người mua chứng chỉ tiền gửi theo thỏa thuận phù hợp với quy định tại Thông tư này và quy định của pháp luật có liên quan.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_6a535a70-e16c-11f0-91e0-9369da7316c8",
+     "cap": "khoan",
+     "so": "2",
+     "tieu_de": "",
+     "text": "Phương thức thanh toán gốc, lãi chứng chỉ tiền gửi do tổ chức tín dụng, chi nhánh ngân hàng nước ngoài quy định phù hợp với các quy định của pháp luật có liên quan, được thông tin cho người mua chứng chỉ tiền gửi trước khi phát hành chứng chỉ tiền gửi.",
+     "html": "2. Phương thức thanh toán gốc, lãi chứng chỉ tiền gửi do tổ chức tín dụng, chi nhánh ngân hàng nước ngoài quy định phù hợp với các quy định của pháp luật có liên quan, được thông tin cho người mua chứng chỉ tiền gửi trước khi phát hành chứng chỉ tiền gửi.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_6a535a7a-e16c-11f0-af6e-49f413b3a4cd",
+     "cap": "khoan",
+     "so": "3",
+     "tieu_de": "",
+     "text": "Việc thanh toán trước hạn chứng chỉ tiền gửi theo đề nghị của người mua chứng chỉ tiền gửi do tổ chức tín dụng, chi nhánh ngân hàng nước ngoài quy định, bảo đảm an toàn hoạt động của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài. Lãi suất áp dụng trong trường hợp thanh toán trước hạn chứng chỉ tiền gửi phù hợp với quy định của Ngân hàng Nhà nước về việc áp dụng lãi suất rút trước hạn tiền gửi tại tổ chức tín dụng, chi nhánh ngân hàng nước ngoài.",
+     "html": "3. Việc thanh toán trước hạn chứng chỉ tiền gửi theo đề nghị của người mua chứng chỉ tiền gửi do tổ chức tín dụng, chi nhánh ngân hàng nước ngoài quy định, bảo đảm an toàn hoạt động của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài. Lãi suất áp dụng trong trường hợp thanh toán trước hạn chứng chỉ tiền gửi phù hợp với quy định của Ngân hàng Nhà nước về việc áp dụng lãi suất rút trước hạn tiền gửi tại tổ chức tín dụng, chi nhánh ngân hàng nước ngoài.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_6a535a84-e16c-11f0-8977-9b7f48259f69",
+     "cap": "khoan",
+     "so": "4",
+     "tieu_de": "",
+     "text": "Trường hợp người không cư trú là tổ chức, cá nhân và người cư trú là cá nhân nước ngoài mua chứng chỉ tiền gửi bằng tiền mặt, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài chỉ được thanh toán gốc và lãi tương ứng bằng tiền mặt.",
+     "html": "4. Trường hợp người không cư trú là tổ chức, cá nhân và người cư trú là cá nhân nước ngoài mua chứng chỉ tiền gửi bằng tiền mặt, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài chỉ được thanh toán gốc và lãi tương ứng bằng tiền mặt.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    }
+   ]
+  },
+  {
+   "id": "id_6a535a8e-e16c-11f0-af23-dbf1f4b4ccfc",
+   "cap": "dieu",
+   "so": "15",
+   "tieu_de": "Quy trình phát hành và thanh toán chứng chỉ tiền gửi",
+   "text": "",
+   "html": "",
+   "bi_tac_dong": null,
+   "an": false,
+   "con": [
+    {
+     "id": "id_6a535a98-e16c-11f0-ac18-6b19bb917d59",
+     "cap": "khoan",
+     "so": "1",
+     "tieu_de": "",
+     "text": "Quy trình phát hành và thanh toán chứng chỉ tiền gửi, bao gồm cả quy trình phát hành và thanh toán chứng chỉ tiền gửi bằng phương tiện điện tử (nếu có), do tổ chức tín dụng, chi nhánh ngân hàng nước ngoài quy định phù hợp với quy định tại Thông tư này, quy định về mở và sử dụng tài khoản, quy định về an toàn thông tin mạng, an ninh mạng, quy định về giao dịch điện tử, quy định về phòng, chống rửa tiền và các quy định pháp luật có liên quan; phù hợp với đặc điểm, mô hình quản lý của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài; đảm bảo việc phát hành và thanh toán chứng chỉ tiền gửi được chính xác; đảm bảo an toàn hoạt động của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài và an toàn tài sản cho người mua chứng chỉ tiền gửi.",
+     "html": "1. Quy trình phát hành và thanh toán chứng chỉ tiền gửi, bao gồm cả quy trình phát hành và thanh toán chứng chỉ tiền gửi bằng phương tiện điện tử (nếu có), do tổ chức tín dụng, chi nhánh ngân hàng nước ngoài quy định phù hợp với quy định tại Thông tư này, quy định về mở và sử dụng tài khoản, quy định về an toàn thông tin mạng, an ninh mạng, quy định về giao dịch điện tử, quy định về phòng, chống rửa tiền và các quy định pháp luật có liên quan; phù hợp với đặc điểm, mô hình quản lý của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài; đảm bảo việc phát hành và thanh toán chứng chỉ tiền gửi được chính xác; đảm bảo an toàn hoạt động của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài và an toàn tài sản cho người mua chứng chỉ tiền gửi.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_6a535aa2-e16c-11f0-b5d8-2990ae3e6324",
+     "cap": "khoan",
+     "so": "2",
+     "tieu_de": "",
+     "text": "Tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phải thông tin đầy đủ cho người mua chứng chỉ tiền gửi về các quyền, nghĩa vụ của người mua, quy trình phát hành và thanh toán chứng chỉ tiền gửi giữa người mua và tổ chức tín dụng, chi nhánh ngân hàng nước ngoài.",
+     "html": "2. Tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phải thông tin đầy đủ cho người mua chứng chỉ tiền gửi về các quyền, nghĩa vụ của người mua, quy trình phát hành và thanh toán chứng chỉ tiền gửi giữa người mua và tổ chức tín dụng, chi nhánh ngân hàng nước ngoài.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    }
+   ]
+  },
+  {
+   "id": "id_6a535aac-e16c-11f0-a1bb-d323a26c7e99",
+   "cap": "dieu",
+   "so": "16",
+   "tieu_de": "Phát hành và thanh toán chứng chỉ tiền gửi bằng phương tiện điện tử",
+   "text": "",
+   "html": "",
+   "bi_tac_dong": null,
+   "an": false,
+   "con": [
+    {
+     "id": "id_6a535ab6-e16c-11f0-9547-57947d4d307f",
+     "cap": "khoan",
+     "so": "1",
+     "tieu_de": "",
+     "text": "Việc phát hành và thanh toán chứng chỉ tiền gửi bằng phương tiện điện tử do tổ chức tín dụng, chi nhánh ngân hàng nước ngoài hướng dẫn phù hợp với quy định tại Thông tư này và quy định của pháp luật có liên quan.",
+     "html": "1. Việc phát hành và thanh toán chứng chỉ tiền gửi bằng phương tiện điện tử do tổ chức tín dụng, chi nhánh ngân hàng nước ngoài hướng dẫn phù hợp với quy định tại Thông tư này và quy định của pháp luật có liên quan.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_6a535ac0-e16c-11f0-a9a4-33a0a512e945",
+     "cap": "khoan",
+     "so": "2",
+     "tieu_de": "",
+     "text": "Đối với phương thức phát hành chứng chỉ tiền gửi bằng phương tiện điện tử, việc chuyển tiền mua và nhận thanh toán chứng chỉ tiền gửi được thực hiện thông qua tài khoản thanh toán của chính người mua tại các tổ chức tín dụng, chi nhánh ngân hàng nước ngoài; hoặc thông qua tài khoản thanh toán tại Ngân hàng Nhà nước của chính người mua là tổ chức tín dụng, chi nhánh ngân hàng nước ngoài.",
+     "html": "2. Đối với phương thức phát hành chứng chỉ tiền gửi bằng phương tiện điện tử, việc chuyển tiền mua và nhận thanh toán chứng chỉ tiền gửi được thực hiện thông qua tài khoản thanh toán của chính người mua tại các tổ chức tín dụng, chi nhánh ngân hàng nước ngoài; hoặc thông qua tài khoản thanh toán tại Ngân hàng Nhà nước của chính người mua là tổ chức tín dụng, chi nhánh ngân hàng nước ngoài.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_6a535aca-e16c-11f0-8d6f-cf49fd90e07b",
+     "cap": "khoan",
+     "so": "3",
+     "tieu_de": "",
+     "text": "Tổ chức tín dụng, chi nhánh ngân hàng nước ngoài hiển thị cho người mua tối thiểu các thông tin về nội dung của chứng chỉ tiền gửi quy định tại Điều 10 Thông tư này và có giải pháp kỹ thuật để người mua xác nhận đã đọc đầy đủ các nội dung của chứng chỉ tiền gửi.",
+     "html": "3. Tổ chức tín dụng, chi nhánh ngân hàng nước ngoài hiển thị cho người mua tối thiểu các thông tin về nội dung của chứng chỉ tiền gửi quy định tại Điều 10 Thông tư này và có giải pháp kỹ thuật để người mua xác nhận đã đọc đầy đủ các nội dung của chứng chỉ tiền gửi.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    }
+   ]
+  },
+  {
+   "id": "id_6a535ad4-e16c-11f0-96d7-4f4ee679965e",
+   "cap": "dieu",
+   "so": "17",
+   "tieu_de": "Quy định nội bộ",
+   "text": "Căn cứ quy định tại Luật Các tổ chức tín dụng, Thông tư này và các quy định của pháp luật có liên quan, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài ban hành Quy định nội bộ về phát hành và thanh toán chứng chỉ tiền gửi, bao gồm cả quy định về phát hành và thanh toán chứng chỉ tiền gửi bằng phương tiện điện tử (nếu có), phù hợp với mô hình quản lý, đặc điểm, điều kiện kinh doanh, đảm bảo an toàn hoạt động cho tổ chức tín dụng, chi nhánh ngân hàng nước ngoài. Quy định nội bộ phải quy định rõ trách nhiệm và nghĩa vụ của từng bộ phận, cá nhân có liên quan đến việc phát hành chứng chỉ tiền gửi.",
+   "html": "Căn cứ quy định tại Luật Các tổ chức tín dụng, Thông tư này và các quy định của pháp luật có liên quan, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài ban hành Quy định nội bộ về phát hành và thanh toán chứng chỉ tiền gửi, bao gồm cả quy định về phát hành và thanh toán chứng chỉ tiền gửi bằng phương tiện điện tử (nếu có), phù hợp với mô hình quản lý, đặc điểm, điều kiện kinh doanh, đảm bảo an toàn hoạt động cho tổ chức tín dụng, chi nhánh ngân hàng nước ngoài. Quy định nội bộ phải quy định rõ trách nhiệm và nghĩa vụ của từng bộ phận, cá nhân có liên quan đến việc phát hành chứng chỉ tiền gửi.",
+   "bi_tac_dong": null,
+   "an": false,
+   "con": []
+  },
+  {
+   "id": "id_6a535ade-e16c-11f0-b221-a17da272ba5e",
+   "cap": "dieu",
+   "so": "18",
+   "tieu_de": "Điều khoản thi hành",
+   "text": "",
+   "html": "",
+   "bi_tac_dong": null,
+   "an": false,
+   "con": [
+    {
+     "id": "id_6a535ae8-e16c-11f0-96d5-4f6092bbff6e",
+     "cap": "khoan",
+     "so": "1",
+     "tieu_de": "",
+     "text": "Thông tư này có hiệu lực thi hành từ ngày 16 tháng 6 năm 2025.",
+     "html": "1. Thông tư này có hiệu lực thi hành từ ngày 16 tháng 6 năm 2025.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_6a535af2-e16c-11f0-ab09-cb56448e1a3b",
+     "cap": "khoan",
+     "so": "2",
+     "tieu_de": "",
+     "text": "Thông tư này bãi bỏ:",
+     "html": "2. Thông tư này bãi bỏ:",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": [
+      {
+       "id": "id_6a535afc-e16c-11f0-8d5a-b56b73f037f3",
+       "cap": "diem",
+       "so": "a",
+       "tieu_de": "",
+       "text": "Thông tư số 01/2021/TT-NHNN ngày 31 tháng 3 năm 2021 của Thống đốc Ngân hàng Nhà nước quy định về phát hành kỳ phiếu, tín phiếu, chứng chỉ tiền gửi, trái phiếu trong nước của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài;",
+       "html": "a) Thông tư số 01/2021/TT-NHNN ngày 31 tháng 3 năm 2021 của Thống đốc Ngân hàng Nhà nước quy định về phát hành kỳ phiếu, tín phiếu, chứng chỉ tiền gửi, trái phiếu trong nước của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài;",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_6a535b06-e16c-11f0-9bb4-eb681f16078c",
+       "cap": "diem",
+       "so": "b",
+       "tieu_de": "",
+       "text": "Khoản 2 Điều 6 Thông tư số 12/2021/TT-NHNN ngày 30 tháng 7 năm 2021 của Thống đốc Ngân hàng Nhà nước quy định về việc tổ chức tín dụng, chi nhánh ngân hàng nước ngoài mua, bán kỳ phiếu, tín phiếu, chứng chỉ tiền gửi, trái phiếu do tổ chức tín dụng, chi nhánh ngân hàng nước ngoài khác phát hành trong nước.",
+       "html": "b) Khoản 2 Điều 6 Thông tư số 12/2021/TT-NHNN ngày 30 tháng 7 năm 2021 của Thống đốc Ngân hàng Nhà nước quy định về việc tổ chức tín dụng, chi nhánh ngân hàng nước ngoài mua, bán kỳ phiếu, tín phiếu, chứng chỉ tiền gửi, trái phiếu do tổ chức tín dụng, chi nhánh ngân hàng nước ngoài khác phát hành trong nước.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      }
+     ]
+    },
+    {
+     "id": "id_6a535b10-e16c-11f0-8047-6ffd88a4f8e5",
+     "cap": "khoan",
+     "so": "3",
+     "tieu_de": "",
+     "text": "Đối với chứng chỉ tiền gửi đã phát hành còn số dư đến ngày Thông tư này có hiệu lực thi hành, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài và người mua chứng chỉ tiền gửi tiếp tục thực hiện theo các nội dung đã thỏa thuận cho đến khi thanh toán hết chứng chỉ tiền gửi.",
+     "html": "3. Đối với chứng chỉ tiền gửi đã phát hành còn số dư đến ngày Thông tư này có hiệu lực thi hành, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài và người mua chứng chỉ tiền gửi tiếp tục thực hiện theo các nội dung đã thỏa thuận cho đến khi thanh toán hết chứng chỉ tiền gửi.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    }
+   ]
+  },
+  {
+   "id": "id_6a535b1a-e16c-11f0-8b80-9d298ee86f3e",
+   "cap": "dieu",
+   "so": "19",
+   "tieu_de": "Tổ chức thực hiện",
+   "text": "Chánh Văn phòng, Vụ trưởng Vụ Chính sách tiền tệ, Thủ trưởng các đơn vị thuộc Ngân hàng Nhà nước; tổ chức tín dụng, chi nhánh ngân hàng nước ngoài chịu trách nhiệm tổ chức thực hiện Thông tư này./.",
+   "html": "Chánh Văn phòng, Vụ trưởng Vụ Chính sách tiền tệ, Thủ trưởng các đơn vị thuộc Ngân hàng Nhà nước; tổ chức tín dụng, chi nhánh ngân hàng nước ngoài chịu trách nhiệm tổ chức thực hiện Thông tư này./.",
+   "bi_tac_dong": null,
+   "an": false,
+   "con": []
+  }
+ ],
+ "trich_dan": []
+}

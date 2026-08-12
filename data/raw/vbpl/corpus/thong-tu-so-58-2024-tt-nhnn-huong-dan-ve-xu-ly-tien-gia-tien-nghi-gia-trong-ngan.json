@@ -1,0 +1,1030 @@
+{
+ "doc_id": "TT58-2024",
+ "title": "Thông tư 58/2024/TT-NHNN của Ngân hàng Nhà nước Việt Nam",
+ "doc_type": "Thông tư",
+ "source": "external",
+ "valid_from": "2025-02-14",
+ "valid_to": null,
+ "so_hieu": "58/2024/TT-NHNN",
+ "co_quan_ban_hanh": "Ngân hàng Nhà nước Việt Nam",
+ "nguoi_ky": "Đào Minh Tú",
+ "chuc_danh": "Phó Thống đốc",
+ "nganh": "Ngân hàng",
+ "linh_vuc": "Phát hành và kho quỹ",
+ "ngay_ban_hanh": "2024-12-31",
+ "tinh_trang_hieu_luc": "Còn hiệu lực",
+ "source_url": "https://vbpl.vn/van-ban/chi-tiet/thong-tu-so-58-2024-tt-nhnn-huong-dan-ve-xu-ly-tien-gia-tien-nghi-gia-trong-nganh-ngan-hang--174116",
+ "source_files": [
+  {
+   "ten": "Thông tư 58-2024-TT-NHNN.docx",
+   "kich_thuoc": "0.03MB",
+   "url": "https://vbpl-bientap-gateway.moj.gov.vn/api/qtdc/public/doc/minio/buckets/vbpl/174116/Th%C3%B4ng%20t%C6%B0%2058-2024-TT-NHNN.docx/download"
+  },
+  {
+   "ten": "VanBanGoc_Thông tư 58-2024-TT-NHNN.pdf",
+   "kich_thuoc": "6.75MB",
+   "url": "https://vbpl-bientap-gateway.moj.gov.vn/api/qtdc/public/doc/minio/buckets/vbpl/174116/VanBanGoc_Th%C3%B4ng%20t%C6%B0%2058-2024-TT-NHNN.pdf/download"
+  }
+ ],
+ "co_toan_van": true,
+ "canh_bao": [],
+ "articles": [
+  {
+   "article": "Điều 1",
+   "text": "Phạm vi điều chỉnh\nThông tư này hướng dẫn việc thu giữ tiền giả; tạm thu giữ tiền nghi giả; giám định tiền giả, tiền nghi giả; đóng dấu, bấm lỗ tiền giả; đóng gói, giao nhận, bảo quản và vận chuyển tiền giả trong ngành ngân hàng.",
+   "chapter": "Chương I. QUY ĐỊNH CHUNG",
+   "section": null,
+   "superseded": false,
+   "char_start": 772,
+   "char_end": 1001
+  },
+  {
+   "article": "Điều 2",
+   "text": "Đối tượng áp dụng\n1. Ngân hàng Nhà nước Việt Nam (sau đây gọi là Ngân hàng Nhà nước), tổ chức tín dụng, chi nhánh ngân hàng nước ngoài.\n2. Tổ chức, cá nhân có tiền giả, tiền nghi giả trong giao dịch tiền mặt với các cơ quan, tổ chức được quy định tại khoản 1 Điều này.",
+   "chapter": "Chương I. QUY ĐỊNH CHUNG",
+   "section": null,
+   "superseded": false,
+   "char_start": 1010,
+   "char_end": 1278
+  },
+  {
+   "article": "Điều 3",
+   "text": "Giải thích từ ngữ\nTrong Thông tư này các từ ngữ dưới đây được hiểu như sau:\n1. Tiền giả loại mới là loại tiền giả chưa được Ngân hàng Nhà nước hoặc Bộ Công an thông báo bằng văn bản.\n2. Đặc điểm bảo an là đặc điểm được tích hợp có chủ đích trên đồng tiền, sử dụng để kiểm tra, phân biệt tiền thật, tiền giả.\n3. Khách hàng là tổ chức, cá nhân giao dịch tiền mặt với Ngân hàng Nhà nước, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài.",
+   "chapter": "Chương I. QUY ĐỊNH CHUNG",
+   "section": null,
+   "superseded": false,
+   "char_start": 1287,
+   "char_end": 1721
+  },
+  {
+   "article": "Điều 4",
+   "text": "Trách nhiệm thu giữ tiền giả, tạm thu giữ tiền nghi giả\n1. Sở Giao dịch Ngân hàng Nhà nước (sau đây gọi là Sở Giao dịch), Ngân hàng Nhà nước chi nhánh, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài khi phát hiện tiền giả trong giao dịch tiền mặt với khách hàng phải thu giữ theo quy định tại Điều 5 Thông tư này; khi phát hiện tiền nghi giả phải tạm thu giữ theo quy định tại Điều 6 Thông tư này; không trả lại tiền giả, tiền nghi giả cho khách hàng.\n2. Người làm công tác thu giữ tiền giả, tạm thu giữ tiền nghi giả phải được bồi dưỡng kỹ năng nhận biết tiền thật, tiền giả theo chương trình của Ngân hàng Nhà nước hoặc được bồi dưỡng về nghiệp vụ giám định tiền.\nNgười làm công tác giám định tiền giả, tiền nghi giả của Ngân hàng Nhà nước phải được bồi dưỡng về nghiệp vụ giám định tiền.",
+   "chapter": "Chương II. QUY ĐỊNH CỤ THỂ",
+   "section": null,
+   "superseded": false,
+   "char_start": 1756,
+   "char_end": 2548
+  },
+  {
+   "article": "Điều 5",
+   "text": "Thu giữ tiền giả\n1. Trong giao dịch tiền mặt với khách hàng, khi phát hiện đồng tiền có dấu hiệu nghi giả, Ngân hàng Nhà nước chi nhánh, Sở Giao dịch, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài đối chiếu với đặc điểm bảo an trên tiền thật (hoặc tiền mẫu) cùng loại hoặc thông báo về đặc điểm và cách nhận biết tiền Việt Nam của Ngân hàng Nhà nước đã công bố, đối chiếu với thông báo về đặc điểm nhận biết tiền giả của Ngân hàng Nhà nước hoặc Bộ Công an và xử lý như sau:\na) Trường hợp khẳng định là loại tiền giả đã được Ngân hàng Nhà nước hoặc Bộ Công an thông báo bằng văn bản, phải thực hiện thu giữ, lập biên bản theo Mẫu số 01 tại Phụ lục ban hành kèm theo Nghị định số 87/2023/NĐ-CP ngày 08/12/2023 của Chính phủ quy định về phòng, chống tiền giả và bảo vệ tiền Việt Nam, đóng dấu và bấm lỗ tiền giả. Việc đóng dấu, bấm lỗ tiền giả thực hiện theo quy định tại khoản 2 Điều 7 Thông tư này.\nb) Trường hợp xác định là tiền giả loại mới, phải thực hiện thu giữ và lập biên bản theo Mẫu số 01 tại Phụ lục ban hành kèm theo Nghị định số 87/2023/NĐ-CP nhưng không đóng dấu, không bấm lỗ tiền giả.\nTrong thời hạn 02 ngày làm việc kể từ ngày thu giữ tiền giả loại mới, Ngân hàng Nhà nước chi nhánh, Sở Giao dịch phải thông báo bằng văn bản cho Cục Phát hành và Kho quỹ; tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phải thông báo bằng văn bản cho Sở Giao dịch hoặc Ngân hàng Nhà nước chi nhánh trên địa bàn nơi tổ chức tín dụng, chi nhánh tổ chức tín dụng, chi nhánh ngân hàng nước ngoài mở tài khoản thanh toán (sau đây gọi là Ngân hàng Nhà nước chi nhánh trên địa bàn). Nội dung thông báo bao gồm các thông tin về loại tiền, số lượng, seri và mô tả đặc điểm của tiền giả.\n2. Ngân hàng Nhà nước chi nhánh, Sở Giao dịch, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phải thông báo kịp thời cho cơ quan công an nơi gần nhất để phối hợp, xử lý khi phát hiện một trong các trường hợp sau:\na) Có dấu hiệu nghi vấn tàng trữ, vận chuyển, lưu hành tiền giả.\nb) Tiền giả loại mới.\nc) Có 5 tờ tiền giả (hoặc 5 miếng tiền kim loại giả) hoặc nhiều hơn trong một giao dịch.\nd) Khách hàng không chấp hành việc lập biên bản, thu giữ tiền giả.\n3. Trong quá trình kiểm đếm, phân loại, tuyển chọn tiền, sau khi giao nhận tiền mặt theo bó, túi nguyên niêm phong trong ngành ngân hàng theo quy định của Ngân hàng Nhà nước, khi phát hiện tiền giả, các đơn vị thuộc Ngân hàng Nhà nước, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài xử lý như đối với tiền giả phát hiện trong giao dịch tiền mặt quy định tại khoản 1 và điểm b, điểm c khoản 2 Điều này.",
+   "chapter": "Chương II. QUY ĐỊNH CỤ THỂ",
+   "section": null,
+   "superseded": false,
+   "char_start": 2557,
+   "char_end": 5100
+  },
+  {
+   "article": "Điều 6",
+   "text": "Tạm thu giữ tiền nghi giả\n1. Trong giao dịch tiền mặt với khách hàng, khi phát hiện tiền nghi giả, Ngân hàng Nhà nước chi nhánh, Sở Giao dịch, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phải tạm thu giữ và lập biên bản theo Mẫu số 02 tại Phụ lục ban hành kèm theo Nghị định số 87/2023/NĐ-CP.\n2. Trong thời hạn 05 ngày làm việc kể từ ngày tạm thu giữ, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phải chuyển hồ sơ giám định theo quy định tại khoản 1 Điều 10 Thông tư này đến Ngân hàng Nhà nước chi nhánh trên địa bàn hoặc Sở giao dịch để giám định.",
+   "chapter": "Chương II. QUY ĐỊNH CỤ THỂ",
+   "section": null,
+   "superseded": false,
+   "char_start": 5109,
+   "char_end": 5667
+  },
+  {
+   "article": "Điều 7",
+   "text": "Đóng dấu, bấm lỗ tiền giả\n1. Dấu tiền giả:\nDấu tiền giả hình chữ nhật; kích thước: 60mm x 20mm; phần tên đơn vị: 60mm x 7mm, phần chữ \"TIỀN GIẢ\": 60mm x 13mm. Dấu tiền giả sử dụng mực màu đỏ, khó phai.\n2. Cách thức đóng dấu, bấm lỗ tiền giả:\nĐóng dấu \"TIỀN GIẢ\" lên 2 mặt của tờ tiền giả, mỗi mặt đóng một lần và bấm 4 lỗ trên tờ tiền giả (mỗi cạnh chiều dài tờ tiền giả bấm 2 lỗ tròn cân đối bằng dụng cụ bấm lỗ tài liệu dùng cho văn phòng).",
+   "chapter": "Chương II. QUY ĐỊNH CỤ THỂ",
+   "section": null,
+   "superseded": false,
+   "char_start": 5676,
+   "char_end": 6118
+  },
+  {
+   "article": "Điều 8",
+   "text": "Đóng gói, bảo quản tiền giả\n1. Ngân hàng Nhà nước chi nhánh, Sở Giao dịch có trách nhiệm đóng gói, niêm phong tiền giả. Niêm phong tiền giả được thực hiện theo quy định về niêm phong tiền mặt của Ngân hàng Nhà nước nhưng phải được đóng dấu \"TIỀN GIẢ\" trên niêm phong để phân biệt với tiền thật.\n2. Đóng gói, niêm phong tiền giả\na) Tiền cotton giả, tiền polymer giả: 100 tờ tiền cùng mệnh giá, cùng chất liệu đóng thành 1 thếp; 10 thếp đóng thành 1 bó (1.000 tờ) và niêm phong.\nb) Tiền kim loại giả: 100 miếng cùng mệnh giá được đóng thành 1 túi nhỏ và niêm phong; 10 túi nhỏ đóng thành một túi lớn (1.000 miếng) và niêm phong.\nc) Trường hợp không đủ số lượng để đóng bó (hoặc túi), Ngân hàng Nhà nước chi nhánh, Sở Giao dịch cũng thực hiện đóng gói, niêm phong, ghi rõ số lượng tờ (hoặc miếng) để thuận tiện trong giao nhận.\n3. Tiền giả được bảo quản riêng trong kho tiền của hệ thống Ngân hàng Nhà nước, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài.",
+   "chapter": "Chương II. QUY ĐỊNH CỤ THỂ",
+   "section": null,
+   "superseded": false,
+   "char_start": 6127,
+   "char_end": 7081
+  },
+  {
+   "article": "Điều 9",
+   "text": "Giao nhận, vận chuyển tiền giả\n1. Tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phải giao nộp toàn bộ số tiền giả đã thu giữ về Ngân hàng Nhà nước chi nhánh trên địa bàn hoặc Sở Giao dịch theo định kỳ hàng tháng, trừ số tiền giả loại mới giao nộp theo quy định tại khoản 4 Điều này. Việc giao nhận tiền giả thực hiện theo tờ (hoặc miếng) và phải được lập biên bản theo Mẫu số 04 tại Phụ lục ban hành kèm theo Nghị định số 87/2023/NĐ-CP.\nPhương thức vận chuyển tiền giả do Chủ tịch Hội đồng thành viên, Chủ tịch Hội đồng quản trị hoặc Tổng Giám đốc (Giám đốc) tổ chức tín dụng, chi nhánh ngân hàng nước ngoài quyết định, đảm bảo an toàn trong quá trình vận chuyển.\n2. Ngân hàng Nhà nước chi nhánh, Sở Giao dịch có trách nhiệm kiểm tra tính xác thực của từng tờ tiền giả do tổ chức tín dụng, chi nhánh ngân hàng nước ngoài giao nộp.\nTrường hợp phát hiện tiền thật trong số tiền giả giao nộp, Ngân hàng Nhà nước chi nhánh, Sở Giao dịch lập biên bản theo mẫu tại Phụ lục ban hành kèm theo Thông tư này và có văn bản yêu cầu đơn vị giao nộp phải hoàn trả ngang giá trị cho khách hàng và báo cáo kết quả trong thời gian 30 ngày.\nTờ tiền thật đã đóng dấu \"TIỀN GIẢ\" và bấm lỗ được Ngân hàng Nhà nước chi nhánh, Sở Giao dịch cắt góc 1/8 diện tích tờ tiền, thu đổi ngang giá trị (ghi Có) cho đơn vị giao nộp (không thu phí đổi tiền không đủ tiêu chuẩn lưu thông) và đóng gói, giao nhận như đối với tiền không đủ tiêu chuẩn lưu thông theo quy định của Ngân hàng Nhà nước.\n3. Ngân hàng Nhà nước chi nhánh, Sở Giao dịch phải giao nộp tiền giả ít nhất 6 tháng một lần (nếu có) về Kho tiền Trung ương. Việc giao nộp có thể kết hợp với việc điều chuyển tiền đi, đến của Ngân hàng Nhà nước.\nViệc giao nhận thực hiện theo bó, bì, túi nguyên niêm phong và được lập biên bản theo Mẫu số 04 tại Phụ lục ban hành kèm theo Nghị định số 87/2023/NĐ-CP.\n4. Đối với tiền giả loại mới, trên cơ sở thông báo tiền giả loại mới quy định tại điểm b khoản 1 Điều 5 Thông tư này, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phải giao nộp về Ngân hàng Nhà nước chi nhánh trên địa bàn hoặc Sở Giao dịch trong thời hạn 05 ngày làm việc kể từ ngày thu giữ. Phương thức vận chuyển thực hiện theo quy định tại khoản 1 Điều này.\nTrong thời hạn 02 ngày làm việc kể từ ngày nhận được tiền giả loại mới, Ngân hàng Nhà nước chi nhánh, Sở Giao dịch thông báo về Cục Phát hành và Kho quỹ.\n5. Trên cơ sở thông báo tiền giả loại mới của Ngân hàng Nhà nước chi nhánh, Sở Giao dịch tại điểm b khoản 1 Điều 5 và khoản 4 Điều 9 Thông tư này, Cục Phát hành và Kho quỹ xem xét, quyết định yêu cầu giao nộp tiền giả loại mới. Trường hợp có yêu cầu, Ngân hàng Nhà nước chi nhánh, Sở Giao dịch thực hiện giao nộp tiền giả loại mới theo yêu cầu của Cục Phát hành và Kho quỹ; Phương thức vận chuyển tiền giả loại mới do Giám đốc Sở Giao dịch, Ngân hàng Nhà nước chi nhánh quyết định, đảm bảo an toàn, kịp thời. Trường hợp không có yêu cầu, tiền giả được đóng dấu, bấm lỗ và giao nộp theo quy định tại khoản 3 Điều này.",
+   "chapter": "Chương II. QUY ĐỊNH CỤ THỂ",
+   "section": null,
+   "superseded": false,
+   "char_start": 7090,
+   "char_end": 10057
+  },
+  {
+   "article": "Điều 10",
+   "text": "Giám định tiền giả, tiền nghi giả của Ngân hàng Nhà nước\n1. Cơ quan, tổ chức, cá nhân có yêu cầu giám định tiền giả, tiền nghi giả phải lập 01 bộ hồ sơ đề nghị giám định theo quy định tại khoản 2 Điều 5 Nghị định số 87/2023/NĐ-CP và nộp trực tiếp đến Ngân hàng Nhà nước chi nhánh hoặc Sở Giao dịch hoặc Cục Phát hành và Kho quỹ (tại thành phố Hà Nội), Chi cục Phát hành và Kho quỹ (tại thành phố Hồ Chí Minh).\n2. Khi nhận được hồ sơ đề nghị giám định theo quy định tại khoản 1 Điều này hoặc từ ngày tạm thu giữ tiền nghi giả theo quy định tại khoản 1 Điều 6, Ngân hàng Nhà nước chi nhánh, Sở Giao dịch, Cục Phát hành và Kho quỹ, Chi cục Phát hành và Kho quỹ (sau đây gọi là cơ quan giám định) phải tổ chức giám định. Thời gian thực hiện giám định theo quy định tại khoản 3 Điều 5 Nghị định số 87/2023/NĐ-CP.\nTrong thời gian tối đa 02 ngày làm việc kể từ ngày hoàn thành giám định, cơ quan giám định thông báo kết quả giám định bằng văn bản cho cơ quan, tổ chức, cá nhân đề nghị giám định.\nViệc giám định được thực hiện miễn phí.\n3. Trường hợp không kết luận được tiền thật hay tiền giả, chậm nhất trong thời hạn 30 ngày kể từ ngày nhận được tiền giả, tiền nghi giả cần giám định, Ngân hàng Nhà nước chi nhánh, Sở Giao dịch có văn bản đề nghị và chuyển số tiền giả, tiền nghi giả này về Cục Phát hành và Kho quỹ hoặc Chi cục Phát hành và Kho quỹ để giám định; đồng thời thông báo cho cơ quan, tổ chức, cá nhân nêu tại khoản 1 Điều này hoặc khoản 1 Điều 6 Thông tư này hoặc tổ chức tín dụng, chi nhánh ngân hàng nước ngoài nêu tại khoản 2 Điều 6 Thông tư này để biết.\nPhương thức vận chuyển tiền giả, tiền nghi giả cần giám định do Giám đốc Ngân hàng Nhà nước chi nhánh, Sở Giao dịch quyết định, đảm bảo an toàn, thuận tiện.\nTrong thời gian tối đa 05 ngày làm việc kể từ ngày nhận được kết quả giám định, Ngân hàng Nhà nước chi nhánh, Sở Giao dịch phải thông báo kết quả giám định bằng văn bản cho cơ quan, tổ chức, cá nhân có yêu cầu giám định biết.",
+   "chapter": "Chương II. QUY ĐỊNH CỤ THỂ",
+   "section": null,
+   "superseded": false,
+   "char_start": 10067,
+   "char_end": 12015
+  },
+  {
+   "article": "Điều 11",
+   "text": "Xử lý kết quả giám định\n1. Tại Cục Phát hành và Kho quỹ và Chi cục Phát hành và Kho quỹ:\na) Kết quả giám định là tiền thật, số tiền thật được trả lại cho cơ quan, tổ chức, cá nhân đề nghị giám định hoặc được nộp vào Sở Giao dịch khi giám định tại Cục Phát hành và Kho quỹ hoặc Ngân hàng Nhà nước chi nhánh tại thành phố Hồ Chí Minh khi giám định tại Chi cục Phát hành và Kho quỹ để báo Có cho Ngân hàng Nhà nước chi nhánh, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài đề nghị giám định.\nb) Kết quả giám định là tiền giả đã có thông báo của Ngân hàng Nhà nước hoặc Bộ Công an, thực hiện thu giữ, đóng dấu, bấm lỗ tiền giả và nộp vào Kho tiền Trung ương tại thành phố Hà Nội (Kho tiền I) hoặc tại thành phố Hồ Chí Minh (Kho tiền II).\nc) Kết quả giám định là tiền giả loại mới, Cục Phát hành và Kho quỹ thông báo kịp thời cho Cục An ninh kinh tế - Bộ Công an và thực hiện thu giữ. Đối với Chi cục Phát hành và Kho quỹ, báo cáo bằng văn bản về Cục Phát hành và Kho quỹ và thông báo kịp thời cho Công an thành phố Hồ Chí Minh (Phòng An ninh kinh tế); chuyển tiền giả loại mới về Cục Phát hành và Kho quỹ (nếu có yêu cầu); phương thức vận chuyển do Chi cục Phát hành và Kho quỹ quyết định, đảm bảo an toàn, kịp thời. Trường hợp không có yêu cầu chuyển về Cục Phát hành và Kho quỹ, tiền giả được đóng dấu, bấm lỗ và bảo quản tại Kho tiền II.\nSố tiền giả loại mới được lưu giữ tại Cục Phát hành và Kho quỹ để phục vụ công tác phòng, chống tiền giả của Ngân hàng Nhà nước theo quy định tại Điều 12 Thông tư này.\n2. Tại Ngân hàng Nhà nước chi nhánh, Sở Giao dịch:\na) Kết quả giám định là tiền thật, số tiền thật được thu đổi cho cơ quan, tổ chức, cá nhân đề nghị giám định theo quy định của Ngân hàng Nhà nước về thu đổi tiền không đủ tiêu chuẩn lưu thông.\nb) Kết quả giám định là loại tiền giả đã có thông báo của Ngân hàng Nhà nước hoặc Bộ Công an, thực hiện thu giữ, đóng dấu, bấm lỗ tiền giả.\nc) Kết quả giám định là tiền giả loại mới, thực hiện thu giữ; thông báo ngay cho Công an địa phương (Phòng An ninh Kinh tế) và thông báo bằng văn bản về tiền giả loại mới cho Cục Phát hành và Kho quỹ. Việc giao nộp tiền giả loại mới thực hiện theo quy định tại khoản 4 Điều 9 Thông tư này.\n3. Tại tổ chức tín dụng, chi nhánh ngân hàng nước ngoài:\na) Kết quả giám định là tiền thật, số tiền thật được thu đổi cho khách hàng theo quy định của Ngân hàng Nhà nước về thu đổi tiền không đủ tiêu chuẩn lưu thông.\nb) Kết quả giám định là tiền giả, thông báo kết quả giám định và việc xử lý tiền giả của cơ quan giám định cho khách hàng biết trong thời gian tối đa 05 ngày làm việc kể từ ngày nhận được kết quả giám định.\n4. Đối với tiền giả, tiền nghi giả giám định theo yêu cầu của cơ quan Công an, Cơ quan có thẩm quyền của quân đội, Hải quan, Viện kiểm sát nhân dân hoặc Tòa án nhân dân, sau khi giám định được trả lại đơn vị đề nghị giám định, không đóng dấu, bấm lỗ. Việc giao nhận tiền giả, tiền nghi giả được lập biên bản theo Mẫu số 04 tại Phụ lục ban hành kèm theo Nghị định số 87/2023/NĐ-CP.",
+   "chapter": "Chương II. QUY ĐỊNH CỤ THỂ",
+   "section": null,
+   "superseded": false,
+   "char_start": 12025,
+   "char_end": 15010
+  },
+  {
+   "article": "Điều 12",
+   "text": "Lưu giữ tiền giả làm tư liệu nghiên cứu phục vụ công tác phòng, chống tiền giả của Ngân hàng Nhà nước\nSau khi phân tích, giám định tiền giả loại mới, Cục Phát hành và Kho quỹ được lưu giữ, bảo quản tối đa 15 tờ (hoặc miếng)/loại để phục vụ công tác nghiên cứu, phòng, chống tiền giả và tập huấn nghiệp vụ (trừ tiền giả, tiền nghi giả giám định theo khoản 4 Điều 11 Thông tư này). Cục Phát hành và Kho quỹ theo dõi, lưu giữ, bảo quản theo mệnh giá, vần seri và số lượng từng loại tiền giả. Trường hợp cần lưu giữ, bảo quản nhiều hơn 15 tờ (hoặc miếng)/loại, Cục Phát hành và Kho quỹ trình Thống đốc Ngân hàng Nhà nước quyết định.\nTrường hợp không cần lưu giữ, bảo quản sau thời gian nghiên cứu, phòng, chống tiền giả và tập huấn nghiệp vụ, Cục Phát hành và Kho quỹ thực hiện đóng dấu, bấm lỗ tiền giả và nộp vào Kho tiền Trung ương tại thành phố Hà Nội (Kho tiền I).",
+   "chapter": "Chương II. QUY ĐỊNH CỤ THỂ",
+   "section": null,
+   "superseded": false,
+   "char_start": 15020,
+   "char_end": 15885
+  },
+  {
+   "article": "Điều 13",
+   "text": "Thông tin về tiền giả\n1. Cục Phát hành và Kho quỹ (Ngân hàng Nhà nước) thực hiện phân tích giám định và thông báo về đặc điểm nhận biết tiền giả loại mới bằng văn bản cho Cục An ninh kinh tế, Viện Khoa học hình sự (Bộ Công an), Cục Phòng chống ma túy và Tội phạm - Bộ Tư lệnh Bộ đội Biên phòng (Bộ Quốc phòng), Ngân hàng Nhà nước chi nhánh, Sở Giao dịch, Kho bạc Nhà nước để phục vụ công tác phòng, chống tiền giả.\n2. Khi nhận được thông báo bằng văn bản về tiền giả loại mới của Cục Phát hành và Kho quỹ, Ngân hàng Nhà nước chi nhánh phải thông báo về đặc điểm nhận biết tiền giả loại mới bằng văn bản cho Hội sở chính tổ chức tín dụng, chi nhánh ngân hàng nước ngoài trên địa bàn.\n3. Khi nhận được thông báo bằng văn bản về tiền giả loại mới của Ngân hàng Nhà nước, tổ chức tín dụng và chi nhánh ngân hàng nước ngoài phải thông báo bằng văn bản cho các đơn vị trong hệ thống để phòng ngừa tiền giả.\n4. Trường hợp cần thiết, Cục Phát hành và Kho quỹ thông báo công khai trên phương tiện thông tin đại chúng hoặc trên trang thông tin điện tử của Ngân hàng Nhà nước về đặc điểm nhận biết của tiền giả xuất hiện trong lưu thông để các tổ chức, cá nhân cảnh giác, chủ động phòng ngừa.",
+   "chapter": "Chương II. QUY ĐỊNH CỤ THỂ",
+   "section": null,
+   "superseded": false,
+   "char_start": 15895,
+   "char_end": 17076
+  },
+  {
+   "article": "Điều 14",
+   "text": "Báo cáo thống kê về tiền giả\nNgân hàng Nhà nước chi nhánh, Sở Giao dịch, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài báo cáo số liệu tiền giả thu giữ theo chế độ báo cáo thống kê của Ngân hàng Nhà nước.",
+   "chapter": "Chương II. QUY ĐỊNH CỤ THỂ",
+   "section": null,
+   "superseded": false,
+   "char_start": 17086,
+   "char_end": 17293
+  },
+  {
+   "article": "Điều 15",
+   "text": "Trách nhiệm hướng dẫn và kiểm tra thực hiện\n1. Cục Phát hành và Kho quỹ có trách nhiệm hướng dẫn, kiểm tra việc thực hiện Thông tư này. Cục Phát hành và Kho quỹ phối hợp với các đơn vị liên quan xây dựng chương trình bồi dưỡng nghiệp vụ giám định tiền và chương trình bồi dưỡng kỹ năng nhận biết tiền thật, tiền giả trình Thống đốc Ngân hàng Nhà nước quyết định.\n2. Ngân hàng Nhà nước chi nhánh kiểm tra việc thực hiện các quy định tại Thông tư này đối với các đối tượng kiểm tra thuộc thẩm quyền trên địa bàn.\n3. Tổ chức tín dụng, chi nhánh ngân hàng nước ngoài có trách nhiệm hướng dẫn, kiểm tra việc thực hiện Thông tư này trong hệ thống.",
+   "chapter": "Chương III. TỔ CHỨC THỰC HIỆN",
+   "section": null,
+   "superseded": false,
+   "char_start": 17332,
+   "char_end": 17973
+  },
+  {
+   "article": "Điều 16",
+   "text": "Hiệu lực thi hành\nThông tư này có hiệu lực từ ngày 14 tháng 02 năm 2025 và thay thế Thông tư số 28/2013/TT-NHNN ngày 05 tháng 12 năm 2013 của Thống đốc Ngân hàng Nhà nước quy định về xử lý tiền giả, tiền nghi giả trong ngành ngân hàng.",
+   "chapter": "Chương III. TỔ CHỨC THỰC HIỆN",
+   "section": null,
+   "superseded": false,
+   "char_start": 17983,
+   "char_end": 18218
+  },
+  {
+   "article": "Điều 17",
+   "text": "Tổ chức thực hiện\nThủ trưởng các đơn vị thuộc Ngân hàng Nhà nước; tổ chức tín dụng, chi nhánh ngân hàng nước ngoài chịu trách nhiệm tổ chức thực hiện Thông tư này./.\nKT. THỐNG ĐỐC\nPHÓ THỐNG ĐỐC\n(Đã ký)\nĐào Minh Tú",
+   "chapter": "Chương III. TỔ CHỨC THỰC HIỆN",
+   "section": null,
+   "superseded": false,
+   "char_start": 18228,
+   "char_end": 18443
+  }
+ ],
+ "provisions": [
+  {
+   "id": "id_100b3bca-e16a-11f0-9ae8-1b2710d58cc0",
+   "cap": "chuong",
+   "so": "I",
+   "tieu_de": "QUY ĐỊNH CHUNG",
+   "text": "",
+   "html": "",
+   "bi_tac_dong": null,
+   "an": false,
+   "con": [
+    {
+     "id": "id_100b3bd4-e16a-11f0-b088-ab7c39c204e8",
+     "cap": "dieu",
+     "so": "1",
+     "tieu_de": "Phạm vi điều chỉnh",
+     "text": "Thông tư này hướng dẫn việc thu giữ tiền giả; tạm thu giữ tiền nghi giả; giám định tiền giả, tiền nghi giả; đóng dấu, bấm lỗ tiền giả; đóng gói, giao nhận, bảo quản và vận chuyển tiền giả trong ngành ngân hàng.",
+     "html": "Thông tư này hướng dẫn việc thu giữ tiền giả; tạm thu giữ tiền nghi giả; giám định tiền giả, tiền nghi giả; đóng dấu, bấm lỗ tiền giả; đóng gói, giao nhận, bảo quản và vận chuyển tiền giả trong ngành ngân hàng.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_100b3bde-e16a-11f0-88bd-6b672de6d5eb",
+     "cap": "dieu",
+     "so": "2",
+     "tieu_de": "Đối tượng áp dụng",
+     "text": "",
+     "html": "",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": [
+      {
+       "id": "id_ed0f4f50-1e70-11f1-a076-852adcde13df",
+       "cap": "khoan",
+       "so": "1",
+       "tieu_de": "",
+       "text": "Ngân hàng Nhà nước Việt Nam (sau đây gọi là Ngân hàng Nhà nước), tổ chức tín dụng, chi nhánh ngân hàng nước ngoài.",
+       "html": "1. Ngân hàng Nhà nước Việt Nam (sau đây gọi là Ngân hàng Nhà nước), tổ chức tín dụng, chi nhánh ngân hàng nước ngoài.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_ed32dce0-1e70-11f1-b72c-67012f96f353",
+       "cap": "khoan",
+       "so": "2",
+       "tieu_de": "",
+       "text": "Tổ chức, cá nhân có tiền giả, tiền nghi giả trong giao dịch tiền mặt với các cơ quan, tổ chức được quy định tại khoản 1 Điều này.",
+       "html": "2. Tổ chức, cá nhân có tiền giả, tiền nghi giả trong giao dịch tiền mặt với các cơ quan, tổ chức được quy định tại khoản 1 Điều này.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      }
+     ]
+    },
+    {
+     "id": "id_100b3bfc-e16a-11f0-b3c6-c3b924d0d09c",
+     "cap": "dieu",
+     "so": "3",
+     "tieu_de": "Giải thích từ ngữ",
+     "text": "Trong Thông tư này các từ ngữ dưới đây được hiểu như sau:",
+     "html": "Trong Thông tư này các từ ngữ dưới đây được hiểu như sau:",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": [
+      {
+       "id": "id_ed32dcea-1e70-11f1-b692-a17e0b08709d",
+       "cap": "khoan",
+       "so": "1",
+       "tieu_de": "",
+       "text": "Tiền giả loại mới là loại tiền giả chưa được Ngân hàng Nhà nước hoặc Bộ Công an thông báo bằng văn bản.",
+       "html": "1. Tiền giả loại mới là loại tiền giả chưa được Ngân hàng Nhà nước hoặc Bộ Công an thông báo bằng văn bản.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_ed5be8b0-1e70-11f1-add2-67cc8ca9834f",
+       "cap": "khoan",
+       "so": "2",
+       "tieu_de": "",
+       "text": "Đặc điểm bảo an là đặc điểm được tích hợp có chủ đích trên đồng tiền, sử dụng để kiểm tra, phân biệt tiền thật, tiền giả.",
+       "html": "2. Đặc điểm bảo an là đặc điểm được tích hợp có chủ đích trên đồng tiền, sử dụng để kiểm tra, phân biệt tiền thật, tiền giả.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_ed5be8ba-1e70-11f1-b7b2-1bd12f48da3c",
+       "cap": "khoan",
+       "so": "3",
+       "tieu_de": "",
+       "text": "Khách hàng là tổ chức, cá nhân giao dịch tiền mặt với Ngân hàng Nhà nước, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài.",
+       "html": "3. Khách hàng là tổ chức, cá nhân giao dịch tiền mặt với Ngân hàng Nhà nước, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "id_100b3c24-e16a-11f0-8c09-fbce055d7d68",
+   "cap": "chuong",
+   "so": "II",
+   "tieu_de": "QUY ĐỊNH CỤ THỂ",
+   "text": "",
+   "html": "",
+   "bi_tac_dong": null,
+   "an": false,
+   "con": [
+    {
+     "id": "id_100b3c2e-e16a-11f0-93bb-6d57e12c1a82",
+     "cap": "dieu",
+     "so": "4",
+     "tieu_de": "Trách nhiệm thu giữ tiền giả, tạm thu giữ tiền nghi giả",
+     "text": "Người làm công tác giám định tiền giả, tiền nghi giả của Ngân hàng Nhà nước phải được bồi dưỡng về nghiệp vụ giám định tiền.",
+     "html": "Người làm công tác giám định tiền giả, tiền nghi giả của Ngân hàng Nhà nước phải được bồi dưỡng về nghiệp vụ giám định tiền.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": [
+      {
+       "id": "id_ed84f480-1e70-11f1-b1a2-99d82d1cd29d",
+       "cap": "khoan",
+       "so": "1",
+       "tieu_de": "",
+       "text": "Sở Giao dịch Ngân hàng Nhà nước (sau đây gọi là Sở Giao dịch), Ngân hàng Nhà nước chi nhánh, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài khi phát hiện tiền giả trong giao dịch tiền mặt với khách hàng phải thu giữ theo quy định tại Điều 5 Thông tư này; khi phát hiện tiền nghi giả phải tạm thu giữ theo quy định tại Điều 6 Thông tư này; không trả lại tiền giả, tiền nghi giả cho khách hàng.",
+       "html": "1. Sở Giao dịch Ngân hàng Nhà nước (sau đây gọi là Sở Giao dịch), Ngân hàng Nhà nước chi nhánh, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài khi phát hiện tiền giả trong giao dịch tiền mặt với khách hàng phải thu giữ theo quy định tại Điều 5 Thông tư này; khi phát hiện tiền nghi giả phải tạm thu giữ theo quy định tại Điều 6 Thông tư này; không trả lại tiền giả, tiền nghi giả cho khách hàng.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_eda833f0-1e70-11f1-b117-4d314b7fd1bb",
+       "cap": "khoan",
+       "so": "2",
+       "tieu_de": "",
+       "text": "Người làm công tác thu giữ tiền giả, tạm thu giữ tiền nghi giả phải được bồi dưỡng kỹ năng nhận biết tiền thật, tiền giả theo chương trình của Ngân hàng Nhà nước hoặc được bồi dưỡng về nghiệp vụ giám định tiền.",
+       "html": "2. Người làm công tác thu giữ tiền giả, tạm thu giữ tiền nghi giả phải được bồi dưỡng kỹ năng nhận biết tiền thật, tiền giả theo chương trình của Ngân hàng Nhà nước hoặc được bồi dưỡng về nghiệp vụ giám định tiền.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      }
+     ]
+    },
+    {
+     "id": "id_100b3c4c-e16a-11f0-9851-35002c7c1541",
+     "cap": "dieu",
+     "so": "5",
+     "tieu_de": "Thu giữ tiền giả",
+     "text": "Trong thời hạn 02 ngày làm việc kể từ ngày thu giữ tiền giả loại mới, Ngân hàng Nhà nước chi nhánh, Sở Giao dịch phải thông báo bằng văn bản cho Cục Phát hành và Kho quỹ; tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phải thông báo bằng văn bản cho Sở Giao dịch hoặc Ngân hàng Nhà nước chi nhánh trên địa bàn nơi tổ chức tín dụng, chi nhánh tổ chức tín dụng, chi nhánh ngân hàng nước ngoài mở tài khoản thanh toán (sau đây gọi là Ngân hàng Nhà nước chi nhánh trên địa bàn). Nội dung thông báo bao gồm các thông tin về loại tiền, số lượng, seri và mô tả đặc điểm của tiền giả.",
+     "html": "Trong thời hạn 02 ngày làm việc kể từ ngày thu giữ tiền giả loại mới, Ngân hàng Nhà nước chi nhánh, Sở Giao dịch phải thông báo bằng văn bản cho Cục Phát hành và Kho quỹ; tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phải thông báo bằng văn bản cho Sở Giao dịch hoặc Ngân hàng Nhà nước chi nhánh trên địa bàn nơi tổ chức tín dụng, chi nhánh tổ chức tín dụng, chi nhánh ngân hàng nước ngoài mở tài khoản thanh toán (sau đây gọi là Ngân hàng Nhà nước chi nhánh trên địa bàn). Nội dung thông báo bao gồm các thông tin về loại tiền, số lượng, seri và mô tả đặc điểm của tiền giả.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": [
+      {
+       "id": "id_eda833fa-1e70-11f1-bec0-a9e45f7b4207",
+       "cap": "khoan",
+       "so": "1",
+       "tieu_de": "",
+       "text": "Trong giao dịch tiền mặt với khách hàng, khi phát hiện đồng tiền có dấu hiệu nghi giả, Ngân hàng Nhà nước chi nhánh, Sở Giao dịch, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài đối chiếu với đặc điểm bảo an trên tiền thật (hoặc tiền mẫu) cùng loại hoặc thông báo về đặc điểm và cách nhận biết tiền Việt Nam của Ngân hàng Nhà nước đã công bố, đối chiếu với thông báo về đặc điểm nhận biết tiền giả của Ngân hàng Nhà nước hoặc Bộ Công an và xử lý như sau:",
+       "html": "1. Trong giao dịch tiền mặt với khách hàng, khi phát hiện đồng tiền có dấu hiệu nghi giả, Ngân hàng Nhà nước chi nhánh, Sở Giao dịch, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài đối chiếu với đặc điểm bảo an trên tiền thật (hoặc tiền mẫu) cùng loại hoặc thông báo về đặc điểm và cách nhận biết tiền Việt Nam của Ngân hàng Nhà nước đã công bố, đối chiếu với thông báo về đặc điểm nhận biết tiền giả của Ngân hàng Nhà nước hoặc Bộ Công an và xử lý như sau:",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": [
+        {
+         "id": "id_edd118b0-1e70-11f1-855d-c3a1906fba5c",
+         "cap": "diem",
+         "so": "a",
+         "tieu_de": "",
+         "text": "Trường hợp khẳng định là loại tiền giả đã được Ngân hàng Nhà nước hoặc Bộ Công an thông báo bằng văn bản, phải thực hiện thu giữ, lập biên bản theo Mẫu số 01 tại Phụ lục ban hành kèm theo Nghị định số 87/2023/NĐ-CP ngày 08/12/2023 của Chính phủ quy định về phòng, chống tiền giả và bảo vệ tiền Việt Nam, đóng dấu và bấm lỗ tiền giả. Việc đóng dấu, bấm lỗ tiền giả thực hiện theo quy định tại khoản 2 Điều 7 Thông tư này.",
+         "html": "a) Trường hợp khẳng định là loại tiền giả đã được Ngân hàng Nhà nước hoặc Bộ Công an thông báo bằng văn bản, phải thực hiện thu giữ, lập biên bản theo Mẫu số 01 tại Phụ lục ban hành kèm theo Nghị định số 87/2023/NĐ-CP ngày 08/12/2023 của Chính phủ quy định về phòng, chống tiền giả và bảo vệ tiền Việt Nam, đóng dấu và bấm lỗ tiền giả. Việc đóng dấu, bấm lỗ tiền giả thực hiện theo quy định tại khoản 2 Điều 7 Thông tư này.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_edd118ba-1e70-11f1-b790-9b3c832f6909",
+         "cap": "diem",
+         "so": "b",
+         "tieu_de": "",
+         "text": "Trường hợp xác định là tiền giả loại mới, phải thực hiện thu giữ và lập biên bản theo Mẫu số 01 tại Phụ lục ban hành kèm theo Nghị định số 87/2023/NĐ-CP nhưng không đóng dấu, không bấm lỗ tiền giả.",
+         "html": "b) Trường hợp xác định là tiền giả loại mới, phải thực hiện thu giữ và lập biên bản theo Mẫu số 01 tại Phụ lục ban hành kèm theo Nghị định số 87/2023/NĐ-CP nhưng không đóng dấu, không bấm lỗ tiền giả.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        }
+       ]
+      },
+      {
+       "id": "id_edd118c4-1e70-11f1-9326-eb74b96b1d74",
+       "cap": "khoan",
+       "so": "2",
+       "tieu_de": "",
+       "text": "Ngân hàng Nhà nước chi nhánh, Sở Giao dịch, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phải thông báo kịp thời cho cơ quan công an nơi gần nhất để phối hợp, xử lý khi phát hiện một trong các trường hợp sau:",
+       "html": "2. Ngân hàng Nhà nước chi nhánh, Sở Giao dịch, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phải thông báo kịp thời cho cơ quan công an nơi gần nhất để phối hợp, xử lý khi phát hiện một trong các trường hợp sau:",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": [
+        {
+         "id": "id_edd389b0-1e70-11f1-a808-21083d94a6f6",
+         "cap": "diem",
+         "so": "a",
+         "tieu_de": "",
+         "text": "Có dấu hiệu nghi vấn tàng trữ, vận chuyển, lưu hành tiền giả.",
+         "html": "a) Có dấu hiệu nghi vấn tàng trữ, vận chuyển, lưu hành tiền giả.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_edd389ba-1e70-11f1-bdf8-3194b183b40b",
+         "cap": "diem",
+         "so": "b",
+         "tieu_de": "",
+         "text": "Tiền giả loại mới.",
+         "html": "b) Tiền giả loại mới.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_edd389c4-1e70-11f1-a3e9-3fe2c48bdd9a",
+         "cap": "diem",
+         "so": "c",
+         "tieu_de": "",
+         "text": "Có 5 tờ tiền giả (hoặc 5 miếng tiền kim loại giả) hoặc nhiều hơn trong một giao dịch.",
+         "html": "c) Có 5 tờ tiền giả (hoặc 5 miếng tiền kim loại giả) hoặc nhiều hơn trong một giao dịch.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_edd389ce-1e70-11f1-abeb-ef037c9b22de",
+         "cap": "diem",
+         "so": "d",
+         "tieu_de": "",
+         "text": "Khách hàng không chấp hành việc lập biên bản, thu giữ tiền giả.",
+         "html": "d) Khách hàng không chấp hành việc lập biên bản, thu giữ tiền giả.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        }
+       ]
+      },
+      {
+       "id": "id_edd5d3a0-1e70-11f1-b923-21bfd6110943",
+       "cap": "khoan",
+       "so": "3",
+       "tieu_de": "",
+       "text": "Trong quá trình kiểm đếm, phân loại, tuyển chọn tiền, sau khi giao nhận tiền mặt theo bó, túi nguyên niêm phong trong ngành ngân hàng theo quy định của Ngân hàng Nhà nước, khi phát hiện tiền giả, các đơn vị thuộc Ngân hàng Nhà nước, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài xử lý như đối với tiền giả phát hiện trong giao dịch tiền mặt quy định tại khoản 1 và điểm b, điểm c khoản 2 Điều này.",
+       "html": "3. Trong quá trình kiểm đếm, phân loại, tuyển chọn tiền, sau khi giao nhận tiền mặt theo bó, túi nguyên niêm phong trong ngành ngân hàng theo quy định của Ngân hàng Nhà nước, khi phát hiện tiền giả, các đơn vị thuộc Ngân hàng Nhà nước, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài xử lý như đối với tiền giả phát hiện trong giao dịch tiền mặt quy định tại khoản 1 và điểm b, điểm c khoản 2 Điều này.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      }
+     ]
+    },
+    {
+     "id": "id_100b3cb0-e16a-11f0-a74b-993d834f3818",
+     "cap": "dieu",
+     "so": "6",
+     "tieu_de": "Tạm thu giữ tiền nghi giả",
+     "text": "",
+     "html": "",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": [
+      {
+       "id": "id_edd5d3aa-1e70-11f1-a3a3-77dd6df9d273",
+       "cap": "khoan",
+       "so": "1",
+       "tieu_de": "",
+       "text": "Trong giao dịch tiền mặt với khách hàng, khi phát hiện tiền nghi giả, Ngân hàng Nhà nước chi nhánh, Sở Giao dịch, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phải tạm thu giữ và lập biên bản theo Mẫu số 02 tại Phụ lục ban hành kèm theo Nghị định số 87/2023/NĐ-CP.",
+       "html": "1. Trong giao dịch tiền mặt với khách hàng, khi phát hiện tiền nghi giả, Ngân hàng Nhà nước chi nhánh, Sở Giao dịch, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phải tạm thu giữ và lập biên bản theo Mẫu số 02 tại Phụ lục ban hành kèm theo Nghị định số 87/2023/NĐ-CP.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_edfb5d00-1e70-11f1-9b52-01262c065441",
+       "cap": "khoan",
+       "so": "2",
+       "tieu_de": "",
+       "text": "Trong thời hạn 05 ngày làm việc kể từ ngày tạm thu giữ, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phải chuyển hồ sơ giám định theo quy định tại khoản 1 Điều 10 Thông tư này đến Ngân hàng Nhà nước chi nhánh trên địa bàn hoặc Sở giao dịch để giám định.",
+       "html": "2. Trong thời hạn 05 ngày làm việc kể từ ngày tạm thu giữ, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phải chuyển hồ sơ giám định theo quy định tại khoản 1 Điều 10 Thông tư này đến Ngân hàng Nhà nước chi nhánh trên địa bàn hoặc Sở giao dịch để giám định.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      }
+     ]
+    },
+    {
+     "id": "id_100b3cce-e16a-11f0-bd53-819c80e094ca",
+     "cap": "dieu",
+     "so": "7",
+     "tieu_de": "Đóng dấu, bấm lỗ tiền giả",
+     "text": "Dấu tiền giả hình chữ nhật; kích thước: 60mm x 20mm; phần tên đơn vị: 60mm x 7mm, phần chữ \"TIỀN GIẢ\": 60mm x 13mm. Dấu tiền giả sử dụng mực màu đỏ, khó phai.\nĐóng dấu \"TIỀN GIẢ\" lên 2 mặt của tờ tiền giả, mỗi mặt đóng một lần và bấm 4 lỗ trên tờ tiền giả (mỗi cạnh chiều dài tờ tiền giả bấm 2 lỗ tròn cân đối bằng dụng cụ bấm lỗ tài liệu dùng cho văn phòng).",
+     "html": "Dấu tiền giả hình chữ nhật; kích thước: 60mm x 20mm; phần tên đơn vị: 60mm x 7mm, phần chữ \"TIỀN GIẢ\": 60mm x 13mm. Dấu tiền giả sử dụng mực màu đỏ, khó phai.<br>Đóng dấu \"TIỀN GIẢ\" lên 2 mặt của tờ tiền giả, mỗi mặt đóng một lần và bấm 4 lỗ trên tờ tiền giả (mỗi cạnh chiều dài tờ tiền giả bấm 2 lỗ tròn cân đối bằng dụng cụ bấm lỗ tài liệu dùng cho văn phòng).",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": [
+      {
+       "id": "id_edfc2050-1e70-11f1-9d6d-677cc1995f31",
+       "cap": "khoan",
+       "so": "1",
+       "tieu_de": "",
+       "text": "Dấu tiền giả:",
+       "html": "1. Dấu tiền giả:",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_ee2245f0-1e70-11f1-9e98-61526e01728a",
+       "cap": "khoan",
+       "so": "2",
+       "tieu_de": "",
+       "text": "Cách thức đóng dấu, bấm lỗ tiền giả:",
+       "html": "2. Cách thức đóng dấu, bấm lỗ tiền giả:",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      }
+     ]
+    },
+    {
+     "id": "id_100b3cec-e16a-11f0-a2dc-bdacb0c4b82e",
+     "cap": "dieu",
+     "so": "8",
+     "tieu_de": "Đóng gói, bảo quản tiền giả",
+     "text": "",
+     "html": "",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": [
+      {
+       "id": "id_ee24b6f0-1e70-11f1-91eb-6174b16a4aa7",
+       "cap": "khoan",
+       "so": "1",
+       "tieu_de": "",
+       "text": "Ngân hàng Nhà nước chi nhánh, Sở Giao dịch có trách nhiệm đóng gói, niêm phong tiền giả. Niêm phong tiền giả được thực hiện theo quy định về niêm phong tiền mặt của Ngân hàng Nhà nước nhưng phải được đóng dấu \"TIỀN GIẢ\" trên niêm phong để phân biệt với tiền thật.",
+       "html": "1. Ngân hàng Nhà nước chi nhánh, Sở Giao dịch có trách nhiệm đóng gói, niêm phong tiền giả. Niêm phong tiền giả được thực hiện theo quy định về niêm phong tiền mặt của Ngân hàng Nhà nước nhưng phải được đóng dấu \"TIỀN GIẢ\" trên niêm phong để phân biệt với tiền thật.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_ee48e0c0-1e70-11f1-beb9-5f8776121909",
+       "cap": "khoan",
+       "so": "2",
+       "tieu_de": "",
+       "text": "Đóng gói, niêm phong tiền giả",
+       "html": "2. Đóng gói, niêm phong tiền giả",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": [
+        {
+         "id": "id_ee48e0ca-1e70-11f1-9300-d9ee563e7ad1",
+         "cap": "diem",
+         "so": "a",
+         "tieu_de": "",
+         "text": "Tiền cotton giả, tiền polymer giả: 100 tờ tiền cùng mệnh giá, cùng chất liệu đóng thành 1 thếp; 10 thếp đóng thành 1 bó (1.000 tờ) và niêm phong.",
+         "html": "a) Tiền cotton giả, tiền polymer giả: 100 tờ tiền cùng mệnh giá, cùng chất liệu đóng thành 1 thếp; 10 thếp đóng thành 1 bó (1.000 tờ) và niêm phong.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_ee48e0d4-1e70-11f1-8e8a-01674c1a9de9",
+         "cap": "diem",
+         "so": "b",
+         "tieu_de": "",
+         "text": "Tiền kim loại giả: 100 miếng cùng mệnh giá được đóng thành 1 túi nhỏ và niêm phong; 10 túi nhỏ đóng thành một túi lớn (1.000 miếng) và niêm phong.",
+         "html": "b) Tiền kim loại giả: 100 miếng cùng mệnh giá được đóng thành 1 túi nhỏ và niêm phong; 10 túi nhỏ đóng thành một túi lớn (1.000 miếng) và niêm phong.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_ee48e0de-1e70-11f1-8c59-1143038af387",
+         "cap": "diem",
+         "so": "c",
+         "tieu_de": "",
+         "text": "Trường hợp không đủ số lượng để đóng bó (hoặc túi), Ngân hàng Nhà nước chi nhánh, Sở Giao dịch cũng thực hiện đóng gói, niêm phong, ghi rõ số lượng tờ (hoặc miếng) để thuận tiện trong giao nhận.",
+         "html": "c) Trường hợp không đủ số lượng để đóng bó (hoặc túi), Ngân hàng Nhà nước chi nhánh, Sở Giao dịch cũng thực hiện đóng gói, niêm phong, ghi rõ số lượng tờ (hoặc miếng) để thuận tiện trong giao nhận.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        }
+       ]
+      },
+      {
+       "id": "id_ee4b51c0-1e70-11f1-8472-8d03d958d9a7",
+       "cap": "khoan",
+       "so": "3",
+       "tieu_de": "",
+       "text": "Tiền giả được bảo quản riêng trong kho tiền của hệ thống Ngân hàng Nhà nước, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài.",
+       "html": "3. Tiền giả được bảo quản riêng trong kho tiền của hệ thống Ngân hàng Nhà nước, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      }
+     ]
+    },
+    {
+     "id": "id_100b3d32-e16a-11f0-8a23-fdcf713dbca6",
+     "cap": "dieu",
+     "so": "9",
+     "tieu_de": "Giao nhận, vận chuyển tiền giả",
+     "text": "Phương thức vận chuyển tiền giả do Chủ tịch Hội đồng thành viên, Chủ tịch Hội đồng quản trị hoặc Tổng Giám đốc (Giám đốc) tổ chức tín dụng, chi nhánh ngân hàng nước ngoài quyết định, đảm bảo an toàn trong quá trình vận chuyển.\nTrường hợp phát hiện tiền thật trong số tiền giả giao nộp, Ngân hàng Nhà nước chi nhánh, Sở Giao dịch lập biên bản theo mẫu tại Phụ lục ban hành kèm theo Thông tư này và có văn bản yêu cầu đơn vị giao nộp phải hoàn trả ngang giá trị cho khách hàng và báo cáo kết quả trong thời gian 30 ngày.\nTờ tiền thật đã đóng dấu \"TIỀN GIẢ\" và bấm lỗ được Ngân hàng Nhà nước chi nhánh, Sở Giao dịch cắt góc 1/8 diện tích tờ tiền, thu đổi ngang giá trị (ghi Có) cho đơn vị giao nộp (không thu phí đổi tiền không đủ tiêu chuẩn lưu thông) và đóng gói, giao nhận như đối với tiền không đủ tiêu chuẩn lưu thông theo quy định của Ngân hàng Nhà nước.\nViệc giao nhận thực hiện theo bó, bì, túi nguyên niêm phong và được lập biên bản theo Mẫu số 04 tại Phụ lục ban hành kèm theo Nghị định số 87/2023/NĐ-CP.\nTrong thời hạn 02 ngày làm việc kể từ ngày nhận được tiền giả loại mới, Ngân hàng Nhà nước chi nhánh, Sở Giao dịch thông báo về Cục Phát hành và Kho quỹ.",
+     "html": "Phương thức vận chuyển tiền giả do Chủ tịch Hội đồng thành viên, Chủ tịch Hội đồng quản trị hoặc Tổng Giám đốc (Giám đốc) tổ chức tín dụng, chi nhánh ngân hàng nước ngoài quyết định, đảm bảo an toàn trong quá trình vận chuyển.<br>Trường hợp phát hiện tiền thật trong số tiền giả giao nộp, Ngân hàng Nhà nước chi nhánh, Sở Giao dịch lập biên bản theo mẫu tại Phụ lục ban hành kèm theo Thông tư này và có văn bản yêu cầu đơn vị giao nộp phải hoàn trả ngang giá trị cho khách hàng và báo cáo kết quả trong thời gian 30 ngày.<br>Tờ tiền thật đã đóng dấu \"TIỀN GIẢ\" và bấm lỗ được Ngân hàng Nhà nước chi nhánh, Sở Giao dịch cắt góc 1/8 diện tích tờ tiền, thu đổi ngang giá trị (ghi Có) cho đơn vị giao nộp (không thu phí đổi tiền không đủ tiêu chuẩn lưu thông) và đóng gói, giao nhận như đối với tiền không đủ tiêu chuẩn lưu thông theo quy định của Ngân hàng Nhà nước.<br>Việc giao nhận thực hiện theo bó, bì, túi nguyên niêm phong và được lập biên bản theo Mẫu số 04 tại Phụ lục ban hành kèm theo Nghị định số 87/2023/NĐ-CP.<br>Trong thời hạn 02 ngày làm việc kể từ ngày nhận được tiền giả loại mới, Ngân hàng Nhà nước chi nhánh, Sở Giao dịch thông báo về Cục Phát hành và Kho quỹ.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": [
+      {
+       "id": "id_ee4b51ca-1e70-11f1-985f-d94bb90d7547",
+       "cap": "khoan",
+       "so": "1",
+       "tieu_de": "",
+       "text": "Tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phải giao nộp toàn bộ số tiền giả đã thu giữ về Ngân hàng Nhà nước chi nhánh trên địa bàn hoặc Sở Giao dịch theo định kỳ hàng tháng, trừ số tiền giả loại mới giao nộp theo quy định tại khoản 4 Điều này. Việc giao nhận tiền giả thực hiện theo tờ (hoặc miếng) và phải được lập biên bản theo Mẫu số 04 tại Phụ lục ban hành kèm theo Nghị định số 87/2023/NĐ-CP.",
+       "html": "1. Tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phải giao nộp toàn bộ số tiền giả đã thu giữ về Ngân hàng Nhà nước chi nhánh trên địa bàn hoặc Sở Giao dịch theo định kỳ hàng tháng, trừ số tiền giả loại mới giao nộp theo quy định tại khoản 4 Điều này. Việc giao nhận tiền giả thực hiện theo tờ (hoặc miếng) và phải được lập biên bản theo Mẫu số 04 tại Phụ lục ban hành kèm theo Nghị định số 87/2023/NĐ-CP.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_ee732510-1e70-11f1-8e5c-497c724c8931",
+       "cap": "khoan",
+       "so": "2",
+       "tieu_de": "",
+       "text": "Ngân hàng Nhà nước chi nhánh, Sở Giao dịch có trách nhiệm kiểm tra tính xác thực của từng tờ tiền giả do tổ chức tín dụng, chi nhánh ngân hàng nước ngoài giao nộp.",
+       "html": "2. Ngân hàng Nhà nước chi nhánh, Sở Giao dịch có trách nhiệm kiểm tra tính xác thực của từng tờ tiền giả do tổ chức tín dụng, chi nhánh ngân hàng nước ngoài giao nộp.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_ee73251a-1e70-11f1-92e7-83c2912e1bee",
+       "cap": "khoan",
+       "so": "3",
+       "tieu_de": "",
+       "text": "Ngân hàng Nhà nước chi nhánh, Sở Giao dịch phải giao nộp tiền giả ít nhất 6 tháng một lần (nếu có) về Kho tiền Trung ương. Việc giao nộp có thể kết hợp với việc điều chuyển tiền đi, đến của Ngân hàng Nhà nước.",
+       "html": "3. Ngân hàng Nhà nước chi nhánh, Sở Giao dịch phải giao nộp tiền giả ít nhất 6 tháng một lần (nếu có) về Kho tiền Trung ương. Việc giao nộp có thể kết hợp với việc điều chuyển tiền đi, đến của Ngân hàng Nhà nước.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_ee756f00-1e70-11f1-a9f5-4dff84434b76",
+       "cap": "khoan",
+       "so": "4",
+       "tieu_de": "",
+       "text": "Đối với tiền giả loại mới, trên cơ sở thông báo tiền giả loại mới quy định tại điểm b khoản 1 Điều 5 Thông tư này, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phải giao nộp về Ngân hàng Nhà nước chi nhánh trên địa bàn hoặc Sở Giao dịch trong thời hạn 05 ngày làm việc kể từ ngày thu giữ. Phương thức vận chuyển thực hiện theo quy định tại khoản 1 Điều này.",
+       "html": "4. Đối với tiền giả loại mới, trên cơ sở thông báo tiền giả loại mới quy định tại điểm b khoản 1 Điều 5 Thông tư này, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phải giao nộp về Ngân hàng Nhà nước chi nhánh trên địa bàn hoặc Sở Giao dịch trong thời hạn 05 ngày làm việc kể từ ngày thu giữ. Phương thức vận chuyển thực hiện theo quy định tại khoản 1 Điều này.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_ee75bd20-1e70-11f1-87b1-cb140c7009c1",
+       "cap": "khoan",
+       "so": "5",
+       "tieu_de": "",
+       "text": "Trên cơ sở thông báo tiền giả loại mới của Ngân hàng Nhà nước chi nhánh, Sở Giao dịch tại điểm b khoản 1 Điều 5 và khoản 4 Điều 9 Thông tư này, Cục Phát hành và Kho quỹ xem xét, quyết định yêu cầu giao nộp tiền giả loại mới. Trường hợp có yêu cầu, Ngân hàng Nhà nước chi nhánh, Sở Giao dịch thực hiện giao nộp tiền giả loại mới theo yêu cầu của Cục Phát hành và Kho quỹ; Phương thức vận chuyển tiền giả loại mới do Giám đốc Sở Giao dịch, Ngân hàng Nhà nước chi nhánh quyết định, đảm bảo an toàn, kịp thời. Trường hợp không có yêu cầu, tiền giả được đóng dấu, bấm lỗ và giao nộp theo quy định tại khoản 3 Điều này.",
+       "html": "5. Trên cơ sở thông báo tiền giả loại mới của Ngân hàng Nhà nước chi nhánh, Sở Giao dịch tại điểm b khoản 1 Điều 5 và khoản 4 Điều 9 Thông tư này, Cục Phát hành và Kho quỹ xem xét, quyết định yêu cầu giao nộp tiền giả loại mới. Trường hợp có yêu cầu, Ngân hàng Nhà nước chi nhánh, Sở Giao dịch thực hiện giao nộp tiền giả loại mới theo yêu cầu của Cục Phát hành và Kho quỹ; Phương thức vận chuyển tiền giả loại mới do Giám đốc Sở Giao dịch, Ngân hàng Nhà nước chi nhánh quyết định, đảm bảo an toàn, kịp thời. Trường hợp không có yêu cầu, tiền giả được đóng dấu, bấm lỗ và giao nộp theo quy định tại khoản 3 Điều này.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      }
+     ]
+    },
+    {
+     "id": "id_100b3d6e-e16a-11f0-a049-add378d9ded1",
+     "cap": "dieu",
+     "so": "10",
+     "tieu_de": "Giám định tiền giả, tiền nghi giả của Ngân hàng Nhà nước",
+     "text": "Trong thời gian tối đa 02 ngày làm việc kể từ ngày hoàn thành giám định, cơ quan giám định thông báo kết quả giám định bằng văn bản cho cơ quan, tổ chức, cá nhân đề nghị giám định.\nViệc giám định được thực hiện miễn phí.\nPhương thức vận chuyển tiền giả, tiền nghi giả cần giám định do Giám đốc Ngân hàng Nhà nước chi nhánh, Sở Giao dịch quyết định, đảm bảo an toàn, thuận tiện.\nTrong thời gian tối đa 05 ngày làm việc kể từ ngày nhận được kết quả giám định, Ngân hàng Nhà nước chi nhánh, Sở Giao dịch phải thông báo kết quả giám định bằng văn bản cho cơ quan, tổ chức, cá nhân có yêu cầu giám định biết.",
+     "html": "Trong thời gian tối đa 02 ngày làm việc kể từ ngày hoàn thành giám định, cơ quan giám định thông báo kết quả giám định bằng văn bản cho cơ quan, tổ chức, cá nhân đề nghị giám định.<br>Việc giám định được thực hiện miễn phí.<br>Phương thức vận chuyển tiền giả, tiền nghi giả cần giám định do Giám đốc Ngân hàng Nhà nước chi nhánh, Sở Giao dịch quyết định, đảm bảo an toàn, thuận tiện.<br>Trong thời gian tối đa 05 ngày làm việc kể từ ngày nhận được kết quả giám định, Ngân hàng Nhà nước chi nhánh, Sở Giao dịch phải thông báo kết quả giám định bằng văn bản cho cơ quan, tổ chức, cá nhân có yêu cầu giám định biết.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": [
+      {
+       "id": "id_ee768070-1e70-11f1-9610-cff70db18c8f",
+       "cap": "khoan",
+       "so": "1",
+       "tieu_de": "",
+       "text": "Cơ quan, tổ chức, cá nhân có yêu cầu giám định tiền giả, tiền nghi giả phải lập 01 bộ hồ sơ đề nghị giám định theo quy định tại khoản 2 Điều 5 Nghị định số 87/2023/NĐ-CP và nộp trực tiếp đến Ngân hàng Nhà nước chi nhánh hoặc Sở Giao dịch hoặc Cục Phát hành và Kho quỹ (tại thành phố Hà Nội), Chi cục Phát hành và Kho quỹ (tại thành phố Hồ Chí Minh).",
+       "html": "1. Cơ quan, tổ chức, cá nhân có yêu cầu giám định tiền giả, tiền nghi giả phải lập 01 bộ hồ sơ đề nghị giám định theo quy định tại khoản 2 Điều 5 Nghị định số 87/2023/NĐ-CP và nộp trực tiếp đến Ngân hàng Nhà nước chi nhánh hoặc Sở Giao dịch hoặc Cục Phát hành và Kho quỹ (tại thành phố Hà Nội), Chi cục Phát hành và Kho quỹ (tại thành phố Hồ Chí Minh).",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_ee99e6f0-1e70-11f1-8e89-07062c62aa56",
+       "cap": "khoan",
+       "so": "2",
+       "tieu_de": "",
+       "text": "Khi nhận được hồ sơ đề nghị giám định theo quy định tại khoản 1 Điều này hoặc từ ngày tạm thu giữ tiền nghi giả theo quy định tại khoản 1 Điều 6, Ngân hàng Nhà nước chi nhánh, Sở Giao dịch, Cục Phát hành và Kho quỹ, Chi cục Phát hành và Kho quỹ (sau đây gọi là cơ quan giám định) phải tổ chức giám định. Thời gian thực hiện giám định theo quy định tại khoản 3 Điều 5 Nghị định số 87/2023/NĐ-CP.",
+       "html": "2. Khi nhận được hồ sơ đề nghị giám định theo quy định tại khoản 1 Điều này hoặc từ ngày tạm thu giữ tiền nghi giả theo quy định tại khoản 1 Điều 6, Ngân hàng Nhà nước chi nhánh, Sở Giao dịch, Cục Phát hành và Kho quỹ, Chi cục Phát hành và Kho quỹ (sau đây gọi là cơ quan giám định) phải tổ chức giám định. Thời gian thực hiện giám định theo quy định tại khoản 3 Điều 5 Nghị định số 87/2023/NĐ-CP.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_ee99e6fa-1e70-11f1-8f31-c178aa71a341",
+       "cap": "khoan",
+       "so": "3",
+       "tieu_de": "",
+       "text": "Trường hợp không kết luận được tiền thật hay tiền giả, chậm nhất trong thời hạn 30 ngày kể từ ngày nhận được tiền giả, tiền nghi giả cần giám định, Ngân hàng Nhà nước chi nhánh, Sở Giao dịch có văn bản đề nghị và chuyển số tiền giả, tiền nghi giả này về Cục Phát hành và Kho quỹ hoặc Chi cục Phát hành và Kho quỹ để giám định; đồng thời thông báo cho cơ quan, tổ chức, cá nhân nêu tại khoản 1 Điều này hoặc khoản 1 Điều 6 Thông tư này hoặc tổ chức tín dụng, chi nhánh ngân hàng nước ngoài nêu tại khoản 2 Điều 6 Thông tư này để biết.",
+       "html": "3. Trường hợp không kết luận được tiền thật hay tiền giả, chậm nhất trong thời hạn 30 ngày kể từ ngày nhận được tiền giả, tiền nghi giả cần giám định, Ngân hàng Nhà nước chi nhánh, Sở Giao dịch có văn bản đề nghị và chuyển số tiền giả, tiền nghi giả này về Cục Phát hành và Kho quỹ hoặc Chi cục Phát hành và Kho quỹ để giám định; đồng thời thông báo cho cơ quan, tổ chức, cá nhân nêu tại khoản 1 Điều này hoặc khoản 1 Điều 6 Thông tư này hoặc tổ chức tín dụng, chi nhánh ngân hàng nước ngoài nêu tại khoản 2 Điều 6 Thông tư này để biết.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      }
+     ]
+    },
+    {
+     "id": "id_100b3d96-e16a-11f0-97e0-018f58dc9495",
+     "cap": "dieu",
+     "so": "11",
+     "tieu_de": "Xử lý kết quả giám định",
+     "text": "Số tiền giả loại mới được lưu giữ tại Cục Phát hành và Kho quỹ để phục vụ công tác phòng, chống tiền giả của Ngân hàng Nhà nước theo quy định tại Điều 12 Thông tư này.",
+     "html": "Số tiền giả loại mới được lưu giữ tại Cục Phát hành và Kho quỹ để phục vụ công tác phòng, chống tiền giả của Ngân hàng Nhà nước theo quy định tại Điều 12 Thông tư này.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": [
+      {
+       "id": "id_ee99e704-1e70-11f1-92d4-5f7942fd57f3",
+       "cap": "khoan",
+       "so": "1",
+       "tieu_de": "",
+       "text": "Tại Cục Phát hành và Kho quỹ và Chi cục Phát hành và Kho quỹ:",
+       "html": "1. Tại Cục Phát hành và Kho quỹ và Chi cục Phát hành và Kho quỹ:",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": [
+        {
+         "id": "id_eebfbe70-1e70-11f1-bd24-e1bd1673c215",
+         "cap": "diem",
+         "so": "a",
+         "tieu_de": "",
+         "text": "Kết quả giám định là tiền thật, số tiền thật được trả lại cho cơ quan, tổ chức, cá nhân đề nghị giám định hoặc được nộp vào Sở Giao dịch khi giám định tại Cục Phát hành và Kho quỹ hoặc Ngân hàng Nhà nước chi nhánh tại thành phố Hồ Chí Minh khi giám định tại Chi cục Phát hành và Kho quỹ để báo Có cho Ngân hàng Nhà nước chi nhánh, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài đề nghị giám định.",
+         "html": "a) Kết quả giám định là tiền thật, số tiền thật được trả lại cho cơ quan, tổ chức, cá nhân đề nghị giám định hoặc được nộp vào Sở Giao dịch khi giám định tại Cục Phát hành và Kho quỹ hoặc Ngân hàng Nhà nước chi nhánh tại thành phố Hồ Chí Minh khi giám định tại Chi cục Phát hành và Kho quỹ để báo Có cho Ngân hàng Nhà nước chi nhánh, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài đề nghị giám định.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_eec22f70-1e70-11f1-b7a3-59481d71c6fe",
+         "cap": "diem",
+         "so": "b",
+         "tieu_de": "",
+         "text": "Kết quả giám định là tiền giả đã có thông báo của Ngân hàng Nhà nước hoặc Bộ Công an, thực hiện thu giữ, đóng dấu, bấm lỗ tiền giả và nộp vào Kho tiền Trung ương tại thành phố Hà Nội (Kho tiền I) hoặc tại thành phố Hồ Chí Minh (Kho tiền II).",
+         "html": "b) Kết quả giám định là tiền giả đã có thông báo của Ngân hàng Nhà nước hoặc Bộ Công an, thực hiện thu giữ, đóng dấu, bấm lỗ tiền giả và nộp vào Kho tiền Trung ương tại thành phố Hà Nội (Kho tiền I) hoặc tại thành phố Hồ Chí Minh (Kho tiền II).",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_eec22f7a-1e70-11f1-a2ac-890e52849baf",
+         "cap": "diem",
+         "so": "c",
+         "tieu_de": "",
+         "text": "Kết quả giám định là tiền giả loại mới, Cục Phát hành và Kho quỹ thông báo kịp thời cho Cục An ninh kinh tế - Bộ Công an và thực hiện thu giữ. Đối với Chi cục Phát hành và Kho quỹ, báo cáo bằng văn bản về Cục Phát hành và Kho quỹ và thông báo kịp thời cho Công an thành phố Hồ Chí Minh (Phòng An ninh kinh tế); chuyển tiền giả loại mới về Cục Phát hành và Kho quỹ (nếu có yêu cầu); phương thức vận chuyển do Chi cục Phát hành và Kho quỹ quyết định, đảm bảo an toàn, kịp thời. Trường hợp không có yêu cầu chuyển về Cục Phát hành và Kho quỹ, tiền giả được đóng dấu, bấm lỗ và bảo quản tại Kho tiền II.",
+         "html": "c) Kết quả giám định là tiền giả loại mới, Cục Phát hành và Kho quỹ thông báo kịp thời cho Cục An ninh kinh tế - Bộ Công an và thực hiện thu giữ. Đối với Chi cục Phát hành và Kho quỹ, báo cáo bằng văn bản về Cục Phát hành và Kho quỹ và thông báo kịp thời cho Công an thành phố Hồ Chí Minh (Phòng An ninh kinh tế); chuyển tiền giả loại mới về Cục Phát hành và Kho quỹ (nếu có yêu cầu); phương thức vận chuyển do Chi cục Phát hành và Kho quỹ quyết định, đảm bảo an toàn, kịp thời. Trường hợp không có yêu cầu chuyển về Cục Phát hành và Kho quỹ, tiền giả được đóng dấu, bấm lỗ và bảo quản tại Kho tiền II.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        }
+       ]
+      },
+      {
+       "id": "id_eec22f84-1e70-11f1-b222-31e74a382fe9",
+       "cap": "khoan",
+       "so": "2",
+       "tieu_de": "",
+       "text": "Tại Ngân hàng Nhà nước chi nhánh, Sở Giao dịch:",
+       "html": "2. Tại Ngân hàng Nhà nước chi nhánh, Sở Giao dịch:",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": [
+        {
+         "id": "id_eec22f8e-1e70-11f1-862e-27f6204ec257",
+         "cap": "diem",
+         "so": "a",
+         "tieu_de": "",
+         "text": "Kết quả giám định là tiền thật, số tiền thật được thu đổi cho cơ quan, tổ chức, cá nhân đề nghị giám định theo quy định của Ngân hàng Nhà nước về thu đổi tiền không đủ tiêu chuẩn lưu thông.",
+         "html": "a) Kết quả giám định là tiền thật, số tiền thật được thu đổi cho cơ quan, tổ chức, cá nhân đề nghị giám định theo quy định của Ngân hàng Nhà nước về thu đổi tiền không đủ tiêu chuẩn lưu thông.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_eec4a070-1e70-11f1-9da4-e17a93a9f4ef",
+         "cap": "diem",
+         "so": "b",
+         "tieu_de": "",
+         "text": "Kết quả giám định là loại tiền giả đã có thông báo của Ngân hàng Nhà nước hoặc Bộ Công an, thực hiện thu giữ, đóng dấu, bấm lỗ tiền giả.",
+         "html": "b) Kết quả giám định là loại tiền giả đã có thông báo của Ngân hàng Nhà nước hoặc Bộ Công an, thực hiện thu giữ, đóng dấu, bấm lỗ tiền giả.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_eec4a07a-1e70-11f1-87de-c96958636087",
+         "cap": "diem",
+         "so": "c",
+         "tieu_de": "",
+         "text": "Kết quả giám định là tiền giả loại mới, thực hiện thu giữ; thông báo ngay cho Công an địa phương (Phòng An ninh Kinh tế) và thông báo bằng văn bản về tiền giả loại mới cho Cục Phát hành và Kho quỹ. Việc giao nộp tiền giả loại mới thực hiện theo quy định tại khoản 4 Điều 9 Thông tư này.",
+         "html": "c) Kết quả giám định là tiền giả loại mới, thực hiện thu giữ; thông báo ngay cho Công an địa phương (Phòng An ninh Kinh tế) và thông báo bằng văn bản về tiền giả loại mới cho Cục Phát hành và Kho quỹ. Việc giao nộp tiền giả loại mới thực hiện theo quy định tại khoản 4 Điều 9 Thông tư này.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        }
+       ]
+      },
+      {
+       "id": "id_eec4a084-1e70-11f1-948d-01c1fda870cd",
+       "cap": "khoan",
+       "so": "3",
+       "tieu_de": "",
+       "text": "Tại tổ chức tín dụng, chi nhánh ngân hàng nước ngoài:",
+       "html": "3. Tại tổ chức tín dụng, chi nhánh ngân hàng nước ngoài:",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": [
+        {
+         "id": "id_eec4a08e-1e70-11f1-ab62-d7e3d679acb0",
+         "cap": "diem",
+         "so": "a",
+         "tieu_de": "",
+         "text": "Kết quả giám định là tiền thật, số tiền thật được thu đổi cho khách hàng theo quy định của Ngân hàng Nhà nước về thu đổi tiền không đủ tiêu chuẩn lưu thông.",
+         "html": "a) Kết quả giám định là tiền thật, số tiền thật được thu đổi cho khách hàng theo quy định của Ngân hàng Nhà nước về thu đổi tiền không đủ tiêu chuẩn lưu thông.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_eec71170-1e70-11f1-8f17-0f86ec7bd259",
+         "cap": "diem",
+         "so": "b",
+         "tieu_de": "",
+         "text": "Kết quả giám định là tiền giả, thông báo kết quả giám định và việc xử lý tiền giả của cơ quan giám định cho khách hàng biết trong thời gian tối đa 05 ngày làm việc kể từ ngày nhận được kết quả giám định.",
+         "html": "b) Kết quả giám định là tiền giả, thông báo kết quả giám định và việc xử lý tiền giả của cơ quan giám định cho khách hàng biết trong thời gian tối đa 05 ngày làm việc kể từ ngày nhận được kết quả giám định.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        }
+       ]
+      },
+      {
+       "id": "id_eec7117a-1e70-11f1-a988-2b6cdadd78a1",
+       "cap": "khoan",
+       "so": "4",
+       "tieu_de": "",
+       "text": "Đối với tiền giả, tiền nghi giả giám định theo yêu cầu của cơ quan Công an, Cơ quan có thẩm quyền của quân đội, Hải quan, Viện kiểm sát nhân dân hoặc Tòa án nhân dân, sau khi giám định được trả lại đơn vị đề nghị giám định, không đóng dấu, bấm lỗ. Việc giao nhận tiền giả, tiền nghi giả được lập biên bản theo Mẫu số 04 tại Phụ lục ban hành kèm theo Nghị định số 87/2023/NĐ-CP.",
+       "html": "4. Đối với tiền giả, tiền nghi giả giám định theo yêu cầu của cơ quan Công an, Cơ quan có thẩm quyền của quân đội, Hải quan, Viện kiểm sát nhân dân hoặc Tòa án nhân dân, sau khi giám định được trả lại đơn vị đề nghị giám định, không đóng dấu, bấm lỗ. Việc giao nhận tiền giả, tiền nghi giả được lập biên bản theo Mẫu số 04 tại Phụ lục ban hành kèm theo Nghị định số 87/2023/NĐ-CP.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      }
+     ]
+    },
+    {
+     "id": "id_100b3e18-e16a-11f0-aa48-b1d2cb987bb1",
+     "cap": "dieu",
+     "so": "12",
+     "tieu_de": "Lưu giữ tiền giả làm tư liệu nghiên cứu phục vụ công tác phòng, chống tiền giả của Ngân hàng Nhà nước",
+     "text": "Sau khi phân tích, giám định tiền giả loại mới, Cục Phát hành và Kho quỹ được lưu giữ, bảo quản tối đa 15 tờ (hoặc miếng)/loại để phục vụ công tác nghiên cứu, phòng, chống tiền giả và tập huấn nghiệp vụ (trừ tiền giả, tiền nghi giả giám định theo khoản 4 Điều 11 Thông tư này). Cục Phát hành và Kho quỹ theo dõi, lưu giữ, bảo quản theo mệnh giá, vần seri và số lượng từng loại tiền giả. Trường hợp cần lưu giữ, bảo quản nhiều hơn 15 tờ (hoặc miếng)/loại, Cục Phát hành và Kho quỹ trình Thống đốc Ngân hàng Nhà nước quyết định.\nTrường hợp không cần lưu giữ, bảo quản sau thời gian nghiên cứu, phòng, chống tiền giả và tập huấn nghiệp vụ, Cục Phát hành và Kho quỹ thực hiện đóng dấu, bấm lỗ tiền giả và nộp vào Kho tiền Trung ương tại thành phố Hà Nội (Kho tiền I).",
+     "html": "Sau khi phân tích, giám định tiền giả loại mới, Cục Phát hành và Kho quỹ được lưu giữ, bảo quản tối đa 15 tờ (hoặc miếng)/loại để phục vụ công tác nghiên cứu, phòng, chống tiền giả và tập huấn nghiệp vụ (trừ tiền giả, tiền nghi giả giám định theo khoản 4 Điều 11 Thông tư này). Cục Phát hành và Kho quỹ theo dõi, lưu giữ, bảo quản theo mệnh giá, vần seri và số lượng từng loại tiền giả. Trường hợp cần lưu giữ, bảo quản nhiều hơn 15 tờ (hoặc miếng)/loại, Cục Phát hành và Kho quỹ trình Thống đốc Ngân hàng Nhà nước quyết định.<br>Trường hợp không cần lưu giữ, bảo quản sau thời gian nghiên cứu, phòng, chống tiền giả và tập huấn nghiệp vụ, Cục Phát hành và Kho quỹ thực hiện đóng dấu, bấm lỗ tiền giả và nộp vào Kho tiền Trung ương tại thành phố Hà Nội (Kho tiền I).",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_100b3e22-e16a-11f0-9b38-999ed6d34f85",
+     "cap": "dieu",
+     "so": "13",
+     "tieu_de": "Thông tin về tiền giả",
+     "text": "",
+     "html": "",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": [
+      {
+       "id": "id_eec71184-1e70-11f1-8883-eb036ac42700",
+       "cap": "khoan",
+       "so": "1",
+       "tieu_de": "",
+       "text": "Cục Phát hành và Kho quỹ (Ngân hàng Nhà nước) thực hiện phân tích giám định và thông báo về đặc điểm nhận biết tiền giả loại mới bằng văn bản cho Cục An ninh kinh tế, Viện Khoa học hình sự (Bộ Công an), Cục Phòng chống ma túy và Tội phạm - Bộ Tư lệnh Bộ đội Biên phòng (Bộ Quốc phòng), Ngân hàng Nhà nước chi nhánh, Sở Giao dịch, Kho bạc Nhà nước để phục vụ công tác phòng, chống tiền giả.",
+       "html": "1. Cục Phát hành và Kho quỹ (Ngân hàng Nhà nước) thực hiện phân tích giám định và thông báo về đặc điểm nhận biết tiền giả loại mới bằng văn bản cho Cục An ninh kinh tế, Viện Khoa học hình sự (Bộ Công an), Cục Phòng chống ma túy và Tội phạm - Bộ Tư lệnh Bộ đội Biên phòng (Bộ Quốc phòng), Ngân hàng Nhà nước chi nhánh, Sở Giao dịch, Kho bạc Nhà nước để phục vụ công tác phòng, chống tiền giả.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_eeefa810-1e70-11f1-bfcf-d158929a2018",
+       "cap": "khoan",
+       "so": "2",
+       "tieu_de": "",
+       "text": "Khi nhận được thông báo bằng văn bản về tiền giả loại mới của Cục Phát hành và Kho quỹ, Ngân hàng Nhà nước chi nhánh phải thông báo về đặc điểm nhận biết tiền giả loại mới bằng văn bản cho Hội sở chính tổ chức tín dụng, chi nhánh ngân hàng nước ngoài trên địa bàn.",
+       "html": "2. Khi nhận được thông báo bằng văn bản về tiền giả loại mới của Cục Phát hành và Kho quỹ, Ngân hàng Nhà nước chi nhánh phải thông báo về đặc điểm nhận biết tiền giả loại mới bằng văn bản cho Hội sở chính tổ chức tín dụng, chi nhánh ngân hàng nước ngoài trên địa bàn.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_eeefa81a-1e70-11f1-83da-27a52352d613",
+       "cap": "khoan",
+       "so": "3",
+       "tieu_de": "",
+       "text": "Khi nhận được thông báo bằng văn bản về tiền giả loại mới của Ngân hàng Nhà nước, tổ chức tín dụng và chi nhánh ngân hàng nước ngoài phải thông báo bằng văn bản cho các đơn vị trong hệ thống để phòng ngừa tiền giả.",
+       "html": "3. Khi nhận được thông báo bằng văn bản về tiền giả loại mới của Ngân hàng Nhà nước, tổ chức tín dụng và chi nhánh ngân hàng nước ngoài phải thông báo bằng văn bản cho các đơn vị trong hệ thống để phòng ngừa tiền giả.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_eeefa824-1e70-11f1-98b3-4515bbe48a3b",
+       "cap": "khoan",
+       "so": "4",
+       "tieu_de": "",
+       "text": "Trường hợp cần thiết, Cục Phát hành và Kho quỹ thông báo công khai trên phương tiện thông tin đại chúng hoặc trên trang thông tin điện tử của Ngân hàng Nhà nước về đặc điểm nhận biết của tiền giả xuất hiện trong lưu thông để các tổ chức, cá nhân cảnh giác, chủ động phòng ngừa.",
+       "html": "4. Trường hợp cần thiết, Cục Phát hành và Kho quỹ thông báo công khai trên phương tiện thông tin đại chúng hoặc trên trang thông tin điện tử của Ngân hàng Nhà nước về đặc điểm nhận biết của tiền giả xuất hiện trong lưu thông để các tổ chức, cá nhân cảnh giác, chủ động phòng ngừa.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      }
+     ]
+    },
+    {
+     "id": "id_100b3e54-e16a-11f0-acee-e1003e9cf88e",
+     "cap": "dieu",
+     "so": "14",
+     "tieu_de": "Báo cáo thống kê về tiền giả",
+     "text": "Ngân hàng Nhà nước chi nhánh, Sở Giao dịch, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài báo cáo số liệu tiền giả thu giữ theo chế độ báo cáo thống kê của Ngân hàng Nhà nước.",
+     "html": "Ngân hàng Nhà nước chi nhánh, Sở Giao dịch, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài báo cáo số liệu tiền giả thu giữ theo chế độ báo cáo thống kê của Ngân hàng Nhà nước.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    }
+   ]
+  },
+  {
+   "id": "id_100b3e5e-e16a-11f0-b97b-f954a0a5c1cc",
+   "cap": "chuong",
+   "so": "III",
+   "tieu_de": "TỔ CHỨC THỰC HIỆN",
+   "text": "",
+   "html": "",
+   "bi_tac_dong": null,
+   "an": false,
+   "con": [
+    {
+     "id": "id_100b3e68-e16a-11f0-b6f4-abb2043af694",
+     "cap": "dieu",
+     "so": "15",
+     "tieu_de": "Trách nhiệm hướng dẫn và kiểm tra thực hiện",
+     "text": "",
+     "html": "",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": [
+      {
+       "id": "id_ef18b3e0-1e70-11f1-af47-377710835753",
+       "cap": "khoan",
+       "so": "1",
+       "tieu_de": "",
+       "text": "Cục Phát hành và Kho quỹ có trách nhiệm hướng dẫn, kiểm tra việc thực hiện Thông tư này. Cục Phát hành và Kho quỹ phối hợp với các đơn vị liên quan xây dựng chương trình bồi dưỡng nghiệp vụ giám định tiền và chương trình bồi dưỡng kỹ năng nhận biết tiền thật, tiền giả trình Thống đốc Ngân hàng Nhà nước quyết định.",
+       "html": "1. Cục Phát hành và Kho quỹ có trách nhiệm hướng dẫn, kiểm tra việc thực hiện Thông tư này. Cục Phát hành và Kho quỹ phối hợp với các đơn vị liên quan xây dựng chương trình bồi dưỡng nghiệp vụ giám định tiền và chương trình bồi dưỡng kỹ năng nhận biết tiền thật, tiền giả trình Thống đốc Ngân hàng Nhà nước quyết định.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_ef3e6450-1e70-11f1-8a59-31a874658bbe",
+       "cap": "khoan",
+       "so": "2",
+       "tieu_de": "",
+       "text": "Ngân hàng Nhà nước chi nhánh kiểm tra việc thực hiện các quy định tại Thông tư này đối với các đối tượng kiểm tra thuộc thẩm quyền trên địa bàn.",
+       "html": "2. Ngân hàng Nhà nước chi nhánh kiểm tra việc thực hiện các quy định tại Thông tư này đối với các đối tượng kiểm tra thuộc thẩm quyền trên địa bàn.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_ef3e645a-1e70-11f1-8862-bdfc44d10bdf",
+       "cap": "khoan",
+       "so": "3",
+       "tieu_de": "",
+       "text": "Tổ chức tín dụng, chi nhánh ngân hàng nước ngoài có trách nhiệm hướng dẫn, kiểm tra việc thực hiện Thông tư này trong hệ thống.",
+       "html": "3. Tổ chức tín dụng, chi nhánh ngân hàng nước ngoài có trách nhiệm hướng dẫn, kiểm tra việc thực hiện Thông tư này trong hệ thống.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      }
+     ]
+    },
+    {
+     "id": "id_100b3e90-e16a-11f0-98a9-59fa5f02dbbd",
+     "cap": "dieu",
+     "so": "16",
+     "tieu_de": "Hiệu lực thi hành",
+     "text": "Thông tư này có hiệu lực từ ngày 14 tháng 02 năm 2025 và thay thế Thông tư số 28/2013/TT-NHNN ngày 05 tháng 12 năm 2013 của Thống đốc Ngân hàng Nhà nước quy định về xử lý tiền giả, tiền nghi giả trong ngành ngân hàng.",
+     "html": "Thông tư này có hiệu lực từ ngày 14 tháng 02 năm 2025 và thay thế Thông tư số 28/2013/TT-NHNN ngày 05 tháng 12 năm 2013 của Thống đốc Ngân hàng Nhà nước quy định về xử lý tiền giả, tiền nghi giả trong ngành ngân hàng.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_100b3e9a-e16a-11f0-9ad1-8b9599c5164a",
+     "cap": "dieu",
+     "so": "17",
+     "tieu_de": "Tổ chức thực hiện",
+     "text": "Thủ trưởng các đơn vị thuộc Ngân hàng Nhà nước; tổ chức tín dụng, chi nhánh ngân hàng nước ngoài chịu trách nhiệm tổ chức thực hiện Thông tư này./.",
+     "html": "Thủ trưởng các đơn vị thuộc Ngân hàng Nhà nước; tổ chức tín dụng, chi nhánh ngân hàng nước ngoài chịu trách nhiệm tổ chức thực hiện Thông tư này./.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    }
+   ]
+  }
+ ],
+ "trich_dan": [
+  {
+   "char_start": 5810,
+   "char_end": 5820
+  },
+  {
+   "char_start": 5927,
+   "char_end": 5937
+  },
+  {
+   "char_start": 6367,
+   "char_end": 6377
+  },
+  {
+   "char_start": 8241,
+   "char_end": 8251
+  }
+ ]
+}
