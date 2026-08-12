@@ -15,10 +15,15 @@
   Corpus phủ **29/100 câu** — 27 văn bản được dẫn, corpus có 4. 71 câu còn lại là negative sạch cả
   71 (không dẫn lẫn văn bản corpus có) → `eval/bo_sbv_khong_can_cu.jsonl`, dành cho T17.
 - **Không chạy 71 câu ngoài corpus.** Mọi cột của chúng ăn 0 chắc chắn (`recall = precision = rr
-  = 0`), và vì `metrics.tong_hop` là macro-average, mọi ô bảng "100 câu" = ô bảng 29 câu × 0.29 —
-  hệ số đó nói về corpus thiếu văn bản, không nói về chất lượng truy hồi. Chạy 71 câu chỉ để lấy
-  đúng con số nhân tay ra được, tốn ~70 phút và 71 lượt gọi API cho không thêm thông tin.
-  `docs/EVAL-IR.md` §11.
+  = 0`), và vì `metrics.tong_hop` là macro-average, mọi ô của **hai bảng IR** "100 câu" = ô bảng
+  29 câu × 0.29 — hệ số đó nói về corpus thiếu văn bản, không nói về chất lượng truy hồi. Chạy 71
+  câu chỉ để lấy đúng con số nhân tay ra được, tốn ~70 phút và 71 lượt gọi API cho không thêm
+  thông tin. `docs/EVAL-IR.md` §11.
+- **Hệ số 0.29 KHÔNG áp cho bảng citation/stale.** `stale_avoidance` trên 100 câu sẽ đọc thành
+  100/100 = 1.0 chứ không phải 0.29 (bốn văn bản corpus phủ đều còn hiệu lực, không có mặt lỗi
+  thời nào để đo), và `conflict_recall` có mẫu số 0 ở cả hai mẫu. Bắt được ở lượt soát cuối —
+  câu "mọi ô" viết ban đầu là quá rộng, và trong chính tài liệu sinh ra để chặn loại lỗi mẫu số
+  này thì đó là câu dễ bị trích sai nhất.
 - **Kết quả — 29/29 câu, đo 12/08** (`eval/results/20260812-093428-bo_sbv.json`; lượt 1 rớt 7/29
   câu vì `HttpError` thoáng qua của LanceDB Cloud, đã bỏ và chạy lại — mở T22). Mức điều: LexFlow
   hybrid R@1 **0.69**, MRR@2 0.83, hơn mọi baseline (Naive RAG R@1 0.52). Mức văn bản bão hoà
