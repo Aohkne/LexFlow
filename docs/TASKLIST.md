@@ -138,7 +138,21 @@ nhưng đó là trần độ phủ hiện tại. Muốn nâng thì phải **mở
 - Đo 12/08: sweep trên `eval/bo_sbv.jsonl` (29 câu, luật ĐANG hiệu lực, người ngoài soạn) cho
   tối ưu 0.25 chứ không phải 0.1 — mà 0.1 được chỉnh trên ba bộ đều thiên về luật
   đã chết. Chưa đổi: 29 câu với |R| = 1 thì một câu = 3,4 điểm R@1.
-- Bước đầu: cào 8 văn bản ở T20 để bộ này lên 72/100 câu, quét lại. Còn lệch thì mới đổi.
+- Bước đầu: cào 7 văn bản trong phạm vi ở T20 để bộ này lên 56/100 câu, quét lại. Còn lệch thì
+  mới đổi.
+
+### [ ] T22 · `HttpError` thoáng qua từ LanceDB Cloud làm rớt câu khi benchmark
+
+Không phải bug logic — SDK LanceDB Cloud thỉnh thoảng hết hạn retry (`HttpError` /
+`RetryError`) giữa lượt gọi, và mỗi câu rớt bị try/except bắt đúng thiết kế nên không làm bảng
+sai, chỉ làm mẫu số nhỏ lại.
+
+- Vì sao quan trọng: trên 29 câu, mỗi câu rớt là **3,4 điểm R@1**. Đo 12/08: lượt chạy đầu của
+  `bo_sbv.jsonl` rớt **7/29 câu** (phải bỏ lượt, chạy lại toàn bộ mất thêm ~20 phút); cùng ngày,
+  hai lượt `bo_tvpl_*.jsonl` cộng lại rớt **7/152 câu**. Không phải sự cố một lần.
+- Bước đầu: đo tần suất lỗi qua vài lượt chạy nữa trước khi sửa code. Nếu ổn định quanh vài phần
+  trăm mỗi lượt gọi, nới retry/backoff quanh lời gọi LanceDB Cloud trong `retrieval.py` là đủ;
+  nếu tăng dần theo thời gian thì báo hạ tầng (đổi region, kiểm quota) trước khi vá code.
 
 ### [ ] T20 · Corpus phủ 4/37 văn bản mà bộ eval TVPL hỏi tới
 
@@ -158,6 +172,18 @@ Nạp thêm văn bản mở khoá được bao nhiêu (tính tham lam, `scratchp
 Bước đầu: crawl `09/2020/TT-NHNN` từ vbpl.vn (một văn bản, +51 câu — lãi nhất theo xa), kiểm
 hiệu lực và quan hệ thay thế của nó, rồi chạy lại `eval/chuyen_tvpl.py`. Ba văn bản còn lại làm
 sau nếu bảng đo cho thấy mẫu 76 câu chưa đủ phân biệt.
+
+- **Bộ SBV cũng cần cào thêm** (đo 12/08): corpus phủ 4/27 văn bản bộ này hỏi tới ⇒ 29/100 câu
+  dùng được. Cào 7 văn bản trong phạm vi sản phẩm (thanh toán · tài khoản · thẻ · ngoại hối ·
+  PCRT · an toàn giao dịch) đưa `bo_sbv.jsonl` từ 29 → **56/100** câu, thứ tự lợi nhất:
+  `94/2025/NĐ-CP` (→37) · `64/2024/TT-NHNN` (→43) · `58/2024/TT-NHNN` (→48) ·
+  `50/2024/TT-NHNN` (→51) · `12/2022/TT-NHNN` (→53) · `60/2024/TT-NHNN` (→55) ·
+  `08/2023/TT-NHNN` (→56). 16 văn bản còn lại (cho thuê tài chính, bảo lãnh, thư tín dụng, kiểm
+  toán độc lập, thống kê tiền tệ, …) đưa tiếp 56 → 100/100, nhưng đó là **mở rộng sản phẩm**,
+  không phải bổ sung dữ liệu — cùng phán đoán đã ghi ở trên cho bộ TVPL. Danh sách đầy đủ, đúng
+  định dạng `scripts/crawl_vbpl_batch.py`: `research/crawl_list_sbv.txt` (tên văn bản trong đó
+  **suy từ câu hỏi và slug URL**, chưa đọc văn bản gốc — kiểm lại khi tra URL). `21/2017/TT-NHNN`
+  trùng với `research/crawl_list_eval.txt` — cào một lần dùng cho cả hai bộ.
 
 ---
 
@@ -195,6 +221,14 @@ Bài báo lọc `Score(d) ≥ τ` (cosine 0.9) TRƯỚC generation, rỗng thì 
 
 - Bước đầu: cho `_rrf` trả kèm điểm (`_rrf_score`) mà **không** đổi thứ tự xếp hạng, rồi sweep τ
   trên bộ eval để xem ngưỡng nào cắt được câu lạc đề mà không cắt nhầm câu đúng.
+- **Đã có bộ negative** (12/08): `eval/bo_sbv_khong_can_cu.jsonl` — 71 câu hỏi về luật hiện hành
+  mà corpus không có, câu trả lời đúng là "không đủ căn cứ". Lấy thêm được **157 câu** cùng loại
+  từ bộ TVPL (`data/evaluate/eval_filtered_clean.jsonl`) bằng cách thêm một file ra thứ ba vào
+  `eval/chuyen_tvpl.py` — chưa làm vì T17 chưa bắt đầu.
+- **Hai bộ khác LOẠI, đừng trộn rồi báo một tỷ lệ:** 71 câu SBV hỏi về luật **hiện hành** corpus
+  thiếu; 157 câu TVPL hỏi về luật **đã chết trước 2024** corpus thiếu. Bộ SBV khó hơn — chủ đề
+  của nó (Open API, thư tín dụng, cho thuê tài chính) đủ gần thanh toán để truy hồi trả về văn
+  bản trông rất hợp lý.
 
 ### [ ] T18 · Nhận diện viện dẫn trong CÂU HỎI → anchor đồ thị
 

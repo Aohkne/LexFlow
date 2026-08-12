@@ -6,6 +6,44 @@
 
 ---
 
+## 2026-08-12 (T5) — đo bộ test của chính bài báo SBV-LawGraph; sweep hold-out lệch với hằng số đã chỉnh
+
+**Giai đoạn:** đối sánh trực tiếp với bộ test 100 câu của bài báo (`docs/paper/ACIIDS2026a.pdf`).
+
+- **Done.** `eval/chuyen_sbv.py` chuyển `data/evaluate/svb_graph/sbv_testset_tvpl.json` (100 câu,
+  nhãn cấp điều trên 100% câu) sang định dạng eval, dùng lại tra cứu corpus của `chuyen_tvpl.py`.
+  Corpus phủ **29/100 câu** — 27 văn bản được dẫn, corpus có 4. 71 câu còn lại là negative sạch cả
+  71 (không dẫn lẫn văn bản corpus có) → `eval/bo_sbv_khong_can_cu.jsonl`, dành cho T17.
+- **Không chạy 71 câu ngoài corpus.** Mọi cột của chúng ăn 0 chắc chắn (`recall = precision = rr
+  = 0`), và vì `metrics.tong_hop` là macro-average, mọi ô bảng "100 câu" = ô bảng 29 câu × 0.29 —
+  hệ số đó nói về corpus thiếu văn bản, không nói về chất lượng truy hồi. Chạy 71 câu chỉ để lấy
+  đúng con số nhân tay ra được, tốn ~70 phút và 71 lượt gọi API cho không thêm thông tin.
+  `docs/EVAL-IR.md` §11.
+- **Kết quả — 29/29 câu, đo 12/08** (`eval/results/20260812-093428-bo_sbv.json`; lượt 1 rớt 7/29
+  câu vì `HttpError` thoáng qua của LanceDB Cloud, đã bỏ và chạy lại — mở T22). Mức điều: LexFlow
+  hybrid R@1 **0.69**, MRR@2 0.83, hơn mọi baseline (Naive RAG R@1 0.52). Mức văn bản bão hoà
+  (29/29 câu chỉ dẫn một văn bản) nên không phân biệt gì hơn `citation_accuracy` cũ.
+- **Bộ có trùng câu hỏi.** `bo_sbv.jsonl` 29 dòng nhưng chỉ 26 câu khác nhau — ba cặp trùng cả nội
+  dung lẫn nhãn (question_id 6/30, 7/31, 61/63, cùng TT17-2024), bị đếm hai lần trong macro-
+  average. Cố ý không khử trùng: khử sẽ làm 29 câu thôi là tập con cùng trọng số của 100 câu bài
+  báo, mất khả năng đối sánh.
+- **Sweep hold-out: hằng số hôm 11/08 KHÔNG thắng ở đây.** `TRONG_SO_THUA` hạ 1.0→0.1 hôm 11/08
+  bằng ba bộ đều hỏi luật đã chết; trên bộ này — dữ liệu ngoài, luật đang hiệu lực — **0.25
+  thắng**: R@1 mức điều 0.76 vs 0.69, mức văn bản 0.93 vs 0.90. Đọc thẳng: đây là bằng chứng hằng
+  số chỉnh hôm qua có thể đang overfit vào loại câu hỏi luật đã chết.
+- **Decision — không đổi hằng số.** Luật đã chốt trước khi biết số: 29 câu với `|R| = 1` cho gần
+  như mọi câu nghĩa là một câu = 3,4 điểm R@1, quá mỏng để dịch một hằng số sản phẩm dùng chung.
+  Ghi nhận ở **T21** (`docs/TASKLIST.md`), `app/knowledge/retrieval.py` không đổi một dòng.
+- **Ship.** `docs/EVAL-IR.md` §11, README (một đoạn), `docs/TASKLIST.md` (T17 nhận bộ negative +
+  con số 157 của TVPL; T20 thêm nguồn SBV — 7 văn bản trong phạm vi đưa 29→56/100 câu; T22 mới
+  cho lỗi mạng LanceDB Cloud, đã rớt 7/29 + 7/152 câu trong ngày), `research/crawl_list_sbv.txt`
+  (mới, commit cùng đợt).
+- **Next.** (1) Cào 7 văn bản trong phạm vi ở T20 để bộ SBV lên 56/100 câu, quét sweep lại — lệch
+  còn giữ hay không mới đáng đổi `TRONG_SO_THUA`. (2) T17 (ngưỡng τ) giờ có 71+157 = 228 câu
+  negative sẵn để sweep. (3) T22 — đo tần suất `HttpError` qua vài lượt trước khi vá code.
+
+---
+
 ## 2026-08-12 (T4) — đo lại hai bộ TVPL với trọng số mới; kết luận mức điều đảo chiều
 
 **Giai đoạn:** trả nốt món nợ đo lường của 11/08.

@@ -349,3 +349,145 @@ không phải bằng chứng hệ tốt. Bảng ở §5 chỉ dùng để **so c
 Xem `docs/TASKLIST.md` (nhóm "Khoảng cách với bài báo SBV-LawGraph"): cross-encoder rerank, ngưỡng
 điểm τ trên đường sản phẩm, NER câu hỏi → anchor đồ thị, hậu kiểm `HasCitations`/`EvidenceMismatch`,
 sweep siêu tham số, thang đo Correctness.
+
+## 11. Bộ test của bài báo SBV-LawGraph — đo trên luật đang hiệu lực
+
+`data/evaluate/svb_graph/sbv_testset_tvpl.json`: 100 câu hỏi-đáp, nhãn dạng
+`"12/2022/tt-nhnn_3"` = số hiệu + số điều, tức **nhãn cấp điều trên 100% câu**. Đây là bộ test
+của chính bài báo SBV-LawGraph (`docs/paper/ACIIDS2026a.pdf`). `eval/chuyen_sbv.py` chuyển nó
+sang định dạng ở §4, dùng lại các hàm tra cứu corpus của `eval/chuyen_tvpl.py` (`chuan_so_hieu`,
+`tra_cuu`, `cua_so`) thay vì chép lại — chép lại thì hai bản quy tắc chuẩn hoá số hiệu sẽ trôi
+khỏi nhau, và lệch chuẩn hoá là kiểu lỗi làm phủ tụt về 0 trong khi bảng vẫn trông bình thường.
+
+Khác ba bộ trước ở ba điểm: (1) hỏi về luật **đang hiệu lực** — bốn văn bản corpus phủ được
+(TT17-2024, TT18-2024, TT40-2024, NĐ52-2024) đều còn hiệu lực, trong khi mọi số IR trước nay đo
+trên luật đã chết từ 2024-07, tức ca biên nơi lớp lọc hiệu lực toả sáng, không phải ca thường
+ngày của sản phẩm; (2) là **dữ liệu ngoài** — `TRONG_SO_THUA = 0.1` được chỉnh trên ba bộ tự
+dựng, đều thiên về luật đã chết, nên bộ này là hold-out thật để kiểm hằng số đó có overfit không;
+(3) nhãn cấp điều đầy đủ trên 100% câu, trong khi bộ TVPL chỉ đạt 68/76 sau chuyển đổi.
+
+**Phủ corpus:** 29/100 câu dùng được. 27 văn bản được dẫn, corpus có 4. 0 câu có cửa sổ hiệu lực
+rỗng, 0 nhãn trỏ vào điều mà corpus không có. 71 câu còn lại là **negative sạch cả 71** — không
+câu nào dẫn lẫn một văn bản corpus có; chúng nằm ở `eval/bo_sbv_khong_can_cu.jsonl`, dành cho T17.
+
+### Vì sao KHÔNG chạy 71 câu kia
+
+71 câu đó dẫn văn bản ngoài corpus nên không kết quả nào khớp được: `recall = precision = rr = 0`
+ở **mọi** cột. `metrics.tong_hop` là macro-average, nên thêm 71 số 0 vào trung bình của 29 câu
+làm `recall`, `precision`, `mrr` nhân `29/100`. `f2 = 5PR/(4P+R)` cũng vậy: nhân cả `P` và `R`
+với `c` cho `5c²PR / c(4P+R) = c · 5PR/(4P+R)`.
+
+Tức **mọi ô của bảng 100 câu = ô tương ứng của bảng 29 câu × 0.29**. Chạy 71 câu tốn ~70 phút và
+71 lượt gọi API để thu về một hằng số nhân, và vì mọi cột co cùng tỷ lệ, nó không phân biệt được
+cột nào với cột nào.
+
+Nên khi đặt cạnh Table 3 của bài báo, con số phải đọc là: *trên đúng 100 câu của bài báo, mọi số
+của LexFlow phải nhân 0.29 vì corpus thiếu 71/100 văn bản được hỏi.* Con số đó nói về **corpus**,
+không nói về truy hồi. Cảnh báo ở §8 vẫn nguyên giá trị.
+
+### Bộ có trùng câu hỏi — không khử
+
+`eval/bo_sbv.jsonl` có **29 dòng nhưng chỉ 26 câu hỏi khác nhau**. Ba cặp trùng khớp cả nội dung
+câu hỏi lẫn nhãn vàng, cả ba đều thuộc TT17-2024: `question_id` 6/30, 7/31, 61/63. Chúng vì thế bị
+**đếm hai lần** trong mọi macro-average của bảng dưới.
+
+Cố ý **không khử trùng**: bộ này tồn tại để đối sánh với bài báo, mà bài báo đo trên đúng 100 dòng
+như đề cho — khử trùng sẽ làm 29 câu của LexFlow thôi là một tập con cùng trọng số của 100 câu đó.
+Giữ nguyên, chỉ ghi rõ ở đây.
+
+### Kết quả — `bo_sbv.jsonl`, 29/29 câu, đo 2026-08-12
+
+`eval/results/20260812-093428-bo_sbv.json`. Index: LanceDB Cloud **chưa** re-ingest (T1 còn mở).
+Retrieval p50 3730 ms. Lượt chạy đầu bị bỏ vì rớt 7/29 câu do `HttpError` thoáng qua của LanceDB
+Cloud (xem T22 trong `docs/TASKLIST.md`); bảng dưới là lượt chạy lại, 0/29 lỗi.
+
+| | citation accuracy | tránh văn bản hết hiệu lực | phát hiện mâu thuẫn |
+|---|---|---|---|
+| baseline (dense thuần) | 29/29 | 29/29 | — |
+| LexFlow hybrid | 29/29 | 29/29 | 0/0 |
+| LexFlow +graph | 29/29 | 29/29 | 0/0 |
+
+Router (lớp phủ dưới-văn-bản, áp trên cột +graph): citation accuracy và tránh văn bản hết hiệu
+lực giữ nguyên 29/29 cả OFF lẫn ON. 5/29 câu trả về docs khác nhau khi bật router, 4 hit bị loại
+vì bãi bỏ, 68 hit được nắn trích dẫn (tổng trên 29 câu).
+
+| Mức **văn bản** (29 câu có nhãn) | R@1 | R@2 | R@5 | R@10 | R@20 | MRR@2 | P@2 | F2@2 |
+|---|---|---|---|---|---|---|---|---|
+| BM25 | 0.28 | 0.41 | 0.86 | 0.97 | 0.97 | 0.34 | 0.21 | 0.34 |
+| Naive RAG | 0.76 | 0.93 | 1.00 | 1.00 | 1.00 | 0.84 | 0.47 | 0.78 |
+| Advanced RAG | 0.41 | 0.66 | 0.97 | 1.00 | 1.00 | 0.53 | 0.33 | 0.55 |
+| **LexFlow hybrid** | **0.90** | **1.00** | 1.00 | 1.00 | 1.00 | **0.95** | **0.50** | **0.83** |
+| LexFlow +graph | 0.90 | 1.00 | 1.00 | 1.00 | 1.00 | 0.95 | 0.50 | 0.83 |
+| LexFlow +router | 0.90 | 1.00 | 1.00 | 1.00 | 1.00 | 0.95 | 0.50 | 0.83 |
+
+| Mức **điều** (29 câu có nhãn) | R@1 | R@2 | R@5 | R@10 | R@20 | MRR@2 | P@2 | F2@2 |
+|---|---|---|---|---|---|---|---|---|
+| BM25 | 0.16 | 0.19 | 0.60 | 0.78 | 0.85 | 0.19 | 0.10 | 0.16 |
+| Naive RAG | 0.52 | 0.84 | 0.94 | 0.98 | 0.99 | 0.71 | 0.45 | 0.72 |
+| Advanced RAG | 0.26 | 0.53 | 0.68 | 0.89 | 0.95 | 0.41 | 0.29 | 0.46 |
+| **LexFlow hybrid** | **0.69** | **0.91** | 0.98 | 0.98 | 0.99 | **0.83** | **0.50** | **0.78** |
+| LexFlow +graph | 0.69 | 0.91 | 0.98 | 0.98 | 0.99 | 0.83 | 0.50 | 0.78 |
+| LexFlow +router | 0.69 | 0.91 | 0.98 | 0.98 | 0.99 | 0.83 | 0.50 | 0.78 |
+
+**Đọc bảng này phải nhớ ba điều:**
+
+- **29/29 câu chỉ dẫn đúng một văn bản.** Ở mức văn bản `R@k` vì thế suy biến thành "đúng văn bản
+  có nằm trong top-k không" và không nói thêm gì so với `citation_accuracy`. Số đáng đọc nằm ở
+  **mức điều** (26 câu một điều · 2 câu hai điều · 1 câu ba điều).
+- **Một câu = 3,4 điểm R@1.** Mọi chênh lệch dưới 0.07 giữa hai cột là chênh lệch của **hai câu**
+  — và ba trong 29 câu là bản sao của nhau (xem trên), nên thực chất còn ít câu độc lập hơn cả 29.
+- **`stale_avoidance` (tránh văn bản hết hiệu lực) bằng 1.0 nhưng rỗng nghĩa** — bộ này không có
+  `must_not_doc` vì không có mặt lỗi thời nào để đo (bốn văn bản corpus phủ đều còn hiệu lực), nên
+  chỉ số đó mặc định đúng chứ không đo gì. Giống `bo_tvpl_dung_thoi` ở §6.
+
+### Sweep hold-out — `TRONG_SO_THUA` trên dữ liệu ngoài
+
+Mức văn bản (29 câu có nhãn) — trọng số nhánh thưa trong RRF
+
+| trọng số | R@1 | R@2 | R@5 | R@10 | R@20 | MRR@2 | P@2 | F2@2 |
+|---|---|---|---|---|---|---|---|---|
+| 0 | 0.90 | 1.00 | 1.00 | 1.00 | 1.00 | 0.95 | 0.50 | 0.83 |
+| 0.1 (nay) | 0.90 | 1.00 | 1.00 | 1.00 | 1.00 | 0.95 | 0.50 | 0.83 |
+| **0.25** | **0.93** | 1.00 | 1.00 | 1.00 | 1.00 | **0.97** | 0.50 | 0.83 |
+| 0.5 | 0.86 | 1.00 | 1.00 | 1.00 | 1.00 | 0.93 | 0.50 | 0.83 |
+| 0.75 | 0.83 | 0.93 | 1.00 | 1.00 | 1.00 | 0.88 | 0.47 | 0.78 |
+| 1 | 0.83 | 0.93 | 1.00 | 1.00 | 1.00 | 0.88 | 0.47 | 0.78 |
+
+Mức điều (29 câu có nhãn) — trọng số nhánh thưa trong RRF
+
+| trọng số | R@1 | R@2 | R@5 | R@10 | R@20 | MRR@2 | P@2 | F2@2 |
+|---|---|---|---|---|---|---|---|---|
+| 0 | 0.66 | 0.90 | 0.98 | 0.98 | 0.99 | 0.79 | 0.48 | 0.77 |
+| 0.1 (nay) | 0.69 | 0.91 | 0.98 | 0.98 | 0.99 | 0.83 | 0.50 | 0.78 |
+| **0.25** | **0.76** | 0.91 | 0.94 | 0.98 | 0.99 | **0.86** | 0.50 | 0.78 |
+| 0.5 | 0.69 | 0.91 | 0.91 | 0.99 | 0.99 | 0.83 | 0.50 | 0.78 |
+| 0.75 | 0.67 | 0.75 | 0.91 | 0.94 | 0.99 | 0.74 | 0.41 | 0.65 |
+| 1 | 0.67 | 0.75 | 0.94 | 0.94 | 0.99 | 0.74 | 0.41 | 0.65 |
+
+`TRONG_SO_THUA` đang là **0.1**, chỉnh hôm 11/08 bằng ba bộ đều hỏi về luật đã chết (§7). Trên bộ
+này — dữ liệu ngoài, hỏi về luật **đang hiệu lực** — 0.1 **không** thắng: 0.25 hơn ở cả hai mức,
+rõ nhất ở mức điều (R@1 0.76 vs 0.69, chênh 0.07 ≈ 2/29 câu; MRR@2 0.86 vs 0.83) và cũng hơn ở
+mức văn bản (R@1 0.93 vs 0.90, MRR@2 0.97 vs 0.95). Đây là bằng chứng cho thấy hằng số chỉnh hôm
+qua **có thể đang overfit** vào loại câu hỏi luật đã chết — nên đọc thẳng, không nên chôn.
+
+**Không đổi `TRONG_SO_THUA`.** Luật đã chốt trước khi biết số (thiết kế 12/08): 29 câu với
+`|R| = 1` cho gần như mọi câu nghĩa là một câu bằng 3,4 điểm R@1 — quá mỏng để dịch một hằng số
+dùng chung cho sản phẩm. Ghi nhận ở `T21` (`docs/TASKLIST.md`), không lặp lại chi tiết ở đây.
+
+### Nạp thêm văn bản mở khoá thêm bao nhiêu câu
+
+Cào đủ 7 văn bản trong phạm vi sản phẩm (thanh toán · tài khoản · thẻ · ngoại hối · PCRT · an
+toàn giao dịch) đưa bộ này từ 29 → **56/100** câu, theo thứ tự tham lam: `94/2025/NĐ-CP` → 37,
+`64/2024/TT-NHNN` → 43, `58/2024/TT-NHNN` → 48, `50/2024/TT-NHNN` → 51, `12/2022/TT-NHNN` → 53,
+`60/2024/TT-NHNN` → 55, `08/2023/TT-NHNN` → 56.
+
+Cào tiếp 16 văn bản còn lại (cho thuê tài chính, bảo lãnh ngân hàng, thư tín dụng, kiểm toán độc
+lập, thống kê tiền tệ, …) đưa 56 → **100/100** — không câu nào bị chặn vì lý do gì khác. Nhưng đó
+là **mở rộng sản phẩm**, không phải bổ sung dữ liệu — cùng phán đoán đã ghi với bộ TVPL ở §6
+(`research/crawl_list_eval.txt`).
+
+Danh sách đầy đủ, đúng định dạng `scripts/crawl_vbpl_batch.py` ăn: `research/crawl_list_sbv.txt`.
+Tên văn bản trong file đó **suy từ câu hỏi và slug URL của bộ eval**, không phải đọc văn bản gốc —
+kiểm lại tên khi tra URL, sai tên thì cào nhầm văn bản mà không ai biết. `21/2017/TT-NHNN` có mặt
+ở cả hai danh sách (`research/crawl_list_eval.txt` của bộ TVPL và danh sách này) — cào một lần
+dùng chung cho cả hai bộ.

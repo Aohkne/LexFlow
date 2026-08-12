@@ -152,7 +152,15 @@ trọng số nhánh thưa trên cả ba bộ câu hỏi (`uv run python eval/que
 
 Ở mức điều, LexFlow từ chỗ thua Naive RAG ở mọi k ≤ 10 thành hơn ở **mọi** k, trong khi ba cột
 baseline đứng yên (chúng không phụ thuộc trọng số — đó cũng là phép kiểm nhiễu). Gate hồi quy giữ
-nguyên (stale-avoidance 36/36). Cách đo, mẫu số và các cảnh báo: `docs/EVAL-IR.md` §6–§7.
+nguyên (stale-avoidance 36/36).
+
+**Bộ test của bài báo** — 100 câu SBV-LawGraph, corpus phủ 29 (`eval/bo_sbv.jsonl`, đo 12/08).
+Đây là bộ duy nhất hỏi về luật **đang hiệu lực**; ba bộ trên đều hỏi về luật đã chết từ 2024-07.
+71 câu còn lại dẫn văn bản corpus không có ⇒ mọi cột ăn 0, nên bảng trên đúng 100 câu của bài báo
+chỉ là bảng 29 câu **× 0.29** — con số đó nói về corpus, không nói về truy hồi (`docs/EVAL-IR.md`
+§11).
+
+Cách đo, mẫu số và các cảnh báo: `docs/EVAL-IR.md` §6–§7.
 
 ## Định dạng corpus
 

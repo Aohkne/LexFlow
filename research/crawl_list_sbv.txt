@@ -1,0 +1,97 @@
+# Văn bản bộ eval SBV-LawGraph (data/evaluate/svb_graph/sbv_testset_tvpl.json) dẫn tới mà
+# corpus chưa có. Đo 12/08/2026: corpus phủ 4/27 văn bản ⇒ 29/100 câu dùng được.
+#
+# Điền URL vbpl.vn (dạng https://vbpl.vn/.../vbpq-toanvan.aspx?ItemID=...) vào dòng trống
+# dưới mỗi khối, rồi:  uv run python scripts/crawl_vbpl_batch.py research/crawl_list_sbv.txt
+# Tra URL: Google `site:vbpl.vn "<số hiệu>"`.
+# Dòng bắt đầu bằng # bị bỏ qua; bỏ trống văn bản nào không định cào cũng được.
+#
+# CẢNH BÁO VỀ CỘT "cộng dồn": tính tham lam theo THỨ TỰ trong file này. Bỏ qua một khối thì
+# các con số dưới nó không còn đúng — chạy lại scratchpad/thieu_sbv.py để tính lại.
+#
+# Tên văn bản dưới đây SUY TỪ câu hỏi và slug URL của bộ eval, KHÔNG phải đọc văn bản gốc.
+# Kiểm lại tên khi tra URL; sai tên thì cào nhầm văn bản mà không ai biết.
+
+# ====================================================================================================
+# TRONG PHẠM VI sản phẩm (thanh toán · tài khoản · thẻ · ngoại hối · PCRT · an toàn giao dịch)
+# Cào đủ 7 khối này: 29 → 56/100 câu.
+# ====================================================================================================
+
+# [ 8 câu | cộng dồn 37] 94/2025/ND-CP  (nghi_dinh)
+#   Co che thu nghiem co kiem soat trong linh vuc ngan hang (sandbox: cho vay ngang hang,
+#   cham diem tin dung, chia se du lieu qua Open API)
+
+# [ 6 câu | cộng dồn 43] 64/2024/TT-NHNN  (thong_tu)
+#   Trien khai giao dien lap trinh ung dung mo (Open API) trong nganh ngan hang
+
+# [ 5 câu | cộng dồn 48] 58/2024/TT-NHNN  (thong_tu)
+#   Xu ly tien gia, tien nghi gia — giam dinh, dong goi, niem phong, giao nop
+
+# [ 3 câu | cộng dồn 51] 50/2024/TT-NHNN  (thong_tu)
+#   An toan bao mat cho viec cung cap dich vu Online Banking (soft OTP, he quan tri CSDL)
+
+# [ 3 câu | cộng dồn 53] 12/2022/TT-NHNN  (thong_tu)
+#   Quan ly ngoai hoi doi voi vay, tra no nuoc ngoai cua doanh nghiep
+
+# [ 2 câu | cộng dồn 55] 60/2024/TT-NHNN  (thong_tu)
+#   Dich vu ngan quy cho to chuc tin dung, chi nhanh ngan hang nuoc ngoai
+
+# [ 1 câu | cộng dồn 56] 08/2023/TT-NHNN  (thong_tu)
+#   Sua doi 12/2022/TT-NHNN — trinh tu thu tuc dang ky khoan vay nuoc ngoai
+#   Ghi chu: chi co nghia khi da cao 12/2022/TT-NHNN.
+
+# ====================================================================================================
+# NGOÀI PHẠM VI — ngân hàng nói chung, không phải thanh toán.
+# Cào thêm cả 16 khối này: 56 → 100/100 câu. Nhưng đó là MỞ RỘNG SẢN PHẨM, không phải bổ
+# sung dữ liệu — cùng loại quyết định đã gặp với bộ TVPL (xem research/crawl_list_eval.txt).
+# ====================================================================================================
+
+# [ 7 câu] 26/2024/TT-NHNN  (thong_tu)
+#   Hoat dong cho thue tai chinh cua cong ty cho thue tai chinh
+
+# [ 6 câu] 61/2024/TT-NHNN  (thong_tu)
+#   Bao lanh ngan hang
+
+# [ 5 câu] 21/2024/TT-NHNN  (thong_tu)
+#   Hoat dong thu tin dung (L/C) — KHONG phai eKYC, du mot cau hoi trong bo noi ve xac minh
+#   khach hang qua phuong tien dien tu
+
+# [ 3 câu] 32/2024/TT-NHNN  (thong_tu)
+#   Thanh lap chi nhanh ngan hang thuong mai o nuoc ngoai
+
+# [ 3 câu] 26/2018/TT-NHNN  (thong_tu)
+#   Dieu tra thong ke tien te va ngan hang ngoai chuong trinh dieu tra thong ke quoc gia
+
+# [ 3 câu] 51/2024/TT-NHNN  (thong_tu)
+#   Kiem toan doc lap doi voi to chuc tin dung
+
+# [ 2 câu] 14/2024/TT-NHNN  (thong_tu)
+#   Phan loai no cua to chuc tai chinh vi mo
+
+# [ 2 câu] 21/2017/TT-NHNN  (thong_tu)
+#   Phuong thuc cho vay cua to chuc tin dung
+#   TRUNG voi research/crawl_list_eval.txt (bo TVPL) — cao mot lan dung cho ca hai bo.
+
+# [ 2 câu] 45/2024/TT-NHNN  (thong_tu)
+#   Thuc hien nhiem vu khoa hoc va cong nghe cua NHNN Viet Nam
+
+# [ 2 câu] 39/2016/TT-NHNN  (thong_tu)
+#   Hoat dong cho vay cua to chuc tin dung doi voi khach hang
+
+# [ 2 câu] 02/2025/TT-NHNN  (thong_tu)
+#   Phat hanh chung chi tien gui trong nuoc
+
+# [ 2 câu] 48/2018/TT-NHNN  (thong_tu)
+#   Tien gui tiet kiem
+
+# [ 2 câu] 26/2025/ND-CP  (nghi_dinh)
+#   Chuc nang, nhiem vu, quyen han va co cau to chuc cua Ngan hang Nha nuoc Viet Nam
+
+# [ 1 câu] 37/2024/TT-NHNN  (thong_tu)
+#   Cho vay dac biet cua Ngan hang Hop tac xa Viet Nam
+
+# [ 1 câu] 57/2024/TT-NHNN  (thong_tu)
+#   Ho so, thu tuc cap Giay phep cho to chuc tin dung
+
+# [ 1 câu] 20/2024/TT-NHNN  (thong_tu)
+#   Hoat dong bao thanh toan cua to chuc tin dung
