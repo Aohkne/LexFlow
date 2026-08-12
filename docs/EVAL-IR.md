@@ -429,7 +429,7 @@ vì bãi bỏ, 68 hit được nắn trích dẫn (tổng trên 29 câu).
 | LexFlow +graph | 0.69 | 0.91 | 0.98 | 0.98 | 0.99 | 0.83 | 0.50 | 0.78 |
 | LexFlow +router | 0.69 | 0.91 | 0.98 | 0.98 | 0.99 | 0.83 | 0.50 | 0.78 |
 
-**Đọc bảng này phải nhớ ba điều:**
+**Đọc bảng này phải nhớ bốn điều:**
 
 - **29/29 câu chỉ dẫn đúng một văn bản.** Ở mức văn bản `R@k` vì thế suy biến thành "đúng văn bản
   có nằm trong top-k không" và không nói thêm gì so với `citation_accuracy`. Số đáng đọc nằm ở
@@ -439,6 +439,11 @@ vì bãi bỏ, 68 hit được nắn trích dẫn (tổng trên 29 câu).
 - **`stale_avoidance` (tránh văn bản hết hiệu lực) bằng 1.0 nhưng rỗng nghĩa** — bộ này không có
   `must_not_doc` vì không có mặt lỗi thời nào để đo (bốn văn bản corpus phủ đều còn hiệu lực), nên
   chỉ số đó mặc định đúng chứ không đo gì. Giống `bo_tvpl_dung_thoi` ở §6.
+- **Từ R@5 trở lên các cột hội tụ và hết khả năng phân biệt.** Ở mức điều, LexFlow hybrid đi
+  0.98/0.98/0.99 tại R@5/R@10/R@20 — sát nút Naive RAG 0.94/0.98/0.99, và tới R@10 hai cột không
+  còn phân biệt được nữa. Cùng nguyên nhân đã ghi ở §5: corpus 26 văn bản không đủ để top-20 chứa
+  nhiều ứng viên hợp lý, nên mọi cột đều bão hoà gần 1.0 ở k lớn bất kể xếp hạng tốt hay dở. Chênh
+  lệch thật chỉ còn thấy được ở R@1/MRR@2 — cột phải đọc, không phải cột nào cũng đọc được.
 
 ### Sweep hold-out — `TRONG_SO_THUA` trên dữ liệu ngoài
 
