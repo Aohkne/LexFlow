@@ -180,11 +180,25 @@ khớp?   False
   (`re.sub(r"\s+", "", s)` trên phần số hiệu), thêm test ghim đúng chuỗi `'21/2017/TT- NHNN'`.
   Cẩn thận không phá ca đuôi slug đang được ghim ở `tests/test_chuyen_tvpl.py` — đó là lý do
   hàm này khớp regex trên chuỗi thô.
-- Kèm theo, cùng lượt cào (chưa chặn gì, ghi để khỏi phát hiện lại):
-  `TT45-2024` cây điều khoản rỗng hoàn toàn (cây 0 điều / 0 khoản, toàn văn 46 điều) —
-  phải dump DOM kiểm chứng trước khi kết luận tại nguồn; `TT32-2024` Điều 36 có **hai** khoản 4
-  nội dung khác nhau; `TT12-2022` lệch cây 51 / toàn văn 52; `TT39-2016` nguồn thiếu dấu cách
-  sau số khoản (`'4.Phí cam kết…'`) nên bộ tách khoản sẽ không nhận ra dòng đó.
+- **Bốn cảnh báo còn lại của lượt cào 12/08 đã truy tới cùng — không mục nào cần sửa code**, ghi
+  lại để khỏi điều tra lại. Cả bốn đều **không ảnh hưởng corpus hay truy hồi**, vì `articles`
+  dựng từ toàn văn chứ không từ cây điều khoản:
+  - `TT45-2024` cây rỗng hoàn toàn (0 nút ở mọi cấp). Chủ repo đối chiếu vbpl.vn: **nguồn không
+    có dữ liệu cây** cho văn bản này. Corpus vẫn đủ 46 điều. Giới hạn nguồn, đừng sửa parser —
+    cùng loại với ca VBHN không có toàn văn.
+  - `TT32-2024` Điều 36 có hai khoản 4 nội dung khác nhau. Chủ repo xác nhận **lỗi có thật trong
+    văn bản gốc**. Bộ cào giữ cả hai là đúng; ai dùng Điều 36 phải tự quyết bản nào đang áp dụng.
+  - `TT12-2022` cây 51 / toàn văn 52 — thiếu đúng **Điều 8 "Trang điện tử"**. Đã soi markup: thẻ
+    `<p>` của Điều 8 **không có `id`, không có class nào**, trong khi Điều 9 mang `class="prov-
+    article"` và Điều 7/10 nằm trong khối có `id`. Mà `_JS_PROVISION_NODES` (`app/ingestion/
+    vbpl.py:359`) lọc theo `[class*="prov-"], [type]`, nên nút ấy không tồn tại để bắt. Hai quan
+    sát cùng đúng: chữ **có** hiện trên vbpl (nên đếm bằng mắt ra 52), nút cấu trúc thì **không
+    có**. Corpus vẫn đủ 52 điều; chỉ đồ thị KG thiếu nút Điều 8.
+  - `TT39-2016` nguồn viết `4.Phí cam kết…` (thiếu dấu cách sau số khoản) ở Điều 14, và
+    `Điều 1.Phạm vi…`. Bộ tách khoản tìm `số + '.' + dấu cách` nên không nhận ra ranh giới đó.
+    **Hệ quả thực tế ở đây bằng 0**: Điều 14 đủ ngắn nên không bị chẻ, cả bốn khoản nằm chung
+    một chunk `Điều 14` và chữ không mất. Rủi ro chỉ xuất hiện nếu gặp điều **dài** có cùng lỗi
+    — lúc đó ranh giới khoản bị bỏ qua và hai khoản dính làm một.
 
 ### [ ] T20 · Corpus phủ 4/37 văn bản mà bộ eval TVPL hỏi tới
 
