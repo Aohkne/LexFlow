@@ -8,11 +8,16 @@ Sinh HAI file, không gán nhãn tay dòng nào:
 | File | Nội dung | Ai dùng |
 |---|---|---|
 | `eval/bo_sbv.jsonl` | câu mà corpus phủ đủ văn bản | `run_benchmark.py`, `quet_trong_so.py` |
-| `eval/bo_sbv_khong_can_cu.jsonl` | câu dẫn văn bản corpus KHÔNG có | T17 (ngưỡng τ), chưa chạy |
+| `eval/bo_sbv_khong_can_cu.jsonl` | câu KHÔNG dẫn văn bản nào có trong corpus (negative sạch) | T17 (ngưỡng τ), chưa chạy |
 
 **File thứ hai KHÔNG chạy được bằng `run_benchmark`** — nó không có nhãn vàng nên mọi mức IR bỏ
 qua nó (`run_benchmark._tong_hop_ir`). Chạy rồi tưởng hệ điểm 0 là đọc sai. Nó là dữ liệu cho
 T17: câu hỏi mà câu trả lời đúng là "không đủ căn cứ".
+
+Câu dẫn **một phần** văn bản trong corpus, phần còn lại ngoài corpus, không vào file nào cả — nó
+không phải negative sạch (T17 sẽ đọc sai) và cũng chưa đủ căn cứ để vào `bo_sbv.jsonl`. `chuyen()`
+đếm riêng vào `bo["một phần trong corpus"]`, `main()` in ra ngay khi lần đầu xuất hiện. Đo 12/08:
+0 câu — nhưng đó là 0 đã kiểm, không phải hai-nhánh giả định.
 
 Chạy:
     uv run python eval/chuyen_sbv.py
@@ -111,6 +116,13 @@ def chuyen(
         labs = {lab for lab, _ in cap}
         thieu = sorted(labs - set(so_hieu2id))
         if thieu:
+            if len(thieu) < len(labs):
+                # Một phần: câu có CẢ văn bản trong corpus lẫn ngoài corpus. Không phải
+                # negative sạch (câu này có căn cứ thật, T17 sẽ đọc sai nếu nhét vào đó) và
+                # cũng không đủ căn cứ để vào bo_sbv.jsonl. Đếm riêng để main() in ra ngay,
+                # thay vì âm thầm bị nuốt vào nhánh negative.
+                bo["một phần trong corpus"] += 1
+                continue
             # Negative sạch: không văn bản nào trong câu này có mặt trong corpus. Câu trả lời
             # đúng là "không đủ căn cứ" — dữ liệu cho T17, không phải câu bị hỏng.
             khong_can_cu.append({

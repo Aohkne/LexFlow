@@ -7,8 +7,7 @@ from __future__ import annotations
 
 import pytest
 
-from eval.chuyen_sbv import NhanHong, tach_nhan, dieu_co_that
-from eval.chuyen_sbv import chuyen  # thêm vào dòng import sẵn có
+from eval.chuyen_sbv import NhanHong, chuyen, dieu_co_that, tach_nhan
 
 
 def test_tach_tu_phai_khong_phai_tu_trai():
@@ -111,6 +110,17 @@ def test_cau_ngoai_corpus_vao_bo_khong_can_cu():
     assert "relevant_docs" not in kcc[0] and "relevant_articles" not in kcc[0]
 
 
+def test_cau_mot_phan_trong_corpus_khong_vao_bo_nao():
+    """Câu dẫn cả văn bản trong corpus lẫn ngoài corpus không phải negative sạch (câu này có
+    căn cứ thật) và cũng chưa đủ căn cứ để vào bo_sbv.jsonl — phải đếm riêng, không lẫn vào
+    file nào cả."""
+    dung, kcc, bo = chuyen(
+        [_cau(["40/2024/tt-nhnn_18", "12/2022/tt-nhnn_3"])], _corpus(), HOM_NAY
+    )
+    assert not dung and not kcc
+    assert bo["một phần trong corpus"] == 1
+
+
 def test_dieu_khong_ton_tai_thi_loai_va_dem_rieng():
     """Nhãn trỏ vào Điều 99 của văn bản chỉ có Điều 18/23 ⇒ recall vĩnh viễn 0, phải loại."""
     dung, kcc, bo = chuyen([_cau(["40/2024/tt-nhnn_99"])], _corpus(), HOM_NAY)
@@ -160,6 +170,7 @@ def test_khong_mat_cau_nao():
         _cau(["12/2022/tt-nhnn_3"], qid=2),
         _cau(["40/2024/tt-nhnn_99"], qid=3),
         _cau([], qid=4),
+        _cau(["40/2024/tt-nhnn_18", "12/2022/tt-nhnn_3"], qid=5),
     ]
     dung, kcc, bo = chuyen(rows, _corpus(), HOM_NAY)
     assert len(dung) + len(kcc) + sum(bo.values()) == len(rows)
