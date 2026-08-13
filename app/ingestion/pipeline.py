@@ -226,6 +226,62 @@ def _embed_rows(rows: list[dict]) -> None:
             r["vector"] = v
 
 
+class DocDuTrongBang(RuntimeError):
+    """Bảng còn văn bản mà corpus không có.
+
+    Không tự xoá: `main()` mặc định đọc `data/corpus.sample.json`, nên xoá tự động biến một lần
+    gõ thiếu tham số thành xoá sạch corpus thật. Ghi đè bằng sample thì thấy ngay; xoá âm thầm
+    thì không.
+    """
+
+    def __init__(self, doc_ids: set[str]) -> None:
+        self.doc_ids = sorted(doc_ids)
+        super().__init__(
+            "bảng còn văn bản không có trong corpus: " + ", ".join(self.doc_ids)
+            + " — chạy lại với --xoa-doc-du nếu thật sự muốn xoá chúng"
+        )
+
+
+def _cot_du_lieu(tbl) -> list[str]:
+    """Tên cột trừ `vector`, lấy từ schema chứ KHÔNG viết tay.
+
+    Viết tay thì thêm cột mới mà quên cập nhật danh sách ⇒ cột đó rơi khỏi vân tay và mọi thay
+    đổi trên nó thành vô hình — bảng vẫn có số, chỉ là số cũ.
+    """
+    return [f.name for f in tbl.schema if f.name != "vector"]
+
+
+def _van_tay(r: dict, cot: list[str]) -> tuple:
+    """Vân tay một hàng. Thứ tự khoá lấy từ `cot` nên hai phía luôn so cùng một trật tự."""
+    return tuple((k, r.get(k)) for k in cot)
+
+
+def _doc_can_nap(tbl, rows: list[dict]) -> tuple[set[str], set[str], dict[str, set[str]]]:
+    """(doc cần nạp, doc dư trong bảng, doc_id → id đang có trong bảng).
+
+    Một lượt quét toàn bảng, KHÔNG kèm `where`. Lọc `doc_id IN (<corpus>)` nghe tiết kiệm hơn
+    nhưng loại bỏ đúng thứ cần tìm: doc *dư* theo định nghĩa là doc không có trong corpus. Và
+    nó cũng không tiết kiệm thật — corpus với bảng gần như cùng một tập doc_id. Đo 13/08:
+    5.29s cho 661 hàng.
+
+    Thành phần thứ ba tồn tại để bước xoá mồ côi không phải quét bảng lần hai.
+    """
+    cot = _cot_du_lieu(tbl)
+    moi: dict[str, set[tuple]] = {}
+    for r in rows:
+        moi.setdefault(r["doc_id"], set()).add(_van_tay(r, cot))
+
+    cu: dict[str, set[tuple]] = {}
+    id_cu: dict[str, set[str]] = {}
+    n = tbl.count_rows()
+    if n:  # `limit(0)` có backend hiểu là "không giới hạn" — đừng để nó có cơ hội
+        for h in tbl.search().select(cot).limit(n).to_list():
+            cu.setdefault(h["doc_id"], set()).add(_van_tay(h, cot))
+            id_cu.setdefault(h["doc_id"], set()).add(h["id"])
+
+    return {d for d, v in moi.items() if cu.get(d) != v}, set(cu) - set(moi), id_cu
+
+
 def write_lancedb(rows: list[dict]) -> int:
     if not rows:
         return 0
