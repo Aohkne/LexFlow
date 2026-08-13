@@ -76,7 +76,9 @@ docs: update DESIGN-GAP with Lexi section
    that visible instead of silent.
 
    **Số hiệu `TN` trong `docs/TASKLIST.md` chia theo dải**, vì hai nhánh dài hạn cùng nối vào một
-   danh sách đánh số tuần tự thì chắc chắn đâm nhau — lần đầu (13/08) tốn 9 mục trùng số khác nghĩa:
+   danh sách đánh số tuần tự thì chắc chắn đâm nhau — lần đầu (13/08) tốn nhiều mục trùng số khác
+   nghĩa (số cụ thể + danh sách: `docs/TASKLIST.md` § "feat/ai — dải T100+", đừng chép sang đây,
+   một con số sống ở hai file là một con số sẽ lệch):
 
    | Dải | Ai dùng |
    |---|---|
