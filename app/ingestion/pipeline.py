@@ -282,18 +282,87 @@ def _doc_can_nap(tbl, rows: list[dict]) -> tuple[set[str], set[str], dict[str, s
     return {d for d, v in moi.items() if cu.get(d) != v}, set(cu) - set(moi), id_cu
 
 
-def write_lancedb(rows: list[dict]) -> int:
-    if not rows:
-        return 0
+def _loc_id(ids: list[str]) -> str:
+    """`"id IN ('a', 'b')"`. Nháy đơn phải nhân đôi — id chứa nhãn lấy từ văn bản luật."""
+    return "id IN (" + ", ".join("'" + i.replace("'", "''") + "'" for i in sorted(ids)) + ")"
+
+
+def _tao_bang_moi(db, rows: list[dict]) -> tuple[int, int]:
+    """Đường lần-đầu: chưa có bảng thì không có gì để so, dựng và index như trước."""
     _embed_rows(rows)
-    db = vectordb.connect()
     tbl = db.create_table(LANCEDB_TABLE, data=rows, mode="overwrite")
-    # Full-text (BM25) index cho hybrid search — cloud dùng FTS native, không nhận replace=
     if settings.lancedb_cloud_enabled:
         tbl.create_fts_index("text")
     else:
         tbl.create_fts_index("text", replace=True)
-    return len(rows)
+    return len(rows), len(rows)
+
+
+def write_lancedb(
+    rows: list[dict],
+    ep: frozenset[str] = frozenset(),
+    xoa_doc_du: bool = False,
+) -> tuple[int, int]:
+    """Ghi chunk vào LanceDB, chỉ embed văn bản thật sự đổi. Trả `(số vừa ghi, tổng trong bảng)`.
+
+    `merge_insert` theo `id` TRƯỚC rồi mới xoá id mồ côi, chứ không `delete` theo `doc_id` rồi
+    `add`: giữa `delete` và `add` cả văn bản biến khỏi bảng, và truy vấn rơi vào đúng khoảng đó
+    được trả lời như thể luật ấy không tồn tại. `create_table(mode="overwrite")` cũ KHÔNG có
+    cửa sổ này (Lance đánh version) — đổi sang tăng dần không được đánh mất nó.
+    """
+    if not rows:
+        return 0, 0
+
+    db = vectordb.connect()
+    # `list_tables()` chứ không `table_names()` — bản sau bị đánh dấu deprecated trên
+    # `RemoteDBConnection` (cảnh báo lúc chạy, Global Constraints đòi output sạch).
+    if LANCEDB_TABLE not in db.list_tables().tables:
+        return _tao_bang_moi(db, rows)
+
+    tbl = db.open_table(LANCEDB_TABLE)
+    can_nap, du, id_cu = _doc_can_nap(tbl, rows)
+
+    co_that = {r["doc_id"] for r in rows}
+    can_nap |= ep & co_that
+    for d in sorted(ep - co_that):
+        print(f"[ingest] CẢNH BÁO: --doc {d} không có trong corpus, bỏ qua.")
+
+    if du:
+        # Ném TRƯỚC khi embed: sai corpus thì không được đốt tiền rồi mới báo.
+        if not xoa_doc_du:
+            raise DocDuTrongBang(du)
+        tbl.delete(_loc_id([i for d in du for i in id_cu[d]]))
+        print(f"[ingest] Đã xoá {len(du)} văn bản dư khỏi bảng: {', '.join(sorted(du))}")
+
+    nap = [r for r in rows if r["doc_id"] in can_nap]
+    if not nap:
+        print("[ingest] Không văn bản nào đổi — bỏ qua embedding.")
+        _cho_index(tbl)
+        return 0, tbl.count_rows()
+
+    _embed_rows(nap)
+    (
+        tbl.merge_insert("id")
+        .when_matched_update_all()
+        .when_not_matched_insert_all()
+        .execute(nap)
+    )
+
+    mo_coi = {i for d in can_nap for i in id_cu.get(d, set())} - {r["id"] for r in nap}
+    if mo_coi:
+        tbl.delete(_loc_id(list(mo_coi)))
+        print(f"[ingest] Đã xoá {len(mo_coi)} chunk mồ côi (lần chẻ mới cho ít mảnh hơn).")
+
+    _cho_index(tbl)
+    return len(nap), tbl.count_rows()
+
+
+def _cho_index(tbl) -> None:
+    """Giữ nguyên hành vi index của `write_lancedb` cũ. Task 4 đổi sang chờ thay vì dựng lại."""
+    if settings.lancedb_cloud_enabled:
+        tbl.create_fts_index("text")
+    else:
+        tbl.create_fts_index("text", replace=True)
 
 
 # Nhãn lấy từ `app.core.schemas.REL_TYPES` — nguồn sự thật DUY NHẤT cho 13 quan hệ.
@@ -357,9 +426,9 @@ def ingest_docs(docs: list[CorpusDocument], rels: list[Relationship]) -> int:
     """Lõi ingest: chunks → LanceDB (+ Neo4j nếu có). Trả về số chunk."""
     rows = build_chunks(docs)
     print(f"[ingest] {len(docs)} văn bản → {len(rows)} chunk. Đang embedding (Gemini)...")
-    n = write_lancedb(rows)
+    n_ghi, n_tong = write_lancedb(rows)
     target = settings.lancedb_uri if settings.lancedb_cloud_enabled else settings.lancedb_path
-    print(f"[ingest] Đã ghi {n} chunk vào LanceDB ({target}), dim={EMBED_DIM}.")
+    print(f"[ingest] Đã ghi {n_ghi} chunk, bảng có {n_tong} chunk ({target}), dim={EMBED_DIM}.")
 
     if settings.neo4j_enabled:
         from app.ingestion.bac_cau import quy_ve_doc_id
@@ -378,7 +447,7 @@ def ingest_docs(docs: list[CorpusDocument], rels: list[Relationship]) -> int:
         _noi_lai_lop_phu()
     else:
         print("[ingest] Bỏ qua Neo4j (chưa cấu hình NEO4J_URI/PASSWORD).")
-    return n
+    return n_ghi
 
 
 def main(corpus_path: str | None = None) -> tuple[list[CorpusDocument], list[Relationship]]:

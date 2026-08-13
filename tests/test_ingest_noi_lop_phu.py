@@ -37,7 +37,7 @@ def _gia_lap_neo4j(monkeypatch) -> list[str]:
     # test không phụ thuộc `.env` của máy đang chạy.
     monkeypatch.setattr(pipeline.settings, "neo4j_uri", "neo4j+s://test")
     monkeypatch.setattr(pipeline.settings, "neo4j_password", "test")
-    monkeypatch.setattr(pipeline, "write_lancedb", lambda rows: len(rows))
+    monkeypatch.setattr(pipeline, "write_lancedb", lambda rows, **kw: (len(rows), len(rows)))
     monkeypatch.setattr(
         "app.knowledge.graph.push_corpus",
         lambda *a, **k: thu_tu.append("push_corpus"),

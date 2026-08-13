@@ -12,6 +12,9 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
+from types import SimpleNamespace
+
+import pytest
 
 from app.ingestion import pipeline
 
@@ -187,3 +190,193 @@ def test_bang_rong_thi_moi_doc_deu_can_nap():
 def test_van_tay_khong_dung_cot_vector():
     """Vector là HỆ QUẢ của text — đưa nó vào vân tay là so 768 float để biết điều text đã nói."""
     assert "vector" not in pipeline._cot_du_lieu(_bang([_hang("A", "Điều 1", "x")]))
+
+
+# --- ghi tăng dần ---------------------------------------------------------------------------
+
+@pytest.fixture
+def khong_goi_mang(monkeypatch):
+    """Đếm số hàng đi qua embedding. Gọi Gemini trong test là hỏng, không phải chậm."""
+    da_embed: list[int] = []
+
+    def _gia(rows):
+        da_embed.append(len(rows))
+        for r in rows:
+            r["vector"] = [0.0]
+
+    monkeypatch.setattr(pipeline, "_embed_rows", _gia)
+    return da_embed
+
+
+def _noi_bang(monkeypatch, bang: _BangGia) -> None:
+    """Bắt `vectordb.connect()` trả về DB giả đã có sẵn bảng.
+
+    `list_tables()` chứ không `table_names()` — bản sau đã bị đánh dấu deprecated trên
+    `RemoteDBConnection` (cảnh báo lúc chạy, mà Global Constraints đòi output sạch). Hình dạng
+    trả về khác nhau: `list_tables()` trả một response có thuộc tính `.tables`, không phải
+    list trần.
+    """
+
+    class _DbGia:
+        def list_tables(self):
+            return SimpleNamespace(tables=[pipeline.LANCEDB_TABLE])
+
+        def open_table(self, ten):
+            assert ten == pipeline.LANCEDB_TABLE
+            return bang
+
+    monkeypatch.setattr(pipeline.vectordb, "connect", lambda: _DbGia())
+
+
+def test_khong_doi_gi_thi_khong_embed_hang_nao(monkeypatch, khong_goi_mang, capsys):
+    rows = [_hang("A", "Điều 1", "x")]
+    bang = _bang(rows)
+    _noi_bang(monkeypatch, bang)
+
+    n_ghi, n_tong = pipeline.write_lancedb(rows)
+
+    assert khong_goi_mang == [], "corpus không đổi mà vẫn gọi embedding"
+    assert (n_ghi, n_tong) == (0, 1)
+    assert not [x for x in bang.nhat_ky if x.startswith("merge_insert")]
+    assert "Không văn bản nào đổi" in capsys.readouterr().out
+
+
+def test_chi_embed_va_ghi_doc_da_doi(monkeypatch, khong_goi_mang):
+    cu = [_hang("A", "Điều 1", "x"), _hang("B", "Điều 1", "y")]
+    moi = [_hang("A", "Điều 1", "x ĐÃ SỬA"), _hang("B", "Điều 1", "y")]
+    bang = _bang(cu)
+    _noi_bang(monkeypatch, bang)
+
+    n_ghi, n_tong = pipeline.write_lancedb(moi)
+
+    assert khong_goi_mang == [1], "chỉ 1 chunk của A được embed"
+    assert (n_ghi, n_tong) == (1, 2)
+    assert bang.hang["A::Điều 1"]["text"] == "x ĐÃ SỬA"
+    assert bang.hang["B::Điều 1"]["text"] == "y"
+
+
+def test_che_ra_it_manh_hon_thi_id_mo_coi_bi_xoa(monkeypatch, khong_goi_mang):
+    """`merge_insert` chỉ biết id ta đưa vào — nhãn cũ không còn phải bị xoá riêng.
+
+    Ca thật: `label` suy từ nội dung, nên chẻ lại có thể sinh ít mảnh hơn (T2 thêm hậu tố
+    `(2)` đã đổi cả tập nhãn của TT23-2019). Không xoá thì nhãn cũ nằm lại vĩnh viễn — chunk
+    ma, vẫn được truy hồi, vẫn được trích dẫn.
+    """
+    cu = [_hang("A", "Điều 1 Khoản 1", "p"), _hang("A", "Điều 1 Khoản 2", "q")]
+    moi = [_hang("A", "Điều 1", "p q")]
+    bang = _bang(cu)
+    _noi_bang(monkeypatch, bang)
+
+    pipeline.write_lancedb(moi)
+
+    assert set(bang.hang) == {"A::Điều 1"}
+    assert "delete:2" in bang.nhat_ky
+
+
+def test_doc_du_thi_nem_chu_khong_xoa(monkeypatch, khong_goi_mang):
+    cu = [_hang("A", "Điều 1", "x"), _hang("BI_GO", "Điều 1", "y")]
+    moi = [_hang("A", "Điều 1", "x")]
+    bang = _bang(cu)
+    _noi_bang(monkeypatch, bang)
+
+    with pytest.raises(pipeline.DocDuTrongBang) as e:
+        pipeline.write_lancedb(moi)
+
+    assert e.value.doc_ids == ["BI_GO"]
+    assert "BI_GO::Điều 1" in bang.hang, "ném rồi mà vẫn xoá — mất dữ liệu"
+    assert khong_goi_mang == [], "ném rồi mà vẫn đốt embedding"
+
+
+def test_co_co_xoa_doc_du_thi_moi_xoa(monkeypatch, khong_goi_mang):
+    cu = [_hang("A", "Điều 1", "x"), _hang("BI_GO", "Điều 1", "y")]
+    moi = [_hang("A", "Điều 1", "x")]
+    bang = _bang(cu)
+    _noi_bang(monkeypatch, bang)
+
+    n_ghi, n_tong = pipeline.write_lancedb(moi, xoa_doc_du=True)
+
+    assert set(bang.hang) == {"A::Điều 1"}
+    assert (n_ghi, n_tong) == (0, 1)
+
+
+def test_co_ep_nap_lai_du_van_tay_khop(monkeypatch, khong_goi_mang):
+    rows = [_hang("A", "Điều 1", "x"), _hang("B", "Điều 1", "y")]
+    bang = _bang(rows)
+    _noi_bang(monkeypatch, bang)
+
+    n_ghi, _ = pipeline.write_lancedb(rows, ep=frozenset({"A"}))
+
+    assert khong_goi_mang == [1] and n_ghi == 1
+
+
+def test_ep_doc_khong_co_trong_corpus_thi_canh_bao(monkeypatch, khong_goi_mang, capsys):
+    rows = [_hang("A", "Điều 1", "x")]
+    _noi_bang(monkeypatch, _bang(rows))
+
+    pipeline.write_lancedb(rows, ep=frozenset({"KHONG-CO"}))
+
+    assert "KHONG-CO" in capsys.readouterr().out
+
+
+def test_bang_chua_ton_tai_thi_dung_duong_cu(monkeypatch, khong_goi_mang):
+    """Lần đầu (máy mới, local, CI) không có bảng để so — phải dựng như trước."""
+    da_tao: list[str] = []
+
+    class _DbTrong:
+        def list_tables(self):
+            return SimpleNamespace(tables=[])
+
+        def create_table(self, ten, data, mode):
+            da_tao.append(f"{ten}:{mode}:{len(data)}")
+            return _bang(data)
+
+    monkeypatch.setattr(pipeline.vectordb, "connect", lambda: _DbTrong())
+    rows = [_hang("A", "Điều 1", "x")]
+
+    n_ghi, n_tong = pipeline.write_lancedb(rows)
+
+    assert da_tao == [f"{pipeline.LANCEDB_TABLE}:overwrite:1"]
+    assert (n_ghi, n_tong) == (1, 1)
+    assert khong_goi_mang == [1]
+
+
+def test_id_co_nhay_don_khong_lam_vo_bo_loc():
+    """Nhãn điều đến từ văn bản luật — một dấu nháy lọt vào là câu lọc SQL vỡ."""
+    assert pipeline._loc_id(["A::Điều 1", "B::Đi'ều"]) == "id IN ('A::Điều 1', 'B::Đi''ều')"
+
+
+def test_quet_bang_hong_thi_nem_chu_khong_roi_ve_ghi_de(monkeypatch, khong_goi_mang):
+    """Mạng trục trặc KHÔNG được biến thành ghi đè cả bảng.
+
+    Rơi về `create_table(mode="overwrite")` cho "an toàn" nghĩa là một lần rớt kết nối thoáng
+    qua thành hoá đơn embedding 661 chunk — mà kết quả cuối vẫn đúng, nên không ai biết. Đây là
+    loại dự phòng phải CỐ Ý không viết.
+    """
+    rows = [_hang("A", "Điều 1", "x")]
+    bang = _bang(rows)
+
+    def _no(*a, **kw):
+        raise RuntimeError("LanceDB Cloud lỗi")
+
+    bang.search = _no
+    _noi_bang(monkeypatch, bang)
+
+    with pytest.raises(RuntimeError, match="LanceDB Cloud lỗi"):
+        pipeline.write_lancedb(rows)
+
+    assert khong_goi_mang == [], "quét hỏng mà vẫn embed — đúng cái đang phòng"
+    assert "create_fts_index" not in bang.nhat_ky
+
+
+def test_chay_lai_lan_hai_khong_embed_gi_them(monkeypatch, khong_goi_mang):
+    """Tính bình ổn: chết giữa chừng rồi chạy lại phải tự lành, không nạp lại vô hạn."""
+    cu = [_hang("A", "Điều 1", "x")]
+    moi = [_hang("A", "Điều 1", "x ĐÃ SỬA")]
+    bang = _bang(cu)
+    _noi_bang(monkeypatch, bang)
+
+    pipeline.write_lancedb(moi)
+    assert khong_goi_mang == [1]
+
+    pipeline.write_lancedb(moi)
+    assert khong_goi_mang == [1], "lượt hai vẫn embed ⇒ vân tay không khớp lại được sau khi ghi"
