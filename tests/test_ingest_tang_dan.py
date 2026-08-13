@@ -117,7 +117,8 @@ class _BangGia:
             self.hang.pop(i, None)
 
     def create_fts_index(self, cot: str, **kw) -> None:
-        self.nhat_ky.append("create_fts_index")
+        replace = kw.get("replace", False)
+        self.nhat_ky.append(f"create_fts_index:replace={replace}")
 
 
 def _hang(doc_id: str, article: str, text: str, valid_to: str = "") -> dict:
@@ -405,7 +406,7 @@ def test_quet_bang_hong_thi_nem_chu_khong_roi_ve_ghi_de(monkeypatch, khong_goi_m
         pipeline.write_lancedb(rows)
 
     assert khong_goi_mang == [], "quét hỏng mà vẫn embed — đúng cái đang phòng"
-    assert "create_fts_index" not in bang.nhat_ky
+    assert not any("create_fts_index" in x for x in bang.nhat_ky)
 
 
 def test_chay_lai_lan_hai_khong_embed_gi_them(monkeypatch, khong_goi_mang):
@@ -435,21 +436,52 @@ def test_bang_da_co_index_thi_khong_dung_lai(monkeypatch, khong_goi_mang):
 
     pipeline.write_lancedb(moi)
 
-    assert "create_fts_index" not in bang.nhat_ky
+    assert not any("create_fts_index" in x for x in bang.nhat_ky)
     assert "wait_for_index:text_idx" in bang.nhat_ky
 
 
-def test_bang_chua_co_index_thi_dung(monkeypatch, khong_goi_mang):
+@pytest.mark.parametrize("cloud_enabled", [True, False])
+def test_bang_chua_co_index_thi_dung(monkeypatch, khong_goi_mang, cloud_enabled):
+    """Bảng chưa có index thì dựng rồi thoát (không gọi wait), áp cho cả cloud lẫn local."""
     cu = [_hang("A", "Điều 1", "x")]
     moi = [_hang("A", "Điều 1", "x ĐÃ SỬA")]
     bang = _bang(cu)
     bang.co_index = False
     _noi_bang(monkeypatch, bang)
 
+    # Ghim cấu hình để không phụ thuộc .env của máy đang chạy
+    if cloud_enabled:
+        monkeypatch.setattr(pipeline.settings, "lancedb_uri", "db://x")
+        monkeypatch.setattr(pipeline.settings, "lancedb_api_key", "k")
+    else:
+        monkeypatch.setattr(pipeline.settings, "lancedb_uri", "/tmp/local.db")
+        monkeypatch.setattr(pipeline.settings, "lancedb_api_key", "")
+
     pipeline.write_lancedb(moi)
 
-    assert "create_fts_index" in bang.nhat_ky
+    assert any("create_fts_index" in x for x in bang.nhat_ky)
     assert "wait_for_index" not in str(bang.nhat_ky)  # thoát sớm, không gọi wait
+
+
+def test_bang_co_index_local_thi_dung_lai(monkeypatch, khong_goi_mang):
+    """LanceDB nhúng KHÔNG tự đưa hàng mới vào index FTS — phải dựng lại toàn bộ.
+
+    Chờ ở bản nhúng là chờ một thứ không bao giờ tới, nên thay vào đó dựng lại thẳng
+    (replace=True). Cục bộ chỉ tốn CPU, không tốn API, nên có thể dựng lại mỗi lần.
+    """
+    monkeypatch.setattr(pipeline.settings, "lancedb_uri", "/tmp/local.db")
+    monkeypatch.setattr(pipeline.settings, "lancedb_api_key", "")
+    cu = [_hang("A", "Điều 1", "x")]
+    moi = [_hang("A", "Điều 1", "x ĐÃ SỬA")]
+    bang = _bang(cu)
+    _noi_bang(monkeypatch, bang)
+
+    pipeline.write_lancedb(moi)
+
+    # Phải gọi create_fts_index với replace=True
+    assert any("create_fts_index:replace=True" in x for x in bang.nhat_ky)
+    # Phải không gọi wait_for_index
+    assert "wait_for_index" not in str(bang.nhat_ky)
 
 
 def test_index_phu_thieu_hang_thi_canh_bao(monkeypatch, khong_goi_mang, capsys):
