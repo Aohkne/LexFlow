@@ -55,13 +55,20 @@ phiên.
   hàng × 10 cột**; chunk `TT66-2025 Điều 6` cắt ở đúng ranh giới `(v)`/`(vii)`. Tiền đề "bảng
   còn giữ bản cắt hỏng" mà plan `2026-08-13-ingest-tang-dan` dựa vào là một bản chụp trước lúc
   `main` đóng T1, không phải trạng thái hiện tại.
-- **`T24` (`ascii_folding`) bị bỏ, không phải đổi số.** Khi thêm lại 8 mục còn thiếu của
+- **`T24` (`ascii_folding`) bị bỏ, không phải đổi số.** Khi thêm lại các mục còn thiếu của
   `feat/ai` vào `docs/TASKLIST.md` (số cũ T18/T21–T23/T25–T28 → số mới T100–T107, xem luật dải ở
-  `docs/COMMIT-CONVENTION.md`), mục thứ chín — `T24` cũ, ghi nhận FTS gấp dấu tiếng Việt trước
-  khi lọc stop-word — không nối lại: khối chú thích `_FTS_OPTS` trên `main`
+  `docs/COMMIT-CONVENTION.md`), một mục — `T24` cũ, ghi nhận FTS gấp dấu tiếng Việt trước khi
+  lọc stop-word — không nối lại: khối chú thích `_FTS_OPTS` trên `main`
   (`app/ingestion/pipeline.py:238-249`) đã phủ đúng vấn đề này và phủ đúng hơn, đặt thẳng
   `remove_stop_words: False` để tháo mìn (`thẻ`/`số`/`tổ` bị gấp dấu trước rồi rơi vào stop-word
   tiếng Anh thành `the`/`so`/`to`) thay vì chỉ ghi nhận.
+- **Sửa 13/08 (review): tổng số mục nối lại là 11, không phải 8.** Bảng ánh xạ ban đầu đếm thiếu
+  ba va chạm số khác nghĩa giữa `feat/ai` cũ và `main`: `T17` (`main` đã đóng "Deploy để mã khớp
+  dữ liệu vừa nạp" ↔ `feat/ai` "Ngưỡng điểm τ + fallback"), `T19` (`main` "Không có cách nghiệm
+  thu truy hồi production" ↔ `feat/ai` "Hậu kiểm HasCitations/EvidenceMismatch"), `T20` (`main`
+  "Dọn node rỗng khớp so_hieu" ↔ `feat/ai` "Corpus phủ 4/37 văn bản"). Thêm lại đúng bằng chép
+  nguyên văn thân mục, số mới `T108`/`T109`/`T110`. Tổng va chạm số thật: **12** (11 nối lại +
+  `T24` bị bỏ), không phải 9 như lượt ghi đầu.
 
 ---
 

@@ -453,13 +453,14 @@ bảng `legal_documents` vẫn rỗng, nên `app/core/corpus.py` còn fallback v
 
 ## feat/ai — dải T100+ (nối lại 13/08 sau khi hoà với `main`)
 
-> 8 mục dưới đây tồn tại trên `feat/ai` ngay trước khi hoà (`git show d1f5f93:docs/TASKLIST.md`)
+> 11 mục dưới đây tồn tại trên `feat/ai` ngay trước khi hoà (`git show d1f5f93:docs/TASKLIST.md`)
 > và bị số hiệu của `main` đè khi Task 1 của kế hoạch hoà nhánh lấy nguyên bản `main` cho file
-> này (9 số trùng — cả hai bên cùng đánh số tuần tự vào một danh sách). Thân mục chép nguyên
-> văn, chỉ đổi số ở tiêu đề — luật dải xem `docs/COMMIT-CONVENTION.md` § Push rules. Một mục thứ
-> chín (`ascii_folding`, số cũ T24) không nối lại vì đã có nội dung đúng hơn thay thế: khối chú
-> thích `_FTS_OPTS` ở `app/ingestion/pipeline.py:238-249` (T8 phía trên nêu nguyên nhân, code là
-> nơi đã tháo mìn) — xem `docs/WORKLOG.md` mục 13/08.
+> này — 12 số trùng nghĩa khác nhau giữa hai bên (đợt đầu 13/08 đếm ra 9, review cùng ngày bắt
+> thêm 3: `T17`/`T19`/`T20`). Thân mục chép nguyên văn, chỉ đổi số ở tiêu đề — luật dải xem
+> `docs/COMMIT-CONVENTION.md` § Push rules. Một mục thứ mười hai (`ascii_folding`, số cũ `T24`)
+> không nối lại vì đã có nội dung đúng hơn thay thế: khối chú thích `_FTS_OPTS` ở
+> `app/ingestion/pipeline.py:238-249` (`T8` phía trên nêu nguyên nhân, code là nơi đã tháo mìn) —
+> xem `docs/WORKLOG.md` mục 13/08.
 
 ### [ ] T100 · Cân nhắc `create_scalar_index("doc_id")`
 
@@ -604,6 +605,62 @@ Cypher. LexFlow **đã có parser viện dẫn đầy đủ** (`app/ontology/cit
 - Bước đầu: trong `answer._prepare`, gọi `parse_citations(req.query)`; có viện dẫn tường minh thì
   lấy chunk theo `lay_chunk_theo_tien_to` trước, hybrid search chỉ để bổ sung. Đúng nhánh
   "GRAPH LOOKUP trực tiếp" mà `docs/RAG-DESIGN.md:37` đã thiết kế mà chưa cài.
+
+### [ ] T108 · Ngưỡng điểm τ + fallback "không đủ căn cứ"
+
+Bài báo lọc `Score(d) ≥ τ` (cosine 0.9) TRƯỚC generation, rỗng thì trả "Unknown Answer".
+`answer.py` chỉ trả `_NOT_FOUND` khi retrieval **rỗng hoàn toàn** — tức là một chunk lạc đề vẫn
+đủ để hệ nói tiếp.
+
+- Bước đầu: cho `_rrf` trả kèm điểm (`_rrf_score`) mà **không** đổi thứ tự xếp hạng, rồi sweep τ
+  trên bộ eval để xem ngưỡng nào cắt được câu lạc đề mà không cắt nhầm câu đúng.
+- **Đã có bộ negative** (12/08): `eval/bo_sbv_khong_can_cu.jsonl` — 71 câu hỏi về luật hiện hành
+  mà corpus không có, câu trả lời đúng là "không đủ căn cứ". Lấy thêm được **157 câu** cùng loại
+  từ bộ TVPL (`data/evaluate/eval_filtered_clean.jsonl`) bằng cách thêm một file ra thứ ba vào
+  `eval/chuyen_tvpl.py` — chưa làm vì T108 chưa bắt đầu.
+- **Hai bộ khác LOẠI, đừng trộn rồi báo một tỷ lệ:** 71 câu SBV hỏi về luật **hiện hành** corpus
+  thiếu; 157 câu TVPL hỏi về luật **đã chết trước 2024** corpus thiếu. Bộ SBV khó hơn — chủ đề
+  của nó (Open API, thư tín dụng, cho thuê tài chính) đủ gần thanh toán để truy hồi trả về văn
+  bản trông rất hợp lý.
+
+### [ ] T109 · Hậu kiểm câu trả lời: `HasCitations` / `EvidenceMismatch`
+
+Bài báo (Algorithm 2, dòng 20–21) kiểm SAU khi sinh: không có trích dẫn, hoặc trích dẫn không khớp
+bằng chứng ⇒ từ chối trả lời. LexFlow chỉ **dặn** trong system prompt (`answer.py:16`), không verify.
+
+- Bước đầu: `HasCitations` là phép rẻ nhất — regex `\[.+—.+\]` trên câu trả lời, không khớp thì
+  đánh dấu. Đo tỷ lệ rớt trên bộ eval trước, rồi mới quyết có chặn hay chỉ cảnh báo.
+
+### [ ] T110 · Corpus phủ 4/37 văn bản mà bộ eval TVPL hỏi tới
+
+Đo 10/08 trên `data/evaluate/eval_filtered_clean.jsonl` (251 câu): chỉ **76 câu** dẫn toàn văn
+bản có trong corpus, 159 câu dẫn văn bản ngoài, 16 câu không dẫn gì. Đây là trần độ phủ thật của
+corpus khi gặp câu hỏi do người ngoài soạn — số 76 kia không phải "bộ eval nhỏ", mà là corpus hẹp.
+
+Nạp thêm văn bản mở khoá được bao nhiêu (tính tham lam, `scratchpad/phu.py` dựng lại được):
+
+| thêm | +câu | cộng dồn |
+|---|---|---|
+| `09/2020/TT-NHNN` — an toàn bảo mật giao dịch ngân hàng điện tử | +51 | 127 (51%) |
+| `34/2012/TT-NHNN` | +21 | 148 (59%) |
+| `37/2016/TT-NHNN` | +18 | 166 (66%) |
+| `88/2019/NĐ-CP` — xử phạt VPHC lĩnh vực tiền tệ | +11 | 177 (71%) |
+
+Bước đầu: crawl `09/2020/TT-NHNN` từ vbpl.vn (một văn bản, +51 câu — lãi nhất theo xa), kiểm
+hiệu lực và quan hệ thay thế của nó, rồi chạy lại `eval/chuyen_tvpl.py`. Ba văn bản còn lại làm
+sau nếu bảng đo cho thấy mẫu 76 câu chưa đủ phân biệt.
+
+- **Bộ SBV cũng cần cào thêm** (đo 12/08): corpus phủ 4/27 văn bản bộ này hỏi tới ⇒ 29/100 câu
+  dùng được. Cào 7 văn bản trong phạm vi sản phẩm (thanh toán · tài khoản · thẻ · ngoại hối ·
+  PCRT · an toàn giao dịch) đưa `bo_sbv.jsonl` từ 29 → **56/100** câu, thứ tự lợi nhất:
+  `94/2025/NĐ-CP` (→37) · `64/2024/TT-NHNN` (→43) · `58/2024/TT-NHNN` (→48) ·
+  `50/2024/TT-NHNN` (→51) · `12/2022/TT-NHNN` (→53) · `60/2024/TT-NHNN` (→55) ·
+  `08/2023/TT-NHNN` (→56). 16 văn bản còn lại (cho thuê tài chính, bảo lãnh, thư tín dụng, kiểm
+  toán độc lập, thống kê tiền tệ, …) đưa tiếp 56 → 100/100, nhưng đó là **mở rộng sản phẩm**,
+  không phải bổ sung dữ liệu — cùng phán đoán đã ghi ở trên cho bộ TVPL. Danh sách đầy đủ, đúng
+  định dạng `scripts/crawl_vbpl_batch.py`: `research/crawl_list_sbv.txt` (tên văn bản trong đó
+  **suy từ câu hỏi và slug URL**, chưa đọc văn bản gốc — kiểm lại khi tra URL). `21/2017/TT-NHNN`
+  trùng với `research/crawl_list_eval.txt` — cào một lần dùng cho cả hai bộ.
 
 ---
 
