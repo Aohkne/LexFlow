@@ -12,7 +12,6 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
-from types import SimpleNamespace
 
 import pytest
 
@@ -211,16 +210,11 @@ def khong_goi_mang(monkeypatch):
 def _noi_bang(monkeypatch, bang: _BangGia) -> None:
     """Bắt `vectordb.connect()` trả về DB giả đã có sẵn bảng.
 
-    `list_tables()` chứ không `table_names()` — bản sau đã bị đánh dấu deprecated trên
-    `RemoteDBConnection` (cảnh báo lúc chạy, mà Global Constraints đòi output sạch). Hình dạng
-    trả về khác nhau: `list_tables()` trả một response có thuộc tính `.tables`, không phải
-    list trần.
+    `open_table` THẲNG LÀ phép dò bảng tồn tại — không liệt kê bảng rồi so tên (xem lý do ở
+    docstring nhánh `except ValueError` trong `write_lancedb`).
     """
 
     class _DbGia:
-        def list_tables(self):
-            return SimpleNamespace(tables=[pipeline.LANCEDB_TABLE])
-
         def open_table(self, ten):
             assert ten == pipeline.LANCEDB_TABLE
             return bang
@@ -319,12 +313,16 @@ def test_ep_doc_khong_co_trong_corpus_thi_canh_bao(monkeypatch, khong_goi_mang, 
 
 
 def test_bang_chua_ton_tai_thi_dung_duong_cu(monkeypatch, khong_goi_mang):
-    """Lần đầu (máy mới, local, CI) không có bảng để so — phải dựng như trước."""
+    """Lần đầu (máy mới, local, CI) không có bảng để so — phải dựng như trước.
+
+    `open_table` ném `ValueError("Table 'x' was not found")` — đo trực tiếp trên backend local
+    (embedded) trong `.venv`, xem docstring nhánh `except ValueError` trong `write_lancedb`.
+    """
     da_tao: list[str] = []
 
     class _DbTrong:
-        def list_tables(self):
-            return SimpleNamespace(tables=[])
+        def open_table(self, ten):
+            raise ValueError(f"Table '{ten}' was not found")
 
         def create_table(self, ten, data, mode):
             da_tao.append(f"{ten}:{mode}:{len(data)}")
@@ -338,6 +336,48 @@ def test_bang_chua_ton_tai_thi_dung_duong_cu(monkeypatch, khong_goi_mang):
     assert da_tao == [f"{pipeline.LANCEDB_TABLE}:overwrite:1"]
     assert (n_ghi, n_tong) == (1, 1)
     assert khong_goi_mang == [1]
+
+
+def test_loi_khac_luc_mo_bang_thi_nem_chu_khong_hieu_nham_la_bang_chua_co(
+    monkeypatch, khong_goi_mang
+):
+    """Một `ValueError` KHÔNG chứa "not found" không được hiểu nhầm thành "bảng chưa tồn tại".
+
+    Nếu bắt mọi `ValueError` bất kể thông điệp, một lỗi mở bảng vì lý do khác (đối số sai, phản
+    hồi hỏng, ...) sẽ lặng lẽ chảy xuống `_tao_bang_moi` → ghi đè cả bảng thật. Đây đúng loại
+    thảm hoạ mà `except ValueError` hẹp phải chặn.
+    """
+
+    class _DbLoi:
+        def open_table(self, ten):
+            raise ValueError("phản hồi JSON hỏng")
+
+    monkeypatch.setattr(pipeline.vectordb, "connect", lambda: _DbLoi())
+    rows = [_hang("A", "Điều 1", "x")]
+
+    with pytest.raises(ValueError, match="phản hồi JSON hỏng"):
+        pipeline.write_lancedb(rows)
+
+    assert khong_goi_mang == [], "lỗi mở bảng mà vẫn embed — bị hiểu nhầm thành bảng chưa có"
+
+
+def test_mang_chap_chon_luc_mo_bang_thi_nem_chu_khong_tao_bang_moi(monkeypatch, khong_goi_mang):
+    """Lỗi mạng thoáng qua (không phải `ValueError`) lúc mở bảng cũng phải ném, không rơi về
+    `_tao_bang_moi`. Đây là ca cụ thể mà reviewer nêu: mạng chập chờn không được hiểu thành
+    "bảng chưa tồn tại" rồi ghi đè + đốt tiền embed cả bảng.
+    """
+
+    class _DbMangLoi:
+        def open_table(self, ten):
+            raise RuntimeError("mạng chập chờn")
+
+    monkeypatch.setattr(pipeline.vectordb, "connect", lambda: _DbMangLoi())
+    rows = [_hang("A", "Điều 1", "x")]
+
+    with pytest.raises(RuntimeError, match="mạng chập chờn"):
+        pipeline.write_lancedb(rows)
+
+    assert khong_goi_mang == [], "lỗi mạng mà vẫn embed — bị hiểu nhầm thành bảng chưa có"
 
 
 def test_id_co_nhay_don_khong_lam_vo_bo_loc():

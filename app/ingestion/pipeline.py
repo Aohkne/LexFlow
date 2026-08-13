@@ -314,12 +314,26 @@ def write_lancedb(
         return 0, 0
 
     db = vectordb.connect()
-    # `list_tables()` chứ không `table_names()` — bản sau bị đánh dấu deprecated trên
-    # `RemoteDBConnection` (cảnh báo lúc chạy, Global Constraints đòi output sạch).
-    if LANCEDB_TABLE not in db.list_tables().tables:
+    try:
+        tbl = db.open_table(LANCEDB_TABLE)
+    except ValueError as e:
+        # `open_table` LÀ phép dò bảng tồn tại — không liệt kê rồi so tên. `list_tables()` có
+        # phân trang (`page_token`) mà không đọc hết trang thì "không thấy tên" và "bảng thật
+        # sự không tồn tại" lẫn vào nhau, chảy thẳng xuống `_tao_bang_moi` → ghi đè cả bảng.
+        #
+        # Đo trực tiếp trong `.venv` (13/08) — backend local (embedded) ném đúng loại này khi mở
+        # bảng không tồn tại: `ValueError("Table 'x' was not found")`. Backend remote (Cloud)
+        # dùng chung crate Rust (chuỗi lỗi `TableNotFoundError` nằm trong cùng `_lancedb.pyd`)
+        # nên nhiều khả năng ánh xạ giống vậy, nhưng KHÔNG đo trực tiếp được — Global Constraints
+        # cấm test chạm Cloud. Xem `docs/TASKLIST.md` T24.
+        #
+        # Lọc thêm theo thông điệp: KHÔNG bắt mọi ValueError, chỉ bắt loại có "not found" — một
+        # ValueError vì lý do khác (đối số sai, ...) không được hiểu nhầm thành "bảng chưa có"
+        # rồi ghi đè cả bảng thật.
+        if "not found" not in str(e).lower():
+            raise
         return _tao_bang_moi(db, rows)
 
-    tbl = db.open_table(LANCEDB_TABLE)
     can_nap, du, id_cu = _doc_can_nap(tbl, rows)
 
     co_that = {r["doc_id"] for r in rows}
