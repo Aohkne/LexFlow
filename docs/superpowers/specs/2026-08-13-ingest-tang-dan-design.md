@@ -43,8 +43,11 @@ FTS index                     text_idx · num_indexed_rows = 661 · tạo 10/08
 
 Hai số này đổi thiết kế:
 
-**Quét toàn bảng tốn 5.3s** và lớn tuyến tính. Nên quét đúng các `doc_id` có trong corpus chứ
-không quét mù, gộp cùng lượt với việc tìm doc dư.
+**Quét toàn bảng tốn 5.3s** và lớn tuyến tính. Chấp nhận — **một lượt quét toàn bảng, không
+kèm `where`**. Lọc `doc_id IN (<corpus>)` nghe tiết kiệm hơn nhưng sai mục đích: doc *dư* theo
+định nghĩa là doc **không** có trong corpus, nên mệnh đề đó loại bỏ đúng thứ cần tìm. Và nó
+cũng không tiết kiệm thật — corpus với bảng gần như cùng một tập `doc_id`, mệnh đề lọc bỏ được
+gần đúng bằng không. Ghi lại ngưỡng để biết khi nào phải nghĩ lại: 5.3s ở 661 hàng.
 
 **Index FTS đã tồn tại và đang phủ đủ 661 hàng.** `write_lancedb` hiện gọi `create_fts_index`
 mỗi lượt — bắt buộc khi bảng vừa bị `overwrite` dựng lại. Ghi tăng dần mà vẫn gọi thì thành
@@ -68,10 +71,13 @@ build_chunks(docs)  ──►  rows                    (không đổi một dòn
 
 ## Thành phần
 
-### `_doc_can_nap(tbl, rows) -> tuple[set[str], set[str]]`
+### `_doc_can_nap(tbl, rows) -> tuple[set[str], set[str], dict[str, set[str]]]`
 
-Thuần đọc, không ghi. Quét `.select(<cột ≠ vector>).where("doc_id IN (...)")`, gom vân tay
-theo `doc_id`, trả `(doc cần nạp, doc dư trong bảng)`.
+Thuần đọc, không ghi. Một lượt `.search().select(<cột ≠ vector>).limit(count_rows())`, gom vân
+tay theo `doc_id`, trả `(doc cần nạp, doc dư trong bảng, doc_id → id đang có trong bảng)`.
+
+Thành phần thứ ba tồn tại để bước xoá mồ côi **không phải quét bảng lần hai** — nó đã đọc đúng
+những id đó rồi.
 
 **Vân tay là cả hàng trừ `vector`**, không phải mình `text`. Luật hết hiệu lực thì cái đổi là
 `valid_to` / `superseded` — đúng hai trường mà bộ lọc `as_of` đọc. So mỗi `text` thì một văn bản
