@@ -6,7 +6,8 @@ vẫn tốn đúng ngần ấy tiền, không ai biết.
 
 Chạy: uv run python scripts/soi_doc_can_nap.py
 
-Kết quả 13/08 — ĐỎ, không như brief dự đoán: cần nạp RỖNG (không phải chứa TT66-2025).
+Kết quả 13/08 — cần nạp RỖNG, khác ca "chứa TT66-2025" mà brief dự đoán, nhưng ĐÃ XÁC MINH là
+xanh (xem "Đối chứng dương" bên dưới), không phải vân tay so nhầm:
 ```
 corpus:  26 văn bản → 661 chunk
 bảng:    661 chunk / 26 văn bản
@@ -15,16 +16,23 @@ cần nạp (0): (không có)
 dư      (0): (không có)
 
 nếu chạy ingest bây giờ: embed 0/661 chunk
+
+đối chứng dương: sửa 1 chunk của 'ND101-2012' (RAM, không ghi bảng) → cần nạp = ['ND101-2012'] — ĐẠT
 ```
-Đọc theo bảng đối chiếu của task: `cần nạp` rỗng ⇒ ĐỎ (T1 ghi bảng đang giữ 3 chunk cũ của
-`TT66-2025 Điều 6`, nên rỗng "không thể xảy ra"). Đã CHẨN ĐOÁN thêm (đọc, không ghi): so từng
-cột của 3 chunk `TT66-2025::Điều 6 (phần 1..3)` giữa `build_chunks` và `tbl.search()` — khớp
-byte-for-byte (độ dài text 1854/1107/1350, không cắt giữa chữ "ngân"), và quét toàn bảng 661
-hàng × 10 cột (trừ `vector`) cho **0 lệch, 0 id chỉ có ở một phía**. Tức KHÔNG phải lệch kiểu
-hay vân tay so nhầm — bảng thật trên LanceDB Cloud đã khớp đúng bản vá `8dd53f0` rồi, trong khi
-`docs/TASKLIST.md` T1 (viết 09/08) vẫn mô tả nó là "chưa vá". Không tự sửa T1 theo hướng "đã
-xong" vì không biết CƠ CHẾ nào đưa bảng tới trạng thái này (ai đó đã chạy ingest? nhánh khác của
-`/admin` approve?) — cần chủ repo xác nhận trước khi đóng T1.
+Đối chiếu bảng của task: `cần nạp` rỗng đứng một mình đọc là ĐỎ (T1 ghi bảng đang giữ 3 chunk cũ
+của `TT66-2025 Điều 6`, "không thể rỗng"). Chẩn đoán thêm (đọc, không ghi): so từng cột của 3
+chunk `TT66-2025::Điều 6 (phần 1..3)` giữa `build_chunks` và `tbl.search()` — khớp byte-for-byte
+(độ dài text 1854/1107/1350, vết cắt đúng ranh giới `(v)`/`(vii)` của thang bậc dự phòng, không
+cắt giữa chữ "ngân"), và quét toàn bảng 661 hàng × 10 cột (trừ `vector`) cho 0 lệch, 0 id chỉ có
+ở một phía. Bảng thật trên LanceDB Cloud đã khớp đúng bản vá `8dd53f0` (09/08) rồi — triệu chứng
+T1 mô tả không còn tồn tại tính đến 13/08; cơ chế đưa bảng tới trạng thái này chưa rõ (không có
+gì trong `docs/WORKLOG.md` ghi một lượt ingest sau 09/08).
+
+**Đối chứng dương** (thêm sau khi phát hiện `cần nạp` rỗng): một hàm `_doc_can_nap` luôn trả về
+tập rỗng cũng qua được phép thử "0 lệch" ở trên — nó chỉ chứng minh không báo động giả, chưa
+chứng minh bắt được thay đổi thật. Sửa một chunk trong RAM (không ghi bảng) rồi gọi lại
+`_doc_can_nap`: kết quả bắt ĐÚNG và CHỈ đúng một văn bản đó — ĐẠT. Vậy `cần nạp` rỗng ở lượt đọc
+thật là xanh thật, không phải hàm hỏng đang im lặng.
 """
 from __future__ import annotations
 
@@ -50,3 +58,20 @@ print(f"dư      ({len(du)}): {', '.join(sorted(du)) or '(không có)'}")
 
 n = sum(len(r['id']) > 0 for r in rows if r["doc_id"] in can_nap)
 print(f"\nnếu chạy ingest bây giờ: embed {n}/{len(rows)} chunk")
+
+# --- Đối chứng dương: sửa một chunk TRONG BỘ NHỚ, không ghi gì lên bảng ---
+# Lượt trên chỉ chứng minh "không báo động giả" (`cần nạp` rỗng) — một `_doc_can_nap` luôn trả
+# về tập rỗng (bug) cũng qua được phép thử đó. Lượt này chứng minh "báo được khi có thật đổi":
+# sửa đúng MỘT chunk của MỘT văn bản, kỳ vọng vân tay bắt đúng NGUYÊN văn bản đó, không hơn.
+rows_sua = [dict(r) for r in rows]
+doc_doi_chung = rows_sua[0]["doc_id"]
+rows_sua[0]["text"] += " [ĐỐI CHỨNG]"
+
+can_nap_sua, _, _ = _doc_can_nap(tbl, rows_sua)
+dat = can_nap_sua == {doc_doi_chung}
+print(
+    f"\nđối chứng dương: sửa 1 chunk của {doc_doi_chung!r} (RAM, không ghi bảng) "
+    f"→ cần nạp = {sorted(can_nap_sua)} — {'ĐẠT' if dat else 'KHÔNG ĐẠT'}"
+)
+if not dat:
+    raise SystemExit(1)
