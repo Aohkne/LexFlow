@@ -212,6 +212,28 @@ hallucination. Trong khi **cả 5 cặp vàng ở `eval/mau_thuan_vang.jsonl` đ
 - Mở lại khi có **nhãn người gán** — câu hỏi #1 gửi mentor ở `ONTOLOGY-FOR-MENTOR.md:230`.
   Không có nhãn thì mọi cải tiến ở tầng này vẫn là máy tự chấm máy.
 
+**Cập nhật 13/08 — POC GraphCompliance đã chạy thật** (nhánh `feat/ai-compliance`, spec/plan
+ở `.superpowers/sdd/2026-08-11-graphcompliance-poc/`). Điều kiện "chưa mở" ở trên đã đổi:
+
+- Nhãn người gán **đã có**: 95 comment luật sư trên 2 hợp đồng thật, chủ repo duyệt 12/08
+  (`eval/compliance/gold.jsonl`, local-only) — 11 `phap_ly`, trong đó 4 dòng viện dẫn tường
+  minh + trong corpus làm mẫu số recall chính.
+- Schema **đã có ô tình thái** (6 nhãn, gán bằng regex tất định) **và ô ngưỡng** (`Nguong`,
+  giao thức ca-lạ) — hướng (a) đã làm xong trong POC; pipeline Policy Graph in-memory →
+  ER-triples (grounding nguyên văn) → hypernym (danh sách ứng viên đóng) → gate tất định →
+  judge 2 vòng (Eq. 6 override) chạy được đầu-cuối, 852 test xanh.
+- **Recall đo 13/08: đường mới 0/4, đường cũ cũng 0/4** (đường cũ `pass` cả 4 điều liên
+  quan; 1 warning duy nhất khác nội dung comment). Nguyên nhân đo được, không phải đoán:
+  **cả 4 comment viện dẫn Đ3 NĐ52-2024, Đ3 TT18-2024, Đ8 TT40-2024, Đ20 TT15-2024 — không
+  điều nào nằm trong 12 Điều đã trích CU** (bộ CU trích 11/08, gold chốt 12/08). Tức số 0/4
+  đo **độ phủ CU**, chưa đo được chất lượng gate/judge.
+- Ca lạ chờ chốt schema (gom từ 2 lần chạy + Task 4): `nguong_bo_sot` — dấu hiệu
+  'trở lên/ít nhất/tối thiểu/tối đa' không ghép được số (NĐ52 Đ22k2 ×4, TT18 Đ13k2);
+  `tinh_thai_kho` — action không mang dấu hiệu tình thái nhưng khoản có ràng buộc cứng
+  (TT18 Đ9k6·k7, TT40 Đ25k6); danh sách đầy đủ trong 2 báo cáo local + `task-4-report.md`.
+- **Bước đầu tiên (mở lại):** trích CU đúng 4 điều gold viện dẫn ở trên rồi chạy lại 2 báo
+  cáo — chi phí ~4 lượt LLM trích; khi đó recall mới bắt đầu nói về chất lượng phán định.
+
 ---
 
 ## Chất lượng phán định tuân thủ
