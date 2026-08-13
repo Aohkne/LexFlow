@@ -182,15 +182,11 @@ Ca ghim:
 
 Ca cuối đáng ghim riêng vì quên nó thì mọi thứ vẫn *đúng*, chỉ đắt — sẽ không ai phát hiện.
 
-## Điều chưa chắc, phải xử ở bước đầu của plan
+## Đã xác minh (13/08)
 
-`merge_insert(...).execute()` trên `RemoteTable` mới chứng minh được là **dựng builder** được,
-chưa chứng minh **chạy** được. Bước đầu tiên của plan: chạy nó trên một **bảng nháp** trong cùng
-DB cloud rồi drop — không đụng bảng phục vụ.
-
-Nếu remote không hỗ trợ, phương án lùi là `delete` theo `doc_id` rồi `add`, tức chấp nhận cửa sổ
-thiếu mà chủ repo đã loại ở bước brainstorm. Phải biết **trước khi viết code**, không phải lúc
-chạy thật.
+`merge_insert(...).execute()` và `delete(...)` chạy đúng ngữ nghĩa trên `RemoteTable` — đo bằng
+`scripts/do_merge_insert_remote.py` trên một bảng nháp rồi drop. Hàng khớp `id` được cập nhật,
+hàng mới được chèn, hàng không nhắc tới giữ nguyên.
 
 ## Ngoài phạm vi
 
