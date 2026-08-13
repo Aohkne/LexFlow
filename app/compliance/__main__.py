@@ -90,7 +90,9 @@ def main(argv: list[str] | None = None) -> Path:
         moi[d.so] = [pq.model_dump() for pq in phan_dinh(d.text, plan, pg)]
 
     canh_bao += _canh_bao_cu(pg, cu_dung_toi)
-    gold_rows = _tai_gold(args.gold)
+    # gold.jsonl chứa comment của CẢ HAI hợp đồng — không lọc theo file thì
+    # mẫu số recall phồng và có thể "bắt chéo" comment của hợp đồng kia.
+    gold_rows = [g for g in _tai_gold(args.gold) if Path(g.get("file", "")).stem == hd.ten]
     report = render_md(hd, gold_rows, cu, moi, canh_bao)
 
     out = args.out or Path("eval/compliance") / f"bao_cao_{hd.ten}.md"

@@ -24,6 +24,14 @@ def _pg_co_mien_tru() -> PolicyGraph:
     return PolicyGraph([cu, mien_tru], [], [])
 
 
+def test_llm_bo_sot_cu_thanh_thieu_thong_tin():
+    # LLM không nhắc gì tới CU trong cả các phiếu → abstention, không suy từ im lặng.
+    # Nhánh này đã chạy thật ở Task 14 (ThuHo/PAYFAC) mà chưa có test.
+    pq = judge_mod._da_so(_CU_ID, [None, None])
+    assert pq.verdict == "thieu_thong_tin"
+    assert "bỏ sót" in pq.can_cu
+
+
 def _vote(verdict):
     return {"phan_quyet": [{"cu_id": "A/1#than/dieu_5#khoan_1", "verdict": verdict,
                             "can_cu": "x", "quote_hop_dong": "", "quote_luat": ""}]}

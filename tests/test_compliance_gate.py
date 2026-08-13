@@ -105,6 +105,25 @@ def test_chu_the_phu_dinh_loai_theo_dieu_kien(monkeypatch):
     assert any("phủ định" in g for g in plan.ghi_chu)
 
 
+def test_chu_the_khang_dinh_fail_open(monkeypatch):
+    # Cổng chủ thể KHẲNG ĐỊNH (phu_dinh=False) chưa đánh giá tất định được →
+    # giữ CU + cờ + ghi chú (trước đây rơi qua `return` trần, im lặng).
+    monkeypatch.setattr(gate, "search_in_docs", lambda *a, **k: [_CHUNK_DIEU_5])
+    monkeypatch.setattr(gate, "chu_thich_ket_qua", lambda c, *a, **k: (c, {}))
+    pg = _pg([
+        _actor("A/1#than/dieu_5#khoan_1"),
+        _meta("A/1#than/dieu_5#khoan_2", gates=[{
+            "kind": "chu_the", "pham_vi": "khoan", "targets": ["A/1#than/dieu_5#khoan_1"],
+            "suy_ra_duoc": True, "phu_dinh": False, "ngoai_tru": [], "ghi_chu": "",
+        }]),
+    ])
+    plan = lap_cu_plan("điều hợp đồng", [], pg,
+                        ["DOC-A"], as_of="2026-08-11", so_hieu_cua={"DOC-A": "A/1"})
+    assert len(plan.items) == 1
+    assert plan.items[0].gate_chua_xac_quyet is True
+    assert any("chu_the khẳng định" in g for g in plan.ghi_chu)
+
+
 def test_chu_the_phu_dinh_khong_khop_thi_khong_loai(monkeypatch):
     # party KHÔNG phải loại chủ thể bị phủ định → không bị loại
     monkeypatch.setattr(gate, "search_in_docs", lambda *a, **k: [_CHUNK_DIEU_5])

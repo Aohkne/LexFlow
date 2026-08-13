@@ -98,10 +98,20 @@ def _ho_so(tmp_path):
     }), encoding="utf-8")
 
     gold_path = tmp_path / "gold.jsonl"
-    gold_path.write_text(json.dumps({
-        "dieu_hop_dong": "1", "loai": "phap_ly", "trong_corpus": True,
-        "van_ban": ["A/1"], "comment_id": "c1", "comment_text": "phải khớp Điều 1",
-    }, ensure_ascii=False) + "\n", encoding="utf-8")
+    gold_path.write_text(
+        json.dumps({
+            "file": "hd.docx", "dieu_hop_dong": "1", "loai": "phap_ly",
+            "trong_corpus": True, "van_ban": ["A/1"], "comment_id": "c1",
+            "comment_text": "phải khớp Điều 1",
+        }, ensure_ascii=False) + "\n"
+        # comment của HỢP ĐỒNG KHÁC, cùng số điều — phải bị lọc khỏi báo cáo
+        # lẫn mẫu số recall, không thì "bắt chéo" như ca ThuHo/PAYFAC 13/08.
+        + json.dumps({
+            "file": "khac.docx", "dieu_hop_dong": "1", "loai": "phap_ly",
+            "trong_corpus": True, "van_ban": ["A/1"], "comment_id": "c-khac",
+            "comment_text": "comment hợp đồng khác",
+        }, ensure_ascii=False) + "\n",
+        encoding="utf-8")
 
     return docx, cu_dir, corpus_path, gold_path
 
@@ -158,8 +168,10 @@ def test_cli_end_to_end_offline(tmp_path, monkeypatch):
     assert "| Điều | Gold | Đường cũ | Đường mới |" in text
     assert "## Recall" in text
     assert "vi_pham" in text and _CU_ID in text
-    # gold điều 1 khớp đúng văn bản A/1 → bắt được, mẫu số 1
-    assert "Mẫu số" in text
+    # gold điều 1 khớp đúng văn bản A/1 → bắt được, mẫu số 1;
+    # dòng gold của hợp đồng khác bị lọc — không lên bảng, không vào mẫu số
+    assert "Mẫu số (gold pháp lý trong corpus): 1" in text
+    assert "c-khac" not in text
 
 
 def test_cli_end_to_end_ca_hai_duong(tmp_path, monkeypatch):

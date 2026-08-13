@@ -152,6 +152,11 @@ def _ap_dung_gate(
                 ghi_chu.append(
                     f"meta {m.id} loại {bi_loai}: chủ thể khớp phủ định {sorted(khop)}"
                 )
+        else:
+            # Cổng chủ thể KHẲNG ĐỊNH ("chỉ áp dụng đối với X") chưa có cách
+            # đánh giá tất định — giữ CU + cờ như lanh_tho/khac, không rơi im lặng.
+            _fail_open(g, cands, unresolved)
+            ghi_chu.append(f"meta {m.id} gate chu_the khẳng định không xác quyết được")
         return
 
     # lanh_tho, khac — không có cách đánh giá tất định
