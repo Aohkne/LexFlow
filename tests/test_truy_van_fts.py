@@ -74,3 +74,41 @@ def test_co_where_thi_day_xuong_bang(monkeypatch):
     assert ghi["query_type"] == "fts"
     assert ghi["prefilter"] is True
     assert ghi["limit"] == 8
+
+
+def test_vector_hong_tam_thoi_thi_thu_lai(monkeypatch):
+    """"connection reset" giữa batch dài không được giết cả run — retry rồi mới chết.
+
+    Client LanceDB chỉ tự retry lỗi có mã HTTP; lỗi tầng kết nối ném thẳng `HttpError`
+    (đo 13/08: hai run compliance chết cùng một callsite vector search).
+    """
+    import pytest
+    from lancedb.remote.errors import HttpError
+
+    monkeypatch.setattr(retrieval.time, "sleep", lambda _s: None)
+    dem = {"n": 0}
+
+    class _TruyVan:
+        def where(self, _dk, prefilter=False):
+            return self
+
+        def limit(self, _n):
+            return self
+
+        def to_list(self):
+            dem["n"] += 1
+            if dem["n"] < 3:
+                raise HttpError("connection reset", "req-test")
+            return [{"id": "x"}]
+
+    class _Bang:
+        def search(self, _q, **_k):
+            return _TruyVan()
+
+    ra = retrieval._vector_hits(_Bang(), [0.1], pool=8, where="doc_id IN ('TT40-2024')")
+    assert ra == [{"id": "x"}]
+    assert dem["n"] == 3
+
+    dem["n"] = -99  # không bao giờ hồi phục ⇒ hết 4 lượt phải ném lỗi thật
+    with pytest.raises(HttpError):
+        retrieval._vector_hits(_Bang(), [0.1], pool=8)

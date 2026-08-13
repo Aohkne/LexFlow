@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import logging
 import re
+import time
 from functools import lru_cache
 
 from app.core import vectordb
@@ -65,6 +66,30 @@ def _open_table():
     return vectordb.connect().open_table(LANCEDB_TABLE)
 
 
+def _vector_hits(tbl, qv: list[float], *, pool: int, where: str | None = None) -> list[dict]:
+    """Nhánh vector, retry quanh lỗi mạng LanceDB Cloud.
+
+    Client chỉ tự retry lỗi HTTP có mã (429/5xx); "connection reset" giữa chừng bị ném
+    thẳng thành `HttpError` — một batch dài 50 phút chết vì đúng một request (đo 13/08,
+    hai lần cùng một callsite). BM25 fail-open được vì còn vector gánh; vector thì không
+    có ai gánh nên phải retry rồi mới được phép chết.
+    """
+    from lancedb.remote.errors import HttpError, RetryError
+
+    for cho in (5, 15, 45, None):
+        q = tbl.search(qv)
+        if where:
+            q = q.where(where, prefilter=True)
+        try:
+            return q.limit(pool).to_list()
+        except (HttpError, RetryError) as exc:
+            if cho is None:
+                raise
+            logger.warning("Vector search lỗi mạng, thử lại sau %ss: %s", cho, exc)
+            time.sleep(cho)
+    raise AssertionError("unreachable")
+
+
 @lru_cache(maxsize=256)
 def _qv(query: str) -> tuple[float, ...]:
     """Cache embedding câu hỏi — hybrid + graph-augment dùng chung 1 lần gọi Gemini."""
@@ -92,7 +117,7 @@ def hybrid_search(
     pool = max(top_k * 3, 15)
 
     qv = list(_qv(query))
-    vector_hits = tbl.search(qv).limit(pool).to_list()
+    vector_hits = _vector_hits(tbl, qv, pool=pool)
     fts_hits = _bat_fts(tbl, query, pool=pool)
 
     merged = _rrf(vector_hits, fts_hits, pool)
@@ -122,9 +147,7 @@ def search_in_docs(
     where = f"doc_id IN ({ids})"
     pool = max(top_k * 2, 8)
 
-    vector_hits = (
-        tbl.search(list(_qv(query))).where(where, prefilter=True).limit(pool).to_list()
-    )
+    vector_hits = _vector_hits(tbl, list(_qv(query)), pool=pool, where=where)
     fts_hits = _bat_fts(tbl, query, pool=pool, where=where)
 
     hits = _rrf(vector_hits, fts_hits, pool)
