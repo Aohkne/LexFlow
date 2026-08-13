@@ -234,6 +234,34 @@ hallucination. Trong khi **cả 5 cặp vàng ở `eval/mau_thuan_vang.jsonl` đ
 - **Bước đầu tiên (mở lại):** trích CU đúng 4 điều gold viện dẫn ở trên rồi chạy lại 2 báo
   cáo — chi phí ~4 lượt LLM trích; khi đó recall mới bắt đầu nói về chất lượng phán định.
 
+**Cập nhật 13/08 (tối) — đã trích 4 điều gold viện dẫn và chạy lại cả 2 báo cáo.** Hai điều
+định nghĩa (Đ3 NĐ52, Đ3 TT18) đúng thiết kế phân vai `premise` nên **không sinh actor-CU**;
+hai điều còn lại sinh **12 CU mới** (TT15-Đ20 k1-5, TT40-Đ8 k1-7) → `pred.jsonl` 61 bản ghi,
+trong đó 2 lỗi cứng chống-bịa bị loại ⇒ **Policy Graph nạp 59 CU**. Hai lần chạy lại chết vì
+lỗi mạng LanceDB Cloud trước khi xong — đã vá 2 tầng (`app/core/vectordb.py` retry_config
+tường minh vì env `LANCE_CLIENT_*` không tới tầng Rust; `app/knowledge/retrieval.py`
+`_vector_hits` retry 5/15/45s vì client không retry lỗi tầng kết nối) rồi cả hai chạy trọn.
+
+**Recall đường CU sau khi vá độ phủ: ThuHo 0/1 · PAYFAC 0/3** — nhưng khác 0/4 hôm trước,
+giờ **từng miss quy được về một nguyên nhân đo trực tiếp**, chia 3 nhóm:
+
+1. **#30 (ThuHo Đ2, cite TT15-Đ20):** chunk Đ20-k3 xếp hạng 5/8 trong retrieval, gate đưa
+   đủ k1/2/4/5 vào judge (`tuan_thu`/`khong_ap_dung`) — **CU duy nhất khớp nội dung comment
+   là k3, chính là 1 trong 2 bản ghi lỗi cứng bị loại khỏi graph** (guard chống-bịa bắt LLM
+   thêm chữ "có" khi trích). Sửa 1 bản ghi này là miss biến mất.
+2. **#13, #35 (PAYFAC, cite Đ3 định nghĩa):** cấu trúc — điều định nghĩa → `premise`,
+   không có actor-CU cho gate bắt. Muốn bắt phải cho judge dùng tầng premise/khainiem.
+3. **#194 (PAYFAC Đ4, cite TT40-Đ8):** thân Điều 4 hợp đồng chỉ **243 ký tự** (nội dung
+   thật nằm ở Phụ lục) → query quá loãng, top-8 retrieval không có chunk Đ8 → CU Đ8 không
+   thành ứng viên (đo bằng probe `search_in_docs` 13/08). CU dạng "hợp đồng phải có nội
+   dung X" là ràng buộc **mức toàn văn bản** — gate theo từng điều chỉ bắt được khi
+   retrieval may mắn (ThuHo Đ2 bắt được đúng kiểu này: TT40-Đ8 k5/k7 ra `thieu_thong_tin`).
+
+- **Bước kế tiếp:** (a) sửa tay/trích lại bản ghi `15/2024/TT-NHNN#than/dieu_20#khoan_3`
+  (và `40/2024...dieu_8#khoan_1`) đang lỗi cứng — rẻ nhất, gỡ ngay nhóm 1; (b) gate CU dạng
+  "hợp đồng phải có tối thiểu..." ở mức toàn hợp đồng thay vì từng điều — gỡ nhóm 3;
+  (c) nhóm 2 để lại cho quyết định schema (nối premise vào judge) — đắt, cần bàn.
+
 ---
 
 ## Chất lượng phán định tuân thủ

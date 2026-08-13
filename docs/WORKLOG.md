@@ -40,11 +40,32 @@
   judge bỏ sót CU — re-review xác nhận đủ. Vệ sinh: tên riêng của chuyên viên pháp chế trong
   file spec bị phát hiện ở history **chưa push** → viết lại history local xoá hẳn (chủ repo
   duyệt), nhãn tác giả đối tác trong fixture test thay bằng nhãn chung.
-- **Ship.** Không deploy. 26 commit chưa push trên `feat/ai-compliance` (đo
-  `origin/feat/ai-compliance..HEAD`, tính cả các commit spec/plan được replay khi viết lại
-  history) — PR #19 đang mở, chờ chủ repo quyết.
-- **Next.** Hỏi chủ repo về push/PR #19; nếu duyệt hướng T26 thì trích bổ sung 4 điều và đo
-  lại recall.
+- **Done (bước T26: trích 4 điều gold viện dẫn + chạy lại cả 2 báo cáo).** Hai điều định
+  nghĩa (Đ3 NĐ52, Đ3 TT18) đúng vai `premise` — không sinh actor-CU (phát hiện cấu trúc:
+  comment viện dẫn định nghĩa nằm ngoài tầm gate CU). Hai điều còn lại sinh **12 CU mới**
+  (TT15-Đ20, TT40-Đ8) → `pred.jsonl` 61 bản ghi, 2 lỗi cứng chống-bịa bị loại ⇒ graph
+  **59 CU**; suite 855 xanh (2 tripwire điều tra dân số soi tay rồi cập nhật đúng lệ).
+- **Done (giải án "chết giữa batch dài" — 3 lần chạy lại chết 3 kiểu).** RetryError 3/3 dù
+  đã set env retry=6 ⇒ **env `LANCE_CLIENT_*` không tới tầng Rust của client** — truyền
+  `retry_config` tường minh tại `vectordb.connect()` (commit `e6fc1e2`); crash native
+  `0xc0000005` trong `msvcrt.dll` (soi Windows Event Log — giải thích luôn vì sao "chết im
+  lặng" không có traceback); và `HttpError: connection reset` bị client ném thẳng **không
+  retry** (chỉ retry lỗi có mã HTTP) — bọc `_vector_hits` retry 5/15/45s dùng chung cho
+  `hybrid_search`/`search_in_docs`, kèm test (commit `233bd80`). Sau vá: cả ThuHo (~22')
+  lẫn PAYFAC (~45') chạy trọn.
+- **Số đo lại (13/08 tối): ThuHo 0/1 · PAYFAC 0/3 — nhưng từng miss quy được nguyên nhân.**
+  #30: chunk TT15-Đ20-k3 xếp hạng 5/8 retrieval, k1/2/4/5 được judge — CU khớp comment là
+  k3, đúng bản ghi lỗi cứng bị loại; #13/#35: cấu trúc (điều định nghĩa không có actor-CU);
+  #194: thân Điều 4 HĐ chỉ 243 ký tự (nội dung ở Phụ lục) → top-8 không có chunk TT40-Đ8
+  (đo bằng probe `search_in_docs`). Tín hiệu đúng hướng: ThuHo Đ2 ra `thieu_thong_tin` trên
+  TT40-Đ8 k5/k7 — trùng chủ đề lawyer nêu, khác văn bản cite nên không tính điểm. Chi tiết
+  + bước kế tiếp 3 nhóm ghi ở **T26**.
+- **Ship.** Không deploy. Sáng: push 26 commit lên PR #19 (chủ repo duyệt, fast-forward
+  `5c0e9fd..9c71656`). Tối: thêm 4 commit local chưa push (`9f36b4e` CU mới, `e6fc1e2` +
+  `233bd80` vá retry, docs lượt này) — chờ chủ repo quyết.
+- **Next.** Hỏi chủ repo về push đợt tối; việc mở tiếp theo của T26: sửa 2 bản ghi CU lỗi
+  cứng (rẻ, gỡ ngay #30), cân nhắc gate mức toàn-hợp-đồng cho CU "hợp đồng phải có tối
+  thiểu..." (gỡ #194).
 
 ## 2026-08-10 (CN) — mã, dữ liệu và đồ thị khớp nhau; và một cạnh tác động không có thật
 
