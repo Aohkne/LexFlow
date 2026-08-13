@@ -15,26 +15,34 @@
   (T5–6); gold 95 nhãn chủ repo duyệt (T7); Policy Graph in-memory (T8); ER-triples grounding
   nguyên văn (T9); hypernym danh sách ứng viên đóng (T10); gate tất định (T11); judge
   self-consistency 2 vòng + override miễn trừ Eq. 6 (T12); CLI báo cáo side-by-side + recall
-  (T13); chạy thật 2 hợp đồng (T14). **852 test xanh, ruff sạch.**
+  (T13); chạy thật 2 hợp đồng (T14). **854 test xanh, ruff sạch.**
 - **Done (giải án "PAYFAC chết im lặng" — 4 lần chạy 12/08 không để lại vết).** Chạy lại có
   hứng stderr thì ra **hai** thủ phạm chồng nhau: (1) LanceDB Cloud đứt kết nối thoáng qua
   trong `run_review` (đường cũ), retry mặc định của client 3×/0.25s quá mỏng — nâng qua env
   `LANCE_CLIENT_*_RETRIES=6`, `BACKOFF_FACTOR=1`, không sửa mã; (2) bug tất định: LLM trả
   triple có chủ thể/đối tượng **rỗng**, chuỗi rỗng là substring của mọi text nên lọt qua
   grounding nguyên văn, xuống `embed_query("")` → Gemini 400. Vá tại gốc `er_triples.py`
-  (chặn + cảnh báo, commit `2c5c566`). Lần chạy sau: 2 blip LanceDB được retry nuốt gọn,
+  (chặn + cảnh báo, commit `a4f59f4`). Lần chạy sau: 2 blip LanceDB được retry nuốt gọn,
   báo cáo sinh đủ.
 - **Số đo (2 báo cáo local, không commit):** mẫu số chính = 4 comment `phap_ly` viện dẫn
   tường minh + trong corpus. **Đường mới 0/4 — đường cũ cũng 0/4** (pass cả 4 điều liên
-  quan). Số "bắt được 1" trong báo cáo thô là artifact khớp chéo giữa 2 hợp đồng (đã ghi
-  sổ, sửa cách đọc chứ chưa sửa `tinh_recall`). Nguyên nhân 0/4 đường mới đo được: cả 4
+  quan). Số "bắt được 1" trong báo cáo thô là artifact khớp chéo giữa 2 hợp đồng — CLI nay
+  lọc gold theo file hợp đồng nên lần đo sau hết bẫy này. Nguyên nhân 0/4 đường mới đo được: cả 4
   comment viện dẫn Đ3 NĐ52 · Đ3 TT18 · Đ8 TT40 · Đ20 TT15 — **không điều nào trong 12 Điều
   đã trích CU** (CU trích 11/08, gold chốt 12/08). Con số 0 đang đo độ phủ, chưa đo trí tuệ
   của gate/judge.
 - **Decision.** Không kết luận hơn/kém giữa hai đường từ 0/4=0/4; bước rẻ nhất để số recall
   có nghĩa là trích CU đúng 4 điều gold viện dẫn rồi chạy lại (~4 lượt LLM). Ghi ở T26.
-- **Ship.** Không deploy. 21 commit local trên `feat/ai-compliance` tính cả commit docs
-  này, **chưa push** — PR #19 đang mở, chờ chủ repo quyết.
+- **Done (review cuối toàn nhánh + vệ sinh trước push).** Review toàn dải `cc6ac199..HEAD`:
+  các cam kết chống bịa xác nhận có trong mã, không lọt nội dung hợp đồng vào commit nào.
+  Một đợt sửa duy nhất theo finding: lọc gold theo file hợp đồng trong CLI (hết phồng mẫu
+  số recall), cổng `chu_the` khẳng định fail-open có cờ thay vì rơi im lặng, thêm test nhánh
+  judge bỏ sót CU — re-review xác nhận đủ. Vệ sinh: tên riêng của chuyên viên pháp chế trong
+  file spec bị phát hiện ở history **chưa push** → viết lại history local xoá hẳn (chủ repo
+  duyệt), nhãn tác giả đối tác trong fixture test thay bằng nhãn chung.
+- **Ship.** Không deploy. 26 commit chưa push trên `feat/ai-compliance` (đo
+  `origin/feat/ai-compliance..HEAD`, tính cả các commit spec/plan được replay khi viết lại
+  history) — PR #19 đang mở, chờ chủ repo quyết.
 - **Next.** Hỏi chủ repo về push/PR #19; nếu duyệt hướng T26 thì trích bổ sung 4 điều và đo
   lại recall.
 
