@@ -378,7 +378,6 @@ def _ghi_chunk(tbl, pham_vi: set[str], rows: list[dict], id_cu: dict[str, set[st
             .execute(rows)
         )
 
-    _cho_index(tbl)
     return len(rows)
 
 
@@ -438,14 +437,19 @@ def write_lancedb(
         return 0, tbl.count_rows()
 
     n_ghi = _ghi_chunk(tbl, can_nap, nap, id_cu)
+    _cho_index(tbl)
     return n_ghi, tbl.count_rows()
 
 
-#: `write_lancedb` chạy TRONG request đồng bộ `POST /documents/{id}/approve` (Cloud Run, timeout
-#: mặc định cũng 300s). Mặc định của `wait_for_index` là 300s — chờ đủ thời gian đó thì gateway
-#: có thể giết request trước khi hàm trả về. Dữ liệu đã ghi xong (merge_insert đã execute) trước
-#: khi tới đây, nên chờ chỉ là TIỆN ÍCH (đo phủ index ngay), không phải điều kiện đúng đắn — hết
-#: hạn thì nhánh `except` bên dưới đã hạ nó thành một dòng cảnh báo, không chặn response.
+#: `_cho_index` chạy CHỈ từ `write_lancedb` — đường CLI (`python -m app.ingestion`). KHÔNG chạy
+#: trong `POST /documents/{id}/approve`: `/approve` gọi `ingest_one_doc`
+#: (`app/api/documents.py:311`), và `ingest_one_doc` CỐ Ý không gọi `_cho_index` (xem docstring
+#: của nó — chờ ở đó là đổi một khiếm khuyết tạm thời lấy một lượt chặn HTTP đồng bộ). Timeout ở
+#: đây vì thế chỉ giới hạn một lượt CLI chạy tay/cron, không phải để tránh Cloud Run giết một
+#: request HTTP. Dữ liệu đã ghi xong (merge_insert đã execute) trước khi tới đây, nên chờ chỉ là
+#: TIỆN ÍCH (đo phủ index ngay), không phải điều kiện đúng đắn — mặc định của `wait_for_index` là
+#: 300s, 30s đủ đo mà không treo CLI quá lâu; hết hạn thì nhánh `except` bên dưới hạ nó thành một
+#: dòng cảnh báo, không chặn tiến trình.
 _TIMEOUT_CHO_INDEX = timedelta(seconds=30)
 
 
@@ -521,9 +525,18 @@ def ingest_one_doc(
     một vòng delete+add của 23 hàng mất 1,23s, embed 23 chunk mất 1,79s — so với ~52s chỉ riêng
     phần embed nếu nạp lại toàn bộ 661 chunk.
 
-    Cái giá đã đo và chấp nhận: chỉ mục FTS mất ~13 giây mới thấy hàng mới (nó tự cập nhật,
-    không phải dựng lại). Nhánh vector thấy ngay, nên trong 13 giây đó truy hồi vẫn ra kết
-    quả, chỉ thiếu một nhánh.
+    KHÔNG gọi `_cho_index` (khác `write_lancedb`): cái giá ~13 giây (đo 10/08) để chỉ mục FTS
+    phủ hàng mới đã được đo và chấp nhận — nhánh vector thấy ngay, nên truy hồi trong khoảng đó
+    vẫn ra kết quả, chỉ thiếu một nhánh. Chờ ở đây là đổi một khiếm khuyết TẠM THỜI (13 giây mù
+    BM25 trên cloud) lấy một lượt CHỜ đồng bộ chặn `POST /documents/{id}/approve` — đúng thứ
+    việc tách `_cho_index` ra khỏi `_ghi_chunk` tồn tại để tránh.
+
+    Hệ quả trên backend NHÚNG (local, không phải LanceDB Cloud): LanceDB nhúng không tự đưa hàng
+    mới vào index FTS — nó cần `create_fts_index(replace=True)` dựng lại toàn bộ (xem
+    `_cho_index`). Vì đường một-văn-bản không gọi `_cho_index`, chạy `ingest_one_doc` trên máy
+    local sẽ KHÔNG thấy hàng mới ở nhánh BM25 cho tới lượt `write_lancedb` (CLI) kế tiếp — đúng
+    hành vi `main` đã có trước khi hoà nhánh này, ghi rõ ở đây để người sau biết đó là một lựa
+    chọn, không phải bỏ sót.
 
     `tat_ca_docs` là toàn bộ corpus sau khi đã gộp `doc` — cần cho `quy_ve_doc_id` dựng đủ
     bảng số hiệu, chứ không phải để nạp.

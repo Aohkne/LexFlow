@@ -25,6 +25,7 @@ class _FakeTable:
         self.hang = {r["id"]: dict(r) for r in (rows or [])}
         self.deleted: list[str] = []
         self.so_lan_dung_fts = 0
+        self.so_lan_wait_for_index = 0
 
     # --- đọc ---
     @property
@@ -41,7 +42,7 @@ class _FakeTable:
         return [SimpleNamespace(name="text_idx", index_type="FTS", num_indexed_rows=len(self.hang))]
 
     def wait_for_index(self, ten, **kw) -> None:
-        pass
+        self.so_lan_wait_for_index += 1
 
     # --- ghi ---
     def delete(self, where: str) -> None:
@@ -56,15 +57,14 @@ class _FakeTable:
         return _FakeMerge(self)
 
     def add(self, rows) -> None:
-        for r in rows:
-            self.hang[r["id"]] = dict(r)
+        raise AssertionError("tầng ghi dùng merge_insert, không phải add")
 
     def create_fts_index(self, cot: str, **kw) -> None:
         self.so_lan_dung_fts += 1
 
 
 class _FakeTruyVan:
-    def __init__(self, hang): self._hang, self._cot = hang, None
+    def __init__(self, hang): self._hang, self._cot, self._gioi_han = hang, None, None
 
     def where(self, dieu_kien: str):
         m = re.match(r"^doc_id IN \((.*)\)$", dieu_kien)
@@ -77,11 +77,15 @@ class _FakeTruyVan:
         self._cot = list(cot)
         return self
 
-    def limit(self, n): return self
+    def limit(self, n):
+        self._gioi_han = n
+        return self
+
     def to_list(self):
+        ra = self._hang[: self._gioi_han] if self._gioi_han else list(self._hang)
         if self._cot is None:
-            return [dict(r) for r in self._hang]
-        return [{k: r[k] for k in self._cot} for r in self._hang]
+            return [dict(r) for r in ra]
+        return [{k: r[k] for k in self._cot} for r in ra]
 
 
 class _FakeMerge:
@@ -165,6 +169,20 @@ def test_chi_dung_chunk_cua_van_ban_duoc_nap(bang):
     assert bang.deleted == []
     con_lai = {r["doc_id"] for r in bang.hang.values()}
     assert con_lai == {"TT01-2020", "TT02-2021", "TT99-2026"}
+
+
+def test_ingest_one_doc_khong_cho_khong_dung_lai_index_tren_duong_bang_da_ton_tai(bang):
+    """Ruling finding #1: `_cho_index` bị đưa RA KHỎI `_ghi_chunk`; `ingest_one_doc` không gọi nó.
+
+    Chờ index ở đường `/approve` là đổi một khiếm khuyết TẠM THỜI (13 giây mù BM25, đã đo, đã
+    chấp nhận) lấy một lượt CHỜ đồng bộ chặn HTTP — đúng thứ việc tách `_cho_index` ra khỏi
+    `_ghi_chunk` sinh ra để tránh. Ca này phải ĐỎ trên bản trước khi sửa finding #1 (khi
+    `_ghi_chunk` còn gọi `_cho_index(tbl)` ở bước cuối): bảng `bang` đã có sẵn chunk + index FTS,
+    nên `_cho_index` sẽ gọi `tbl.wait_for_index(...)`.
+    """
+    pipeline.ingest_one_doc(_doc("TT99-2026"), [], [_doc("TT99-2026")])
+    assert bang.so_lan_wait_for_index == 0
+    assert bang.so_lan_dung_fts == 0
 
 
 def test_nap_hai_lan_thi_thay_chu_khong_nhan_doi(bang):
