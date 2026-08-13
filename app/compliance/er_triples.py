@@ -34,7 +34,9 @@ def trich_triples(text: str) -> tuple[list[Triple], list[str]]:
             t = Triple.model_validate(raw)
         except Exception:  # noqa: BLE001 — JSON LLM tuỳ tiện, bỏ phần tử hỏng là đủ
             continue
-        thieu = [x for x in (t.chu_the, t.doi_tuong) if x.lower() not in low]
+        # Chuỗi rỗng là substring của mọi text — phải chặn riêng, không thì
+        # entity rỗng lọt xuống embed_query và Gemini trả 400.
+        thieu = [x for x in (t.chu_the, t.doi_tuong) if not x.strip() or x.lower() not in low]
         if thieu:
             canh_bao.append(f"bỏ triple: {thieu[0]!r} không nằm trong điều khoản")
             continue
