@@ -449,6 +449,7 @@ def test_bang_chua_co_index_thi_dung(monkeypatch, khong_goi_mang):
     pipeline.write_lancedb(moi)
 
     assert "create_fts_index" in bang.nhat_ky
+    assert "wait_for_index" not in str(bang.nhat_ky)  # thoát sớm, không gọi wait
 
 
 def test_index_phu_thieu_hang_thi_canh_bao(monkeypatch, khong_goi_mang, capsys):
