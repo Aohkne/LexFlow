@@ -7,7 +7,7 @@
 > (hoặc chính mình ba tuần sau) bắt tay vào mà không phải điều tra lại. Mọi con số đều kèm
 > ngày đo; số không có ngày là số chưa kiểm.
 >
-> Cập nhật gần nhất: 2026-08-12.
+> Cập nhật gần nhất: 2026-08-13.
 
 ---
 
@@ -15,16 +15,23 @@
 
 ### [ ] T1 · Re-ingest LanceDB để bản vá chunking tới production
 
-Commit `8dd53f0` (09/08) sửa nhánh chẻ dự phòng, nhưng **LanceDB Cloud vẫn giữ 3 chunk cũ**
-của `TT66-2025 Điều 6` — bản cắt giữa chữ "ngân" thành `ngâ` + `n`.
+Commit `8dd53f0` (09/08) sửa nhánh chẻ dự phòng để trị `TT66-2025 Điều 6` — bản cắt giữa chữ
+"ngân" thành `ngâ` + `n`.
 
-- Vì sao quan trọng: điều này nằm trên đường nóng của lớp phủ (cạnh
+- **Đo lại 13/08 — triệu chứng KHÔNG còn trên bảng**: `scripts/soi_doc_can_nap.py` đọc thẳng
+  LanceDB Cloud, so 3 chunk `TT66-2025::Điều 6 (phần 1..3)` với `build_chunks` hiện tại — khớp
+  byte-for-byte (1854/1107/1350 ký tự, vết cắt đúng ranh giới `(v)`/`(vii)`, không cắt giữa chữ
+  "ngân"), và quét toàn bảng 661 hàng × 10 cột cho 0 lệch. **Cơ chế đưa bảng tới trạng thái này
+  chưa rõ** — không có gì trong `docs/WORKLOG.md` ghi một lượt `python -m app.ingestion` chạy
+  sau 09/08 — nên mục này KHÔNG tự đóng ở đây; cần chủ repo xác nhận rồi mới đánh `[x]`.
+- Vì sao quan trọng (nếu triệu chứng còn thật): điều này nằm trên đường nóng của lớp phủ (cạnh
   `66/2025/TT-NHNN#than/dieu_6 → 34/2024/TT-NHNN#than/dieu_9#khoan_2#diem_đ`), nên chữ kéo
-  vào prompt hiện mở đầu bằng nửa câu.
-- Giá phải trả: `write_lancedb` **embed lại toàn bộ 661 chunk** rồi
-  `create_table(mode="overwrite")` — không có đường cập nhật 3 hàng riêng lẻ. Tức là tốn
-  embedding cho cả bảng và ghi đè bảng đang phục vụ.
-- Bước đầu: gộp luôn với **T2** trong cùng một lượt, rồi
+  vào prompt sẽ mở đầu bằng nửa câu.
+- Giá phải trả: **không còn là cả bảng.** Ingest tăng dần (13/08) chỉ embed văn bản có vân tay
+  lệch, và ghi bằng `merge_insert` chứ không ghi đè bảng đang phục vụ. Số đo thật của lượt này
+  ở `scripts/soi_doc_can_nap.py`.
+- Bước đầu: chủ repo xác nhận triệu chứng đã hết thật hay `scripts/soi_doc_can_nap.py` đang bỏ
+  sót gì; xác nhận xong thì đóng mục, không xác nhận thì vẫn theo bước cũ — gộp với **T2**, rồi
   `uv run python -m app.ingestion data/corpus.real.json`.
 - **Chờ duyệt** (ghi lên cloud).
 
@@ -183,7 +190,11 @@ nhnn'`. Ca đuôi slug cũ không đổi hành vi — chuỗi không có dấu c
   kiểu này chứ không phải ca cá biệt.
 - Còn lại: 23 văn bản đã cào **chưa vào** `data/corpus.real.json`. Cào chỉ sinh
   `data/raw/vbpl/corpus/*.json`; muốn bộ SBV lên 56/100 câu thì phải gộp vào corpus rồi
-  re-ingest LanceDB + Neo4j — **T1 đang chặn đúng chỗ đó** (re-ingest ghi lên cloud, cần duyệt).
+  re-ingest LanceDB + Neo4j — T1 vẫn chặn (ghi lên cloud, cần duyệt), nhưng từ 13/08 lượt ghi đó
+  chỉ còn tốn embedding của đúng 23 văn bản mới thay vì cả 661 chunk (ingest tăng dần). Thêm
+  bằng chứng 13/08: `scripts/soi_doc_can_nap.py` đo `dư` rỗng (bảng không có văn bản nào ngoài
+  corpus) và `cần nạp` rỗng (corpus không có văn bản nào lệch bảng) — 23 văn bản đó nằm ngoài cả
+  hai tập, đúng vị trí "chưa vào corpus" chứ không phải một lỗi khác.
 - **Bốn cảnh báo còn lại của lượt cào 12/08 đã truy tới cùng — không mục nào cần sửa code**, ghi
   lại để khỏi điều tra lại. Cả bốn đều **không ảnh hưởng corpus hay truy hồi**, vì `articles`
   dựng từ toàn văn chứ không từ cây điều khoản:
@@ -355,6 +366,38 @@ chuyển sang định dạng eval bằng `eval/chuyen_tvpl.py` → 76 câu dùng
 Còn thiếu để đóng T14: câu hỏi cấp **khoản** (bộ TVPL chỉ tới cấp điều), và câu có **nhiều hơn
 một** căn cứ — 73/76 câu hiện chỉ dẫn một văn bản, nên `|R| = 1` và recall vẫn chưa phân biệt được
 các cột. Mở corpus (T20) không sửa được chỗ này; nó là tính chất của cách TVPL viết bài.
+
+### [ ] T24 · Index FTS đang gấp dấu tiếng Việt (`ascii_folding: True`)
+
+`list_indices()` trên bảng thật (13/08) cho `text_idx` chạy `ascii_folding: True`,
+`language: 'English'`, `stem: False`, `remove_stop_words: False`. Tức BM25 gấp "điều"→"dieu",
+"ngân"→"ngan" **trước** khi khớp.
+
+- Vì sao quan trọng: câu hỏi và văn bản đều bị gấp nên vẫn khớp được, nhưng phân biệt dấu bị
+  xoá — và đây đúng là nhánh mà **T21** đang chỉnh trọng số (`TRONG_SO_THUA`). Chỉnh trọng số
+  của một nhánh mà chưa biết nó đang tokenise thế nào là chỉnh mù.
+- Bước đầu: chạy `tbl.search("...", query_type="fts")` với một cặp truy vấn chỉ khác nhau ở
+  dấu (ví dụ "hạn mức" so với "han muc") và so tập id trả về. Giống nhau ⇒ xác nhận đang gấp.
+
+### [ ] T25 · Cân nhắc `create_scalar_index("doc_id")`
+
+`where("doc_id IN (...)")` giờ nằm trên đường ingest (mỗi lượt) chứ không chỉ đường tra lớp phủ.
+
+- Đo 13/08: 0.61s cho một doc, 5.29s quét toàn bảng 661 hàng — **chưa cần**.
+- Bước đầu: khi bảng vượt ~5.000 chunk hoặc lượt quét vượt 15s thì chạy
+  `tbl.create_scalar_index("doc_id")` rồi đo lại. Ghi số vào đây, đừng làm sớm.
+
+### [ ] T26 · `count_rows()` sau `merge_insert` trên bảng từ xa có tươi không?
+
+`write_lancedb` trả `n_tong = tbl.count_rows()` ngay sau `merge_insert` + `delete`, và số đó đi
+vào audit log của `/documents/{id}/approve` dưới khoá `n_chunks_bang`.
+
+- Vì sao quan trọng: nếu LanceDB Cloud phục vụ `count_rows` từ manifest có cache thì con số báo
+  cáo trễ một nhịp. **Không sai dữ liệu** — chỉ sai con số ghi vào sổ, mà sổ đó là thứ người ta
+  dùng để đối chiếu về sau. Gate ở Task 1 (`scripts/do_merge_insert_remote.py`) không phủ
+  `count_rows`.
+- Bước đầu: thêm vào `scripts/do_merge_insert_remote.py` một phép đo `count_rows()` ngay trước và
+  ngay sau `merge_insert` trên bảng nháp, so với số hàng đọc bằng `search().to_list()`.
 
 ---
 

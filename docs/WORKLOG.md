@@ -6,6 +6,50 @@
 
 ---
 
+## 2026-08-13 — LanceDB ingest tăng dần (T1–T7 của plan); phát hiện tiền đề T1 đã lỗi thời
+
+**Giai đoạn:** trả nợ chi phí `write_lancedb` ghi đè cả bảng mỗi lượt (mục "Chặn" T1 của
+`docs/TASKLIST.md`), theo quy trình brainstorm→spec→plan→subagent, 7 task tuần tự trong một
+phiên.
+
+- **Done.** `write_lancedb` đổi từ "dựng lại cả bảng" (`create_table(mode="overwrite")`, embed
+  lại cả 661 chunk mỗi lượt) sang ingest tăng dần: so vân tay hàng đọc từ chính bảng thật
+  (`_van_tay`/`_doc_can_nap`, cột lấy từ schema chứ không viết tay) → chỉ embed văn bản đổi →
+  `merge_insert` theo `id` → xoá id mồ côi → chờ index FTS phủ hết (`_cho_index`). `open_table`
+  dò bảng tồn tại thay cho `list_tables()` phân trang (tránh hiểu nhầm "chưa có bảng" thành ghi
+  đè bảng thật). `merge_insert` + `wait_for_index` đã đo chạy thật trên LanceDB Cloud
+  (`scripts/do_merge_insert_remote.py`, bảng nháp tự tạo/tự xoá), không chỉ suy từ `hasattr`.
+- **Kiểm trên dữ liệu thật (Task 7, chỉ đọc — `scripts/soi_doc_can_nap.py`).** Đối chiếu
+  `data/corpus.real.json` với bảng LanceDB Cloud thật: **`cần nạp` = 0/661 chunk, `dư` = 0.**
+  Khác dự đoán ban đầu của plan (kỳ vọng thấy `TT66-2025` trong `cần nạp`, vì T1 ghi bảng còn
+  giữ bản cắt hỏng) — kết quả rỗng buộc dừng và chẩn đoán thêm trước khi đụng tài liệu, theo
+  đúng quy tắc "gặp bất ngờ thì hỏi, đừng đoán".
+- **Phát hiện: tiền đề T1 đã lỗi thời, không phải lỗi vân tay.** So từng cột 3 chunk
+  `TT66-2025::Điều 6` giữa `build_chunks` và bảng thật: khớp byte-for-byte (1854/1107/1350 ký
+  tự, vết cắt đúng ranh giới `(v)`/`(vii)` của thang bậc dự phòng, không cắt giữa chữ "ngân");
+  quét toàn bảng 661 hàng × 10 cột: **0 lệch**. Thêm đối chứng dương (sửa 1 chunk trong RAM,
+  không ghi bảng) để loại khả năng `_doc_can_nap` chỉ luôn trả tập rỗng: bắt đúng và chỉ đúng
+  văn bản bị sửa — ĐẠT. Kết luận: bảng thật đã khớp bản vá `8dd53f0` (09/08) từ trước, KHÔNG
+  phải lệch kiểu hay vân tay so nhầm (đúng lo ngại Task 7 sinh ra để kiểm). Cơ chế đưa bảng tới
+  trạng thái này chưa rõ — không dòng nào trong worklog ghi một lượt `python -m app.ingestion`
+  chạy sau 09/08. **Không tự đóng T1** vì không biết cơ chế — chờ chủ repo xác nhận.
+- **Ship.** Chưa chạm production ngoài kế hoạch: `scripts/do_merge_insert_remote.py` chỉ động
+  vào bảng nháp tự tạo/tự xoá, `scripts/soi_doc_can_nap.py` chỉ đọc. Đổi: `app/ingestion/
+  pipeline.py` (`write_lancedb`, `_doc_can_nap`, `_van_tay`, `_cho_index`, cờ `--doc`/
+  `--xoa-doc-du`), hai script trên, `docs/TASKLIST.md` (T1 giữ mở kèm số đo mới, T23 thêm bằng
+  chứng, T24/T25/T26 mới), test mới trong `tests/`.
+- **Decision.** T1 lý do "quá đắt" đã hết (ingest giờ chỉ embed văn bản đổi), nhưng **rào duyệt
+  vẫn giữ nguyên** — mọi lượt ghi vẫn chạm bảng đang phục vụ. T1 KHÔNG đóng dù triệu chứng đo
+  được đã hết, vì đóng một mục "Chặn — cần người quyết" mà không biết vì sao hết là đoán, không
+  phải đo.
+- **Next.** (1) Chủ repo xác nhận có lượt ingest nào chạy trên bảng thật sau 09/08 không — xác
+  nhận thì đóng T1 kèm ghi lại bằng gì; không thì T1 vẫn treo như cũ, chỉ đỡ tốn hơn khi chạy.
+  (2) T24 — xác nhận FTS đang ascii-fold tiếng Việt trước khi chỉnh tiếp `TRONG_SO_THUA` (T21).
+  (3) T26 — đo độ tươi của `count_rows()` sau `merge_insert` từ xa trước khi tin số ghi vào audit
+  log `/documents/{id}/approve`.
+
+---
+
 ## 2026-08-12 (T5) — đo bộ test của chính bài báo SBV-LawGraph; sweep hold-out lệch với hằng số đã chỉnh
 
 **Giai đoạn:** đối sánh trực tiếp với bộ test 100 câu của bài báo (`docs/paper/ACIIDS2026a.pdf`).
