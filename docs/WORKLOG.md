@@ -24,13 +24,14 @@ phiên.
   Khác dự đoán ban đầu của plan (kỳ vọng thấy `TT66-2025` trong `cần nạp`, vì T1 ghi bảng còn
   giữ bản cắt hỏng) — kết quả rỗng buộc dừng và chẩn đoán thêm trước khi đụng tài liệu, theo
   đúng quy tắc "gặp bất ngờ thì hỏi, đừng đoán".
-- **Phát hiện: tiền đề T1 đã lỗi thời, không phải lỗi vân tay.** So từng cột 3 chunk
-  `TT66-2025::Điều 6` giữa `build_chunks` và bảng thật: khớp byte-for-byte (1854/1107/1350 ký
-  tự, vết cắt đúng ranh giới `(v)`/`(vii)` của thang bậc dự phòng, không cắt giữa chữ "ngân");
-  quét toàn bảng 661 hàng × 10 cột: **0 lệch**. Thêm đối chứng dương (sửa 1 chunk trong RAM,
-  không ghi bảng) để loại khả năng `_doc_can_nap` chỉ luôn trả tập rỗng: bắt đúng và chỉ đúng
-  văn bản bị sửa — ĐẠT. Kết luận: bảng thật đã khớp bản vá `8dd53f0` (09/08) từ trước, KHÔNG
-  phải lệch kiểu hay vân tay so nhầm (đúng lo ngại Task 7 sinh ra để kiểm). Cơ chế đưa bảng tới
+- **Phát hiện: tiền đề T1 đã lỗi thời, không phải lỗi vân tay.** `scripts/soi_doc_can_nap.py`
+  gộp thẳng phép chẩn đoán (so TỪNG CỘT một hàng `build_chunks` cạnh một hàng bảng cùng `id`,
+  chạy trên cả 661 hàng chung chứ không riêng `TT66-2025`): `chẩn đoán cột: 661 hàng chung ×
+  10 cột → 0 ô lệch` (không `numpy.bool_`, không `None`/`""` lẫn vào). Thêm đối chứng dương
+  (sửa 1 chunk trong RAM, không ghi bảng) để loại khả năng `_doc_can_nap` chỉ luôn trả tập
+  rỗng: bắt đúng và chỉ đúng văn bản bị sửa — ĐẠT. Kết luận: bảng thật đã khớp bản vá `8dd53f0`
+  (09/08) từ trước, KHÔNG phải lệch kiểu hay vân tay so nhầm (đúng lo ngại Task 7 sinh ra để
+  kiểm). Cơ chế đưa bảng tới
   trạng thái này chưa rõ — không dòng nào trong worklog ghi một lượt `python -m app.ingestion`
   chạy sau 09/08. **Không tự đóng T1** vì không biết cơ chế — chờ chủ repo xác nhận.
 - **Ship.** Chưa chạm production ngoài kế hoạch: `scripts/do_merge_insert_remote.py` chỉ động

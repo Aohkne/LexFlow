@@ -18,12 +18,14 @@
 Commit `8dd53f0` (09/08) sửa nhánh chẻ dự phòng để trị `TT66-2025 Điều 6` — bản cắt giữa chữ
 "ngân" thành `ngâ` + `n`.
 
-- **Đo lại 13/08 — triệu chứng KHÔNG còn trên bảng**: `scripts/soi_doc_can_nap.py` đọc thẳng
-  LanceDB Cloud, so 3 chunk `TT66-2025::Điều 6 (phần 1..3)` với `build_chunks` hiện tại — khớp
-  byte-for-byte (1854/1107/1350 ký tự, vết cắt đúng ranh giới `(v)`/`(vii)`, không cắt giữa chữ
-  "ngân"), và quét toàn bảng 661 hàng × 10 cột cho 0 lệch. **Cơ chế đưa bảng tới trạng thái này
-  chưa rõ** — không có gì trong `docs/WORKLOG.md` ghi một lượt `python -m app.ingestion` chạy
-  sau 09/08 — nên mục này KHÔNG tự đóng ở đây; cần chủ repo xác nhận rồi mới đánh `[x]`.
+- **Đo lại 13/08 — triệu chứng KHÔNG còn trên bảng**: `uv run python scripts/soi_doc_can_nap.py`
+  đọc thẳng LanceDB Cloud, so TỪNG CỘT của 661 hàng chung giữa `build_chunks` hiện tại và bảng
+  thật — `chẩn đoán cột: 661 hàng chung × 10 cột → 0 ô lệch` (kể cả `TT66-2025::Điều 6`, kể cả
+  cột `superseded` — không có `numpy.bool_`/`None`/`""` lẫn vào). Đối chứng dương (sửa 1 chunk
+  trong RAM, không ghi bảng) xác nhận vân tay vẫn bắt được thay đổi thật khi có — không phải một
+  hàm luôn trả rỗng. **Cơ chế đưa bảng tới trạng thái này chưa rõ** — không có gì trong
+  `docs/WORKLOG.md` ghi một lượt `python -m app.ingestion` chạy sau 09/08 — nên mục này KHÔNG
+  tự đóng ở đây; cần chủ repo xác nhận rồi mới đánh `[x]`.
 - Vì sao quan trọng (nếu triệu chứng còn thật): điều này nằm trên đường nóng của lớp phủ (cạnh
   `66/2025/TT-NHNN#than/dieu_6 → 34/2024/TT-NHNN#than/dieu_9#khoan_2#diem_đ`), nên chữ kéo
   vào prompt sẽ mở đầu bằng nửa câu.
