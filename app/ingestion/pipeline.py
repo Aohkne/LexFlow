@@ -314,10 +314,12 @@ def _tao_bang_moi(db, rows: list[dict]) -> tuple[int, int]:
     """Đường lần-đầu: chưa có bảng thì không có gì để so, dựng và index như trước."""
     _embed_rows(rows)
     tbl = db.create_table(LANCEDB_TABLE, data=rows, mode="overwrite")
+    # `**_FTS_OPTS` KHÔNG được bỏ: index thiếu tham số vẫn dựng được, vẫn trả kết quả, chỉ là
+    # kết quả khác index đang phục vụ — không lỗi, không cảnh báo, chỉ lệch.
     if settings.lancedb_cloud_enabled:
-        tbl.create_fts_index("text")
+        tbl.create_fts_index("text", **_FTS_OPTS)
     else:
-        tbl.create_fts_index("text", replace=True)
+        tbl.create_fts_index("text", replace=True, **_FTS_OPTS)
     return len(rows), len(rows)
 
 
@@ -418,13 +420,13 @@ def _cho_index(tbl) -> None:
     chi_muc = tbl.list_indices()
     if not chi_muc:
         # Bảng có nhưng chưa từng index (tạo tay, hoặc create_fts_index từng lỗi).
-        tbl.create_fts_index("text")
+        tbl.create_fts_index("text", **_FTS_OPTS)
         return
 
     if not settings.lancedb_cloud_enabled:
         # LanceDB nhúng KHÔNG tự đưa hàng mới vào index FTS. Chờ ở đây là chờ một thứ không bao
         # giờ tới — dựng lại thẳng. Cục bộ nên chỉ tốn CPU, không tốn API.
-        tbl.create_fts_index("text", replace=True)
+        tbl.create_fts_index("text", replace=True, **_FTS_OPTS)
         return
 
     fts = [c for c in chi_muc if c.index_type == "FTS"]

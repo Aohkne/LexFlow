@@ -125,9 +125,10 @@ class _BangGia:
         for i in ids:
             self.hang.pop(i, None)
 
-    def create_fts_index(self, cot: str, **kw) -> None:
-        replace = kw.get("replace", False)
-        self.nhat_ky.append(f"create_fts_index:replace={replace}")
+    def create_fts_index(self, cot: str, replace: bool = False, **kw) -> None:
+        # Ghi cả `kw`: đây là chỗ `_FTS_OPTS` có thể rơi rụng mà không ca nào thấy, vì index
+        # sai tham số vẫn dựng được và vẫn trả kết quả — chỉ là kết quả khác.
+        self.nhat_ky.append(f"create_fts_index:replace={replace}:opts={sorted(kw)}")
 
 
 def _hang(doc_id: str, article: str, text: str, valid_to: str = "") -> dict:
@@ -634,3 +635,24 @@ def test_build_chunks_sinh_id_duy_nhat_tren_corpus_that():
     ids = [r["id"] for r in rows]
     trung = {i for i in ids if ids.count(i) > 1}
     assert trung == set(), f"id trùng trong build_chunks: {sorted(trung)}"
+
+
+def test_moi_lan_dung_index_deu_mang_fts_opts(monkeypatch, khong_goi_mang):
+    """Index dựng thiếu tham số vẫn chạy và vẫn trả kết quả — chỉ là kết quả KHÁC.
+
+    `_FTS_OPTS` giữ `stem=False` và `remove_stop_words=False` vì `ascii_folding` bỏ dấu TRƯỚC
+    khi lọc, nên `thẻ`/`số`/`tổ` thành `the`/`so`/`to` và rơi đúng vào danh sách stop-word
+    tiếng Anh. Rơi mất tham số ở đây là gài lại quả mìn đó.
+    """
+    cu = [_hang("A", "Điều 1", "x")]
+    moi = [_hang("A", "Điều 1", "x ĐÃ SỬA")]
+    bang = _bang(cu)
+    bang.co_index = False          # ép đi vào nhánh dựng index
+    _noi_bang(monkeypatch, bang)
+
+    pipeline.write_lancedb(moi)
+
+    dung = [x for x in bang.nhat_ky if x.startswith("create_fts_index")]
+    assert dung, "không có lời gọi dựng index nào để kiểm"
+    for x in dung:
+        assert f"opts={sorted(pipeline._FTS_OPTS)}" in x, f"thiếu _FTS_OPTS: {x}"
