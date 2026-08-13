@@ -75,6 +75,18 @@ docs: update DESIGN-GAP with Lexi section
    branch's later work, and two commits sat stranded until someone noticed. A PR per track makes
    that visible instead of silent.
 
+   **Số hiệu `TN` trong `docs/TASKLIST.md` chia theo dải**, vì hai nhánh dài hạn cùng nối vào một
+   danh sách đánh số tuần tự thì chắc chắn đâm nhau — lần đầu (13/08) tốn 9 mục trùng số khác nghĩa:
+
+   | Dải | Ai dùng |
+   |---|---|
+   | T1–T99 | đã tồn tại trên `main` — không đánh lại, 13 commit message đã dẫn tới chúng |
+   | T100+ | `feat/ai` |
+   | T200+ | `feat/software` |
+   | T300+ | `feat/ai-compliance` |
+
+   Mục mới lấy số kế tiếp **trong dải của nhánh mình**, không phải số kế tiếp của cả file.
+
    **Setting up a worktree** — git only carries tracked files, so also:
    - copy `.env` and `web/.env.local` from an existing checkout;
    - `uv sync`, and `npm install --prefix web` only if the track touches `web/`;

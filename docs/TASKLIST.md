@@ -156,6 +156,14 @@ Chữ ký `RemoteTable.create_index` **không có tham số cột** rõ ràng ch
   luôn `table_names()` → `list_tables()` vì thấy cùng là deprecated — hai cái không cùng số
   phận trên deployment này.
 
+  **Cập nhật 13/08:** cả hai đường ghi giờ dò bảng bằng `db.open_table(...)` trong `try`, bắt
+  `ValueError` có lọc thông điệp `"not found"` — không còn lời gọi `table_names()` hay
+  `list_tables()` nào trên đường ingest. Cách này tránh luôn cả HttpError 400 lẫn phân trang của
+  `list_tables()`. Đo 13/08: cả LanceDB nhúng lẫn LanceDB Cloud đều ném
+  `ValueError("Table 'x' was not found")`, cùng khung `lancedb/db.py:1722`. Bộ lọc thông điệp là
+  thứ CHỊU LỰC — `ValueError` là built-in dùng cho vô số lý do, bắt trần nó biến một trục trặc
+  mạng thoáng qua thành "bảng chưa có" rồi dựng đè bảng đang phục vụ.
+
 ### [ ] T26 · Tầng chuẩn tắc (CU / meta-CU / premise) có thật nhưng không nối vào đâu cả
 
 Soi 10/08 để trả lời câu "knowledge base có thành phần nào trích premise / Compliance Unit
@@ -440,6 +448,162 @@ bảng `legal_documents` vẫn rỗng, nên `app/core/corpus.py` còn fallback v
 - Cần gì: với mỗi mục, một verdict `violation` / `warning` / `pass` kèm một câu lý do và điều
   luật làm căn cứ. Có nhãn thì mẫu số của `ty_le_dung` tăng từ 7 lên 12 mà không phải sửa dòng
   mã nào — `eval/do_tuan_thu.py` tự đọc thêm.
+
+---
+
+## feat/ai — dải T100+ (nối lại 13/08 sau khi hoà với `main`)
+
+> 8 mục dưới đây tồn tại trên `feat/ai` ngay trước khi hoà (`git show d1f5f93:docs/TASKLIST.md`)
+> và bị số hiệu của `main` đè khi Task 1 của kế hoạch hoà nhánh lấy nguyên bản `main` cho file
+> này (9 số trùng — cả hai bên cùng đánh số tuần tự vào một danh sách). Thân mục chép nguyên
+> văn, chỉ đổi số ở tiêu đề — luật dải xem `docs/COMMIT-CONVENTION.md` § Push rules. Một mục thứ
+> chín (`ascii_folding`, số cũ T24) không nối lại vì đã có nội dung đúng hơn thay thế: khối chú
+> thích `_FTS_OPTS` ở `app/ingestion/pipeline.py:238-249` (T8 phía trên nêu nguyên nhân, code là
+> nơi đã tháo mìn) — xem `docs/WORKLOG.md` mục 13/08.
+
+### [ ] T100 · Cân nhắc `create_scalar_index("doc_id")`
+
+`where("doc_id IN (...)")` giờ nằm trên đường ingest (mỗi lượt) chứ không chỉ đường tra lớp phủ.
+
+- Đo 13/08: 0.61s cho một doc, 5.29s quét toàn bảng 661 hàng — **chưa cần**.
+- Bước đầu: khi bảng vượt ~5.000 chunk hoặc lượt quét vượt 15s thì chạy
+  `tbl.create_scalar_index("doc_id")` rồi đo lại. Ghi số vào đây, đừng làm sớm.
+- Khi làm T100, nhớ rằng `_cho_index` **lọc theo `index_type == "FTS"`** đúng để index thứ hai không
+  bị chờ và không bị cảnh báo nhầm. Có test ghim (`test_index_khong_phai_fts_thi_khong_cho_khong_canh_bao`)
+  — nếu nó đỏ sau khi thêm index mới thì đó là dấu hiệu, không phải phiền toái.
+- Cùng lúc, xác nhận LanceDB Cloud **không** giới hạn số hàng một truy vấn trả về: `_doc_can_nap`
+  quét bằng `.limit(tbl.count_rows())`, nên nếu có trần phía server thì lượt quét bị cắt **im lặng**.
+  Hướng cắt là an toàn (bỏ sót mồ côi, lượt sau tự lành) nhưng không có gì báo.
+- Và: `write_lancedb` xoá văn bản dư bằng một vị từ `id IN (…)` liệt kê **mọi chunk** của mọi văn
+  bản dư — ở quy mô corpus lớn là một chuỗi SQL rất dài. Với ca "dư" thì `doc_id IN (…)` đúng
+  tương đương và ngắn hơn hai bậc. Chưa cần đổi, ghi lại để khỏi phải nghĩ lại.
+
+### [ ] T101 · `count_rows()` sau `merge_insert` trên bảng từ xa có tươi không?
+
+`write_lancedb` trả `n_tong = tbl.count_rows()` ngay sau `merge_insert` + `delete`, và số đó đi
+vào audit log của `/documents/{id}/approve` dưới khoá `n_chunks_bang`.
+
+- Vì sao quan trọng: nếu LanceDB Cloud phục vụ `count_rows` từ manifest có cache thì con số báo
+  cáo trễ một nhịp. **Không sai dữ liệu** — chỉ sai con số ghi vào sổ, mà sổ đó là thứ người ta
+  dùng để đối chiếu về sau. Gate ở Task 1 (`scripts/do_merge_insert_remote.py`) không phủ
+  `count_rows`.
+- Bước đầu: thêm vào `scripts/do_merge_insert_remote.py` một phép đo `count_rows()` ngay trước và
+  ngay sau `merge_insert` trên bảng nháp, so với số hàng đọc bằng `search().to_list()`.
+
+### [ ] T102 · Vân tay chunk lệch khi ghi bằng `merge_insert`
+
+Phép đo 13/08 (`scripts/soi_doc_can_nap.py`) so bảng thật với `build_chunks` được 0 ô lệch trên
+661 hàng × 10 cột. Nhưng bảng đó được ghi bằng đường **cũ** (`create_table(mode="overwrite")`).
+Chưa có gì chứng minh một hàng ghi bằng `merge_insert` đọc lại ra **y hệt từng ô** khi đem so vân
+tay.
+
+- Vì sao quan trọng: nếu `merge_insert` làm đổi dù chỉ một ô khi đọc lại (ép kiểu, chuẩn hoá chuỗi,
+  `None` thành `""`), thì mọi văn bản từng được ghi bằng đường mới sẽ **lệch vân tay vĩnh viễn**
+  ⇒ được nạp lại ở **mọi** lượt ingest sau đó, im lặng, với đầy đủ chi phí embedding. Đường
+  `overwrite` cũ miễn nhiễm với lỗi này vì nó không bao giờ so gì cả. Đây đúng là loại hỏng mà
+  tính năng vừa xây dựng lên để tránh, quay lại từ cửa sau.
+- Bước đầu: mở rộng `scripts/do_merge_insert_remote.py` (script đo, chạy trên **bảng nháp** rồi drop
+  — không đụng bảng phục vụ): ghi vài hàng bằng `merge_insert`, đọc lại bằng
+  `search().select(<cột ≠ vector>)`, so từng ô và in ra cột nào lệch kèm **kiểu Python hai bên**.
+
+### [ ] T103 · `StarletteDeprecationWarning` từ `fastapi/testclient` lúc import
+
+`uv run pytest -q` in `1 warning`: `StarletteDeprecationWarning` phát từ `fastapi/testclient.py`.
+
+- Vì sao quan trọng: nó **không phải** nhiễu của test mà là tín hiệu từ phụ thuộc. Thêm một mục
+  `filterwarnings` để output "sạch" sẽ mua sự sạch sẽ bằng cách che đúng việc nâng cấp sẽ phải làm
+  — người review đợt này khuyến nghị rõ **đừng** làm thế.
+- Bước đầu: xác định phiên bản `fastapi`/`starlette`/`httpx` đang dùng và cảnh báo đòi hỏi gì, rồi
+  quyết định nâng cấp hay ghim. Không thêm `filterwarnings`.
+
+### [ ] T104 · Trọng số nhánh thưa có thể lệch giữa luật đã chết và luật hiện hành
+
+- Đo 12/08: sweep trên `eval/bo_sbv.jsonl` (29 câu, luật ĐANG hiệu lực, người ngoài soạn) cho
+  tối ưu 0.25 ở **R@1/MRR@2** mức điều (0.76/0.86 so với 0.69/0.83 của 0.1 hiện tại) — nhưng
+  **thua** 0.1 ở R@5 mức điều (0.94 vs 0.98) và **hoà** ở R@2/P@2/F2@2; từ R@5 các cột đã bão hoà
+  trên mẫu 26 văn bản này nên chỉ R@1/MRR@2 đáng đọc (`docs/EVAL-IR.md` §11). 0.1 được chỉnh trên
+  ba bộ đều thiên về luật đã chết. Chưa đổi: 29 câu với |R| = 1 thì một câu = 3,4 điểm R@1.
+- Bước đầu: **trước khi cào thêm**, xác định `question_id` nào đổi hạng giữa w=0.1 và w=0.25 ở
+  R@1 mức điều, và kiểm xem có trùng một trong ba cặp câu hỏi trùng lặp đã biết không (`question_id`
+  6/30, 7/31, 61/63 — cả ba đều TT17-2024, chiếm 14/29 câu, xem `docs/EVAL-IR.md` §11). Gap R@1 là
+  2 câu/29; nếu hai câu đổi hạng đó rơi vào cùng một cặp trùng thì cả phát hiện T104 chỉ đứng trên
+  một câu hỏi phân biệt duy nhất. Gần như miễn phí ở lượt sweep kế tiếp. Còn lệch thật (không phải
+  trùng lặp) thì mới cào 7 văn bản trong phạm vi liệt kê ở `research/crawl_list_sbv.txt` để bộ này
+  lên 56/100 câu rồi quét lại.
+
+### [ ] T105 · `HttpError` thoáng qua từ LanceDB Cloud làm rớt câu khi benchmark
+
+Không phải bug logic — SDK LanceDB Cloud thỉnh thoảng hết hạn retry (`HttpError` /
+`RetryError`) giữa lượt gọi, và mỗi câu rớt bị try/except bắt đúng thiết kế nên không làm bảng
+sai, chỉ làm mẫu số nhỏ lại.
+
+- Vì sao quan trọng: trên 29 câu, mỗi câu rớt là **3,4 điểm R@1**. Đo 12/08: lượt chạy đầu của
+  `bo_sbv.jsonl` rớt **7/29 câu** (phải bỏ lượt, chạy lại toàn bộ mất thêm ~20 phút); cùng ngày,
+  hai lượt `bo_tvpl_*.jsonl` cộng lại rớt **7/152 câu**. Không phải sự cố một lần.
+- Bước đầu: đo tần suất lỗi qua vài lượt chạy nữa trước khi sửa code. Nếu ổn định quanh vài phần
+  trăm mỗi lượt gọi, nới retry/backoff quanh lời gọi LanceDB Cloud trong `retrieval.py` là đủ;
+  nếu tăng dần theo thời gian thì báo hạ tầng (đổi region, kiểm quota) trước khi vá code.
+
+### [x] T106 · `so_hieu` dính dấu cách thừa từ nguồn làm `chuan_so_hieu` cắt cụt — ĐÃ SỬA 12/08
+
+Phát hiện và sửa cùng ngày. Trước khi sửa:
+
+```
+corpus  '21/2017/TT- NHNN'   -> chuan_so_hieu -> '21/2017/TT'      khớp? False
+sau khi sửa                  -> chuan_so_hieu -> '21/2017/TT-NHNN' khớp? True
+```
+
+**Cách sửa:** xoá sạch khoảng trắng **trước** khi khớp regex, và dùng bản đã xoá ở **cả hai**
+nhánh — nhánh dự phòng (chuỗi viết thường, tức nhãn bộ SBV) ban đầu vẫn trả chuỗi gốc, tức lỗi
+im lặng quay lại đúng chỗ vừa vá. Ba test ghim ở `tests/test_chuyen_tvpl.py`: `'21/2017/TT-
+NHNN'`, `'81 /2025/TT- NHNN'` (dấu cách trước dấu `/`), và ca nhánh dự phòng `'21/2017/tt-
+nhnn'`. Ca đuôi slug cũ không đổi hành vi — chuỗi không có dấu cách thì phép xoá là đồng nhất.
+
+- Vì sao quan trọng: vbpl.vn để lọt dấu cách vào `so_hieu` (`TT- NHNN`), mà regex `_SO_HIEU`
+  trong `eval/chuyen_tvpl.py` dừng ở dấu cách nên cắt còn `21/2017/TT`. Không ném lỗi, không
+  cảnh báo — văn bản chỉ **lặng lẽ không khớp** nhãn eval, và 2 câu của nó không bao giờ mở
+  khoá. Cùng lỗi này sẽ ăn bất kỳ văn bản nào cào về sau có dấu cách thừa; bộ cào **đã** cảnh
+  báo đúng hiện tượng đó ở `ND26-2025` (`'Thông tư số 81 /2025/TT- NHNN'`), tức nguồn hay lỗi
+  kiểu này chứ không phải ca cá biệt.
+- Còn lại: 23 văn bản đã cào **chưa vào** `data/corpus.real.json`. Cào chỉ sinh
+  `data/raw/vbpl/corpus/*.json`; muốn bộ SBV lên 56/100 câu thì phải gộp vào corpus rồi
+  re-ingest LanceDB + Neo4j — T1 vẫn chặn (ghi lên cloud, cần duyệt), nhưng từ 13/08 lượt ghi đó
+  chỉ còn tốn embedding của đúng 23 văn bản mới thay vì cả 661 chunk (ingest tăng dần). Thêm
+  bằng chứng 13/08: `scripts/soi_doc_can_nap.py` đo `dư` rỗng (bảng không có văn bản nào ngoài
+  corpus) và `cần nạp` rỗng (corpus không có văn bản nào lệch bảng) — 23 văn bản đó nằm ngoài cả
+  hai tập, đúng vị trí "chưa vào corpus" chứ không phải một lỗi khác.
+- **Bốn cảnh báo còn lại của lượt cào 12/08 đã truy tới cùng — không mục nào cần sửa code**, ghi
+  lại để khỏi điều tra lại. Cả bốn đều **không ảnh hưởng corpus hay truy hồi**, vì `articles`
+  dựng từ toàn văn chứ không từ cây điều khoản:
+  - `TT45-2024` cây rỗng hoàn toàn (0 nút ở mọi cấp). Chủ repo đối chiếu vbpl.vn: **nguồn không
+    có dữ liệu cây** cho văn bản này. Corpus vẫn đủ 46 điều. Giới hạn nguồn, đừng sửa parser —
+    cùng loại với ca VBHN không có toàn văn.
+  - `TT32-2024` Điều 36 có hai khoản 4 nội dung khác nhau. Chủ repo xác nhận **lỗi có thật trong
+    văn bản gốc**. Bộ cào giữ cả hai là đúng; ai dùng Điều 36 phải tự quyết bản nào đang áp dụng.
+  - `TT12-2022` cây 51 / toàn văn 52 — thiếu đúng **Điều 8 "Trang điện tử"**. Đã soi markup: thẻ
+    `<p>` của Điều 8 **không có `id`, không có class nào**, trong khi Điều 9 mang `class="prov-
+    article"` và Điều 7/10 nằm trong khối có `id`. Mà `_JS_PROVISION_NODES` (`app/ingestion/
+    vbpl.py:359`) lọc theo `[class*="prov-"], [type]`, nên nút ấy không tồn tại để bắt. Hai quan
+    sát cùng đúng: chữ **có** hiện trên vbpl (nên đếm bằng mắt ra 52), nút cấu trúc thì **không
+    có**. Corpus vẫn đủ 52 điều; chỉ đồ thị KG thiếu nút Điều 8.
+  - `TT39-2016` nguồn viết `4.Phí cam kết…` (thiếu dấu cách sau số khoản) ở Điều 14, và
+    `Điều 1.Phạm vi…`. Bộ tách khoản tìm `số + '.' + dấu cách` nên không nhận ra ranh giới đó.
+    **Hệ quả thực tế ở đây bằng 0**: Điều 14 đủ ngắn nên không bị chẻ, cả bốn khoản nằm chung
+    một chunk `Điều 14` và chữ không mất. Rủi ro chỉ xuất hiện nếu gặp điều **dài** có cùng lỗi
+    — lúc đó ranh giới khoản bị bỏ qua và hai khoản dính làm một.
+
+### [ ] T107 · Nhận diện viện dẫn trong CÂU HỎI → anchor đồ thị
+
+Bài báo (§4.3, SBV-RR) chạy NER trên câu hỏi để bắt "Thông tư 23/2025/TT-NHNN" làm điểm neo cho
+Cypher. LexFlow **đã có parser viện dẫn đầy đủ** (`app/ontology/citation.py:121`,
+`parse_citations` + `to_node_ids`) nhưng chỉ dùng lúc ingest (`classify.py`, `tac_dong.py`,
+`extractor.py`) — đường hỏi đáp không gọi nó lần nào.
+
+- Hệ quả: hỏi thẳng "Điều 12 Thông tư 40/2024 quy định gì" vẫn phải đi qua tìm kiếm ngữ nghĩa,
+  trong khi câu trả lời là một phép tra khoá.
+- Bước đầu: trong `answer._prepare`, gọi `parse_citations(req.query)`; có viện dẫn tường minh thì
+  lấy chunk theo `lay_chunk_theo_tien_to` trước, hybrid search chỉ để bổ sung. Đúng nhánh
+  "GRAPH LOOKUP trực tiếp" mà `docs/RAG-DESIGN.md:37` đã thiết kế mà chưa cài.
 
 ---
 

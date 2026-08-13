@@ -48,6 +48,20 @@ phiên.
   (2) T24 — xác nhận FTS đang ascii-fold tiếng Việt trước khi chỉnh tiếp `TRONG_SO_THUA` (T21).
   (3) T26 — đo độ tươi của `count_rows()` sau `merge_insert` từ xa trước khi tin số ghi vào audit
   log `/documents/{id}/approve`.
+- **Hoà `main` vào `feat/ai`.** `ingest_one_doc` và `write_lancedb` giờ dùng chung `_ghi_chunk`
+  — cùng một hàm ghi một chunk, thay vì hai đường viết tay riêng dễ lệch nhau.
+- **Phép đo T1 chuyển sang đây.** T1 đã được `main` đóng từ 10/08, nên không còn mục "Chặn" nào
+  để gắn số đo mới vào — chuyển ghi ở đây: bảng thật khớp `build_chunks` **0 ô lệch trên 661
+  hàng × 10 cột**; chunk `TT66-2025 Điều 6` cắt ở đúng ranh giới `(v)`/`(vii)`. Tiền đề "bảng
+  còn giữ bản cắt hỏng" mà plan `2026-08-13-ingest-tang-dan` dựa vào là một bản chụp trước lúc
+  `main` đóng T1, không phải trạng thái hiện tại.
+- **`T24` (`ascii_folding`) bị bỏ, không phải đổi số.** Khi thêm lại 8 mục còn thiếu của
+  `feat/ai` vào `docs/TASKLIST.md` (số cũ T18/T21–T23/T25–T28 → số mới T100–T107, xem luật dải ở
+  `docs/COMMIT-CONVENTION.md`), mục thứ chín — `T24` cũ, ghi nhận FTS gấp dấu tiếng Việt trước
+  khi lọc stop-word — không nối lại: khối chú thích `_FTS_OPTS` trên `main`
+  (`app/ingestion/pipeline.py:238-249`) đã phủ đúng vấn đề này và phủ đúng hơn, đặt thẳng
+  `remove_stop_words: False` để tháo mìn (`thẻ`/`số`/`tổ` bị gấp dấu trước rồi rơi vào stop-word
+  tiếng Anh thành `the`/`so`/`to`) thay vì chỉ ghi nhận.
 
 ---
 
