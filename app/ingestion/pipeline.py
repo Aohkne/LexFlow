@@ -323,6 +323,65 @@ def _tao_bang_moi(db, rows: list[dict]) -> tuple[int, int]:
     return len(rows), len(rows)
 
 
+def _loc_doc_id(doc_ids: set[str]) -> str:
+    """`"doc_id IN ('A', 'B')"`. Mỗi id đi qua `kiem_doc_id` trước khi vào vị từ.
+
+    Kiểm ở tầng này chứ không tin người gọi: `approve_document` có kiểm rồi, nhưng CLI, script
+    và test thì không — mà chuỗi này đi thẳng vào `where` của LanceDB.
+    """
+    return "doc_id IN (" + ", ".join(f"'{kiem_doc_id(d)}'" for d in sorted(doc_ids)) + ")"
+
+
+def _id_dang_co(tbl, doc_ids: set[str]) -> dict[str, set[str]]:
+    """doc_id → tập id đang có trong bảng, CHỈ cho các văn bản được hỏi.
+
+    Bản có phạm vi của phép đọc mà `_doc_can_nap` làm trên toàn bảng. Đường API dùng bản này vì
+    nó đã biết văn bản nào đổi — bắt nó quét cả bảng (5,29s, đo 13/08) để suy ra một điều nó
+    biết sẵn là trả giá đúng chỗ không nên trả, trên một đường HTTP đồng bộ.
+    """
+    if not doc_ids:
+        return {}
+    ra: dict[str, set[str]] = {}
+    for h in (
+        tbl.search().where(_loc_doc_id(doc_ids)).select(["id", "doc_id"]).limit(tbl.count_rows()).to_list()
+    ):
+        ra.setdefault(h["doc_id"], set()).add(h["id"])
+    return ra
+
+
+def _ghi_chunk(tbl, pham_vi: set[str], rows: list[dict], id_cu: dict[str, set[str]]) -> int:
+    """Ghi chunk cho đúng các văn bản trong `pham_vi`. Trả số chunk vừa ghi.
+
+    KHÔNG tự quyết văn bản nào cần ghi — người gọi đã biết. Đường API biết vì admin vừa duyệt
+    đúng văn bản đó; đường corpus biết nhờ `_doc_can_nap`.
+
+    Id nào đang có trong bảng thuộc `pham_vi` mà không có trong `rows` thì bị xoá. Một luật phủ
+    cả hai ca: văn bản chẻ lại ra ít mảnh hơn, VÀ văn bản không còn điều nào (admin xoá hết Điều
+    rồi bấm duyệt) — ca sau chỉ là ca trước với `rows` rỗng.
+
+    Xoá TRƯỚC rồi mới `merge_insert`. Ràng buộc thật là "không chunk nào còn tồn tại sau lượt
+    ghi mà lại vắng mặt giữa chừng"; id mồ côi theo định nghĩa là id sẽ không còn, nên xoá trước
+    không vi phạm — và chết giữa chừng để lại đúng "nội dung cũ trừ phần sắp bỏ" thay vì để lại
+    hàng thừa.
+    """
+    mo_coi = {i for d in pham_vi for i in id_cu.get(d, set())} - {r["id"] for r in rows}
+    if mo_coi:
+        tbl.delete(_loc_id(list(mo_coi)))
+        print(f"[ingest] Đã xoá {len(mo_coi)} chunk không còn trong bản chẻ mới.")
+
+    if rows:
+        _embed_rows(rows)
+        (
+            tbl.merge_insert("id")
+            .when_matched_update_all()
+            .when_not_matched_insert_all()
+            .execute(rows)
+        )
+
+    _cho_index(tbl)
+    return len(rows)
+
+
 def write_lancedb(
     rows: list[dict],
     ep: frozenset[str] = frozenset(),
@@ -379,21 +438,8 @@ def write_lancedb(
         _cho_index(tbl)
         return 0, tbl.count_rows()
 
-    _embed_rows(nap)
-    (
-        tbl.merge_insert("id")
-        .when_matched_update_all()
-        .when_not_matched_insert_all()
-        .execute(nap)
-    )
-
-    mo_coi = {i for d in can_nap for i in id_cu.get(d, set())} - {r["id"] for r in nap}
-    if mo_coi:
-        tbl.delete(_loc_id(list(mo_coi)))
-        print(f"[ingest] Đã xoá {len(mo_coi)} chunk mồ côi (lần chẻ mới cho ít mảnh hơn).")
-
-    _cho_index(tbl)
-    return len(nap), tbl.count_rows()
+    n_ghi = _ghi_chunk(tbl, can_nap, nap, id_cu)
+    return n_ghi, tbl.count_rows()
 
 
 #: `write_lancedb` chạy TRONG request đồng bộ `POST /documents/{id}/approve` (Cloud Run, timeout

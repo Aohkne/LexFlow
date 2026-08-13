@@ -52,6 +52,13 @@ class _TruyVanGia:
         self._cot = list(cot)
         return self
 
+    def where(self, dieu_kien: str):
+        m = re.match(r"^doc_id IN \((.*)\)$", dieu_kien)
+        assert m, f"cú pháp where lạ, cloud có thể không nhận: {dieu_kien!r}"
+        ids = {s.strip()[1:-1] for s in m.group(1).split(", ")}
+        self._hang = [r for r in self._hang if r.get("doc_id") in ids]
+        return self
+
     def limit(self, n: int):
         self._gioi_han = n
         return self
@@ -656,3 +663,58 @@ def test_moi_lan_dung_index_deu_mang_fts_opts(monkeypatch, khong_goi_mang):
     assert dung, "không có lời gọi dựng index nào để kiểm"
     for x in dung:
         assert f"opts={sorted(pipeline._FTS_OPTS)}" in x, f"thiếu _FTS_OPTS: {x}"
+
+
+# --- tầng ghi dùng chung ---------------------------------------------------------------------
+
+def test_ghi_chunk_thay_tai_cho_khong_dung_van_ban_khac(khong_goi_mang):
+    bang = _bang([_hang("A", "Điều 1", "x"), _hang("B", "Điều 1", "y")])
+    id_cu = {"A": {"A::Điều 1"}}
+    moi = [_hang("A", "Điều 1", "x ĐÃ SỬA")]
+
+    n = pipeline._ghi_chunk(bang, {"A"}, moi, id_cu)
+
+    assert n == 1
+    assert bang.hang["A::Điều 1"]["text"] == "x ĐÃ SỬA"
+    assert bang.hang["B::Điều 1"]["text"] == "y", "văn bản ngoài phạm vi bị đụng"
+
+
+def test_ghi_chunk_van_ban_rong_thi_xoa_het_chunk_cu(khong_goi_mang):
+    """Admin xoá hết Điều rồi bấm duyệt — chunk cũ PHẢI biến khỏi bảng đang phục vụ.
+
+    Bản trước của `ingest_one_doc` về sớm khi `rows` rỗng, và đó là lỗi: truy hồi vẫn trả đúng
+    đoạn văn vừa bị xoá trong khi API trả 200 `approved`. Ở đây ca đó không cần cờ riêng — nó
+    là luật mồ côi với `rows` rỗng.
+    """
+    bang = _bang([_hang("A", "Điều 1", "x"), _hang("A", "Điều 2", "x2"), _hang("B", "Điều 1", "y")])
+    id_cu = {"A": {"A::Điều 1", "A::Điều 2"}}
+
+    n = pipeline._ghi_chunk(bang, {"A"}, [], id_cu)
+
+    assert n == 0
+    assert set(bang.hang) == {"B::Điều 1"}
+    assert khong_goi_mang == [], "không có hàng nào để embed mà vẫn gọi embedding"
+
+
+def test_ghi_chunk_che_ra_it_manh_hon_thi_xoa_mo_coi(khong_goi_mang):
+    bang = _bang([_hang("A", "Điều 1 Khoản 1", "p"), _hang("A", "Điều 1 Khoản 2", "q")])
+    id_cu = {"A": {"A::Điều 1 Khoản 1", "A::Điều 1 Khoản 2"}}
+
+    pipeline._ghi_chunk(bang, {"A"}, [_hang("A", "Điều 1", "p q")], id_cu)
+
+    assert set(bang.hang) == {"A::Điều 1"}
+
+
+def test_id_dang_co_chi_doc_dung_pham_vi(khong_goi_mang):
+    bang = _bang([_hang("A", "Điều 1", "x"), _hang("A", "Điều 2", "x2"), _hang("B", "Điều 1", "y")])
+
+    ra = pipeline._id_dang_co(bang, {"A"})
+
+    assert ra == {"A": {"A::Điều 1", "A::Điều 2"}}
+
+
+def test_id_dang_co_tu_choi_doc_id_ban():
+    """`doc_id` đi vào vị từ `where` — đây là biên tin cậy, kiểm ở tầng này chứ không tin caller."""
+    bang = _bang([_hang("A", "Điều 1", "x")])
+    with pytest.raises(ValueError, match="doc_id không hợp lệ"):
+        pipeline._id_dang_co(bang, {"A' OR '1'='1"})
