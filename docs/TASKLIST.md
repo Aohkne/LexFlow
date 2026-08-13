@@ -160,25 +160,6 @@ sai, chỉ làm mẫu số nhỏ lại.
   trăm mỗi lượt gọi, nới retry/backoff quanh lời gọi LanceDB Cloud trong `retrieval.py` là đủ;
   nếu tăng dần theo thời gian thì báo hạ tầng (đổi region, kiểm quota) trước khi vá code.
 
-### [ ] T24 · Nhánh "bảng chưa tồn tại" của `write_lancedb` chưa đo trên LanceDB Cloud thật
-
-`write_lancedb` (`app/ingestion/pipeline.py`) phân biệt "bảng chưa tồn tại" (dựng mới +
-`overwrite`) với mọi lỗi khác (ném, không đụng bảng) bằng cách bắt `ValueError` có "not found"
-trong thông điệp khi `db.open_table(...)` thất bại.
-
-- Đã đo trực tiếp (13/08) cho backend **local** (embedded, `.venv`):
-  `ValueError("Table 'x' was not found")`.
-- Backend **remote** (Cloud) suy luận chứ chưa đo: chuỗi lỗi `TableNotFoundError` nằm trong
-  cùng `_lancedb.pyd` (cùng crate Rust phục vụ cả hai backend), nên nhiều khả năng ánh xạ sang
-  cùng `ValueError` — nhưng KHÔNG đo trực tiếp được vì Global Constraints cấm test chạm Cloud.
-- Vì sao quan trọng: nếu remote thực ra ném loại khác (vd. `HttpError` status 404 từ
-  `lancedb.remote.errors`), nhánh này sẽ không sai theo hướng nguy hiểm — code sẽ **ném** thay
-  vì âm thầm ghi đè — nhưng nghĩa là lần ingest đầu tiên nhắm một bảng Cloud thật sự trống sẽ
-  crash thay vì tự dựng bảng như thiết kế.
-- Bước đầu: lần ingest kế tiếp nhắm một bảng Cloud **chưa tồn tại** (project mới, hoặc bảng thử
-  bị xoá), quan sát loại exception thật mà `db.open_table()` ném ra, đối chiếu với `ValueError`
-  đang bắt trong `write_lancedb`; mở rộng tuple exception nếu remote ném loại khác.
-
 ### [x] T23 · `so_hieu` dính dấu cách thừa từ nguồn làm `chuan_so_hieu` cắt cụt — ĐÃ SỬA 12/08
 
 Phát hiện và sửa cùng ngày. Trước khi sửa:

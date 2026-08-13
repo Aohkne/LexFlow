@@ -321,15 +321,15 @@ def write_lancedb(
         # phân trang (`page_token`) mà không đọc hết trang thì "không thấy tên" và "bảng thật
         # sự không tồn tại" lẫn vào nhau, chảy thẳng xuống `_tao_bang_moi` → ghi đè cả bảng.
         #
-        # Đo trực tiếp trong `.venv` (13/08) — backend local (embedded) ném đúng loại này khi mở
-        # bảng không tồn tại: `ValueError("Table 'x' was not found")`. Backend remote (Cloud)
-        # dùng chung crate Rust (chuỗi lỗi `TableNotFoundError` nằm trong cùng `_lancedb.pyd`)
-        # nên nhiều khả năng ánh xạ giống vậy, nhưng KHÔNG đo trực tiếp được — Global Constraints
-        # cấm test chạm Cloud. Xem `docs/TASKLIST.md` T24.
+        # Cả hai backend ném `ValueError` với thông điệp chứa "was not found" khi mở bảng không
+        # tồn tại, cùng qua `lancedb/db.py:1722` (lancedb 0.34.0). Đo trực tiếp 13/08: local
+        # (embedded, DB tạm trong `.venv`) VÀ remote (LanceDB Cloud thật) — không phải suy đoán.
         #
-        # Lọc thêm theo thông điệp: KHÔNG bắt mọi ValueError, chỉ bắt loại có "not found" — một
-        # ValueError vì lý do khác (đối số sai, ...) không được hiểu nhầm thành "bảng chưa có"
-        # rồi ghi đè cả bảng thật.
+        # Bộ lọc thông điệp dưới đây CHỊU LỰC, không phải phòng thủ thừa: `ValueError` là
+        # built-in dùng cho vô số lý do, bắt trần nó thì MỘT `ValueError` bất kỳ từ `open_table`
+        # (đối số sai, ...) sẽ bị hiểu nhầm thành "bảng chưa có" rồi ghi đè cả bảng thật. Chuỗi
+        # "not found" vì thế là một hợp đồng ngầm với lancedb — nâng phiên bản thì đo lại; muốn
+        # bỏ nó thì phải thay bằng một phép phân biệt chặt tương đương, không phải xoá suông.
         if "not found" not in str(e).lower():
             raise
         return _tao_bang_moi(db, rows)
