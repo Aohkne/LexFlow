@@ -380,5 +380,13 @@ def test_connector_unknown_bang_0_tren_fixture_hien_tai(index):
                 co_guard = all(tach_guard(t.text, t.start)[0] for t in d.tiet)
                 if not co_guard and all(t.connector == "unknown" for t in d.tiet):
                     con_mo_ho.append(f"{k.id}#diem_{d.so_hien_thi}")
-    # TT18 Đ9 K3 điểm c là ca chapeau — giải bằng luật chapeau, không bằng guard.
-    assert con_mo_ho == ["18/2024/TT-NHNN#than/dieu_9#khoan_3#diem_c"], con_mo_ho
+    # TT18 Đ9k3c và TT40 Đ8k7a là ca chapeau — giải bằng luật chapeau ("bao gồm các
+    # nội dung sau" → all), không bằng guard. TT15 Đ20k3c là mơ hồ THẬT (không liên
+    # từ, không dấu hiệu chapeau): nghĩa nguồn là nghĩa vụ cộng dồn, extractor giữ
+    # `unknown` theo thiết kế (không đoán hộ); record khoản này đồng thời lỗi cứng
+    # modality nên không vào Policy Graph — đã soi tay 13/08.
+    assert con_mo_ho == [
+        "15/2024/TT-NHNN#than/dieu_20#khoan_3#diem_c",
+        "18/2024/TT-NHNN#than/dieu_9#khoan_3#diem_c",
+        "40/2024/TT-NHNN#than/dieu_8#khoan_7#diem_a",
+    ], con_mo_ho

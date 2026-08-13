@@ -1,0 +1,25 @@
+Điều 8. Hợp đồng hoặc thỏa thuận giữa tổ chức cung ứng dịch vụ trung gian thanh toán và ngân hàng hợp tác
+Tổ chức cung ứng dịch vụ trung gian thanh toán phải có hợp đồng hoặc thỏa thuận với ngân hàng hợp tác về việc cung ứng dịch vụ trung gian thanh toán, bao gồm tối thiểu các nội dung sau:
+1. Số văn bản (nếu có), thời điểm (ngày, tháng, năm) lập hợp đồng hoặc thỏa thuận.
+2. Tên tổ chức cung ứng dịch vụ trung gian thanh toán, tên ngân hàng hợp tác.
+3. Tên dịch vụ trung gian thanh toán hợp tác.
+4. Quyền, nghĩa vụ cụ thể của các bên trong việc:
+a) Lựa chọn, ký kết hợp đồng hoặc thỏa thuận với đơn vị chấp nhận thanh toán; trách nhiệm giám sát, kiểm tra đối với đơn vị chấp nhận thanh toán trong quá trình thực hiện hợp đồng hoặc thỏa thuận;
+b) Giải quyết các yêu cầu tra soát, khiếu nại của khách hàng, đơn vị chấp nhận thanh toán;
+c) Quyền, nghĩa vụ khác có liên quan.
+5. Đối với việc hợp tác cung ứng dịch vụ hỗ trợ thu hộ, chi hộ, nội dung hợp đồng hoặc thỏa thuận phải có thêm nội dung sau:
+a) Quy định về các biện pháp đảm bảo khả năng thanh toán cho việc cung ứng dịch vụ hỗ trợ thu hộ, chi hộ bao gồm việc mở tài khoản đảm bảo thanh toán cho dịch vụ hỗ trợ thu hộ, chi hộ, các biện pháp đảm bảo khác hoặc duy trì khoản tiền ký quỹ (nếu có);
+b) Biện pháp xử lý trong trường hợp tổ chức cung ứng dịch vụ hỗ trợ thu hộ, chi hộ không đáp ứng hoặc không duy trì các biện pháp đảm bảo khả năng thanh toán cho việc cung ứng dịch vụ hỗ trợ thu hộ, chi hộ;
+c) Quy trình dòng tiền, quy trình thanh toán, quyết toán, quy trình đối soát, xử lý các giao dịch sai lệch;
+d) Nội dung tuân thủ quy định tại
+khoản 2 Điều 27 Thông tư này
+(nếu có).
+6. Đối với việc hợp tác cung ứng dịch vụ cổng thanh toán điện tử, nội dung hợp đồng hoặc thỏa thuận phải có thêm nội dung sau: Quy trình kết nối, truyền dẫn và xử lý dữ liệu điện tử các giao dịch thanh toán giữa tổ chức cung ứng dịch vụ cổng thanh toán điện tử và ngân hàng hợp tác.
+7. Đối với việc hợp tác cung ứng dịch vụ ví điện tử, nội dung hợp đồng hoặc thỏa thuận phải có thêm nội dung sau:
+a) Quy định về việc mở và sử dụng tài khoản đảm bảo thanh toán cho dịch vụ ví điện tử, tối thiểu bao gồm các nội dung sau:
+(i) Thông tin về tài khoản đảm bảo thanh toán;
+(ii) Trách nhiệm của tổ chức cung ứng dịch vụ ví điện tử và ngân hàng hợp tác liên quan đến tài khoản đảm bảo thanh toán tuân thủ quy định tại
+Điều 27 Thông tư này;
+b) Quy trình, thủ tục thực hiện, quyền và nghĩa vụ của các bên trong trường hợp tổ chức cung ứng dịch vụ ví điện tử xác minh thông tin nhận biết khách hàng, nhận biết khách hàng thông qua ngân hàng hợp tác, tuân thủ quy định của pháp luật về phòng, chống rửa tiền và quy định tại Thông tư này;
+c) Quyền và nghĩa vụ của các bên, quy trình thực hiện trong trường hợp khách hàng nạp tiền vào ví điện tử theo quy định tại
+điểm a khoản 1 Điều 25 Thông tư này.

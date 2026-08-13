@@ -179,4 +179,7 @@ def test_khong_diem_nao_bi_doi_sang_any_ngoai_y_muon(index):
                 n += 1
                 if tiet_logic(d) == "any":
                     assert "hoac" in {t.connector for t in d.tiet}, f"{name} k{k.so_hien_thi} {d.so_hien_thi}"
-    assert n == 5, f"corpus có {n} Điểm có tiết, luật này được đo trên 5 — xem lại"
+    # 5 → 7 khi thêm fixture TT15-Đ20 + TT40-Đ8 (13/08): TT40-Đ8k7a giải bằng chapeau
+    # ("bao gồm các nội dung sau" → all), TT15-Đ20k3c giữ unknown — cả hai đã soi tay,
+    # không điểm nào bị đổi sang `any`.
+    assert n == 7, f"corpus có {n} Điểm có tiết, luật này được đo trên 7 — xem lại"

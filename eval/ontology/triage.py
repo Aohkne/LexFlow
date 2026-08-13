@@ -104,6 +104,9 @@ _RULES: list[tuple[int, str, re.Pattern[str]]] = [
 ]
 
 TIER_NAME = {
+    # triage() gán tier 0 cho `errors` từ ngày đầu, nhưng khoá này chỉ cần đến khi
+    # pred.jsonl CÓ record lỗi cứng — lần đầu là TT15-Đ20k3/TT40-Đ8k1 (13/08).
+    0: "T0 · lỗi cứng — record bị loại khỏi Policy Graph",
     1: "T1 · máy đã tự quyết thay người",
     2: "T2 · phép logic chưa xác định",
     # T3 giữ trống: `flag_verdicts.jsonl` đã duyệt có ghi `tier`, đánh số lại sẽ làm nhãn
