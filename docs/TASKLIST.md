@@ -388,6 +388,15 @@ các cột. Mở corpus (T20) không sửa được chỗ này; nó là tính ch
 - Đo 13/08: 0.61s cho một doc, 5.29s quét toàn bảng 661 hàng — **chưa cần**.
 - Bước đầu: khi bảng vượt ~5.000 chunk hoặc lượt quét vượt 15s thì chạy
   `tbl.create_scalar_index("doc_id")` rồi đo lại. Ghi số vào đây, đừng làm sớm.
+- Khi làm T25, nhớ rằng `_cho_index` **lọc theo `index_type == "FTS"`** đúng để index thứ hai không
+  bị chờ và không bị cảnh báo nhầm. Có test ghim (`test_index_khong_phai_fts_thi_khong_cho_khong_canh_bao`)
+  — nếu nó đỏ sau khi thêm index mới thì đó là dấu hiệu, không phải phiền toái.
+- Cùng lúc, xác nhận LanceDB Cloud **không** giới hạn số hàng một truy vấn trả về: `_doc_can_nap`
+  quét bằng `.limit(tbl.count_rows())`, nên nếu có trần phía server thì lượt quét bị cắt **im lặng**.
+  Hướng cắt là an toàn (bỏ sót mồ côi, lượt sau tự lành) nhưng không có gì báo.
+- Và: `write_lancedb` xoá văn bản dư bằng một vị từ `id IN (…)` liệt kê **mọi chunk** của mọi văn
+  bản dư — ở quy mô corpus lớn là một chuỗi SQL rất dài. Với ca "dư" thì `doc_id IN (…)` đúng
+  tương đương và ngắn hơn hai bậc. Chưa cần đổi, ghi lại để khỏi phải nghĩ lại.
 
 ### [ ] T26 · `count_rows()` sau `merge_insert` trên bảng từ xa có tươi không?
 
@@ -400,6 +409,32 @@ vào audit log của `/documents/{id}/approve` dưới khoá `n_chunks_bang`.
   `count_rows`.
 - Bước đầu: thêm vào `scripts/do_merge_insert_remote.py` một phép đo `count_rows()` ngay trước và
   ngay sau `merge_insert` trên bảng nháp, so với số hàng đọc bằng `search().to_list()`.
+
+### [ ] T27 · Vân tay chunk lệch khi ghi bằng `merge_insert`
+
+Phép đo 13/08 (`scripts/soi_doc_can_nap.py`) so bảng thật với `build_chunks` được 0 ô lệch trên
+661 hàng × 10 cột. Nhưng bảng đó được ghi bằng đường **cũ** (`create_table(mode="overwrite")`).
+Chưa có gì chứng minh một hàng ghi bằng `merge_insert` đọc lại ra **y hệt từng ô** khi đem so vân
+tay.
+
+- Vì sao quan trọng: nếu `merge_insert` làm đổi dù chỉ một ô khi đọc lại (ép kiểu, chuẩn hoá chuỗi,
+  `None` thành `""`), thì mọi văn bản từng được ghi bằng đường mới sẽ **lệch vân tay vĩnh viễn**
+  ⇒ được nạp lại ở **mọi** lượt ingest sau đó, im lặng, với đầy đủ chi phí embedding. Đường
+  `overwrite` cũ miễn nhiễm với lỗi này vì nó không bao giờ so gì cả. Đây đúng là loại hỏng mà
+  tính năng vừa xây dựng lên để tránh, quay lại từ cửa sau.
+- Bước đầu: mở rộng `scripts/do_merge_insert_remote.py` (script đo, chạy trên **bảng nháp** rồi drop
+  — không đụng bảng phục vụ): ghi vài hàng bằng `merge_insert`, đọc lại bằng
+  `search().select(<cột ≠ vector>)`, so từng ô và in ra cột nào lệch kèm **kiểu Python hai bên**.
+
+### [ ] T28 · `StarletteDeprecationWarning` từ `fastapi/testclient` lúc import
+
+`uv run pytest -q` in `1 warning`: `StarletteDeprecationWarning` phát từ `fastapi/testclient.py`.
+
+- Vì sao quan trọng: nó **không phải** nhiễu của test mà là tín hiệu từ phụ thuộc. Thêm một mục
+  `filterwarnings` để output "sạch" sẽ mua sự sạch sẽ bằng cách che đúng việc nâng cấp sẽ phải làm
+  — người review đợt này khuyến nghị rõ **đừng** làm thế.
+- Bước đầu: xác định phiên bản `fastapi`/`starlette`/`httpx` đang dùng và cảnh báo đòi hỏi gì, rồi
+  quyết định nâng cấp hay ghim. Không thêm `filterwarnings`.
 
 ---
 
