@@ -197,6 +197,84 @@ phiên.
 
 ---
 
+## 2026-08-11 (T3) — "admin" có hai định nghĩa, và một văn bản bịa lọt vào production
+
+> Phần lớn commit dưới đây mang dấu thời gian **10/08 chiều tối** (14:00–23:13); mục 10/08 đã
+> chốt trước khi đợt này bắt đầu nên ghi gọn ở đây thay vì chèn ngược. Hôm nay 11/08 chỉ thêm
+> commit tài liệu `9e9e517`.
+
+### T5 — luồng `/admin` duyệt văn bản
+
+- **Done (nguyên nhân gốc: "admin" có hai định nghĩa, không phải chuyện hiệu năng).** RLS
+  `is_admin()` đọc `public.profiles.role`, còn FastAPI `require_admin` và web (4 chỗ) đọc
+  `app_metadata.role` trong JWT — **không đường nào ghi sang đường kia**. Trigger
+  `handle_new_user` luôn đặt `profiles.role='staff'`, còn `app_metadata` thì không gì tự đặt.
+  Hệ quả là một cái bẫy đối xứng: đặt `profiles.role='admin'` thì FastAPI chặn ở cửa (403);
+  đặt `app_metadata.role='admin'` thì FastAPI cho qua rồi RLS chặn lúc ghi Storage. Luồng duyệt
+  **chưa bao giờ qua nổi cửa đầu tiên** — đó là lý do bucket `legal-docs` và bảng
+  `legal_documents` rỗng, không phải vì chưa ai thử. Migration `0007` cho RLS hỏi đúng chỗ hai
+  bên kia đang hỏi; bỏ luôn `security definer` vì hàm không còn đọc bảng nào.
+- **Decision: GIỮ cột `public.profiles.role`, không `drop`.** Lỗ hổng leo thang quyền ở policy
+  `"profiles: sửa của mình"` (thiếu `with check` nên user tự đặt `role='admin'` cho chính mình)
+  tồn tại **chỉ vì** `is_admin()` đọc cột đó — đổi hàm là nó tắt theo. `drop column` là lệnh
+  không lùi được trên dữ liệu thật, đổi lấy sự gọn mắt. Đề xuất `drop` là của chính tôi, tự rút
+  lại sau khi soi lại bằng thang ponytail.
+- **Done (nạp một văn bản thay vì ghi đè cả bảng).** `write_lancedb` gọi
+  `create_table(mode="overwrite")` — mỗi lượt duyệt là ghi đè bảng **đang phục vụ người dùng**
+  và embed lại toàn bộ chunk không hề đổi. `ingest_one_doc` (LanceDB `delete`+`add`) và
+  `push_one_doc` (Neo4j `MERGE` một node, xoá cạnh **có phạm vi** thay vì `DETACH DELETE` toàn
+  đồ thị). Đo 10/08: 661 chunk ≈ **52 s** so với 23 chunk của một thông tư ≈ **1,8 s**.
+- **Đính chính (giả thuyết của tôi sai).** Tôi nói đường duyệt sẽ **timeout**; đo thật thì cả
+  lượt duyệt hết ~90–120 s dưới trần 300 s — **không hề timeout**. Lý do làm ingest tăng dần
+  vẫn đúng nhưng là lý do **khác**: chi phí embed lại và việc bảng đang phục vụ bị ghi đè giữa
+  chừng. Ghi vào spec để không ai đi lại đường cụt này.
+- **SỰ CỐ — một văn bản bịa lọt vào production.** Một lượt chạy TDD ở pha RED đẩy thật
+  `TT99-2026` lên LanceDB Cloud (**661 → 662 hàng**) và Neo4j (**26 → 27 `Document`**). Phát
+  hiện được vì **không tin** một bản review kết luận lượt chạy 82 giây đó là vô hại. Đã dọn và
+  đếm lại về đúng mốc cũ: **661 chunk · 26 Document · 292 DonVi · 254 THUOC · 177 TAC_DONG ·
+  35 cạnh văn bản**. Lưới chặn hạ tầng (`tests/conftest.py`) ra đời từ đây: chặn
+  `vectordb.connect`, `graph.session`, `settings.supabase_url`.
+- **Done (`db.list_tables()` hỏng trên LanceDB Cloud).** Ném `HttpError 400:
+  PgCatalog::open_database() requires a table name`. Test vẫn xanh vì **con giả tự cài hàm đó
+  cho mình**. Đổi sang `table_names()`; `_FakeDB.list_tables()` nay **ném lỗi** để không con
+  giả nào che được nữa.
+- **Vết lặp đáng ghi: năm lần một test khẳng định an toàn về một đường nó chưa từng đi qua.**
+  Đều cùng một hình dạng — đúng mã trả về, sai hoàn toàn lý do (ca gần nhất: 422 vì
+  `_cam_extractor` nổ `AssertionError` bị `except Exception` nuốt, chứ không phải vì hàng rào
+  `kiem_doc_id` chặn). Cách bịt cũng chỉ một: ghim **nội dung** lỗi, đừng ghim mỗi mã số.
+- **Ship.** PR **#15** (`9c592ba`) và **#17** (`af27137`) đã merge. Cấp quyền admin chạy thật
+  trên production bằng SQL trên `auth.users.raw_app_meta_data` — chủ repo xác nhận thấy mục
+  "Quản trị văn bản" sau khi đăng xuất/đăng nhập lại. Tài liệu `ARCHITECTURE.md` thay các bước
+  Dashboard **chưa hề kiểm** bằng đúng đoạn SQL đã chạy được.
+
+### Nạp văn bản vbpl qua `/admin`
+
+- **Done (một nhánh `if`, không phải một endpoint).** Nguồn thật của corpus là crawl vbpl, mà
+  `POST /documents/upload` luôn chạy `extract_document` (regex tách Điều + Gemini đoán
+  metadata) — tức **vứt** cây `provisions`, `char_span`, `so_hieu`, bảng thuộc tính rồi đoán
+  lại một thứ đã đọc được chính xác. Kiểm 10/08: 22 file `data/raw/vbpl/corpus/*.json` **vốn đã
+  đúng khuôn `CorpusDocument`** — không cần chuyển đổi khuôn dạng nào, cả tính năng rút về một
+  nhánh rẽ theo đuôi file. JSON hỏng thì **422 kèm lý do Pydantic**, không âm thầm rơi về
+  extractor (rơi về là biến file hỏng thành văn bản trông như thật với vài điều rỗng).
+- **Decision: crawl trên máy chủ repo, `/admin` nhận kết quả.** Crawl bắt buộc có Playwright +
+  Chromium; image có gói Python `playwright` nhưng `Dockerfile` không chạy
+  `playwright install chromium`, và Cloud Run ở **512Mi** (đo 11/08). Thêm ~150 MB trình duyệt
+  và nâng RAM bốn lần cho một thao tác vài lần một tuần, ngay trước kỳ đánh giá — không đáng.
+- **Ship.** `6b6fd4e`, `40ce479`, `9e9e517`. **801 test xanh**, ruff sạch.
+- **Nợ mở: T27** — `dong_goi` dựng lớp phủ từ `data/corpus.real.json` trong image, tức **ảnh
+  chụp của lần build cuối**, trong khi production đọc canonical trên Storage. Artefact lớp phủ
+  đang được dựng từ một corpus **không phải** corpus đang phục vụ; khoảng cách lớn dần theo mỗi
+  lượt duyệt. (Plan gọi mục này là T23; T23–T25 đã bị nhánh compliance chiếm ở PR #18, rồi T26
+  bị chiếm nốt ở PR #19 — hai track đánh số song song nên đụng nhau hai lần trong một ngày.)
+- **Next.** (1) **Nghiệm thu T5 trên production** — chưa làm: cần một lượt upload + Approve
+  thật, kiểm 4 thứ, trong đó 2 là bất biến (số chunk của **văn bản khác** không đổi; `THUOC`
+  vẫn **254**). Đó mới là phép kiểm thật cho `ingest_one_doc`. (2) **Nhánh `.json` chưa lên
+  production**: revision đang phục vụ là `lexflow-api-00024-jsv`, tạo 10/08 21:38 — **trước**
+  cả PR #17 lẫn các commit vbpl. Muốn dùng ở `/admin` thì phải deploy lại. (3) Mở PR cho
+  `feat/software`.
+
+---
+
 ## 2026-08-10 (T2) — dựng tầng đo theo bài báo ACIIDS 2026, và bộ eval biết đến thời gian
 
 **Giai đoạn:** đối chiếu LexFlow với `docs/paper/ACIIDS2026a.pdf` (SBV-LawGraph, HCMUT).
@@ -251,6 +329,204 @@ phiên.
   (2) T20 — cào `09/2020/TT-NHNN` (một văn bản, +51 câu, phủ 76→127/251). (3) Push `feat/ai` và mở
   PR. (4) T14 vẫn chưa đóng: bộ TVPL chỉ tới cấp điều và 73/76 câu chỉ một căn cứ ⇒ `|R| = 1`,
   recall vẫn chưa phân biệt được các cột.
+
+---
+
+## 2026-08-10 (CN) — mã, dữ liệu và đồ thị khớp nhau; và một cạnh tác động không có thật
+
+- **Done (compliance — `conflict_recall` 6/7 → 7/7).** Ca trượt là *"Số dư tối đa trên thẻ trả
+  trước vô danh là bao nhiêu?"* (nội bộ SHB 20 triệu vs TT18-2024 Đ13.4 trần **5 triệu**). Loại
+  trừ bằng đo chứ không suy: truy hồi lấy **đủ cả hai phía**; bỏ sót **5/5 lần** nên không phải
+  nhiễu; gọi thẳng `chat_json` với **đúng prompt hiện tại** thì bắt được **3/3**. Thủ phạm nằm
+  ở hậu xử lý — mô hình trả `"TT18-2024::Điều 13 Khoản 4"`, tức địa chỉ **chi tiết hơn** nhãn
+  chunk `"TT18-2024::Điều 13"`, `by_id.get()` trượt rồi `continue` **trong im lặng**. Bộ phát
+  hiện đang phạt mô hình vì trích dẫn chuẩn hơn nhãn nó được đưa. Nay quy id theo tiền tố có
+  ranh giới dấu cách, khớp nhiều chunk thì bỏ chứ không đoán, không quy được thì **ghi log**.
+  PR #16, 4 test mới, CI xanh.
+- **Benchmark lại 36 câu** (`eval/results/20260810-073306.json`), **12,1 phút**:
+
+  | | 06/08 | 10/08 |
+  |---|---|---|
+  | Phát hiện mâu thuẫn | 6/7 | **7/7** |
+  | Citation accuracy (baseline / hybrid / +graph) | 36/36 | 35/35 cả ba |
+  | Tránh văn bản hết hiệu lực (baseline → LexFlow) | 21/36 → 36/36 | 21/35 → **35/35** |
+  | Latency retrieval p50 | 5.028 ms | **3.970 ms** |
+  | Router: câu OFF/ON khác nhau · hit nắn trích dẫn | 0/36 · 8 | 1/35 · 10 |
+
+  **1/36 câu lỗi** (*"Ai được mở tài khoản thanh toán…"*) — `HttpError` khi gọi LanceDB Cloud,
+  lỗi mạng thoáng qua, bị loại khỏi mẫu số đúng theo thiết kế của `run_benchmark`. Con số
+  router đổi (1/35 · 10) là do artefact lớp phủ đã sinh lại còn **177 cạnh** kèm bản vá
+  chunking, không phải do router đổi hành vi.
+- **Chi phí một lượt benchmark — đo thật, không ước.** Bọc `client.models.generate_content` /
+  `embed_content` để đọc `usage_metadata` của chính response:
+
+  ```
+  gemini-2.5-flash-lite   14 lượt   38.095 token vào · 7.593 token ra
+  gemini-embedding-001    36 lượt   ~723 token (ước từ 2.529 ký tự — API embed
+                                     không trả usage_metadata)
+  ```
+
+  Theo bảng giá paid tier (flash-lite $0.10 vào / $0.40 ra, embedding $0.15 — mỗi 1M token):
+  **≈ 0,0070 USD ≈ 181 VNĐ cho cả lượt 36 câu**, tức ~0,19 USD nếu chạy 1.000 câu cùng dạng.
+  Chi phí **không phải** thứ đáng cân nhắc khi quyết có chạy benchmark hay không; 12 phút đồng
+  hồ mới là cái giá thật.
+- **Phát hiện kèm theo: đường phán định đang chạy `gemini-2.5-flash-lite`, không phải
+  `gemini-2.5-pro`.** `config.py` mặc định `gemini_reasoning_model = "gemini-2.5-pro"` nhưng
+  `.env` đặt `GEMINI_REASONING_MODEL=gemini-2.5-flash-lite`, và `.env` thắng. Nghĩa là
+  conflict detector + review tuân thủ — hai chỗ phán định pháp lý nặng nhất — đang chạy trên
+  model rẻ nhất họ Gemini, còn **chưa ai đo** xem đổi lên `pro` thì được gì. Đáng đo, vì với
+  0,007 USD/lượt thì phép so sánh gần như miễn phí.
+- **Done (T2 — id chunk phải định danh đúng một chunk).** `TT23-2019 Điều 1` là điều *sửa đổi*
+  dài 55.902 ký tự, chép nguyên văn nhiều điều của TT39-2014 nên số khoản **khởi động lại
+  nhiều lần** trong cùng một điều. Chunker thấy một điều phẳng và đúc ra cùng một nhãn ba lần
+  ⇒ **5 id / 7 hàng đụng nhau**. Vì `_rrf()` gom kết quả vào `dict` khoá bằng `id`, một hàng bị
+  nuốt và trích dẫn trỏ tới một địa chỉ mang ba nội dung khác nhau. Nay nhãn trùng được thêm
+  hậu tố thứ tự (`Điều 1 Khoản 2 (2)`), và nhãn dải kiểu `"Khoản 18-1"` — vốn tuyên bố một dải
+  chạy ngược từ 18 về 1 — rơi về số khoản đầu.
+- **Done (T1 — re-ingest).** LanceDB Cloud: **661 hàng / 661 id phân biệt** (trước: 654 id).
+  Neo4j về đúng số cũ: 26 `Document` · 293 `DonVi` · 255 `THUOC` · 178 `TAC_DONG` · 35 cạnh
+  văn bản.
+- **Hai cái bẫy lộ ra giữa lượt ingest, đều đã bịt.** (1) `ingest_docs` **không** gọi lại
+  `push_overlay` sau `push_corpus`, mà `push_corpus` mở đầu bằng `DETACH DELETE` trên
+  `Document` — xoá luôn 255 cạnh `THUOC`. Node `DonVi` và cạnh `TAC_DONG` sống sót nên đồ thị
+  *trông vẫn đủ*, chỉ mất sạch đường nối về văn bản, không một lời báo. Yêu cầu này trước nay
+  chỉ nằm trong docstring dặn người chạy nhớ. (2) Aura **rớt kết nối giữa chừng** ở 221/255
+  cạnh vì `push_overlay` chạy ~764 round-trip lẻ trong một session — gộp lô bằng `UNWIND` còn
+  3 câu lệnh.
+- **Verify (trên chính dữ liệu đang phục vụ, không nhìn exit code).** `TT66-2025 Điều 6` hết
+  cắt giữa từ. Bốn chunk từng đụng chung id lộ ra là **bốn điều khoản khác hẳn nhau** — thông
+  tin khách hàng mở Ví · hạn mức BTĐT · quyền và trách nhiệm ngân hàng hợp tác — tức va chạm cũ
+  đúng là có hại thật. Hybrid search trả 4 hit bình thường ⇒ chỉ mục FTS sống sót qua lượt ghi
+  đè.
+- **Ship.** `3219fba`, `f3ccf2f`. Cloud Run rev **`00021-jvs`** (100% traffic). 737 test xanh,
+  ruff sạch, CI xanh.
+- **Verify sau deploy.** `/health` không phân biệt được revision cũ với mới (khối `overlay` đã
+  có từ bản trước), nên nghiệm thu bằng thứ đúng chỗ: tra 10 nhãn có hậu tố **trên bảng LanceDB
+  đang phục vụ** — **10/10 giải được** bằng mã mới, **0/10** bằng regex cũ; cả 10 rơi về khoá
+  cấp điều `23/2019/TT-NHNN#than/dieu_1`, đúng thiết kế.
+- **Decision.** Không đổi model embedding sang `paraphrase-multilingual-mpnet-base-v2`. Nó
+  cũng 768 chiều nên schema không phải đổi, nhưng cửa sổ **128 token** so với ngưỡng
+  **~7.156 ký tự** vừa đo được của Gemini nghĩa là gần như *toàn bộ* 661 chunk sẽ mất đuôi
+  (median chunk 1.044 ký tự). Thêm nữa, đổi model là đổi **cả hai đầu** — vector câu hỏi phải
+  cùng không gian với vector chunk — nên Cloud Run (512Mi) sẽ phải gánh torch + 1,1 GB trọng
+  số. Và chưa có bộ câu hỏi chấm điểm thì đổi xong cũng không biết tốt lên hay xấu đi.
+- **Đính chính.** Ghi chép 09/08 đoán "sửa T2 thì T3 tan theo" — **sai**. T2 chỉ đổi nhãn,
+  không chẻ nhỏ thêm; chunk quá cỡ vẫn còn, mang tên mới `TT23-2019::Điều 1 Khoản 6 (2)`
+  (9.750 ký tự, mất ~2.594). Muốn hết phải chẻ *bên trong* một khoản ⇒ thêm một lượt re-ingest.
+- **Done (T8 — BM25 chấm cụm, không chỉ chấm túi-từ).** Chỉ mục cũ dựng bằng **mặc định tiếng
+  Anh** (stemmer Snowball + stop-word Anh, mà `ascii_folding` bỏ dấu *trước* khi lọc nên từ
+  Việt rơi đúng vào danh sách đó) và **không lưu vị trí token** nên không truy vấn cụm nào khả
+  thi. Nay `PhraseQuery` đứng cạnh `MatchQuery` ở mức `SHOULD`: precision@10 của riêng nhánh
+  BM25 đi từ **8,4 → 9,9/10** trên 14 cụm có thật trong corpus. Dựng lại chỉ mục **không
+  embedding lại chunk nào**. Rev `lexflow-api-00022-242`. Giới hạn đã ghi rõ: mọi endpoint chạm
+  truy hồi đều đòi đăng nhập nên chưa chứng minh được bằng một lượt truy vấn thật qua
+  production — mở **T19** cho khoảng mù đó.
+
+### Nhánh software
+
+- **Done (cạnh tác động GIẢ — 178 → 177).** Span mệnh lệnh của khoản cuối chạy tới hết văn bản
+  nên nuốt luôn **khối kết** (`Nơi nhận:` + chữ ký); dòng `- Như Điều 5;` trong danh sách nơi
+  nhận bị đọc thành trích dẫn, đẻ ra một cạnh `bai_bo` **không hề tồn tại**:
+  `22/2026/TT-NHNN Điều 6 khoản 2 → 40/2024/TT-NHNN Điều 5`. Vá bằng `_che_khoi_ket`: **che
+  khối kết bằng dấu cách chứ không cắt**, vì `char_span` tính theo offset tuyệt đối — cắt là
+  lệch mọi span phía sau. Bỏ đúng 1 cạnh, không thêm cạnh nào, 142 cạnh có chữ giữ nguyên.
+- **Done (đẩy lại lớp phủ lên Neo4j).** Đây là bước dễ bỏ sót nhất: `push_overlay` **toàn
+  `MERGE`** nên nó chỉ THÊM — chạy lại một mình sẽ để nguyên cạnh giả và không ai biết. Nên đo
+  trước: đồ thị **178 cạnh / 293 nút / 255 THUOC** so với artefact **177 / 292**, thừa đúng 1
+  cạnh và 1 nút, thiếu 0. `DETACH DELETE` nút thừa gỡ 2 quan hệ chạm nó (cạnh `TAC_DONG` giả +
+  cạnh `THUOC` của nó), rồi đẩy lại. Sau: **177 / 292 / 254**, so lại hai chiều đều bằng 0.
+- **Done (trình xem toàn văn).** Thanh định vị dính đầu trang + mục lục mở khi cần + chỉnh cỡ
+  chữ và độ rộng cột. Neo mục lục phải mang tên chương cha vì "Mục 1" lặp lại ở mỗi chương —
+  kiểm trên cả 22 file corpus: không neo nào trùng, không Điều nào sót.
+- **Done (giao diện điều bị tác động).** Mỗi tác động chỉ hiện **một lần**, và dấu cấp điều neo
+  vào **tiêu đề Điều** chứ không vào đoạn dẫn — đo ra **10/16** tác động cấp điều rơi vào Điều
+  không hề có đoạn dẫn, để ở đoạn dẫn là mất hơn nửa. Bảng đối chiếu tra ra nguyên văn 86/104
+  đơn vị; 16 trong 18 còn lại là `bo_sung` nên vốn chưa tồn tại trong bản gốc, 2 ca cuối là
+  khuyết tật nguồn → **T16**.
+- **Done (T16 — ghi sổ khuyết tật nguồn, không tự đoán).** Hai đơn vị mất/lệch nút vì vbpl.vn
+  phát `<p>` layout Tailwind thay vì `prov-*` — **soi DOM xác nhận**, không suy từ JSON đã
+  parse. Chữ không mất, chỉ mất nhãn ngữ nghĩa. Thêm `check_unit_sequence` bắt được ca "tổng số
+  Điểm vẫn đúng nhưng treo nhầm cha" mà phép đếm tổng mù hoàn toàn: chạy trên 14 văn bản ra 3
+  cảnh báo, đều thuộc TT15-2024, 13 văn bản còn lại sạch. **Không vá bằng cách đoán** — chính
+  nguồn đang tự mâu thuẫn, suy nút từ tiền tố là chuẩn hoá ngầm mà dự án cấm.
+- **Ship.** PR **#13** (`1584502`, `8d2af3c`, `5be4aea`) và PR **#14** (`1d4aa87`) đã merge; ba
+  commit dọn dẹp `40d7d0a`/`59fd303`/`be97441`.
+- **Decision (quy ước push).** Track AI thôi đẩy thẳng vào `main`; **mỗi track một nhánh, một
+  worktree, và `main` chỉ nhận qua PR**. Lý do là sự cố có thật chứ không phải nguyên tắc suông:
+  `main` nhận thêm commit trong lúc PR #11 đang mở, PR merge mà thiếu phần push sau đó, hai
+  commit mắc lại tới khi tình cờ phát hiện. Dựng worktree `../LexFlow-ai` (736 test xanh) và ghi
+  luôn vào `COMMIT-CONVENTION.md` thủ tục git không mang theo được: `.env`, `uv sync`, và
+  **junction** trỏ `data/raw/vbpl/raw/` về một checkout duy nhất — riêng cái junction un-skip 52
+  test vốn đang bị bỏ qua.
+- **Ship (deploy bù 12 commit tồn đọng).** Production đang chạy revision build từ `3f02a23`,
+  tức **hai thay đổi hành vi chưa tới người dùng**: bộ lọc `chi_noi_bo_voi_luat` (`9328dbf`,
+  precision cặp 0,145 → 0,615) và quy id theo tiền tố (`3751d91`, recall 6/7 → 7/7). Deploy
+  rev **`lexflow-api-00024-jsv`**, 100% traffic; `/health` trả `overlay.nap=true ·
+  so_canh=177 · sinh_luc=2026-08-09` — đúng artefact đã sinh lại, khớp con số lệch một đã báo
+  trước (prod trước đó phục vụ 178 cạnh từ cây trước rebase). **Giới hạn nghiệm thu, ghi rõ:**
+  mọi endpoint chạm truy hồi đều sau `get_current_user`, nên chỉ chứng minh được image đã
+  roll, **không** chạy được hành vi bộ lọc từ ngoài — đúng khoảng mù **T19**.
+- **Done (soi tầng chuẩn tắc → T26).** Câu hỏi: KB có thành phần nào trích premise /
+  Compliance Unit / meta-CU không. **Có** — `app/ontology/schema.py` định nghĩa đủ `ActorCU`,
+  `MetaCU`, `PremiseRecord`, `KhaiNiem`, `Gate`, `DieuKienCong`, kèm phân vai tất định và ba
+  tầng chống bịa. **Nhưng nó không nối vào đâu cả**: không ở LanceDB (chunk có đúng 10 cột),
+  không ở Neo4j (chỉ `:Document` + `:DonVi`), không ở đường phục vụ (`review.py`/`conflict.py`
+  đều nối `text` thô ném thẳng cho LLM). Chạy ngoại tuyến qua `python -m app.ontology`, phủ
+  **49 CU trên 12 Điều / 4 văn bản**, mà một trong bốn còn **không có trong corpus** ⇒
+  **8/425 Điều ≈ 1,9 %**, và **0/94 nhãn người gán**. Phát hiện đáng giá nhất là lỗ hổng
+  schema: **không có ô ngưỡng/số nào**, trong khi cả 5 cặp vàng đều là số chọi số và T24 hỏng
+  đúng ở một cặp số — nên schema phải đi trước độ phủ.
+- **Decision.** Hoãn cả ba hướng (thêm ô ngưỡng+tình thái · mở rộng độ phủ · nối CU vào phán
+  định); chỉ ghi sổ. Lý do: chưa có nhãn người gán thì mọi cải tiến ở tầng này vẫn là máy tự
+  chấm máy — đúng câu hỏi #1 đang chờ mentor trả lời.
+- **Next.** (1) Không còn mục nào chặn. (2) **T5** là rủi ro lớn nhất còn lại cho kỳ đánh giá:
+  luồng duyệt văn bản qua `/admin` **chưa từng chạy thật** trên production (bucket `legal-docs`
+  rỗng, `legal_documents` rỗng), mà đó là tính năng sẽ được nhìn. (3) **T19** — không có cách
+  nghiệm thu nhánh truy hồi trên production mà không cần đăng nhập; đúng khoảng mù mà T9 đã bịt
+  cho lớp phủ, chỉ khác tầng. (4) `docs/ARCHITECTURE.md` không hề nhắc tới lớp phủ — cả một tầng
+  kiến trúc đã lên sản phẩm mà tài liệu kiến trúc không biết.
+
+---
+
+## 2026-08-09 (T7) — dọn ba chỗ "hỏng lặng lẽ", và một cuốn sổ nợ
+
+- **Done (chunk cắt giữa từ).** Điều dài mà regex khoản không bắt được cấu trúc thì bị cắt
+  **cửa sổ ký tự cứng**. Ca thật duy nhất trong corpus: `TT66-2025 Điều 6` (4.313 ký tự) — một
+  điều *sửa đổi* đánh số ở cấp điểm/tiểu mục (`đ)`, `(i)`…`(vii)`) chứ không phải khoản. Vết
+  cắt ở vị trí 4.000 chẻ đôi chữ **"ngân"** thành `ngâ` + `n`, mà điều này lại nằm trên đường
+  nóng của lớp phủ nên chữ kéo vào prompt mở đầu bằng nửa câu. Vá bằng hai lớp: **thang bậc cấu
+  trúc** (điểm → tiểu mục → gạch đầu dòng) và **lưới ranh giới dòng/câu/từ**. Nhãn giữ nguyên
+  `(phần k)` ở mọi bậc dưới khoản — `đ)`/`(i)` trong một điều sửa đổi là chữ TRÍCH của văn bản
+  bị sửa, gắn nhãn "Điểm đ" cho nó là khai man địa chỉ pháp lý.
+- **Số đo.** 651/654 chunk id giữ nguyên **từng byte**, 0 id thêm/mất, chỉ 3 mảnh của
+  `TT66-2025 Điều 6` đổi ⇒ bộ nhãn lớp phủ và benchmark đã đo không phải làm lại.
+- **Done (T3 — đo giới hạn embedding).** `scripts/do_gioi_han_embed.py`: gắn câu mốc vào cuối
+  chuỗi rồi so vector, mốc không làm đổi vector nghĩa là nó không tới được model. Kết quả:
+  **ngưỡng ~7.156 ký tự**, chỉ **1/661 chunk** vượt. Tức `_MAX_CHUNK = 2000` là lựa chọn về
+  **độ chính xác retrieval**, không phải ràng buộc của API — trần thật cách nó hơn ba lần.
+- **Done (T10 — một nguồn ánh xạ `doc_id`).** `dong_goi` đã đóng băng bảng `so_hieu_theo_doc`
+  vào artefact, nhưng `lop_phu.tach_khoa` vẫn **suy lại** `doc_id` từ số hiệu theo quy ước.
+  Lệch 4/26 văn bản (toàn nhóm nội bộ SHB). Nặng hơn: với 9 văn bản **ngoài corpus**, quy ước
+  **bịa** ra mã trông y hệt mã thật (`ND135-2015`, `TT19-2016`) khiến web dựng link `/docs/{id}`
+  tới trang trống. Nay tra bảng, không có thì trả `None`. Ba call site còn lại nằm sâu trong
+  khoá sắp xếp và hàm dựng câu trích — thay vì refactor rộng cho một lỗi tác hại bằng 0, đặt
+  một **test dây bẫy** đỏ đúng ngày điều đó hết đúng.
+- **Done (T9 — lớp phủ hỏng lặng lẽ).** `/health` nay có khối `overlay` (`nap`, `so_canh`,
+  `sinh_luc`), `status` xuống `degraded` khi lớp phủ bật mà artefact không nạp được, và log một
+  dòng lúc khởi động. HTTP vẫn 200 ở mọi ca — không có gì đọc endpoint này bằng máy, đổi thành
+  mã lỗi là biến cảnh báo thành sự cố triển khai.
+- **Chạy server thật cứu một bàn.** Test xanh hết nhưng chạy `uvicorn` thì **dòng log không hề
+  tồn tại**: uvicorn chỉ cấu hình logger `uvicorn.*`, mọi record `app.*` mức INFO rơi vào hư
+  không. `basicConfig` cũng không cứu được vì nó là no-op khi root đã có handler — đúng tình
+  huống dưới pytest. Phải đặt mức thẳng trên namespace `app`, và ca test nay assert
+  `isEnabledFor(INFO)` trước khi xét nội dung, vì `caplog` tự gắn handler nên sẽ xanh trong khi
+  ngoài đời log mất hút.
+- **Ship.** `8dd53f0`, `83ac6dd`, `27abe0d`, `85c9467`. 730 test xanh, ruff sạch, CI xanh.
+- **Decision.** Lập `docs/TASKLIST.md` — sổ ghi việc **đã biết nhưng chưa làm**, mỗi mục kèm
+  *vì sao quan trọng*, *bước đầu tiên cụ thể* và **ngày đo** của mọi con số, để một số liệu cũ
+  nhìn ra là cũ thay vì được tin. Khác `ROADMAP-SPRINT.md` (kế hoạch theo sprint) và worklog
+  này (nhật ký theo ngày): nó tổ chức theo *cái gì còn mở*, và teo dần khi đóng mục.
+- **Next.** Re-ingest LanceDB để hai bản vá chunking tới được dữ liệu đang phục vụ (T1 + T2).
 
 ---
 

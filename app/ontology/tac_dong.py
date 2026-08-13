@@ -85,6 +85,27 @@ def dich_tu_menh_lenh(
     return [], [f"không giải được đích từ mệnh lệnh: {menh_lenh[:80]!r}"]
 
 
+#: Mốc mở đầu khối kết thúc văn bản (nơi nhận, chức danh ký). Từ đây trở đi là thủ tục hành
+#: chính, không còn quy phạm — mà dòng "- Như Điều N;" trong danh sách nơi nhận từng bị đọc
+#: thành một viện dẫn và sinh ra cạnh tác động GIẢ: 22/2026 Điều 6 Khoản 2 bãi bỏ Điều 16/17/18
+#: của 41/2025, nhưng "Như Điều 5" ở đuôi lại đẻ thêm một cạnh bãi bỏ Điều 5 của 40/2024.
+# ponytail: 3 mốc heuristic, đo trên 14 văn bản — thêm mốc khi gặp văn bản có đuôi khác
+_KET_VAN_BAN_RE = re.compile(r"^[ \t]*(Nơi nhận\s*:|TM\.\s|KT\.\s)", re.MULTILINE)
+
+
+def _che_khoi_ket(s: str) -> str:
+    """Thay khối kết thúc bằng dấu cách, GIỮ NGUYÊN ĐỘ DÀI.
+
+    Không cắt chuỗi: `span_start`/`span_end` cộng offset trong chính chuỗi này vào `char_start`
+    để quy về toạ độ trong `noi_dung`, nên cắt ngắn là lệch mọi span phía sau — mà lệch kiểu đó
+    im lặng, `loi_van_moi` vẫn ra một đoạn chữ trông hợp lý, chỉ là sai chỗ.
+
+    Cùng một phép che mà dòng trên đã dùng cho khối trích dẫn, chỉ thêm một mốc.
+    """
+    m = _KET_VAN_BAN_RE.search(s)
+    return s if not m else s[: m.start()] + " " * (len(s) - m.start())
+
+
 def canh_tu_dieu(
     nhan_dieu: str,
     text_dieu: str,
@@ -142,6 +163,7 @@ def canh_tu_dieu(
 
     mat_na = trong_trich_dan(full)
     full_ngoai_trich = "".join(" " if mat_na[i] else c for i, c in enumerate(full))
+    full_ngoai_trich = _che_khoi_ket(full_ngoai_trich)
 
     ctx_dieu: str | None = None
     for ref in parse_citations(dieu.tieu_de):
@@ -199,7 +221,10 @@ def canh_tu_dieu(
                 f"mệnh lệnh {thao_tac!r} không có khối trích dẫn — thiếu lời văn mới"
             )
 
-        menh_lenh_hien_thi = full[u_start:u_end]
+        # Che cả ở chuỗi HIỂN THỊ: nó là thứ trình xem trưng ra làm "điều luật tác động", mà
+        # danh sách nơi nhận và chức danh ký không phải mệnh lệnh. `.strip()` phía dưới dọn nốt
+        # phần dấu cách vừa thay vào.
+        menh_lenh_hien_thi = _che_khoi_ket(full[u_start:u_end])
         if la_khoan:
             menh_lenh_hien_thi = _SO_KHOAN_DAU.sub("", menh_lenh_hien_thi, count=1)
         menh_lenh_hien_thi = menh_lenh_hien_thi.strip()

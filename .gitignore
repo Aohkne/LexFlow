@@ -14,6 +14,10 @@ data/lancedb/
 # Downloaded HF datasets (large binaries, re-downloadable)
 data/tuvanphapluat/
 
+# Bản tải về từ nút download của scripts/tuvanphapluat_viewer.py — trùng từng ký tự với
+# eval/tuvanphapluat_selected.jsonl (chỉ khác kiểu xuống dòng), nên chỉ bản kia được version
+data/evaluate/
+
 # Cache sitemap vbpl.vn — không phải bản chụp nguồn, tải lại được, ~15-20 MB
 data/raw/vbpl/.sitemap_cache/
 

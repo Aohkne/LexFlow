@@ -227,6 +227,28 @@ def _embed_rows(rows: list[dict]) -> None:
             r["vector"] = v
 
 
+#: Tham số chỉ mục toàn văn (BM25). Mặc định của LanceDB dựng cho tiếng Anh; ba thay đổi:
+#:
+#: * `with_position=True` — lưu vị trí token, điều kiện BẮT BUỘC để `PhraseQuery` chạy được
+#:   (không có nó, Storage trả 400 "position is not found"). Đo 10/08 trên 14 cụm có thật
+#:   trong corpus: precision@10 của nhánh BM25 là **8.4/10**, trong đó ba cụm mà từng thành tố
+#:   đều rất phổ biến rớt hẳn — `an toàn` 2/10, `giấy phép hoạt động` 3/10, `quy định nội bộ`
+#:   4/10. Chunk rải rác "giấy phép" và "hoạt động" thắng chunk chứa đúng cụm.
+#: * `stem=False` — stemmer Snowball tiếng Anh không có việc gì để làm trên tiếng Việt.
+#: * `remove_stop_words=False` — danh sách stop-word tiếng Anh cũng vậy; và vì `ascii_folding`
+#:   bỏ dấu TRƯỚC khi lọc, `thẻ`/`số`/`tổ` sẽ thành `the`/`so`/`to` và rơi đúng vào danh sách
+#:   đó. (Đo 10/08: hiện chưa thấy thiệt hại thật, nhưng đây là mìn hẹn giờ chứ không phải
+#:   thiết kế.)
+#:
+#: `ascii_folding` GIỮ `True`: người dùng gõ không dấu vẫn khớp được văn bản có dấu.
+_FTS_OPTS = {
+    "with_position": True,
+    "stem": False,
+    "remove_stop_words": False,
+    "ascii_folding": True,
+}
+
+
 class DocDuTrongBang(RuntimeError):
     """Bảng còn văn bản mà corpus không có.
 
@@ -422,6 +444,128 @@ def _cho_index(tbl) -> None:
                 f"[ingest] CẢNH BÁO: index {c.name} mới phủ {c.num_indexed_rows}/{tong} hàng "
                 "— nhánh BM25 đang mù với phần còn lại."
             )
+
+
+#: `doc_id` đi thẳng vào chuỗi điều kiện của `tbl.delete(...)`, mà nó đến từ JSON admin sửa
+#: được bằng tay — đây là biên tin cậy. Chặn bằng bộ ký tự cho phép chứ không thoát chuỗi:
+#: bộ này phủ đủ mọi `doc_id` đang có (`TT40-2024`, `ND101-2012`, nhóm nội bộ SHB) và từ
+#: chối phần còn lại, nên nó nói KHÔNG với thứ chưa từng thấy thay vì đoán cách xử.
+_DOC_ID_RE = re.compile(r"^[A-Za-z0-9._-]+\Z")
+
+
+def kiem_doc_id(doc_id: str) -> str:
+    if not _DOC_ID_RE.match(doc_id or ""):
+        raise ValueError(
+            f"doc_id không hợp lệ: {doc_id!r} — chỉ nhận chữ, số, dấu chấm, gạch dưới, gạch nối"
+        )
+    return doc_id
+
+
+def ingest_one_doc(
+    doc: CorpusDocument,
+    rels: list[Relationship],
+    tat_ca_docs: list[CorpusDocument],
+) -> int:
+    """Nạp lại ĐÚNG MỘT văn bản. Trả về số chunk của riêng nó.
+
+    Khác `ingest_docs` ở chỗ không đụng phần còn lại: `delete` theo `doc_id` rồi `add`, thay
+    vì `create_table(mode="overwrite")` ghi đè cả bảng đang phục vụ. Đo 10/08 trên LanceDB
+    Cloud: một vòng delete+add của 23 hàng mất 1,23s, embed 23 chunk mất 1,79s — so với ~52s
+    chỉ riêng phần embed nếu nạp lại toàn bộ 661 chunk.
+
+    Cái giá đã đo và chấp nhận: chỉ mục FTS mất ~13 giây mới thấy hàng mới (nó tự cập nhật,
+    không phải dựng lại). Nhánh vector thấy ngay, nên trong 13 giây đó truy hồi vẫn ra kết
+    quả, chỉ thiếu một nhánh.
+
+    `tat_ca_docs` là toàn bộ corpus sau khi đã gộp `doc` — cần cho `quy_ve_doc_id` dựng đủ
+    bảng số hiệu, chứ không phải để nạp.
+    """
+    # Kiểm lần thứ hai là CỐ Ý, không phải thừa: lời gọi trong `approve_document` là thứ sinh
+    # ra 422 cho admin, còn lời gọi ở đây là thứ khiến bất biến này đúng cho MỌI người gọi —
+    # CLI, script, test — chứ không chỉ cho đường đi qua API. Đừng xoá cái nào.
+    kiem_doc_id(doc.doc_id)
+    rows = build_chunks([doc])
+
+    db = vectordb.connect()
+    # KHÔNG dùng `db.list_tables()` dù `table_names()` bị đánh dấu deprecated: trên LanceDB
+    # Cloud thật, `list_tables()` ném `HttpError 400` — "Bad request: InvalidArgument:
+    # PgCatalog::open_database() requires a table name to resolve the storage path". Đo
+    # 10/08 trên đúng kết nối `.env` của dự án: `table_names()` chạy tốt (chỉ kèm
+    # DeprecationWarning), `list_tables()` thì không. Xem T18 trong docs/TASKLIST.md.
+    if LANCEDB_TABLE in db.table_names():
+        tbl = db.open_table(LANCEDB_TABLE)
+        # `delete` chạy LUÔN, kể cả khi văn bản không còn điều nào (admin xoá hết Điều trong ô
+        # JSON, hoặc extract ra 0 điều); chỉ `_embed_rows` + `add` mới bị bỏ qua khi `rows`
+        # rỗng. Bản trước về sớm ngay đầu hàm khi `rows` rỗng, và đó là lỗi: chunk cũ nằm lại
+        # trong bảng đang phục vụ nên truy hồi vẫn trả về đúng đoạn văn vừa bị xoá, trong khi
+        # API trả 200 `approved` báo là xong.
+        tbl.delete(f"doc_id = '{doc.doc_id}'")
+        if rows:
+            _embed_rows(rows)
+            tbl.add(rows)
+    elif rows:
+        _embed_rows(rows)
+        tbl = db.create_table(LANCEDB_TABLE, data=rows)
+        tbl.create_fts_index("text", replace=True, **_FTS_OPTS)
+    print(f"[ingest] {doc.doc_id}: {len(rows)} chunk vào LanceDB (thay tại chỗ).")
+
+    if settings.neo4j_enabled:
+        from app.ingestion.bac_cau import quy_ve_doc_id
+        from app.knowledge.graph import push_one_doc
+
+        # Quy cạnh về `doc_id` trên TOÀN BỘ rels rồi mới lọc: cạnh đọc từ vbpl khoá bằng số
+        # hiệu, lọc trước khi quy là bỏ sót đúng những cạnh chưa được quy.
+        canh_tat_ca, rong_tat_ca, cb = quy_ve_doc_id(rels, tat_ca_docs)
+        for c in cb:
+            print(f"[ingest] cảnh báo: {c}")
+        # `_merge_canh` khớp CẢ HAI đầu bằng `MATCH`, và Cypher bỏ qua cả câu **trong im lặng**
+        # khi một vế không khớp. Nên mỗi đầu mút phải có đúng một cách dựng node — và cạnh nào
+        # không có cách nào thì bị loại ra CÓ TIẾNG, chứ không đếm vào số cạnh "đã ghi".
+        rong_theo_sh = {v.so_hieu: v for v in rong_tat_ca}
+        docs_theo_id = {d.doc_id: d for d in tat_ca_docs}
+
+        def co_node(dau_mut: str) -> bool:
+            return dau_mut == doc.doc_id or dau_mut in rong_theo_sh or dau_mut in docs_theo_id
+
+        # Cạnh đi VÀO cũng phải được dựng (MERGE, không xoá — chúng thuộc văn bản kia):
+        # `approve_document` nhận `relationships` tự do từ ô JSON của admin, không gì buộc
+        # `source_doc == doc_id`. Chỉ lọc theo `source_doc` là cạnh đi vào lọt vào
+        # `corpus.json`, hiện trên `/docs/[docId]`, mà đồ thị lặng lẽ không có.
+        canh: list[Relationship] = []
+        canh_vao: list[Relationship] = []
+        for c in canh_tat_ca:
+            if c.source_doc == doc.doc_id:
+                dich = canh
+            elif c.target_doc == doc.doc_id:
+                dich = canh_vao
+            else:
+                continue
+            if co_node(c.source_doc) and co_node(c.target_doc):
+                dich.append(c)
+            else:
+                print(
+                    f"[ingest] cảnh báo: bỏ cạnh {c.source_doc!r} -{c.rel_type}-> "
+                    f"{c.target_doc!r}: đầu mút không quy được về văn bản nào, Neo4j sẽ bỏ câu "
+                    "MERGE trong im lặng nên không tính nó vào số cạnh đã ghi"
+                )
+
+        ngoai = {c.target_doc for c in canh} | {c.source_doc for c in canh_vao}
+        ngoai.discard(doc.doc_id)
+        # Hai loại đầu mút, hai cách dựng, KHÔNG được lẫn: ngoài corpus ⇒ node rỗng; là văn bản
+        # thật trong corpus (đã duyệt trước đó nhưng có thể chưa lên đồ thị — `neo4j_enabled`
+        # tắt lúc ấy, hoặc Aura rớt giữa chừng như ca `SessionExpired` 10/08) ⇒ `_merge_doc`
+        # đúng như `push_corpus` vẫn làm. Dựng `VanBanRong` cho văn bản đã có toàn văn là phá
+        # bất biến của `bac_cau`.
+        rong = [v for v in rong_tat_ca if v.so_hieu in ngoai]
+        dau_mut_that = [docs_theo_id[i] for i in sorted(ngoai) if i in docs_theo_id]
+        push_one_doc(doc, canh, rong, canh_vao, dau_mut_that)
+        print(
+            f"[ingest] {doc.doc_id}: 1 node + {len(canh)} cạnh đi ra "
+            f"+ {len(canh_vao)} cạnh đi vào vào Neo4j (không xoá sạch)."
+        )
+    else:
+        print("[ingest] Bỏ qua Neo4j (chưa cấu hình NEO4J_URI/PASSWORD).")
+    return len(rows)
 
 
 # Nhãn lấy từ `app.core.schemas.REL_TYPES` — nguồn sự thật DUY NHẤT cho 13 quan hệ.

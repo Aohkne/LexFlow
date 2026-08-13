@@ -34,8 +34,46 @@ def test_artefact_that_thi_bao_so_canh(client):
     assert body["status"] == "ok"
     assert body["overlay"]["bat"] is True
     assert body["overlay"]["nap"] is True
-    assert body["overlay"]["so_canh"] == 178
-    assert body["overlay"]["sinh_luc"] == "2026-08-06"
+    # Hai hằng này đi theo `data/overlay/lop_phu.json` và ĐỔI MỖI LẦN artefact được sinh lại —
+    # `sinh_luc` là ngày chạy `dong_goi`. 178 → 177 vì bỏ một cạnh GIẢ (xem `_che_khoi_ket`,
+    # issue #12), không phải mất dữ liệu.
+    assert body["overlay"]["so_canh"] == 177
+    assert body["overlay"]["sinh_luc"] == "2026-08-09"
+
+
+def test_loi_500_van_mang_header_cors(client, monkeypatch):
+    """Không có header này thì trình duyệt chặn phản hồi và JS chỉ thấy "Failed to fetch".
+
+    Mặc định của Starlette đúng như vậy: `ServerErrorMiddleware` nằm NGOÀI `CORSMiddleware`.
+    Hệ quả đo được 11/08 — lỗi 400 InvalidKey của Supabase Storage hiện lên giao diện thành
+    một lỗi mạng vô nghĩa, phải đọc log Cloud Run mới biết chuyện gì.
+    """
+    from app.knowledge import lop_phu as lp
+
+    def _no():
+        raise RuntimeError("hỏng có chủ đích")
+
+    monkeypatch.setattr(lp, "tinh_trang", _no)
+
+    r = client.get("/health", headers={"Origin": settings.frontend_origin.split(",")[0]})
+    assert r.status_code == 500
+    assert r.headers.get("access-control-allow-origin"), "500 phải qua được CORS mới đọc được"
+
+
+def test_commit_lay_tu_bien_moi_truong(client, monkeypatch):
+    """Không có cách nào khác để biết production đang chạy mã nào.
+
+    `--source .` dựng từ thư mục, nên "revision đã đổi" KHÔNG đồng nghĩa "mã mới": một track
+    deploy từ worktree của mình là đè mất nhánh kia mà không lỗi, không cảnh báo.
+    """
+    monkeypatch.setenv("GIT_SHA", "abc1234")
+    assert client.get("/health").json()["commit"] == "abc1234"
+
+
+def test_khong_co_git_sha_thi_noi_thang_la_khong_ro(client, monkeypatch):
+    """Thà nói không biết còn hơn bịa một con số — dấu hiệu của deploy tay."""
+    monkeypatch.delenv("GIT_SHA", raising=False)
+    assert client.get("/health").json()["commit"] == "không rõ"
 
 
 def test_thieu_artefact_thi_degraded_nhung_van_200(client, monkeypatch, tmp_path):
@@ -73,8 +111,8 @@ def test_log_khoi_dong_noi_so_canh(caplog):
     lop_phu.tai_lop_phu.cache_clear()
     with caplog.at_level("INFO", logger="app.main"):
         main._bao_lop_phu()
-    assert "178 cạnh" in caplog.text
-    assert "2026-08-06" in caplog.text
+    assert "177 cạnh" in caplog.text  # đi theo artefact, xem chú thích ở test trên
+    assert "2026-08-09" in caplog.text
 
 
 def test_log_khoi_dong_canh_bao_khi_thieu_artefact(caplog, monkeypatch, tmp_path):

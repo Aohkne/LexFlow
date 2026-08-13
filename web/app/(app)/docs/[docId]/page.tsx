@@ -665,7 +665,10 @@ function DoanThan({
 }) {
   const { bang, onMo } = useContext(CtxDanhDau);
   const khoa = doan.dc ? khoaDiaChi(doan.dc) : null;
-  const dd = khoa ? bang.get(khoa) : undefined;
+  // Đánh dấu cấp ĐIỀU đã hiện ở tiêu đề Điều, không lặp lại xuống đoạn dẫn. Nó cũng không nên
+  // tô nền đoạn dẫn: cả điều bị chạm mà chỉ đoạn dẫn sáng lên thì trông như mỗi đoạn đó bị chạm.
+  const cuaDonVi = Boolean(doan.dc?.khoan || doan.dc?.diem);
+  const dd = khoa && cuaDonVi ? bang.get(khoa) : undefined;
   const diem = doan.cap === "diem";
 
   const doan_ = (
@@ -719,7 +722,6 @@ function DoanThan({
  */
 function ProvisionNodes({
   nodes,
-  tacDong,
   // Địa chỉ của phần văn bản đang bao quanh — Điều nào, và nếu đang trong một Khoản thì Khoản
   // nào. Nút Điểm không tự biết nó thuộc Khoản nào nên phải nhận từ trên xuống.
   ctx = { article: null, khoan: null, neoChuong: null },
@@ -727,7 +729,6 @@ function ProvisionNodes({
   depth = 0,
 }: {
   nodes: Provision[];
-  tacDong: Map<string, TacDongDonVi[]>;
   /** Khác null ⇒ chỉ dựng những Điều có tên trong tập này (bộ lọc "chỉ điều bị tác động"). */
   locDieu?: Set<string> | null;
   // `neoChuong` chảy xuống để một Mục biết nó nằm trong Chương nào: "Mục 1" lặp lại ở từng Chương
@@ -735,6 +736,7 @@ function ProvisionNodes({
   ctx?: { article: string | null; khoan: string | null; neoChuong: string | null };
   depth?: number;
 }) {
+  const { bang, onMo } = useContext(CtxDanhDau);
   return (
     <>
       {nodes.map((n, i) => {
@@ -772,7 +774,6 @@ function ProvisionNodes({
               {n.con.length > 0 && (
                 <ProvisionNodes
                   nodes={n.con}
-                  tacDong={tacDong}
                   locDieu={locDieu}
                   ctx={chuong ? { ...ctx, neoChuong: anchor } : ctx}
                   depth={depth + 1}
@@ -786,20 +787,45 @@ function ProvisionNodes({
           const article = n.so ? `Điều ${n.so}` : null;
           if (locDieu && (!article || !locDieu.has(article))) return null;
           const goc = article ? { article, khoan: null, diem: null } : null;
+          // Đánh dấu CẢ ĐIỀU treo ở tiêu đề, không treo ở đoạn dẫn: đo trên dữ liệu thật thì
+          // 10/16 đánh dấu cấp Điều rơi vào những Điều KHÔNG có đoạn dẫn (nội dung nằm hết trong
+          // khoản), gắn vào đoạn dẫn là mất dấu hẳn. Treo ở tiêu đề thì Điều nào cũng có.
+          const ddDieu = goc ? bang.get(khoaDiaChi(goc)) : undefined;
+          const khoaDieu = goc ? khoaDiaChi(goc) : null;
           return (
             <section
               key={key}
               id={n.so ? neoDieu(n.so) : undefined}
               className="mt-7 scroll-mt-28 first:mt-0"
             >
-              <h3 className="serif text-[1.03em] font-semibold leading-snug">
-                {[`Điều ${n.so ?? ""}`.trim(), n.tieu_de].filter(Boolean).join(". ")}
-                {marks.map((k) => (
-                  <span key={k} className="ml-2 align-middle">
-                    <AmendBadge kind={k} />
-                  </span>
-                ))}
-              </h3>
+              <div
+                className={ddDieu ? "relative cursor-pointer rounded-lg pr-2 transition-colors hover:bg-accent/5" : undefined}
+                role={ddDieu ? "button" : undefined}
+                tabIndex={ddDieu ? 0 : undefined}
+                aria-label={ddDieu ? `Xem đối chiếu ${article}` : undefined}
+                onClick={ddDieu && khoaDieu ? () => onMo(khoaDieu) : undefined}
+                onKeyDown={
+                  ddDieu && khoaDieu
+                    ? (e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          onMo(khoaDieu);
+                        }
+                      }
+                    : undefined
+                }
+              >
+                {ddDieu && <HuyHieuLe dd={ddDieu} />}
+                <h3 className="serif text-[1.03em] font-semibold leading-snug">
+                  {[`Điều ${n.so ?? ""}`.trim(), n.tieu_de].filter(Boolean).join(". ")}
+                  {marks.map((k) => (
+                    <span key={k} className="ml-2 align-middle">
+                      <AmendBadge kind={k} />
+                    </span>
+                  ))}
+                </h3>
+                {ddDieu && <DongGoiY dd={ddDieu} thutLe={false} />}
+              </div>
               {/* Đoạn dẫn của Điều — hoặc cả một khối trích dẫn có khoản/điểm của nó */}
               {n.html &&
                 beDoan(n.html, "dieu", goc).map((d, j) => (
@@ -807,11 +833,9 @@ function ProvisionNodes({
                     {renderInline(d.html)}
                   </DoanThan>
                 ))}
-              {n.so && <TacDongDieu muc={tacDong.get(`Điều ${n.so}`) ?? []} />}
               {n.con.length > 0 && (
                 <ProvisionNodes
                   nodes={n.con}
-                  tacDong={tacDong}
                   ctx={{ ...ctx, article, khoan: null }}
                   depth={depth + 1}
                 />
@@ -851,7 +875,6 @@ function ProvisionNodes({
             {n.con.length > 0 && (
               <ProvisionNodes
                 nodes={n.con}
-                tacDong={tacDong}
                 ctx={{ ...ctx, khoan: n.cap === "khoan" ? n.so : ctx.khoan }}
                 depth={depth + 1}
               />
@@ -900,7 +923,7 @@ function ContentTab({
   // Có cây thì dựng toàn văn đúng phân cấp như bản gốc; chưa crawl lại thì vẫn dùng
   // danh sách Điều phẳng cũ, không để trang trống.
   if (doc.provisions && doc.provisions.length > 0) {
-    return <ProvisionNodes nodes={doc.provisions} tacDong={theoDieu} locDieu={locDieu} />;
+    return <ProvisionNodes nodes={doc.provisions} locDieu={locDieu} />;
   }
 
   // Đường phẳng phải nói cùng một giọng với đường cây, nếu không cùng một trang lại đọc ra hai

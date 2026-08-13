@@ -1,0 +1,425 @@
+{
+ "run_at": "20260810-082207",
+ "tong_giay": 967.6,
+ "lap": 3,
+ "mau_am": 20,
+ "gia_tra_ngay": "2026-08-10",
+ "ket_qua": [
+  {
+   "model": "gemini-2.5-flash-lite",
+   "cases": [
+    {
+     "query": "Hạn mức giao dịch qua ví điện tử cá nhân hiện nay là bao nhiêu một tháng?",
+     "group": "conflict",
+     "expect_conflict": true,
+     "n_lap": 3,
+     "so_lan_bao": 3
+    },
+    {
+     "query": "Khách hàng có được nạp tiền mặt trực tiếp vào ví điện tử không?",
+     "group": "conflict",
+     "expect_conflict": true,
+     "n_lap": 3,
+     "so_lan_bao": 3
+    },
+    {
+     "query": "Người 14 tuổi có được tự mở tài khoản thanh toán bằng eKYC không?",
+     "group": "conflict",
+     "expect_conflict": true,
+     "n_lap": 3,
+     "so_lan_bao": 3
+    },
+    {
+     "query": "Một thẻ được rút tối đa bao nhiêu ngoại tệ tiền mặt tại nước ngoài trong một ngày?",
+     "group": "conflict",
+     "expect_conflict": true,
+     "n_lap": 3,
+     "so_lan_bao": 3
+    },
+    {
+     "query": "Số dư tối đa trên thẻ trả trước vô danh là bao nhiêu?",
+     "group": "conflict",
+     "expect_conflict": true,
+     "n_lap": 3,
+     "so_lan_bao": 3
+    },
+    {
+     "query": "Hạn mức nạp tiền ví điện tử liên kết theo quy định nội bộ SHB có đúng luật không?",
+     "group": "conflict",
+     "expect_conflict": true,
+     "n_lap": 3,
+     "so_lan_bao": 3
+    },
+    {
+     "query": "Người chưa đủ 15 tuổi sử dụng tài khoản thanh toán như thế nào?",
+     "group": "conflict",
+     "expect_conflict": true,
+     "n_lap": 3,
+     "so_lan_bao": 3
+    },
+    {
+     "query": "Tổng hạn mức rút tiền mặt của thẻ tín dụng trong một tháng là bao nhiêu?",
+     "group": "lookup",
+     "expect_conflict": false,
+     "n_lap": 1,
+     "so_lan_bao": 1
+    },
+    {
+     "query": "Ví điện tử là gì và được nạp tiền từ những nguồn nào?",
+     "group": "lookup",
+     "expect_conflict": false,
+     "n_lap": 1,
+     "so_lan_bao": 1
+    },
+    {
+     "query": "Các hành vi nào bị cấm trong hoạt động thanh toán không dùng tiền mặt?",
+     "group": "lookup",
+     "expect_conflict": false,
+     "n_lap": 1,
+     "so_lan_bao": 1
+    },
+    {
+     "query": "Tài khoản thanh toán bị phong tỏa trong những trường hợp nào?",
+     "group": "lookup",
+     "expect_conflict": false,
+     "n_lap": 1,
+     "so_lan_bao": 0
+    },
+    {
+     "query": "Điều kiện để tổ chức không phải ngân hàng được cấp Giấy phép cung ứng dịch vụ trung gian thanh toán?",
+     "group": "lookup",
+     "expect_conflict": false,
+     "n_lap": 1,
+     "so_lan_bao": 0
+    },
+    {
+     "query": "Việc liên kết ví điện tử với tài khoản thanh toán của khách hàng phải tuân thủ quy định gì?",
+     "group": "lookup",
+     "expect_conflict": false,
+     "n_lap": 1,
+     "so_lan_bao": 0
+    },
+    {
+     "query": "Tổ chức cung ứng dịch vụ ví điện tử phải thông báo gì cho khách hàng khi mở ví?",
+     "group": "lookup",
+     "expect_conflict": false,
+     "n_lap": 1,
+     "so_lan_bao": 0
+    },
+    {
+     "query": "Hồ sơ mở ví điện tử đối với khách hàng cá nhân gồm những gì?",
+     "group": "lookup",
+     "expect_conflict": false,
+     "n_lap": 1,
+     "so_lan_bao": 1
+    },
+    {
+     "query": "Giao dịch thanh toán qua dịch vụ trung gian thanh toán phải dùng đồng tiền nào?",
+     "group": "lookup",
+     "expect_conflict": false,
+     "n_lap": 1,
+     "so_lan_bao": 1
+    },
+    {
+     "query": "Ai được mở tài khoản thanh toán tại ngân hàng theo quy định hiện hành?",
+     "group": "lookup",
+     "expect_conflict": false,
+     "n_lap": 1,
+     "so_lan_bao": 0
+    },
+    {
+     "query": "Mở tài khoản thanh toán bằng phương thức điện tử phải đáp ứng yêu cầu gì?",
+     "group": "lookup",
+     "expect_conflict": false,
+     "n_lap": 1,
+     "so_lan_bao": 0
+    },
+    {
+     "query": "Séc và ủy nhiệm chi được quy định như thế nào trong cung ứng dịch vụ thanh toán?",
+     "group": "lookup",
+     "expect_conflict": false,
+     "n_lap": 1,
+     "so_lan_bao": 0
+    },
+    {
+     "query": "Dịch vụ thu hộ chi hộ hiện nay được quy định ở văn bản nào?",
+     "group": "lookup",
+     "expect_conflict": false,
+     "n_lap": 1,
+     "so_lan_bao": 0
+    },
+    {
+     "query": "Thẻ ghi nợ khác thẻ tín dụng như thế nào?",
+     "group": "lookup",
+     "expect_conflict": false,
+     "n_lap": 1,
+     "so_lan_bao": 0
+    },
+    {
+     "query": "Hợp đồng phát hành và sử dụng thẻ phải có những nội dung gì?",
+     "group": "lookup",
+     "expect_conflict": false,
+     "n_lap": 1,
+     "so_lan_bao": 0
+    },
+    {
+     "query": "Tổ chức phát hành thẻ phải làm gì khi phát hiện thẻ có dấu hiệu gian lận?",
+     "group": "lookup",
+     "expect_conflict": false,
+     "n_lap": 1,
+     "so_lan_bao": 1
+    },
+    {
+     "query": "Phí quản lý tài khoản thanh toán cá nhân tại SHB là bao nhiêu?",
+     "group": "lookup",
+     "expect_conflict": false,
+     "n_lap": 1,
+     "so_lan_bao": 1
+    },
+    {
+     "query": "Chuyển tiền nhanh Napas 247 tại SHB có mất phí không?",
+     "group": "lookup",
+     "expect_conflict": false,
+     "n_lap": 1,
+     "so_lan_bao": 0
+    },
+    {
+     "query": "Thẻ SHB chưa kích hoạt sau bao lâu thì bị khóa?",
+     "group": "lookup",
+     "expect_conflict": false,
+     "n_lap": 1,
+     "so_lan_bao": 1
+    },
+    {
+     "query": "Tài khoản SHB không giao dịch bao lâu thì bị chuyển trạng thái ngủ đông?",
+     "group": "lookup",
+     "expect_conflict": false,
+     "n_lap": 1,
+     "so_lan_bao": 0
+    }
+   ],
+   "giay": 328.8,
+   "tong_hop": {
+    "recall_bat_duoc": 7,
+    "recall_tong": 7,
+    "on_dinh_tuyet_doi": 7,
+    "duong_tinh_gia": 8,
+    "am_tong": 20
+   },
+   "token": {
+    "luot": 37,
+    "vao": 93394,
+    "ra": 81787
+   },
+   "usd": 0.0420542
+  },
+  {
+   "model": "gemini-2.5-pro",
+   "cases": [
+    {
+     "query": "Hạn mức giao dịch qua ví điện tử cá nhân hiện nay là bao nhiêu một tháng?",
+     "group": "conflict",
+     "expect_conflict": true,
+     "n_lap": 3,
+     "so_lan_bao": 3
+    },
+    {
+     "query": "Khách hàng có được nạp tiền mặt trực tiếp vào ví điện tử không?",
+     "group": "conflict",
+     "expect_conflict": true,
+     "n_lap": 3,
+     "so_lan_bao": 3
+    },
+    {
+     "query": "Người 14 tuổi có được tự mở tài khoản thanh toán bằng eKYC không?",
+     "group": "conflict",
+     "expect_conflict": true,
+     "n_lap": 3,
+     "so_lan_bao": 3
+    },
+    {
+     "query": "Một thẻ được rút tối đa bao nhiêu ngoại tệ tiền mặt tại nước ngoài trong một ngày?",
+     "group": "conflict",
+     "expect_conflict": true,
+     "n_lap": 3,
+     "so_lan_bao": 3
+    },
+    {
+     "query": "Số dư tối đa trên thẻ trả trước vô danh là bao nhiêu?",
+     "group": "conflict",
+     "expect_conflict": true,
+     "n_lap": 3,
+     "so_lan_bao": 3
+    },
+    {
+     "query": "Hạn mức nạp tiền ví điện tử liên kết theo quy định nội bộ SHB có đúng luật không?",
+     "group": "conflict",
+     "expect_conflict": true,
+     "n_lap": 3,
+     "so_lan_bao": 3
+    },
+    {
+     "query": "Người chưa đủ 15 tuổi sử dụng tài khoản thanh toán như thế nào?",
+     "group": "conflict",
+     "expect_conflict": true,
+     "n_lap": 3,
+     "so_lan_bao": 3
+    },
+    {
+     "query": "Tổng hạn mức rút tiền mặt của thẻ tín dụng trong một tháng là bao nhiêu?",
+     "group": "lookup",
+     "expect_conflict": false,
+     "n_lap": 1,
+     "so_lan_bao": 1
+    },
+    {
+     "query": "Ví điện tử là gì và được nạp tiền từ những nguồn nào?",
+     "group": "lookup",
+     "expect_conflict": false,
+     "n_lap": 1,
+     "so_lan_bao": 1
+    },
+    {
+     "query": "Các hành vi nào bị cấm trong hoạt động thanh toán không dùng tiền mặt?",
+     "group": "lookup",
+     "expect_conflict": false,
+     "n_lap": 1,
+     "so_lan_bao": 0
+    },
+    {
+     "query": "Tài khoản thanh toán bị phong tỏa trong những trường hợp nào?",
+     "group": "lookup",
+     "expect_conflict": false,
+     "n_lap": 1,
+     "so_lan_bao": 0
+    },
+    {
+     "query": "Điều kiện để tổ chức không phải ngân hàng được cấp Giấy phép cung ứng dịch vụ trung gian thanh toán?",
+     "group": "lookup",
+     "expect_conflict": false,
+     "n_lap": 1,
+     "so_lan_bao": 0
+    },
+    {
+     "query": "Việc liên kết ví điện tử với tài khoản thanh toán của khách hàng phải tuân thủ quy định gì?",
+     "group": "lookup",
+     "expect_conflict": false,
+     "n_lap": 1,
+     "so_lan_bao": 0
+    },
+    {
+     "query": "Tổ chức cung ứng dịch vụ ví điện tử phải thông báo gì cho khách hàng khi mở ví?",
+     "group": "lookup",
+     "expect_conflict": false,
+     "n_lap": 1,
+     "so_lan_bao": 0
+    },
+    {
+     "query": "Hồ sơ mở ví điện tử đối với khách hàng cá nhân gồm những gì?",
+     "group": "lookup",
+     "expect_conflict": false,
+     "n_lap": 1,
+     "so_lan_bao": 0
+    },
+    {
+     "query": "Giao dịch thanh toán qua dịch vụ trung gian thanh toán phải dùng đồng tiền nào?",
+     "group": "lookup",
+     "expect_conflict": false,
+     "n_lap": 1,
+     "so_lan_bao": 0
+    },
+    {
+     "query": "Ai được mở tài khoản thanh toán tại ngân hàng theo quy định hiện hành?",
+     "group": "lookup",
+     "expect_conflict": false,
+     "n_lap": 1,
+     "so_lan_bao": 0
+    },
+    {
+     "query": "Mở tài khoản thanh toán bằng phương thức điện tử phải đáp ứng yêu cầu gì?",
+     "group": "lookup",
+     "expect_conflict": false,
+     "n_lap": 1,
+     "so_lan_bao": 0
+    },
+    {
+     "query": "Séc và ủy nhiệm chi được quy định như thế nào trong cung ứng dịch vụ thanh toán?",
+     "group": "lookup",
+     "expect_conflict": false,
+     "n_lap": 1,
+     "so_lan_bao": 1
+    },
+    {
+     "query": "Dịch vụ thu hộ chi hộ hiện nay được quy định ở văn bản nào?",
+     "group": "lookup",
+     "expect_conflict": false,
+     "n_lap": 1,
+     "so_lan_bao": 0
+    },
+    {
+     "query": "Thẻ ghi nợ khác thẻ tín dụng như thế nào?",
+     "group": "lookup",
+     "expect_conflict": false,
+     "n_lap": 1,
+     "so_lan_bao": 0
+    },
+    {
+     "query": "Hợp đồng phát hành và sử dụng thẻ phải có những nội dung gì?",
+     "group": "lookup",
+     "expect_conflict": false,
+     "n_lap": 1,
+     "so_lan_bao": 0
+    },
+    {
+     "query": "Tổ chức phát hành thẻ phải làm gì khi phát hiện thẻ có dấu hiệu gian lận?",
+     "group": "lookup",
+     "expect_conflict": false,
+     "n_lap": 1,
+     "so_lan_bao": 1
+    },
+    {
+     "query": "Phí quản lý tài khoản thanh toán cá nhân tại SHB là bao nhiêu?",
+     "group": "lookup",
+     "expect_conflict": false,
+     "n_lap": 1,
+     "so_lan_bao": 0
+    },
+    {
+     "query": "Chuyển tiền nhanh Napas 247 tại SHB có mất phí không?",
+     "group": "lookup",
+     "expect_conflict": false,
+     "n_lap": 1,
+     "so_lan_bao": 0
+    },
+    {
+     "query": "Thẻ SHB chưa kích hoạt sau bao lâu thì bị khóa?",
+     "group": "lookup",
+     "expect_conflict": false,
+     "n_lap": 1,
+     "so_lan_bao": 0
+    },
+    {
+     "query": "Tài khoản SHB không giao dịch bao lâu thì bị chuyển trạng thái ngủ đông?",
+     "group": "lookup",
+     "expect_conflict": false,
+     "n_lap": 1,
+     "so_lan_bao": 0
+    }
+   ],
+   "giay": 638.8,
+   "tong_hop": {
+    "recall_bat_duoc": 7,
+    "recall_tong": 7,
+    "on_dinh_tuyet_doi": 7,
+    "duong_tinh_gia": 4,
+    "am_tong": 20
+   },
+   "token": {
+    "luot": 37,
+    "vao": 93394,
+    "ra": 79463
+   },
+   "usd": 0.9113725
+  }
+ ]
+}

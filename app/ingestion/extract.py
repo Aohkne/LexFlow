@@ -175,6 +175,11 @@ def extract_document(path: Path, source: str = "external") -> CorpusDocument:
         doc_type=meta["doc_type"],
         source=source,
         valid_from=meta["valid_from"],
+        # `so_hieu` từng được tính ở `extract_metadata` rồi dừng lại đó — đúng thứ docstring
+        # của `so_hieu_trong` nói là để điền vào đây. Thiếu nó thì `don_node_rong_da_co_toan_van`
+        # (khớp `that.so_hieu = rong.doc_id`) không bao giờ khớp, và mỗi lượt duyệt qua `/admin`
+        # để lại HAI node cho một văn bản. Xem T20.
+        so_hieu=meta["so_hieu"],
         articles=articles,
     )
 

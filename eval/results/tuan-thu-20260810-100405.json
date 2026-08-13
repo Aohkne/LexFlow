@@ -1,0 +1,154 @@
+{
+ "run_at": "20260810-100405",
+ "model": "gemini-2.5-flash-lite",
+ "lap": 2,
+ "n_vang": 7,
+ "luot": [
+  {
+   "lan": 1,
+   "n_cham": 7,
+   "thieu_phan_dinh": [],
+   "dung": 6,
+   "nua_dung": 1,
+   "sai": 0,
+   "chua_danh_gia": 0,
+   "ty_le_dung": 0.857,
+   "chi_tiet": {
+    "dung": [
+     {
+      "noi_bo": "SHB-QD-VI-2023::Mục 3.1",
+      "verdict": "violation",
+      "mo_ta": "hạn mức ví 200 triệu/tháng vượt trần 100 triệu của TT40-2024 Điều 26",
+      "thuc": "violation"
+     },
+     {
+      "noi_bo": "SHB-QD-VI-2023::Mục 4.2",
+      "verdict": "violation",
+      "mo_ta": "cho nạp tiền mặt tại quầy vào ví, TT40-2024 Điều 25 không cho kênh này",
+      "thuc": "violation"
+     },
+     {
+      "noi_bo": "SHB-QD-THE-2023::Mục 5.2",
+      "verdict": "violation",
+      "mo_ta": "rút ngoại tệ 80 triệu/ngày vượt trần 30 triệu của TT18-2024 Điều 13",
+      "thuc": "violation"
+     },
+     {
+      "noi_bo": "SHB-QD-THE-2023::Mục 6.1",
+      "verdict": "violation",
+      "mo_ta": "số dư thẻ vô danh 20 triệu vượt trần 5 triệu của TT18-2024 Điều 13",
+      "thuc": "violation"
+     },
+     {
+      "noi_bo": "SHB-CS-PHI-2024::Mục 1.2",
+      "verdict": "pass",
+      "mo_ta": "đối chứng — miễn phí chuyển tiền nội bộ/Napas, thuần chính sách phí, không có điểm va với luật",
+      "thuc": "pass"
+     },
+     {
+      "noi_bo": "SHB-CS-PHI-2024::Mục 2.1",
+      "verdict": "pass",
+      "mo_ta": "đối chứng — phí quản lý tài khoản, thuần chính sách phí, không có điểm va với luật",
+      "thuc": "pass"
+     }
+    ],
+    "nua_dung": [
+     {
+      "noi_bo": "SHB-QD-TK-2022::Mục 2.3",
+      "verdict": "violation",
+      "mo_ta": "eKYC từ đủ 14 tuổi, TT17-2024 Điều 11 đòi đủ 15 tuổi",
+      "thuc": "warning"
+     }
+    ],
+    "sai": [],
+    "chua_danh_gia": []
+   },
+   "phan_dinh": {
+    "SHB-QD-VI-2023::Mục 3.1": "violation",
+    "SHB-QD-VI-2023::Mục 4.2": "violation",
+    "SHB-QD-VI-2023::Mục 5.1": "pass",
+    "SHB-QD-TK-2022::Mục 2.3": "warning",
+    "SHB-QD-TK-2022::Mục 2.5": "pass",
+    "SHB-QD-TK-2022::Mục 6.1": "pass",
+    "SHB-QD-THE-2023::Mục 5.2": "violation",
+    "SHB-QD-THE-2023::Mục 6.1": "violation",
+    "SHB-QD-THE-2023::Mục 7.3": "pass",
+    "SHB-CS-PHI-2024::Mục 1.2": "pass",
+    "SHB-CS-PHI-2024::Mục 2.1": "pass"
+   }
+  },
+  {
+   "lan": 2,
+   "n_cham": 7,
+   "thieu_phan_dinh": [],
+   "dung": 6,
+   "nua_dung": 1,
+   "sai": 0,
+   "chua_danh_gia": 0,
+   "ty_le_dung": 0.857,
+   "chi_tiet": {
+    "dung": [
+     {
+      "noi_bo": "SHB-QD-VI-2023::Mục 3.1",
+      "verdict": "violation",
+      "mo_ta": "hạn mức ví 200 triệu/tháng vượt trần 100 triệu của TT40-2024 Điều 26",
+      "thuc": "violation"
+     },
+     {
+      "noi_bo": "SHB-QD-VI-2023::Mục 4.2",
+      "verdict": "violation",
+      "mo_ta": "cho nạp tiền mặt tại quầy vào ví, TT40-2024 Điều 25 không cho kênh này",
+      "thuc": "violation"
+     },
+     {
+      "noi_bo": "SHB-QD-THE-2023::Mục 5.2",
+      "verdict": "violation",
+      "mo_ta": "rút ngoại tệ 80 triệu/ngày vượt trần 30 triệu của TT18-2024 Điều 13",
+      "thuc": "violation"
+     },
+     {
+      "noi_bo": "SHB-QD-THE-2023::Mục 6.1",
+      "verdict": "violation",
+      "mo_ta": "số dư thẻ vô danh 20 triệu vượt trần 5 triệu của TT18-2024 Điều 13",
+      "thuc": "violation"
+     },
+     {
+      "noi_bo": "SHB-CS-PHI-2024::Mục 1.2",
+      "verdict": "pass",
+      "mo_ta": "đối chứng — miễn phí chuyển tiền nội bộ/Napas, thuần chính sách phí, không có điểm va với luật",
+      "thuc": "pass"
+     },
+     {
+      "noi_bo": "SHB-CS-PHI-2024::Mục 2.1",
+      "verdict": "pass",
+      "mo_ta": "đối chứng — phí quản lý tài khoản, thuần chính sách phí, không có điểm va với luật",
+      "thuc": "pass"
+     }
+    ],
+    "nua_dung": [
+     {
+      "noi_bo": "SHB-QD-TK-2022::Mục 2.3",
+      "verdict": "violation",
+      "mo_ta": "eKYC từ đủ 14 tuổi, TT17-2024 Điều 11 đòi đủ 15 tuổi",
+      "thuc": "warning"
+     }
+    ],
+    "sai": [],
+    "chua_danh_gia": []
+   },
+   "phan_dinh": {
+    "SHB-QD-VI-2023::Mục 3.1": "violation",
+    "SHB-QD-VI-2023::Mục 4.2": "violation",
+    "SHB-QD-VI-2023::Mục 5.1": "pass",
+    "SHB-QD-TK-2022::Mục 2.3": "warning",
+    "SHB-QD-TK-2022::Mục 2.5": "pass",
+    "SHB-QD-TK-2022::Mục 6.1": "pass",
+    "SHB-QD-THE-2023::Mục 5.2": "violation",
+    "SHB-QD-THE-2023::Mục 6.1": "violation",
+    "SHB-QD-THE-2023::Mục 7.3": "pass",
+    "SHB-CS-PHI-2024::Mục 1.2": "pass",
+    "SHB-CS-PHI-2024::Mục 2.1": "pass"
+   }
+  }
+ ]
+}

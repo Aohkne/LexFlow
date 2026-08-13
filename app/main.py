@@ -7,6 +7,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from app.api import admin, chat, documents, graph, reviews
 from app.core import tracing
@@ -62,6 +63,26 @@ app = FastAPI(
     version="0.1.0",
     lifespan=_lifespan,
 )
+
+@app.middleware("http")
+async def _loi_500_van_phai_qua_duoc_cors(request, call_next):
+    """Biến lỗi chưa bắt thành phản hồi 500 THẬT, để CORS còn gắn header lên được.
+
+    Mặc định của Starlette là `ServerErrorMiddleware` — nó nằm NGOÀI `CORSMiddleware`, nên
+    phản hồi 500 đi ra không có `Access-Control-Allow-Origin`; trình duyệt chặn thẳng và
+    JavaScript chỉ thấy "Failed to fetch". Nghĩa là mọi lỗi máy chủ đều hiện ra dưới dạng lỗi
+    mạng, không cách nào đọc được lý do — đúng cái đã che mất lỗi 400 InvalidKey của Storage
+    hôm 11/08 (upload PDF tên tiếng Việt).
+
+    Middleware này nằm TRONG CORS (thêm trước, nên bị bọc ngoài bởi CORS) và tự dựng phản hồi
+    thay vì để lỗi bay lên. Thân phản hồi cố ý không mang traceback — log mới là chỗ đọc nó.
+    """
+    try:
+        return await call_next(request)
+    except Exception:
+        logger.exception("lỗi chưa bắt tại %s %s", request.method, request.url.path)
+        return JSONResponse(status_code=500, content={"detail": "Lỗi máy chủ — xem log"})
+
 
 app.add_middleware(
     CORSMiddleware,

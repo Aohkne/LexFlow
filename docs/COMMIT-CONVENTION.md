@@ -32,7 +32,7 @@ Applies to every commit in this repo (humans and AI agents). Base standard: [Con
 
 ## Scopes (closed list)
 
-`web` (Next.js) · `api` (FastAPI: `app/api`, `app/core`, `app/reasoning`) · `ingest` (`app/ingestion`) · `kg` (Neo4j / `app/knowledge`) · `ontology` (`app/ontology`: tầng chuẩn tắc — parser giữ offset, phân loại vai, trích Compliance Unit) · `eval` (benchmarks) · `design` (handoffs in `design/`) · `docs` · `scripts` · `data` (corpus) · `ci`
+`web` (Next.js) · `api` (FastAPI: `app/api`, `app/core`, `app/reasoning`) · `ingest` (`app/ingestion`) · `kg` (Neo4j / `app/knowledge`) · `ontology` (`app/ontology`: tầng chuẩn tắc — parser giữ offset, phân loại vai, trích Compliance Unit) · `db` (Supabase schema/RLS: `supabase/migrations/`) · `eval` (benchmarks) · `design` (handoffs in `design/`) · `docs` · `scripts` · `data` (corpus) · `ci`
 
 - Change spans multiple scopes → pick the main one; if there is no clear main scope, omit it (`feat: ...`) — and consider splitting the commit.
 - Need a new scope → add it to this table in the same commit.
@@ -91,3 +91,32 @@ docs: update DESIGN-GAP with Lexi section
 4. After pushing, GitHub Actions CI must be green; if it goes red, fix it immediately with a new commit (highest priority).
 5. **Never**: `push --force` to `main` · amend/rebase already-pushed commits · `--no-verify` to skip hooks.
 6. Never commit secrets — credentials live only in `.env` (gitignored).
+
+## Deploy rules
+
+**Deploy from `main` only, after the PR merges.** Never from a track branch.
+
+`gcloud run deploy --source .` builds the **working directory**, not a git ref. With one worktree
+per track, whoever deploys last wins and the other track's work disappears from production with
+no error and no warning. The symptom is not obviously a deploy problem either: on 11/08, had the
+AI track deployed from its own worktree, uploading a `.json` file in `/admin` would have returned
+`422 Extract thất bại: ...` — indistinguishable from a bad crawl file.
+
+```powershell
+git -C <worktree-main> pull                # or: git worktree add ../LexFlow-deploy main
+uv run pytest -q                           # green before shipping
+gcloud run deploy lexflow-api --source . --region asia-southeast1 --allow-unauthenticated `
+  --update-env-vars "GIT_SHA=$(git rev-parse --short HEAD)"
+```
+
+`--update-env-vars`, never `--set-env-vars`. The latter **replaces the whole list**: the service
+carries 16 variables (Gemini, Neo4j, LanceDB, Supabase, Langfuse, `FRONTEND_ORIGIN`) and none of
+them live in git, so setting one would drop the other fifteen and take production down.
+
+`GIT_SHA` is what `/health` reports back, so "which commit is production running?" stays a
+question with an answer. Deploying without it leaves `commit: "không rõ"` — which is honest, and
+is also the sign someone deployed by hand from an unknown tree.
+
+Two things the working directory carries that git does not: **uncommitted files ship too** (check
+`git status` first), and a branch that is behind `main` silently rolls production back — check
+with `git log HEAD..origin/main` before deploying, expect zero commits.

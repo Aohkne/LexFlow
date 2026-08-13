@@ -1,14 +1,17 @@
 """Test luồng duyệt văn bản (mock appdb + pipeline — offline)."""
 from __future__ import annotations
 
+import re
 import time
 
+import httpx
 import jwt as pyjwt
 import pytest
 from fastapi.testclient import TestClient
 
 from app.core import appdb
 from app.core.config import settings
+from app.core.schemas import CorpusDocument
 from app.main import app
 
 SECRET = "test-secret-0123456789-0123456789-xx"
@@ -45,7 +48,22 @@ def fake_store(monkeypatch):
     """Giả lập Storage + legal_documents + audit trong bộ nhớ."""
     store: dict = {"storage": {}, "rows": {}, "audit": [], "events": 0, "ingested": 0}
 
-    monkeypatch.setattr(appdb, "upload_storage", lambda tok, path, content, ct: store["storage"].__setitem__(path, content))
+    # Supabase Storage CHỈ nhận khoá khớp regex này (storage/src/storage/limits.ts) — `\w` của
+    # JavaScript là ASCII, nên tên file có dấu tiếng Việt bị trả 400 InvalidKey. Con giả cũ nhận
+    # mọi khoá nên đồng ý với chính giả định của mình: bộ test xanh suốt trong khi production
+    # hỏng với gần như mọi văn bản pháp luật (ca thật 11/08, "Thông tư 28-2026-TT-NHNN.pdf").
+    khoa_hop_le = re.compile(r"^(?:[A-Za-z0-9_]|[/!\-.*'() &$@=;:+,?])+$")
+
+    def _upload(tok, path, content, ct):
+        if not khoa_hop_le.match(path):
+            raise httpx.HTTPStatusError(
+                "Client error '400 Bad Request'",
+                request=httpx.Request("POST", f"https://x.supabase.co/{path}"),
+                response=httpx.Response(400, text=f'{{"error":"InvalidKey","message":"{path}"}}'),
+            )
+        store["storage"][path] = content
+
+    monkeypatch.setattr(appdb, "upload_storage", _upload)
     monkeypatch.setattr(appdb, "download_storage", lambda tok, path: store["storage"].get(path))
     monkeypatch.setattr(appdb, "insert_document", lambda tok, row: store["rows"].__setitem__(row["doc_id"], row))
     monkeypatch.setattr(appdb, "update_document", lambda tok, doc_id, patch: store["rows"][doc_id].update(patch))
@@ -55,11 +73,13 @@ def fake_store(monkeypatch):
 
     import app.ingestion.pipeline as pipeline
 
-    def fake_ingest(docs, rels, **kw):
-        store["ingested"] = sum(len(d.articles) for d in docs)
-        return store["ingested"], store["ingested"]
+    def fake_ingest_one(doc, rels, tat_ca_docs):
+        store["ingested"] = len(doc.articles)
+        store["ingested_doc"] = doc.doc_id
+        store["ingested_tat_ca"] = [d.doc_id for d in tat_ca_docs]
+        return store["ingested"]
 
-    monkeypatch.setattr(pipeline, "ingest_docs", fake_ingest)
+    monkeypatch.setattr(pipeline, "ingest_one_doc", fake_ingest_one)
     return store
 
 
@@ -104,37 +124,18 @@ def test_approve_merge_vao_canonical(client, fake_store, monkeypatch):
     assert corpus["relationships"][0]["rel_type"] == "DAN_CHIEU"
     assert fake_store["rows"]["TT99-2026"]["status"] == "approved"
     assert "doc_approve" in fake_store["audit"]
-    assert fake_store["ingested"] == 2  # re-ingest full: 2 văn bản × 1 điều
+    # Chỉ nạp lại VĂN BẢN VỪA DUYỆT, không nạp lại cả corpus — đây là điều phân biệt
+    # đường tăng dần với đường ghi đè. Văn bản cũ ND00-2020 vẫn nằm trong canonical
+    # (nên có mặt ở `ingested_tat_ca`) nhưng không bị embed lại.
+    assert fake_store["ingested"] == 1
+    assert fake_store["ingested_doc"] == "TT99-2026"
+    assert set(fake_store["ingested_tat_ca"]) == {"ND00-2020", "TT99-2026"}
 
 
 def test_approve_khong_co_extracted_bi_400(client, fake_store):
     fake_store["rows"]["X"] = {"doc_id": "X", "extracted": None}
     r = client.post("/documents/X/approve", headers={"Authorization": f"Bearer {_token('admin')}"})
     assert r.status_code == 400
-
-
-def test_approve_doc_du_trong_bang_tra_409_khong_500(client, fake_store, monkeypatch):
-    """`DocDuTrongBang` là trạng thái BIẾT TRƯỚC (bảng LanceDB còn văn bản mà corpus không có),
-    không phải sự cố. Trước fix không có handler nào bắt nó: FastAPI trả 500 vô danh, và vì nó
-    nổ SAU khi corpus canonical đã ghi lên Storage + cache đã invalidate nhưng TRƯỚC
-    `update_document`/`log_audit`, văn bản kẹt "pending" vĩnh viễn dù corpus đã có nó rồi.
-    """
-    import app.ingestion.pipeline as pipeline
-
-    fake_store["rows"]["TT99-2026"] = {"doc_id": "TT99-2026", "extracted": _DOC, "status": "pending"}
-
-    def fake_ingest_no(docs, rels, **kw):
-        raise pipeline.DocDuTrongBang({"MOT-DOC-DU"})
-
-    monkeypatch.setattr(pipeline, "ingest_docs", fake_ingest_no)
-
-    r = client.post("/documents/TT99-2026/approve", headers={"Authorization": f"Bearer {_token('admin')}"})
-
-    assert r.status_code == 409, r.text
-    assert "MOT-DOC-DU" in r.json()["detail"]
-    # Nửa việc chưa chạy: status vẫn "pending", audit "doc_approve" không được ghi.
-    assert fake_store["rows"]["TT99-2026"]["status"] == "pending"
-    assert "doc_approve" not in fake_store["audit"]
 
 
 def test_reject(client, fake_store):
@@ -332,3 +333,243 @@ def test_approve_lam_moi_cache_doc(client, fake_store):
     r2 = client.get("/documents", headers={"Authorization": f"Bearer {_token('staff')}"})
     titles = {d["doc_id"]: d["title"] for d in r2.json()}
     assert titles["TT99-2026"] == "Đã sửa tên"  # cache đã invalidate sau approve
+
+
+def test_approve_doc_id_ban_bi_chan_truoc_khi_ghi_storage(client, fake_store):
+    """`doc_id` đi vào chuỗi điều kiện của `delete` — chặn ở cửa, và chặn TRƯỚC khi ghi."""
+    xau = {**_DOC, "doc_id": "TT99'; drop --"}
+    fake_store["rows"]["TT99-2026"] = {"doc_id": "TT99-2026", "extracted": xau, "status": "pending"}
+
+    r = client.post(
+        "/documents/TT99-2026/approve",
+        headers={"Authorization": f"Bearer {_token('admin')}"},
+    )
+    assert r.status_code == 422, r.text
+    assert "corpus.json" not in fake_store["storage"], "không được ghi canonical rồi mới từ chối"
+    assert fake_store["rows"]["TT99-2026"]["status"] == "pending"
+
+
+def test_approve_nap_hong_thi_502_va_giu_pending(client, fake_store, monkeypatch):
+    """Canonical đã ghi mà chỉ mục chưa — phải nói ra, và để status ở pending để bấm lại."""
+    import app.ingestion.pipeline as pipeline
+
+    def no(doc, rels, tat_ca_docs):
+        raise RuntimeError("LanceDB Cloud từ chối")
+
+    monkeypatch.setattr(pipeline, "ingest_one_doc", no)
+    fake_store["rows"]["TT99-2026"] = {"doc_id": "TT99-2026", "extracted": _DOC, "status": "pending"}
+
+    r = client.post(
+        "/documents/TT99-2026/approve",
+        headers={"Authorization": f"Bearer {_token('admin')}"},
+    )
+    assert r.status_code == 502, r.text
+    assert "duyệt lại" in r.json()["detail"]
+    assert fake_store["rows"]["TT99-2026"]["status"] == "pending"
+    assert "corpus.json" in fake_store["storage"], "canonical đã ghi — thông báo phải nói đúng thế"
+    # Lỗi mà không để lại dấu vết thì lượt duyệt hỏng biến mất khỏi lịch sử: bảng vẫn
+    # `pending`, `audit_log` không có gì, và không ai truy được là đã có người bấm.
+    assert "doc_approve_failed" in fake_store["audit"]
+
+
+def test_approve_khong_doc_duoc_canonical_thi_502_chu_khong_de_ban_dong_goi_len(
+    client, fake_store, monkeypatch
+):
+    """Đọc-sửa-GHI không được fail-open.
+
+    `load_canonical` nuốt lỗi Storage rồi rơi về `data/corpus.real.json` đóng gói trong image
+    — đúng cho đường ĐỌC (thà bản cũ còn hơn trắng trang), nhưng ở đây bản 26 văn bản ấy sẽ
+    được ghi đè lên `corpus.json` thật, xoá sạch mọi văn bản đã duyệt trước đó mà không một
+    dòng lỗi. Câu "bấm lại vô hại" chỉ đúng khi lượt đọc này trả canonical thật.
+    """
+    import json
+
+    goc = json.dumps(
+        {"documents": [{**_DOC, "doc_id": "ND00-2020", "title": "Đã duyệt hôm qua"}],
+         "relationships": []},
+        ensure_ascii=False,
+    ).encode("utf-8")
+    fake_store["storage"]["corpus.json"] = goc
+    fake_store["rows"]["TT99-2026"] = {"doc_id": "TT99-2026", "extracted": _DOC, "status": "pending"}
+
+    def boom(tok, path):
+        raise RuntimeError("Storage timeout")
+
+    monkeypatch.setattr(appdb, "download_storage", boom)
+
+    r = client.post(
+        "/documents/TT99-2026/approve",
+        headers={"Authorization": f"Bearer {_token('admin')}"},
+    )
+    assert r.status_code == 502, r.text
+    assert fake_store["storage"]["corpus.json"] == goc, "canonical thật không được đụng tới"
+    assert fake_store["rows"]["TT99-2026"]["status"] == "pending"
+    assert fake_store["ingested"] == 0, "chưa đọc được canonical thì không được nạp gì"
+    assert "doc_approve_failed" in fake_store["audit"]
+
+
+# --- Nạp thẳng bản đã crawl từ vbpl (không qua extractor) ---
+
+#: File thật trong repo, không bịa: 3 điều, 3 nút cây, có bảng thuộc tính và char_span.
+_FILE_CRAWL = (
+    "data/raw/vbpl/corpus/"
+    "thong-tu-21-2026-tt-nhnn-sua-doi-bo-sung-dieu-15-thong-tu-so-15-2024-tt-nhnn-quy.json"
+)
+
+
+def _cam_extractor(monkeypatch):
+    """Bắt quả tang nếu extractor chạy — chạy là mất provisions/so_hieu/char_span."""
+    import app.ingestion.extract as extract_mod
+
+    def _no(*_a, **_kw):
+        raise AssertionError("extract_document chạy trên file đã đúng khuôn CorpusDocument")
+
+    monkeypatch.setattr(extract_mod, "extract_document", _no)
+
+
+def test_upload_json_da_crawl_giu_nguyen_cay_va_thuoc_tinh(client, fake_store, monkeypatch):
+    """Bản crawl giàu hơn hẳn bản extract — đẩy nó qua regex + Gemini là vứt hết rồi đoán lại."""
+    from pathlib import Path
+
+    _cam_extractor(monkeypatch)
+    noi_dung = Path(_FILE_CRAWL).read_bytes()
+
+    r = client.post(
+        "/documents/upload",
+        files={"file": (Path(_FILE_CRAWL).name, noi_dung, "application/json")},
+        headers={"Authorization": f"Bearer {_token('admin')}"},
+    )
+
+    assert r.status_code == 200, r.text
+    assert r.json()["doc_id"] == "TT21-2026"
+    luu = fake_store["rows"]["TT21-2026"]["extracted"]
+    assert luu["so_hieu"] == "21/2026/TT-NHNN"
+    assert len(luu["provisions"]) == 3, "cây điều khoản phải sống sót"
+    assert luu["co_quan_ban_hanh"] == "Ngân hàng Nhà nước Việt Nam"
+    assert luu["articles"][0]["char_start"] == 958, "char_span phải giữ nguyên từng con số"
+
+
+def test_upload_json_hong_thi_422_chu_khong_roi_ve_extractor(client, fake_store, monkeypatch):
+    """Rơi về extractor là biến một file hỏng thành văn bản trông như thật với vài điều rỗng."""
+    _cam_extractor(monkeypatch)
+
+    r = client.post(
+        "/documents/upload",
+        files={"file": ("hong.json", b'{"doc_id": "TT99-2026"}', "application/json")},
+        headers={"Authorization": f"Bearer {_token('admin')}"},
+    )
+
+    assert r.status_code == 422, r.text
+    assert "title" in r.text, "phải nói rõ thiếu trường nào, không nuốt lý do"
+    assert fake_store["rows"] == {}, "không được tạo bản ghi pending cho file hỏng"
+
+
+def test_upload_json_doc_id_ban_bi_chan(client, fake_store, monkeypatch):
+    """`doc_id` chảy vào chuỗi điều kiện của `tbl.delete` ở bước duyệt — chặn từ cửa vào."""
+    import json
+
+    _cam_extractor(monkeypatch)
+    xau = json.dumps({**_DOC, "doc_id": "TT99'; --"}, ensure_ascii=False).encode("utf-8")
+
+    r = client.post(
+        "/documents/upload",
+        files={"file": ("xau.json", xau, "application/json")},
+        headers={"Authorization": f"Bearer {_token('admin')}"},
+    )
+
+    assert r.status_code == 422, r.text
+    assert "doc_id không hợp lệ" in r.text, "phải ghim đúng lý do là kiem_doc_id từ chối"
+    assert fake_store["rows"] == {}
+
+
+def test_upload_pdf_van_di_duong_extractor(client, fake_store, monkeypatch):
+    """Đường cũ không được đụng: văn bản nội bộ SHB không có trang vbpl để cào."""
+    import app.ingestion.extract as extract_mod
+
+    duoi_da_thay: list[str] = []
+
+    def _gia(path, source="external"):
+        duoi_da_thay.append(path.suffix)
+        return CorpusDocument.model_validate(_DOC)
+
+    monkeypatch.setattr(extract_mod, "extract_document", _gia)
+
+    r = client.post(
+        "/documents/upload",
+        files={"file": ("quy-dinh.pdf", b"%PDF-1.7 gia", "application/pdf")},
+        headers={"Authorization": f"Bearer {_token('admin')}"},
+    )
+
+    assert r.status_code == 200, r.text
+    assert duoi_da_thay == [".pdf"], "file không phải .json vẫn phải qua extractor"
+    assert fake_store["rows"]["TT99-2026"]["status"] == "pending"
+
+
+def _extractor_gia(monkeypatch):
+    import app.ingestion.extract as extract_mod
+
+    monkeypatch.setattr(
+        extract_mod, "extract_document",
+        lambda path, source="external": CorpusDocument.model_validate(_DOC),
+    )
+
+
+def test_ten_file_tieng_viet_van_upload_duoc(client, fake_store, monkeypatch):
+    """Ca hỏng thật trên production 11/08 — và là ca THƯỜNG, không phải ngoại lệ.
+
+    Tên file tải từ vbpl/thuvienphapluat gần như luôn có dấu. Supabase Storage từ chối khoá
+    chứa ký tự ngoài ASCII (400 InvalidKey), nên khoá phải lấy từ `doc_id` đã qua `kiem_doc_id`.
+    """
+    _extractor_gia(monkeypatch)
+
+    r = client.post(
+        "/documents/upload",
+        files={"file": ("Thông tư 28-2026-TT-NHNN.pdf", b"%PDF-1.7 gia", "application/pdf")},
+        headers={"Authorization": f"Bearer {_token('admin')}"},
+    )
+
+    assert r.status_code == 200, r.text
+    assert list(fake_store["storage"]) == ["uploads/TT99-2026.pdf"], "khoá phải theo doc_id"
+
+
+def test_storage_tu_choi_thi_502_doc_duoc_chu_khong_phai_500(client, fake_store, monkeypatch):
+    """500 chưa bắt đi ra ngoài CORS ⇒ trình duyệt chỉ thấy 'Failed to fetch', mất sạch lý do."""
+    _extractor_gia(monkeypatch)
+
+    def _tu_choi(tok, path, content, ct):
+        raise httpx.HTTPStatusError(
+            "Client error '400 Bad Request'",
+            request=httpx.Request("POST", "https://x.supabase.co/o"),
+            response=httpx.Response(400, text='{"error":"InvalidKey"}'),
+        )
+
+    monkeypatch.setattr(appdb, "upload_storage", _tu_choi)
+
+    r = client.post(
+        "/documents/upload",
+        files={"file": ("x.pdf", b"%PDF-1.7 gia", "application/pdf")},
+        headers={"Authorization": f"Bearer {_token('admin')}"},
+    )
+
+    assert r.status_code == 502, r.text
+    assert "InvalidKey" in r.text, "lý do của Storage phải tới được người bấm nút"
+    assert fake_store["rows"] == {}, "không lưu được file thì đừng tạo bản ghi pending"
+
+
+def test_extract_hong_thi_khong_de_lai_file_mo_coi(client, fake_store, monkeypatch):
+    """Ghi Storage sau extract: hỏng thì không có file nào nằm lại mà không bản ghi nào trỏ tới."""
+    import app.ingestion.extract as extract_mod
+
+    def _no(path, source="external"):
+        raise RuntimeError("PDF không đọc được")
+
+    monkeypatch.setattr(extract_mod, "extract_document", _no)
+
+    r = client.post(
+        "/documents/upload",
+        files={"file": ("x.pdf", b"%PDF-1.7 gia", "application/pdf")},
+        headers={"Authorization": f"Bearer {_token('admin')}"},
+    )
+
+    assert r.status_code == 422, r.text
+    assert fake_store["storage"] == {}
