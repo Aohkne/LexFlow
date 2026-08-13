@@ -420,3 +420,48 @@ def test_chay_lai_lan_hai_khong_embed_gi_them(monkeypatch, khong_goi_mang):
 
     pipeline.write_lancedb(moi)
     assert khong_goi_mang == [1], "lượt hai vẫn embed ⇒ vân tay không khớp lại được sau khi ghi"
+
+
+# --- index FTS ------------------------------------------------------------------------------
+
+def test_bang_da_co_index_thi_khong_dung_lai(monkeypatch, khong_goi_mang):
+    """Dựng lại index mỗi lượt là reindex toàn bảng — đắt hơn chính thứ đang tiết kiệm."""
+    monkeypatch.setattr(pipeline.settings, "lancedb_uri", "db://x")
+    monkeypatch.setattr(pipeline.settings, "lancedb_api_key", "k")
+    cu = [_hang("A", "Điều 1", "x")]
+    moi = [_hang("A", "Điều 1", "x ĐÃ SỬA")]
+    bang = _bang(cu)
+    _noi_bang(monkeypatch, bang)
+
+    pipeline.write_lancedb(moi)
+
+    assert "create_fts_index" not in bang.nhat_ky
+    assert "wait_for_index:text_idx" in bang.nhat_ky
+
+
+def test_bang_chua_co_index_thi_dung(monkeypatch, khong_goi_mang):
+    cu = [_hang("A", "Điều 1", "x")]
+    moi = [_hang("A", "Điều 1", "x ĐÃ SỬA")]
+    bang = _bang(cu)
+    bang.co_index = False
+    _noi_bang(monkeypatch, bang)
+
+    pipeline.write_lancedb(moi)
+
+    assert "create_fts_index" in bang.nhat_ky
+
+
+def test_index_phu_thieu_hang_thi_canh_bao(monkeypatch, khong_goi_mang, capsys):
+    """Hàng chưa vào index là hàng nhánh BM25 mù — im lặng ở đây là nửa hybrid chết."""
+    monkeypatch.setattr(pipeline.settings, "lancedb_uri", "db://x")
+    monkeypatch.setattr(pipeline.settings, "lancedb_api_key", "k")
+    cu = [_hang("A", "Điều 1", "x")]
+    moi = [_hang("A", "Điều 1", "x ĐÃ SỬA"), _hang("B", "Điều 1", "y")]
+    bang = _bang(cu)
+    bang.index_phu = 1  # index đứng yên ở 1 hàng dù bảng sắp có 2
+    _noi_bang(monkeypatch, bang)
+
+    pipeline.write_lancedb(moi)
+
+    ra = capsys.readouterr().out
+    assert "CẢNH BÁO" in ra and "1/2" in ra

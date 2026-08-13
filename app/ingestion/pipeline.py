@@ -372,11 +372,39 @@ def write_lancedb(
 
 
 def _cho_index(tbl) -> None:
-    """Giữ nguyên hành vi index của `write_lancedb` cũ. Task 4 đổi sang chờ thay vì dựng lại."""
-    if settings.lancedb_cloud_enabled:
+    """Chờ index FTS phủ hết hàng vừa ghi, rồi KÊU nếu chưa phủ hết.
+
+    Không gọi `create_fts_index` khi index đã có: với `overwrite` thì bắt buộc (bảng vừa bị dựng
+    lại), nhưng với ghi tăng dần nó thành reindex toàn bảng mỗi lượt.
+
+    Phần chưa vào index là phần nhánh sparse mù — không lỗi, chỉ kém đi. Đó là kiểu hỏng chỉ lộ
+    ra ở bảng đo, nên phải kêu thành chữ.
+    """
+    chi_muc = tbl.list_indices()
+    if not chi_muc:
+        # Bảng có nhưng chưa từng index (tạo tay, hoặc create_fts_index từng lỗi).
         tbl.create_fts_index("text")
-    else:
+        return
+
+    if not settings.lancedb_cloud_enabled:
+        # LanceDB nhúng KHÔNG tự đưa hàng mới vào index FTS. Chờ ở đây là chờ một thứ không bao
+        # giờ tới — dựng lại thẳng. Cục bộ nên chỉ tốn CPU, không tốn API.
         tbl.create_fts_index("text", replace=True)
+        return
+
+    ten = [c.name for c in chi_muc]
+    try:
+        tbl.wait_for_index(ten)
+    except Exception as exc:  # noqa: BLE001 — chờ hỏng không được làm hỏng lượt ghi đã xong
+        print(f"[ingest] CẢNH BÁO: chờ index {ten} lỗi ({exc}).")
+
+    tong = tbl.count_rows()
+    for c in tbl.list_indices():
+        if c.num_indexed_rows != tong:
+            print(
+                f"[ingest] CẢNH BÁO: index {c.name} mới phủ {c.num_indexed_rows}/{tong} hàng "
+                "— nhánh BM25 đang mù với phần còn lại."
+            )
 
 
 # Nhãn lấy từ `app.core.schemas.REL_TYPES` — nguồn sự thật DUY NHẤT cho 13 quan hệ.
