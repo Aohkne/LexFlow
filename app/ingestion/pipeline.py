@@ -389,10 +389,9 @@ def write_lancedb(
 ) -> tuple[int, int]:
     """Ghi chunk vào LanceDB, chỉ embed văn bản thật sự đổi. Trả `(số vừa ghi, tổng trong bảng)`.
 
-    `merge_insert` theo `id` TRƯỚC rồi mới xoá id mồ côi, chứ không `delete` theo `doc_id` rồi
-    `add`: giữa `delete` và `add` cả văn bản biến khỏi bảng, và truy vấn rơi vào đúng khoảng đó
-    được trả lời như thể luật ấy không tồn tại. `create_table(mode="overwrite")` cũ KHÔNG có
-    cửa sổ này (Lance đánh version) — đổi sang tăng dần không được đánh mất nó.
+    Đây là tầng QUYẾT ĐỊNH: văn bản nào cần nạp (`_doc_can_nap`), `ep` ép nạp lại, doc dư thì
+    ném `DocDuTrongBang`. Phần GHI thật sự — và lý do thứ tự xoá mồ côi/`merge_insert` không để
+    lại cửa sổ văn bản vắng mặt — nằm ở `_ghi_chunk`, xem docstring của nó.
     """
     if not rows:
         return 0, 0
