@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import json
 import re
+from datetime import timedelta
 from pathlib import Path
 
 from app.core import vectordb
@@ -371,6 +372,14 @@ def write_lancedb(
     return len(nap), tbl.count_rows()
 
 
+#: `write_lancedb` chạy TRONG request đồng bộ `POST /documents/{id}/approve` (Cloud Run, timeout
+#: mặc định cũng 300s). Mặc định của `wait_for_index` là 300s — chờ đủ thời gian đó thì gateway
+#: có thể giết request trước khi hàm trả về. Dữ liệu đã ghi xong (merge_insert đã execute) trước
+#: khi tới đây, nên chờ chỉ là TIỆN ÍCH (đo phủ index ngay), không phải điều kiện đúng đắn — hết
+#: hạn thì nhánh `except` bên dưới đã hạ nó thành một dòng cảnh báo, không chặn response.
+_TIMEOUT_CHO_INDEX = timedelta(seconds=30)
+
+
 def _cho_index(tbl) -> None:
     """Chờ index FTS phủ hết hàng vừa ghi, rồi KÊU nếu chưa phủ hết.
 
@@ -379,6 +388,10 @@ def _cho_index(tbl) -> None:
 
     Phần chưa vào index là phần nhánh sparse mù — không lỗi, chỉ kém đi. Đó là kiểu hỏng chỉ lộ
     ra ở bảng đo, nên phải kêu thành chữ.
+
+    Chỉ soi index FTS (`index_type == "FTS"`), không phải MỌI index: `docs/TASKLIST.md` T25 đề
+    xuất thêm `create_scalar_index("doc_id")`, và một index BTREE/ANN phủ chậm hơn FTS là bình
+    thường — chờ nó ở đây là chờ nhầm thứ, cảnh báo nó là kêu oan mỗi lượt chạy.
     """
     chi_muc = tbl.list_indices()
     if not chi_muc:
@@ -392,15 +405,19 @@ def _cho_index(tbl) -> None:
         tbl.create_fts_index("text", replace=True)
         return
 
-    ten = [c.name for c in chi_muc]
-    try:
-        tbl.wait_for_index(ten)
-    except Exception as exc:  # noqa: BLE001 — chờ hỏng không được làm hỏng lượt ghi đã xong
-        print(f"[ingest] CẢNH BÁO: chờ index {ten} lỗi ({exc}).")
+    fts = [c for c in chi_muc if c.index_type == "FTS"]
+    ten = [c.name for c in fts]
+    if ten:
+        try:
+            tbl.wait_for_index(ten, timeout=_TIMEOUT_CHO_INDEX)
+        except Exception as exc:  # noqa: BLE001 — chờ hỏng không được làm hỏng lượt ghi đã xong
+            print(f"[ingest] CẢNH BÁO: chờ index {ten} lỗi ({exc}).")
 
     tong = tbl.count_rows()
-    for c in tbl.list_indices():
-        if c.num_indexed_rows != tong:
+    for c in fts:
+        # `num_indexed_rows` là Optional — None nghĩa là backend chưa báo được số, không phải
+        # "phủ 0 hàng". So `None != tong` luôn đúng và in cảnh báo giả mỗi lượt chạy.
+        if c.num_indexed_rows is not None and c.num_indexed_rows != tong:
             print(
                 f"[ingest] CẢNH BÁO: index {c.name} mới phủ {c.num_indexed_rows}/{tong} hàng "
                 "— nhánh BM25 đang mù với phần còn lại."

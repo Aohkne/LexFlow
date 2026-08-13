@@ -12,10 +12,13 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
+from pathlib import Path
 
 import pytest
 
 from app.ingestion import pipeline
+
+_CORPUS_REAL = Path("data/corpus.real.json")
 
 _LOC_ID_RE = re.compile(r"^id IN \((.*)\)$")
 
@@ -34,6 +37,7 @@ class _Truong:
 class _ChiMucGia:
     name: str
     num_indexed_rows: int
+    index_type: str = "FTS"
 
 
 class _TruyVanGia:
@@ -83,6 +87,8 @@ class _BangGia:
     co_index: bool = True
     #: Số hàng index FTS báo là đã phủ. `None` = phủ đủ. Đặt số nhỏ hơn để dựng ca index chạy sau.
     index_phu: int | None = None
+    #: Index KHÔNG PHẢI FTS (vd. BTREE của T25) — có mặt để ghim `_cho_index` không đụng tới nó.
+    index_khac: _ChiMucGia | None = None
     nhat_ky: list[str] = field(default_factory=list)
 
     @property
@@ -99,7 +105,10 @@ class _BangGia:
         if not self.co_index:
             return []
         phu = len(self.hang) if self.index_phu is None else self.index_phu
-        return [_ChiMucGia("text_idx", phu)]
+        ra = [_ChiMucGia("text_idx", phu)]
+        if self.index_khac is not None:
+            ra.append(self.index_khac)
+        return ra
 
     def wait_for_index(self, ten, *a, **kw) -> None:
         self.nhat_ky.append(f"wait_for_index:{','.join(ten)}")
@@ -311,6 +320,9 @@ def test_ep_doc_khong_co_trong_corpus_thi_canh_bao(monkeypatch, khong_goi_mang, 
     pipeline.write_lancedb(rows, ep=frozenset({"KHONG-CO"}))
 
     assert "KHONG-CO" in capsys.readouterr().out
+    # Rủi ro thật không phải ở chữ cảnh báo — là doc ẢO lọt vào `can_nap` rồi bị embed dù
+    # không có hàng nào của nó trong `rows`. Bộ lọc đúng là `ep & co_that`, không phải `ep` trần.
+    assert khong_goi_mang == []
 
 
 def test_bang_chua_ton_tai_thi_dung_duong_cu(monkeypatch, khong_goi_mang):
@@ -460,6 +472,7 @@ def test_bang_chua_co_index_thi_dung(monkeypatch, khong_goi_mang, cloud_enabled)
     pipeline.write_lancedb(moi)
 
     assert any("create_fts_index" in x for x in bang.nhat_ky)
+    assert sum("create_fts_index" in x for x in bang.nhat_ky) == 1  # không dựng đúp
     assert "wait_for_index" not in str(bang.nhat_ky)  # thoát sớm, không gọi wait
 
 
@@ -498,6 +511,28 @@ def test_index_phu_thieu_hang_thi_canh_bao(monkeypatch, khong_goi_mang, capsys):
 
     ra = capsys.readouterr().out
     assert "CẢNH BÁO" in ra and "1/2" in ra
+
+
+def test_index_khong_phai_fts_thi_khong_cho_khong_canh_bao(monkeypatch, khong_goi_mang, capsys):
+    """T25 (`docs/TASKLIST.md`) đề xuất `create_scalar_index("doc_id")` — index thứ hai đó phủ
+    chậm hơn FTS là chuyện bình thường của BTREE/ANN, không phải nhánh BM25 bị mù. `_cho_index`
+    phải không chờ nó (chờ nhầm thứ) và không kêu cảnh báo (kêu oan mỗi lượt chạy mãi mãi).
+    """
+    monkeypatch.setattr(pipeline.settings, "lancedb_uri", "db://x")
+    monkeypatch.setattr(pipeline.settings, "lancedb_api_key", "k")
+    cu = [_hang("A", "Điều 1", "x")]
+    moi = [_hang("A", "Điều 1", "x ĐÃ SỬA")]
+    bang = _bang(cu)
+    # BTREE trên doc_id, phủ CHỈ 0/1 hàng — nếu `_cho_index` không lọc theo `index_type` thì
+    # ca này sẽ chờ nhầm (`wait_for_index` gồm cả "doc_id_idx") và in cảnh báo "0/1" mãi mãi.
+    bang.index_khac = _ChiMucGia("doc_id_idx", 0, index_type="BTREE")
+    _noi_bang(monkeypatch, bang)
+
+    pipeline.write_lancedb(moi)
+
+    assert bang.nhat_ky == ["merge_insert:1", "wait_for_index:text_idx"]
+    assert "doc_id_idx" not in ",".join(bang.nhat_ky)
+    assert "CẢNH BÁO" not in capsys.readouterr().out
 
 
 # --- ingest_docs ----------------------------------------------------------------------------
@@ -579,3 +614,23 @@ def test_cli_bat_duoc_co_xoa():
     from app.ingestion.__main__ import phan_tich
 
     assert phan_tich(["c.json", "--xoa-doc-du"]).xoa_doc_du is True
+
+
+# --- bất biến id (latent, chưa vỡ trên corpus thật hôm nay) ---------------------------------
+
+@pytest.mark.skipif(not _CORPUS_REAL.exists(), reason="thiếu data/corpus.real.json")
+def test_build_chunks_sinh_id_duy_nhat_tren_corpus_that():
+    """`_doc_can_nap` gom vân tay vào `set()` theo `doc_id` — an toàn CHỈ KHI id duy nhất trong
+    một văn bản. `_lam_duy_nhat` chỉ khử trùng nhãn TRONG một lần chẻ của MỘT điều, không phải
+    across `doc.articles`; hai điều khác nhau sinh trùng nhãn (hiếm, nhưng không cấm) sẽ cho
+    cùng `id = f"{doc_id}::{label}"` → `moi[doc]` giữ 2 vân tay trong khi bảng chỉ có 1 hàng cho
+    id đó → `cu != moi` MÃI MÃI → văn bản đó bị re-embed toàn bộ ở mọi lượt chạy, im lặng.
+
+    Đường `overwrite` cũ miễn nhiễm (ghi đè theo id trùng cũng chỉ giữ 1 bản). Ca thật hôm nay
+    sạch (xác nhận dưới) — test này CHỈ ghim bất biến, không tự sửa `build_chunks`.
+    """
+    docs, _ = pipeline.load_corpus(_CORPUS_REAL)
+    rows = pipeline.build_chunks(docs)
+    ids = [r["id"] for r in rows]
+    trung = {i for i in ids if ids.count(i) > 1}
+    assert trung == set(), f"id trùng trong build_chunks: {sorted(trung)}"
