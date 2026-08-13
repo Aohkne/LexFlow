@@ -7,6 +7,8 @@ lối khác.
 """
 from __future__ import annotations
 
+import re
+from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -16,42 +18,107 @@ from app.ingestion import pipeline
 
 
 class _FakeTable:
+    """Bảng giả khoá theo `id` — khớp `_ghi_chunk`, vốn xoá bằng `id IN (…)` chứ không phải
+    `doc_id = …`. Giữ `deleted` để ca test còn khẳng định được phạm vi xoá."""
+
     def __init__(self, rows=None):
-        self.rows = list(rows or [])
+        self.hang = {r["id"]: dict(r) for r in (rows or [])}
         self.deleted: list[str] = []
         self.so_lan_dung_fts = 0
 
+    # --- đọc ---
+    @property
+    def schema(self):
+        return [SimpleNamespace(name=k) for k in ("id", "doc_id", "text", "vector")]
+
+    def count_rows(self) -> int:
+        return len(self.hang)
+
+    def search(self, *a, **kw):
+        return _FakeTruyVan(list(self.hang.values()))
+
+    def list_indices(self):
+        return [SimpleNamespace(name="text_idx", index_type="FTS", num_indexed_rows=len(self.hang))]
+
+    def wait_for_index(self, ten, **kw) -> None:
+        pass
+
+    # --- ghi ---
     def delete(self, where: str) -> None:
         self.deleted.append(where)
-        self.rows = [r for r in self.rows if f"doc_id = '{r['doc_id']}'" != where]
+        m = re.match(r"^id IN \((.*)\)$", where)
+        assert m, f"cú pháp delete lạ, cloud có thể không nhận: {where!r}"
+        for i in {s.strip()[1:-1].replace("''", "'") for s in m.group(1).split(", ")}:
+            self.hang.pop(i, None)
+
+    def merge_insert(self, khoa: str):
+        assert khoa == "id", f"khoá merge phải là id, không phải {khoa!r}"
+        return _FakeMerge(self)
 
     def add(self, rows) -> None:
-        self.rows.extend(rows)
+        for r in rows:
+            self.hang[r["id"]] = dict(r)
 
     def create_fts_index(self, cot: str, **kw) -> None:
         self.so_lan_dung_fts += 1
 
 
+class _FakeTruyVan:
+    def __init__(self, hang): self._hang, self._cot = hang, None
+
+    def where(self, dieu_kien: str):
+        m = re.match(r"^doc_id IN \((.*)\)$", dieu_kien)
+        assert m, f"cú pháp where lạ: {dieu_kien!r}"
+        ids = {s.strip()[1:-1] for s in m.group(1).split(", ")}
+        self._hang = [r for r in self._hang if r.get("doc_id") in ids]
+        return self
+
+    def select(self, cot):
+        self._cot = list(cot)
+        return self
+
+    def limit(self, n): return self
+    def to_list(self):
+        if self._cot is None:
+            return [dict(r) for r in self._hang]
+        return [{k: r[k] for k in self._cot} for r in self._hang]
+
+
+class _FakeMerge:
+    def __init__(self, bang): self._bang = bang
+    def when_matched_update_all(self): return self
+    def when_not_matched_insert_all(self): return self
+    def execute(self, rows) -> None:
+        for r in rows:
+            self._bang.hang[r["id"]] = dict(r)
+
+
 class _FakeDB:
     def __init__(self, bang: dict[str, _FakeTable]):
         self.bang = bang
+        self.da_goi_table_names = False
 
     def table_names(self):
+        # Không còn ai được phép gọi: phép dò giờ là `open_table`. Cờ này để ca test NÓI RA
+        # điều đó thay vì im lặng chấp nhận.
+        self.da_goi_table_names = True
         return list(self.bang)
 
     def list_tables(self):
         # Ghim finding critical fix round 1 (10/08): `list_tables()` ném HttpError 400 thật
         # trên LanceDB Cloud của dự án — "PgCatalog::open_database() requires a table name".
-        # `ingest_one_doc` PHẢI dùng `table_names()`. Nếu ca này đỏ, ai đó vừa đổi ngược lại.
         raise AssertionError(
-            "ingest_one_doc không được gọi list_tables() — nó 400 thật trên LanceDB Cloud, "
-            "dùng table_names() thay vào đó"
+            "ingest_one_doc không được gọi list_tables() — nó 400 thật trên LanceDB Cloud"
         )
 
     def open_table(self, ten: str) -> _FakeTable:
+        if ten not in self.bang:
+            # Đúng loại và đúng thông điệp lancedb ném thật — đo 13/08 trên CẢ nhúng lẫn cloud,
+            # cùng khung `lancedb/db.py:1722`.
+            raise ValueError(f"Table '{ten}' was not found")
         return self.bang[ten]
 
-    def create_table(self, ten: str, data) -> _FakeTable:
+    def create_table(self, ten: str, data, **kw) -> _FakeTable:
         self.bang[ten] = _FakeTable(data)
         return self.bang[ten]
 
@@ -77,7 +144,12 @@ def bang(monkeypatch) -> _FakeTable:
         {"id": "TT02-2021::Điều 1", "doc_id": "TT02-2021", "text": "b"},
     ]
     t = _FakeTable(co_san)
-    monkeypatch.setattr("app.core.vectordb.connect", lambda: _FakeDB({pipeline.LANCEDB_TABLE: t}))
+    # `db` dựng MỘT LẦN ở đây rồi đóng gói vào lambda — không phải `lambda: _FakeDB({...})`,
+    # thứ tạo một đối tượng MỚI mỗi lần `connect()` được gọi. Ca dò bảng cần `connect()` trả
+    # về CÙNG một `_FakeDB` mỗi lần, để cờ `da_goi_table_names` đọc từ bên ngoài phản ánh đúng
+    # lời gọi `ingest_one_doc` làm bên trong.
+    db = _FakeDB({pipeline.LANCEDB_TABLE: t})
+    monkeypatch.setattr("app.core.vectordb.connect", lambda: db)
     monkeypatch.setattr(pipeline, "_embed_rows", lambda rows: None)
     # Neo4j tắt: Task 3 mới đụng tới nhánh đó
     monkeypatch.setattr(pipeline.settings, "neo4j_uri", "")
@@ -88,16 +160,20 @@ def bang(monkeypatch) -> _FakeTable:
 def test_chi_dung_chunk_cua_van_ban_duoc_nap(bang):
     n = pipeline.ingest_one_doc(_doc("TT99-2026"), [], [_doc("TT99-2026")])
     assert n == 1
-    assert bang.deleted == ["doc_id = 'TT99-2026'"]
-    con_lai = {r["doc_id"] for r in bang.rows}
+    # TT99-2026 chưa có chunk nào trong bảng trước đó ⇒ không id nào mồ côi, `delete` không
+    # chạy. Ghim TÍNH CHẤT (không xoá lố sang chunk văn bản khác) thay vì đếm lệnh xoá.
+    assert bang.deleted == []
+    con_lai = {r["doc_id"] for r in bang.hang.values()}
     assert con_lai == {"TT01-2020", "TT02-2021", "TT99-2026"}
 
 
 def test_nap_hai_lan_thi_thay_chu_khong_nhan_doi(bang):
     pipeline.ingest_one_doc(_doc("TT99-2026"), [], [_doc("TT99-2026")])
     pipeline.ingest_one_doc(_doc("TT99-2026", "Nội dung đã sửa."), [], [_doc("TT99-2026")])
-    cua_no = [r for r in bang.rows if r["doc_id"] == "TT99-2026"]
-    assert len(cua_no) == 1, "delete phải chạy trước add, nếu không chunk cũ nằm lại"
+    cua_no = [r for r in bang.hang.values() if r["doc_id"] == "TT99-2026"]
+    # Nhãn "Điều 1" không đổi giữa hai lượt ⇒ `merge_insert` khớp theo id và THAY tại chỗ,
+    # không phải delete+add nữa — nhưng tính chất phải giữ nguyên: một hàng, nội dung mới nhất.
+    assert len(cua_no) == 1, "merge_insert khớp theo id phải thay chứ không nhân đôi hàng"
     assert cua_no[0]["text"] == "Nội dung đã sửa."
 
 
@@ -111,8 +187,40 @@ def test_bang_chua_ton_tai_thi_tao_kem_chi_muc_fts(monkeypatch):
     pipeline.ingest_one_doc(_doc("TT99-2026"), [], [_doc("TT99-2026")])
 
     t = db.bang[pipeline.LANCEDB_TABLE]
-    assert len(t.rows) == 1
+    assert len(t.hang) == 1
     assert t.so_lan_dung_fts == 1, "bảng mới mà không dựng chỉ mục thì nhánh BM25 chết lặng"
+
+
+def test_ingest_one_doc_khong_goi_table_names_cung_khong_goi_list_tables(bang, monkeypatch):
+    """Phép dò bảng là `open_table`, không phải liệt kê rồi so tên.
+
+    `list_tables()` ném HttpError 400 thật trên LanceDB Cloud của dự án (đo 10/08);
+    `table_names()` thì deprecated và có phân trang, nên "không thấy tên" lẫn với "bảng không
+    tồn tại" — mà nhánh sau dẫn thẳng tới dựng đè bảng đang phục vụ. `open_table` tránh cả hai.
+    """
+    db = pipeline.vectordb.connect()
+    pipeline.ingest_one_doc(_doc("TT99-2026"), [], [_doc("TT99-2026")])
+    assert db.da_goi_table_names is False
+
+
+def test_loi_tam_thoi_luc_mo_bang_thi_nem_chu_khong_dung_de_bang_moi(monkeypatch):
+    """Trục trặc mạng KHÔNG được hiểu thành "bảng chưa có" rồi dựng đè bảng thật.
+
+    `ValueError` là built-in dùng cho vô số lý do; bắt trần nó là mở đúng cánh cửa này.
+    """
+    class _DbHong:
+        def open_table(self, ten):
+            raise ValueError("connection reset by peer")
+        def create_table(self, *a, **kw):
+            raise AssertionError("không được dựng bảng mới khi lỗi chưa chắc là thiếu bảng")
+
+    monkeypatch.setattr("app.core.vectordb.connect", lambda: _DbHong())
+    monkeypatch.setattr(pipeline, "_embed_rows", lambda rows: None)
+    monkeypatch.setattr(pipeline.settings, "neo4j_uri", "")
+    monkeypatch.setattr(pipeline.settings, "neo4j_password", "")
+
+    with pytest.raises(ValueError, match="connection reset"):
+        pipeline.ingest_one_doc(_doc("TT99-2026"), [], [_doc("TT99-2026")])
 
 
 @pytest.mark.parametrize("xau", ["TT99'; --", "TT 99", "TT99/2026", "", "TT99\n"])
@@ -278,15 +386,20 @@ def test_van_ban_khong_con_dieu_nao_van_xoa_chunk_cu_va_len_do_thi(bang, monkeyp
     Về sớm ở đó bỏ qua CẢ `delete` LẪN Neo4j, rồi vẫn trả 200 `approved`: truy hồi tiếp tục
     phục vụ đúng đoạn văn vừa bị xoá, và đồ thị không bao giờ biết văn bản này tồn tại.
     """
-    bang.rows.append({"id": "TT99-2026::Điều 1", "doc_id": "TT99-2026", "text": "bản cũ"})
+    bang.hang["TT99-2026::Điều 1"] = {
+        "id": "TT99-2026::Điều 1", "doc_id": "TT99-2026", "text": "bản cũ",
+    }
     ghi = _bat_push_one_doc(monkeypatch)
     trong = _doc("TT99-2026").model_copy(update={"articles": []})
 
     n = pipeline.ingest_one_doc(trong, [], [trong])
 
     assert n == 0
-    assert bang.deleted == ["doc_id = 'TT99-2026'"]
-    assert [r["doc_id"] for r in bang.rows] == ["TT01-2020", "TT02-2021"]
+    # Ghim TÍNH CHẤT chứ không ghim chuỗi: vị từ đổi từ `doc_id = …` sang `id IN (…)` khi tầng
+    # ghi dùng chung với `write_lancedb`. Cái phải đúng mãi là phạm vi, không phải cú pháp.
+    assert len(bang.deleted) == 1
+    assert all("TT99-2026::" in x for x in bang.deleted[0].split(", ")), bang.deleted
+    assert sorted(r["doc_id"] for r in bang.hang.values()) == ["TT01-2020", "TT02-2021"]
     assert ghi["doc"].doc_id == "TT99-2026", "node phải lên đồ thị dù không có chunk nào"
 
 

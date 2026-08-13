@@ -515,10 +515,11 @@ def ingest_one_doc(
 ) -> int:
     """Nạp lại ĐÚNG MỘT văn bản. Trả về số chunk của riêng nó.
 
-    Khác `ingest_docs` ở chỗ không đụng phần còn lại: `delete` theo `doc_id` rồi `add`, thay
-    vì `create_table(mode="overwrite")` ghi đè cả bảng đang phục vụ. Đo 10/08 trên LanceDB
-    Cloud: một vòng delete+add của 23 hàng mất 1,23s, embed 23 chunk mất 1,79s — so với ~52s
-    chỉ riêng phần embed nếu nạp lại toàn bộ 661 chunk.
+    Khác `ingest_docs` ở chỗ không đụng phần còn lại: phần ghi LanceDB dùng chung `_ghi_chunk`
+    với `write_lancedb` (xoá id mồ côi trước, `merge_insert` sau), thay vì
+    `create_table(mode="overwrite")` ghi đè cả bảng đang phục vụ. Đo 10/08 trên LanceDB Cloud:
+    một vòng delete+add của 23 hàng mất 1,23s, embed 23 chunk mất 1,79s — so với ~52s chỉ riêng
+    phần embed nếu nạp lại toàn bộ 661 chunk.
 
     Cái giá đã đo và chấp nhận: chỉ mục FTS mất ~13 giây mới thấy hàng mới (nó tự cập nhật,
     không phải dựng lại). Nhánh vector thấy ngay, nên trong 13 giây đó truy hồi vẫn ra kết
@@ -534,27 +535,21 @@ def ingest_one_doc(
     rows = build_chunks([doc])
 
     db = vectordb.connect()
-    # KHÔNG dùng `db.list_tables()` dù `table_names()` bị đánh dấu deprecated: trên LanceDB
-    # Cloud thật, `list_tables()` ném `HttpError 400` — "Bad request: InvalidArgument:
-    # PgCatalog::open_database() requires a table name to resolve the storage path". Đo
-    # 10/08 trên đúng kết nối `.env` của dự án: `table_names()` chạy tốt (chỉ kèm
-    # DeprecationWarning), `list_tables()` thì không. Xem T18 trong docs/TASKLIST.md.
-    if LANCEDB_TABLE in db.table_names():
+    try:
         tbl = db.open_table(LANCEDB_TABLE)
-        # `delete` chạy LUÔN, kể cả khi văn bản không còn điều nào (admin xoá hết Điều trong ô
-        # JSON, hoặc extract ra 0 điều); chỉ `_embed_rows` + `add` mới bị bỏ qua khi `rows`
-        # rỗng. Bản trước về sớm ngay đầu hàm khi `rows` rỗng, và đó là lỗi: chunk cũ nằm lại
-        # trong bảng đang phục vụ nên truy hồi vẫn trả về đúng đoạn văn vừa bị xoá, trong khi
-        # API trả 200 `approved` báo là xong.
-        tbl.delete(f"doc_id = '{doc.doc_id}'")
-        if rows:
-            _embed_rows(rows)
-            tbl.add(rows)
-    elif rows:
-        _embed_rows(rows)
-        tbl = db.create_table(LANCEDB_TABLE, data=rows)
-        tbl.create_fts_index("text", replace=True, **_FTS_OPTS)
-    print(f"[ingest] {doc.doc_id}: {len(rows)} chunk vào LanceDB (thay tại chỗ).")
+    except ValueError as e:
+        # Phép dò bảng là `open_table`, không phải liệt kê: `list_tables()` ném HttpError 400
+        # thật trên LanceDB Cloud của dự án (đo 10/08), `table_names()` thì deprecated và có
+        # phân trang. Bộ lọc thông điệp CHỊU LỰC — `ValueError` là built-in dùng cho vô số lý
+        # do, bắt trần nó biến một trục trặc bất kỳ thành "bảng chưa có" rồi dựng đè bảng thật.
+        if "not found" not in str(e).lower():
+            raise
+        n = _tao_bang_moi(db, rows)[0] if rows else 0
+        print(f"[ingest] {doc.doc_id}: {n} chunk vào LanceDB (bảng mới).")
+        return n
+
+    n = _ghi_chunk(tbl, {doc.doc_id}, rows, _id_dang_co(tbl, {doc.doc_id}))
+    print(f"[ingest] {doc.doc_id}: {n} chunk vào LanceDB (thay tại chỗ).")
 
     if settings.neo4j_enabled:
         from app.ingestion.bac_cau import quy_ve_doc_id
