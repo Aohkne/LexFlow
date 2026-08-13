@@ -242,7 +242,10 @@ def approve_document(
 
     docs = [CorpusDocument.model_validate(d) for d in corpus["documents"]]
     rels = [Relationship.model_validate(r) for r in corpus.get("relationships", [])]
-    n_chunks = ingest_docs(docs, rels)
+    # `n_chunks` giờ là số chunk VỪA GHI cho văn bản vừa duyệt, không phải tổng corpus như
+    # trước. Với thao tác "duyệt một văn bản" thì đây mới là con số đúng; tổng đi vào audit
+    # dưới khoá riêng để vẫn tra ngược được.
+    n_chunks, n_chunks_bang = ingest_docs(docs, rels)
 
     appdb.update_document(
         user.token, doc.doc_id,
@@ -251,7 +254,10 @@ def approve_document(
     n_events = appdb.record_change_events(user.token, build_change_events(docs, rels))
     appdb.log_audit(
         user.token, user.id, action="doc_approve",
-        detail={"doc_id": doc.doc_id, "n_chunks": n_chunks, "n_events": n_events},
+        detail={
+            "doc_id": doc.doc_id, "n_chunks": n_chunks,
+            "n_chunks_bang": n_chunks_bang, "n_events": n_events,
+        },
     )
     return {"status": "approved", "doc_id": doc.doc_id, "chunks": n_chunks, "change_events": n_events}
 

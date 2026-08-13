@@ -498,3 +498,59 @@ def test_index_phu_thieu_hang_thi_canh_bao(monkeypatch, khong_goi_mang, capsys):
 
     ra = capsys.readouterr().out
     assert "CẢNH BÁO" in ra and "1/2" in ra
+
+
+# --- ingest_docs ----------------------------------------------------------------------------
+
+def test_ingest_docs_chuyen_tiep_co_xuong_write(monkeypatch):
+    """Cờ phải đi hết đường xuống; nuốt mất thì `--doc` im lặng không làm gì."""
+    from app.core.schemas import CorpusDocument
+
+    nhan: dict = {}
+
+    def _gia(rows, ep=frozenset(), xoa_doc_du=False):
+        nhan.update(ep=ep, xoa_doc_du=xoa_doc_du)
+        return len(rows), 99
+
+    monkeypatch.setattr(pipeline, "write_lancedb", _gia)
+    monkeypatch.setattr(pipeline.settings, "neo4j_uri", "")
+    monkeypatch.setattr(pipeline.settings, "neo4j_password", "")
+
+    docs = [
+        CorpusDocument.model_validate({
+            "doc_id": "A", "title": "VB A", "doc_type": "Thông tư", "source": "vbpl",
+            "valid_from": "2024-01-01", "so_hieu": "1/2024/TT-NHNN",
+            "articles": [{"article": "Điều 1", "text": "Nội dung."}],
+        })
+    ]
+
+    n_ghi, n_tong = pipeline.ingest_docs(docs, [], ep=frozenset({"A"}), xoa_doc_du=True)
+
+    assert nhan == {"ep": frozenset({"A"}), "xoa_doc_du": True}
+    assert (n_ghi, n_tong) == (1, 99)
+
+
+def test_ingest_docs_mac_dinh_khong_ep_khong_xoa(monkeypatch):
+    """`app/api/documents.py` gọi trần — mặc định phải không bao giờ xoá được gì."""
+    from app.core.schemas import CorpusDocument
+
+    nhan: dict = {}
+
+    def _gia(rows, ep=frozenset(), xoa_doc_du=False):
+        nhan.update(ep=ep, xoa_doc_du=xoa_doc_du)
+        return len(rows), 1
+
+    monkeypatch.setattr(pipeline, "write_lancedb", _gia)
+    monkeypatch.setattr(pipeline.settings, "neo4j_uri", "")
+    monkeypatch.setattr(pipeline.settings, "neo4j_password", "")
+
+    docs = [
+        CorpusDocument.model_validate({
+            "doc_id": "A", "title": "VB A", "doc_type": "Thông tư", "source": "vbpl",
+            "valid_from": "2024-01-01", "so_hieu": "1/2024/TT-NHNN",
+            "articles": [{"article": "Điều 1", "text": "Nội dung."}],
+        })
+    ]
+    pipeline.ingest_docs(docs, [])
+
+    assert nhan == {"ep": frozenset(), "xoa_doc_du": False}

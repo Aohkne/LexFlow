@@ -464,13 +464,25 @@ def _noi_lai_lop_phu() -> None:
     push_overlay(goi)
 
 
-def ingest_docs(docs: list[CorpusDocument], rels: list[Relationship]) -> int:
-    """Lõi ingest: chunks → LanceDB (+ Neo4j nếu có). Trả về số chunk."""
+def ingest_docs(
+    docs: list[CorpusDocument],
+    rels: list[Relationship],
+    ep: frozenset[str] = frozenset(),
+    xoa_doc_du: bool = False,
+) -> tuple[int, int]:
+    """Lõi ingest: chunks → LanceDB (+ Neo4j nếu có). Trả `(số chunk vừa ghi, tổng trong bảng)`.
+
+    Mặc định của `ep`/`xoa_doc_du` phải an toàn: `app/api/documents.py` gọi hàm này trần, nên
+    một lỗi đồng bộ ở corpus canonical không được phép biến thành xoá dữ liệu ở LanceDB.
+    """
     rows = build_chunks(docs)
-    print(f"[ingest] {len(docs)} văn bản → {len(rows)} chunk. Đang embedding (Gemini)...")
-    n_ghi, n_tong = write_lancedb(rows)
+    print(f"[ingest] {len(docs)} văn bản → {len(rows)} chunk.")
+    n_ghi, n_tong = write_lancedb(rows, ep=ep, xoa_doc_du=xoa_doc_du)
     target = settings.lancedb_uri if settings.lancedb_cloud_enabled else settings.lancedb_path
-    print(f"[ingest] Đã ghi {n_ghi} chunk, bảng có {n_tong} chunk ({target}), dim={EMBED_DIM}.")
+    print(
+        f"[ingest] Đã ghi {n_ghi} chunk, bảng có {n_tong} chunk "
+        f"({target}), dim={EMBED_DIM}."
+    )
 
     if settings.neo4j_enabled:
         from app.ingestion.bac_cau import quy_ve_doc_id
@@ -489,7 +501,7 @@ def ingest_docs(docs: list[CorpusDocument], rels: list[Relationship]) -> int:
         _noi_lai_lop_phu()
     else:
         print("[ingest] Bỏ qua Neo4j (chưa cấu hình NEO4J_URI/PASSWORD).")
-    return n_ghi
+    return n_ghi, n_tong
 
 
 def main(corpus_path: str | None = None) -> tuple[list[CorpusDocument], list[Relationship]]:

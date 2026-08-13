@@ -55,9 +55,9 @@ def fake_store(monkeypatch):
 
     import app.ingestion.pipeline as pipeline
 
-    def fake_ingest(docs, rels):
+    def fake_ingest(docs, rels, **kw):
         store["ingested"] = sum(len(d.articles) for d in docs)
-        return store["ingested"]
+        return store["ingested"], store["ingested"]
 
     monkeypatch.setattr(pipeline, "ingest_docs", fake_ingest)
     return store
