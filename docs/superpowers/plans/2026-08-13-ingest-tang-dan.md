@@ -443,6 +443,7 @@ git commit -m "feat(ingest): detect which documents changed by fingerprinting ta
 **Files:**
 - Modify: `app/ingestion/pipeline.py:229-240` (`write_lancedb`)
 - Modify: `tests/test_ingest_tang_dan.py` (thêm ca; bảng giả giữ nguyên)
+- Modify: `tests/test_ingest_noi_lop_phu.py:40` (chữ ký `write_lancedb` đổi ⇒ mock cũ sai)
 
 **Interfaces:**
 - Consumes: `_doc_can_nap`, `DocDuTrongBang`, `_cot_du_lieu` (Task 2); `_embed_rows` (đã có)
@@ -451,7 +452,9 @@ git commit -m "feat(ingest): detect which documents changed by fingerprinting ta
     trả `(số chunk vừa ghi, tổng chunk trong bảng)`
   - `_loc_id(ids: list[str]) -> str`
   - `_tao_bang_moi(db, rows) -> tuple[int, int]`
-  - `_cho_index(tbl) -> None` — Task 4 viết phần thân; task này chỉ gọi
+  - `_cho_index(tbl) -> None` — task này cho nó **giữ nguyên hành vi hiện tại** (dựng index
+    như `write_lancedb` cũ vẫn làm). Task 4 đổi sang chờ. Không để lại thân rỗng: một commit
+    không được chứa hàm chết, và mỗi task phải tự đứng được nếu dừng lại ở đó.
 
 - [ ] **Step 1: Viết test thất bại**
 
@@ -726,8 +729,45 @@ def write_lancedb(
 
 
 def _cho_index(tbl) -> None:
-    """Task 4 viết phần thân."""
+    """Giữ nguyên hành vi index của `write_lancedb` cũ. Task 4 đổi sang chờ thay vì dựng lại."""
+    if settings.lancedb_cloud_enabled:
+        tbl.create_fts_index("text")
+    else:
+        tbl.create_fts_index("text", replace=True)
 ```
+
+Và sửa `tests/test_ingest_noi_lop_phu.py` dòng 40 — chữ ký `write_lancedb` vừa đổi nên mock cũ
+sai cả tham số lẫn kiểu trả về. Thay:
+
+```python
+    monkeypatch.setattr(pipeline, "write_lancedb", lambda rows: len(rows))
+```
+
+bằng:
+
+```python
+    monkeypatch.setattr(pipeline, "write_lancedb", lambda rows, **kw: (len(rows), len(rows)))
+```
+
+Và trong `ingest_docs`, mở gói tuple — không thì commit này để lại một hàm in ra
+`(3, 661) chunk`. Chữ ký và kiểu trả về của `ingest_docs` **chưa đổi** ở task này (Task 5 lo đó).
+Thay:
+
+```python
+    n = write_lancedb(rows)
+    target = settings.lancedb_uri if settings.lancedb_cloud_enabled else settings.lancedb_path
+    print(f"[ingest] Đã ghi {n} chunk vào LanceDB ({target}), dim={EMBED_DIM}.")
+```
+
+bằng:
+
+```python
+    n_ghi, n_tong = write_lancedb(rows)
+    target = settings.lancedb_uri if settings.lancedb_cloud_enabled else settings.lancedb_path
+    print(f"[ingest] Đã ghi {n_ghi} chunk, bảng có {n_tong} chunk ({target}), dim={EMBED_DIM}.")
+```
+
+và dòng cuối `return n` thành `return n_ghi`.
 
 - [ ] **Step 4: Chạy test, xác nhận XANH**
 
@@ -738,14 +778,13 @@ Expected: 19 passed (8 của Task 2 + 11 của task này)
 
 Run: `uv run pytest -q; uv run ruff check .`
 
-Expected: **`tests/test_ingest_noi_lop_phu.py` ĐỎ** — nó monkeypatch
-`write_lancedb` bằng `lambda rows: len(rows)`, sai cả chữ ký lẫn kiểu trả về. Task 5 sửa. Không
-sửa vội ở đây; ghi nhận rồi đi tiếp.
+Expected: **tất cả xanh.** Suite không được đỏ sau bất kỳ commit nào (Global Constraints) — nếu
+`test_ingest_noi_lop_phu.py` còn đỏ thì Step 3 chưa sửa xong mock ở dòng 40.
 
 - [ ] **Step 6: Commit**
 
 ```bash
-git add app/ingestion/pipeline.py tests/test_ingest_tang_dan.py
+git add app/ingestion/pipeline.py tests/test_ingest_tang_dan.py tests/test_ingest_noi_lop_phu.py
 git commit -m "feat(ingest): write only changed documents via merge_insert"
 ```
 
@@ -819,11 +858,12 @@ def test_index_phu_thieu_hang_thi_canh_bao(monkeypatch, khong_goi_mang, capsys):
 - [ ] **Step 2: Chạy test, xác nhận ĐỎ**
 
 Run: `uv run pytest tests/test_ingest_tang_dan.py -k index -q`
-Expected: FAIL — `_cho_index` đang rỗng nên `wait_for_index` không bao giờ được gọi
+Expected: FAIL — bản Task 3 của `_cho_index` dựng index mỗi lượt, nên
+`"create_fts_index" not in bang.nhat_ky` đỏ và `wait_for_index` không bao giờ được gọi
 
 - [ ] **Step 3: Cài đặt**
 
-Thay `def _cho_index(tbl) -> None: """Task 4 viết phần thân."""` bằng:
+Thay trọn thân `_cho_index` (Task 3 để nó dựng index như cũ) bằng:
 
 ```python
 def _cho_index(tbl) -> None:
@@ -885,27 +925,17 @@ git commit -m "perf(ingest): wait for the FTS index instead of rebuilding it eac
 
 **Files:**
 - Modify: `app/ingestion/pipeline.py:300-325` (`ingest_docs`)
-- Modify: `app/api/documents.py:245`, `:254`, `:256`
-- Modify: `tests/test_ingest_noi_lop_phu.py:40`
+- Modify: `app/api/documents.py:245`, `:254`
 - Modify: `tests/test_documents.py:58-60`
+
+(`tests/test_ingest_noi_lop_phu.py` đã được Task 3 sửa — nó mock `write_lancedb`, không mock
+`ingest_docs`, nên chữ ký mới ở task này không chạm tới nó.)
 
 **Interfaces:**
 - Consumes: `write_lancedb(rows, ep, xoa_doc_du) -> tuple[int, int]` (Task 3)
 - Produces: `ingest_docs(docs, rels, ep=frozenset(), xoa_doc_du=False) -> tuple[int, int]`
 
-- [ ] **Step 1: Sửa hai test cũ cho khớp chữ ký mới**
-
-Trong `tests/test_ingest_noi_lop_phu.py`, dòng 40, thay:
-
-```python
-    monkeypatch.setattr(pipeline, "write_lancedb", lambda rows: len(rows))
-```
-
-bằng:
-
-```python
-    monkeypatch.setattr(pipeline, "write_lancedb", lambda rows, **kw: (len(rows), len(rows)))
-```
+- [ ] **Step 1: Sửa test cũ cho khớp kiểu trả về mới**
 
 Trong `tests/test_documents.py`, dòng 58-60, thay:
 
@@ -991,16 +1021,17 @@ Expected: FAIL — `ingest_docs() got an unexpected keyword argument 'ep'`
 
 - [ ] **Step 4: Sửa `ingest_docs`**
 
-Trong `app/ingestion/pipeline.py`, thay phần đầu của `ingest_docs` (dòng 300-306):
+Trong `app/ingestion/pipeline.py`, thay phần đầu của `ingest_docs` (Task 3 đã sửa hai dòng
+`print`/`write_lancedb` bên trong; task này đổi **chữ ký, docstring và kiểu trả về**):
 
 ```python
 def ingest_docs(docs: list[CorpusDocument], rels: list[Relationship]) -> int:
     """Lõi ingest: chunks → LanceDB (+ Neo4j nếu có). Trả về số chunk."""
     rows = build_chunks(docs)
     print(f"[ingest] {len(docs)} văn bản → {len(rows)} chunk. Đang embedding (Gemini)...")
-    n = write_lancedb(rows)
+    n_ghi, n_tong = write_lancedb(rows)
     target = settings.lancedb_uri if settings.lancedb_cloud_enabled else settings.lancedb_path
-    print(f"[ingest] Đã ghi {n} chunk vào LanceDB ({target}), dim={EMBED_DIM}.")
+    print(f"[ingest] Đã ghi {n_ghi} chunk, bảng có {n_tong} chunk ({target}), dim={EMBED_DIM}.")
 ```
 
 bằng:
@@ -1027,7 +1058,7 @@ def ingest_docs(
     )
 ```
 
-Và dòng cuối `return n` thành `return n_ghi, n_tong`.
+Và dòng cuối `return n_ghi` (Task 3 để lại) thành `return n_ghi, n_tong`.
 
 - [ ] **Step 5: Sửa `app/api/documents.py`**
 
