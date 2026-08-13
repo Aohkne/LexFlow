@@ -89,7 +89,10 @@ export default function AdminPage() {
       const document = JSON.parse(draft);
       const relationships = JSON.parse(rels);
       const r = await approveDocument(docId, document, relationships);
-      setNotice(`✅ Đã duyệt ${docId}: ${r.chunks} chunk, ${r.change_events} cảnh báo thay đổi.`);
+      setNotice(
+        `✅ Đã duyệt ${docId}: ${r.chunks} chunk mới / ${r.chunks_bang} trong bảng, `
+          + `${r.change_events} cảnh báo thay đổi.`,
+      );
       setEditing(null);
       await reload();
     } catch (e) {

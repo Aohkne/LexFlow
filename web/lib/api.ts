@@ -156,7 +156,7 @@ export async function approveDocument(
   docId: string,
   document: unknown | null,
   relationships: unknown[],
-): Promise<{ status: string; chunks: number; change_events: number }> {
+): Promise<{ status: string; chunks: number; chunks_bang: number; change_events: number }> {
   const res = await fetch(`${API_BASE}/documents/${encodeURIComponent(docId)}/approve`, {
     method: "POST",
     headers: { "Content-Type": "application/json", ...(await authHeaders()) },
