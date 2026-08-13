@@ -1,4 +1,11 @@
-"""uv run python -m app.ingestion [corpus.json] [--doc ID]... [--xoa-doc-du]"""
+"""CLI ingest tăng dần: chỉ embed văn bản có vân tay đổi so với bảng LanceDB đang phục vụ.
+
+`--doc ID` ép nạp lại một văn bản dù vân tay khớp (dùng khi muốn thử lại một lần chẻ chunk).
+`--xoa-doc-du` mới xoá văn bản dư khỏi bảng — mặc định chỉ dừng và báo, không tự xoá gì (xem
+`DocDuTrongBang`).
+
+Chạy:  uv run python -m app.ingestion [corpus.json] [--doc ID]... [--xoa-doc-du]
+"""
 from __future__ import annotations
 
 import argparse

@@ -47,7 +47,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from app.core import vectordb  # noqa: E402
 from app.core.config import LANCEDB_TABLE  # noqa: E402
-from app.ingestion.pipeline import _cot_du_lieu, _doc_can_nap, build_chunks, load_corpus  # noqa: E402
+from app.ingestion.pipeline import (  # noqa: E402
+    _cot_du_lieu, _doc_can_nap, _loc_id, build_chunks, load_corpus,
+)
 
 docs, _ = load_corpus("data/corpus.real.json")
 rows = build_chunks(docs)
@@ -87,6 +89,10 @@ print(f"\nchẩn đoán cột: {len(chung)} hàng chung × {len(cot)} cột → 
 print(f"cột lệch: {cot_lech or '(không có)'}")
 for i, k, va, vb in lech[:20]:
     print(f"  id={i!r} cột={k!r} build={va!r} ({type(va).__name__}) bảng={vb!r} ({type(vb).__name__})")
+if len(lech) > 20:
+    # Đúng lúc script này cần nói thật nhất — kiểu lệch (None so ""...) sinh cả nghìn ô lệch,
+    # và im lặng cắt ở 20 dòng thì người đọc tưởng nhầm đó là TOÀN BỘ, không phải một mẫu.
+    print(f"  … còn {len(lech) - 20} ô lệch nữa không in ra.")
 
 # --- Đối chứng dương: sửa một chunk TRONG BỘ NHỚ, không ghi gì lên bảng ---
 # Lượt trên chỉ chứng minh "không báo động giả" (`cần nạp` rỗng) — một `_doc_can_nap` luôn trả
@@ -104,3 +110,14 @@ print(
 )
 if not dat:
     raise SystemExit(1)
+
+# --- Đối chứng bộ lọc: _loc_id trên ID THẬT, không phải id nháy đơn đặt tay ---
+# `_loc_id` là mã DUY NHẤT trong nhánh ingest tăng dần có thể xoá hàng đang sống (mồ côi, doc
+# dư), và là mã ít được kiểm nhất — unit test chỉ ghim một dấu nháy đơn tổng hợp trên một bảng
+# giả có `delete()` là regex tự viết. Id thật chứa `::`, khoảng trắng, dấu tiếng Việt, và hậu
+# tố `(2)` của `_lam_duy_nhat` — đúng những thứ làm vỡ một predicate SQL viết tay mà test giả
+# không có cơ hội bắt. Chạy CÙNG predicate một lượt xoá sẽ dùng, nhưng qua `where` (đọc) thay vì
+# `delete` (ghi) — script này CHỈ ĐỌC, không đổi gì trên bảng thật.
+mau = chung[:20]
+lay = {r["id"] for r in tbl.search().where(_loc_id(mau)).select(["id"]).limit(99).to_list()}
+print(f"\nđối chứng bộ lọc: _loc_id trên {len(mau)} id thật → khớp {lay == set(mau)}")
