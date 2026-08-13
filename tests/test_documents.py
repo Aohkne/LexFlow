@@ -113,6 +113,30 @@ def test_approve_khong_co_extracted_bi_400(client, fake_store):
     assert r.status_code == 400
 
 
+def test_approve_doc_du_trong_bang_tra_409_khong_500(client, fake_store, monkeypatch):
+    """`DocDuTrongBang` là trạng thái BIẾT TRƯỚC (bảng LanceDB còn văn bản mà corpus không có),
+    không phải sự cố. Trước fix không có handler nào bắt nó: FastAPI trả 500 vô danh, và vì nó
+    nổ SAU khi corpus canonical đã ghi lên Storage + cache đã invalidate nhưng TRƯỚC
+    `update_document`/`log_audit`, văn bản kẹt "pending" vĩnh viễn dù corpus đã có nó rồi.
+    """
+    import app.ingestion.pipeline as pipeline
+
+    fake_store["rows"]["TT99-2026"] = {"doc_id": "TT99-2026", "extracted": _DOC, "status": "pending"}
+
+    def fake_ingest_no(docs, rels, **kw):
+        raise pipeline.DocDuTrongBang({"MOT-DOC-DU"})
+
+    monkeypatch.setattr(pipeline, "ingest_docs", fake_ingest_no)
+
+    r = client.post("/documents/TT99-2026/approve", headers={"Authorization": f"Bearer {_token('admin')}"})
+
+    assert r.status_code == 409, r.text
+    assert "MOT-DOC-DU" in r.json()["detail"]
+    # Nửa việc chưa chạy: status vẫn "pending", audit "doc_approve" không được ghi.
+    assert fake_store["rows"]["TT99-2026"]["status"] == "pending"
+    assert "doc_approve" not in fake_store["audit"]
+
+
 def test_reject(client, fake_store):
     fake_store["rows"]["TT99-2026"] = {"doc_id": "TT99-2026", "status": "pending"}
     r = client.post("/documents/TT99-2026/reject", headers={"Authorization": f"Bearer {_token('admin')}"})

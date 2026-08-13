@@ -238,14 +238,21 @@ def approve_document(
     )
     corpus_store.invalidate_cache()
 
-    from app.ingestion.pipeline import build_change_events, ingest_docs
+    from app.ingestion.pipeline import DocDuTrongBang, build_change_events, ingest_docs
 
     docs = [CorpusDocument.model_validate(d) for d in corpus["documents"]]
     rels = [Relationship.model_validate(r) for r in corpus.get("relationships", [])]
     # `n_chunks` giờ là số chunk VỪA GHI cho văn bản vừa duyệt, không phải tổng corpus như
     # trước. Với thao tác "duyệt một văn bản" thì đây mới là con số đúng; tổng đi vào audit
     # dưới khoá riêng để vẫn tra ngược được.
-    n_chunks, n_chunks_bang = ingest_docs(docs, rels)
+    try:
+        n_chunks, n_chunks_bang = ingest_docs(docs, rels)
+    except DocDuTrongBang as exc:
+        # Không phải 500: corpus canonical đã ghi lên Storage (dòng trên) trước khi tới đây, nên
+        # đây là một trạng thái BIẾT TRƯỚC (bảng LanceDB còn văn bản mà corpus không có), không
+        # phải sự cố. Không có gì bị xoá — ném ở đây chỉ dừng `update_document`/`log_audit`, nên
+        # trả lỗi có nghĩa (409) thay vì để nó rơi thành 500 vô danh do FastAPI tự bọc.
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
 
     appdb.update_document(
         user.token, doc.doc_id,
@@ -259,7 +266,10 @@ def approve_document(
             "n_chunks_bang": n_chunks_bang, "n_events": n_events,
         },
     )
-    return {"status": "approved", "doc_id": doc.doc_id, "chunks": n_chunks, "change_events": n_events}
+    return {
+        "status": "approved", "doc_id": doc.doc_id, "chunks": n_chunks,
+        "chunks_bang": n_chunks_bang, "change_events": n_events,
+    }
 
 
 @router.post("/{doc_id}/reject")
