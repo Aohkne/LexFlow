@@ -223,6 +223,24 @@ def test_loi_tam_thoi_luc_mo_bang_thi_nem_chu_khong_dung_de_bang_moi(monkeypatch
         pipeline.ingest_one_doc(_doc("TT99-2026"), [], [_doc("TT99-2026")])
 
 
+def test_bang_chua_co_van_len_do_thi(monkeypatch):
+    """Bảng CHƯA TỒN TẠI + văn bản có điều ⇒ `push_one_doc` vẫn phải được gọi.
+
+    Lỗ có thật trong bản đầu của lần rút này (fix round 2, do coordinator phát hiện): nhánh
+    "chưa có bảng" `return` sớm, nhảy cóc qua khối Neo4j cho MỌI văn bản đi qua đường đó — không
+    chỉ văn bản rỗng. Lần ingest đầu trên một môi trường mới (bảng LanceDB chưa tồn tại) dựng
+    được bảng nhưng đồ thị không bao giờ biết văn bản này tồn tại, mà API vẫn trả 200 approved.
+    `_bat_push_one_doc` (định nghĩa dưới) tự bật `neo4j_uri`/`neo4j_password`.
+    """
+    monkeypatch.setattr("app.core.vectordb.connect", lambda: _FakeDB({}))
+    monkeypatch.setattr(pipeline, "_embed_rows", lambda rows: None)
+    ghi = _bat_push_one_doc(monkeypatch)
+
+    pipeline.ingest_one_doc(_doc("TT99-2026"), [], [_doc("TT99-2026")])
+
+    assert ghi["doc"].doc_id == "TT99-2026", "push_one_doc phải chạy dù bảng LanceDB vừa mới dựng"
+
+
 @pytest.mark.parametrize("xau", ["TT99'; --", "TT 99", "TT99/2026", "", "TT99\n"])
 def test_doc_id_ban_bi_chan(xau):
     with pytest.raises(ValueError):

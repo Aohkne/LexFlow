@@ -535,6 +535,7 @@ def ingest_one_doc(
     rows = build_chunks([doc])
 
     db = vectordb.connect()
+    tbl = None
     try:
         tbl = db.open_table(LANCEDB_TABLE)
     except ValueError as e:
@@ -544,12 +545,18 @@ def ingest_one_doc(
         # do, bắt trần nó biến một trục trặc bất kỳ thành "bảng chưa có" rồi dựng đè bảng thật.
         if "not found" not in str(e).lower():
             raise
+
+    if tbl is None:
+        # Chưa có bảng: dựng mới. KHÔNG `return` ở đây — mọi đường phải chảy tới khối Neo4j bên
+        # dưới. Bản đầu tiên của lần rút này `return` sớm ở đây và tái lập đúng lớp lỗi mà
+        # comment gốc dưới cảnh báo: lần ingest đầu trên môi trường mới (bảng chưa tồn tại) dựng
+        # được bảng LanceDB nhưng đồ thị không bao giờ biết văn bản này tồn tại, trong khi API
+        # vẫn trả 200 approved.
         n = _tao_bang_moi(db, rows)[0] if rows else 0
         print(f"[ingest] {doc.doc_id}: {n} chunk vào LanceDB (bảng mới).")
-        return n
-
-    n = _ghi_chunk(tbl, {doc.doc_id}, rows, _id_dang_co(tbl, {doc.doc_id}))
-    print(f"[ingest] {doc.doc_id}: {n} chunk vào LanceDB (thay tại chỗ).")
+    else:
+        n = _ghi_chunk(tbl, {doc.doc_id}, rows, _id_dang_co(tbl, {doc.doc_id}))
+        print(f"[ingest] {doc.doc_id}: {n} chunk vào LanceDB (thay tại chỗ).")
 
     if settings.neo4j_enabled:
         from app.ingestion.bac_cau import quy_ve_doc_id
