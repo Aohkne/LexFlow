@@ -504,9 +504,13 @@ def ingest_docs(
     return n_ghi, n_tong
 
 
-def main(corpus_path: str | None = None) -> tuple[list[CorpusDocument], list[Relationship]]:
+def main(
+    corpus_path: str | None = None,
+    ep: frozenset[str] = frozenset(),
+    xoa_doc_du: bool = False,
+) -> tuple[list[CorpusDocument], list[Relationship]]:
     path = corpus_path or "data/corpus.sample.json"
     print(f"[ingest] Đọc corpus: {path}")
     docs, rels = load_corpus(path)
-    ingest_docs(docs, rels)
+    ingest_docs(docs, rels, ep=ep, xoa_doc_du=xoa_doc_du)
     return docs, rels

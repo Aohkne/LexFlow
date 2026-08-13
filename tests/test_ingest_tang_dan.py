@@ -554,3 +554,28 @@ def test_ingest_docs_mac_dinh_khong_ep_khong_xoa(monkeypatch):
     pipeline.ingest_docs(docs, [])
 
     assert nhan == {"ep": frozenset(), "xoa_doc_du": False}
+
+
+# --- CLI ------------------------------------------------------------------------------------
+
+def test_cli_doc_lap_lai_duoc_va_mac_dinh_khong_xoa():
+    from app.ingestion.__main__ import phan_tich
+
+    a = phan_tich(["data/corpus.real.json", "--doc", "TT66-2025", "--doc", "TT23-2019"])
+    assert a.corpus == "data/corpus.real.json"
+    assert set(a.doc) == {"TT66-2025", "TT23-2019"}
+    assert a.xoa_doc_du is False
+
+
+def test_cli_khong_tham_so_thi_giu_mac_dinh_cu():
+    from app.ingestion.__main__ import phan_tich
+
+    a = phan_tich([])
+    assert a.corpus == "data/corpus.sample.json"
+    assert a.doc == [] and a.xoa_doc_du is False
+
+
+def test_cli_bat_duoc_co_xoa():
+    from app.ingestion.__main__ import phan_tich
+
+    assert phan_tich(["c.json", "--xoa-doc-du"]).xoa_doc_du is True
