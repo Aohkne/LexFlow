@@ -14,6 +14,6 @@ def test_chuan_hoa_van_noi():
 
 def test_loai_so_bo():
     assert loai_so_bo(["52/2024/NĐ-CP#than/dieu_3"], "bổ sung theo NĐ 52") == "phap_ly"
-    assert loai_so_bo([], "đối chiếu mẫu HĐ khung do PPC ban hành") == "noi_bo"
+    assert loai_so_bo([], "đối chiếu mẫu HĐ khung theo quy định nội bộ") == "noi_bo"
     assert loai_so_bo([], "Đơn vị làm rõ nội dung này") == "lam_ro"
     assert loai_so_bo([], "Bỏ từ Thẻ để tránh nhầm lẫn") == "van_phong"

@@ -17,7 +17,7 @@ _DOCUMENT = f"""<?xml version="1.0" encoding="UTF-8"?>
 
 _COMMENTS = f"""<?xml version="1.0" encoding="UTF-8"?>
 <w:comments xmlns:w="{_W}">
-<w:comment w:id="7" w:author="PPC" w:date="2026-05-12T10:40:00Z">
+<w:comment w:id="7" w:author="Pháp chế" w:date="2026-05-12T10:40:00Z">
 <w:p><w:r><w:t>Nên là ngày làm việc.</w:t></w:r></w:p></w:comment>
 </w:comments>"""
 
@@ -43,7 +43,7 @@ def test_doc_du_doan_va_comment(docx):
         "Điều 1. Phạm vi", "Bên B thanh toán trong 3 ngày.", "Điều 2. Phí",
     ]
     assert doan[1].comment_ids == ["7"] and doan[0].comment_ids == []
-    assert binh_luan[0].author == "PPC"
+    assert binh_luan[0].author == "Pháp chế"
     assert binh_luan[0].text == "Nên là ngày làm việc."
 
 
