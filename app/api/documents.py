@@ -312,8 +312,8 @@ def approve_document(
     except Exception as exc:  # noqa: BLE001 — mọi lỗi nạp đều cùng một cách xử
         # Canonical trên Storage đã cập nhật, còn bước nạp thì dừng GIỮA CHỪNG — không nói
         # "chỉ mục thì chưa": lỗi có thể đến sau khi LanceDB đã ghi xong (Neo4j rớt chẳng
-        # hạn), lúc đó chỉ mục đã đổi một phần. Bấm lại vẫn an toàn vì cả `delete + add` lẫn
-        # upsert Storage đều lặp lại vô hại.
+        # hạn), lúc đó chỉ mục đã đổi một phần. Bấm lại vẫn an toàn vì cả xoá id mồ côi +
+        # `merge_insert` lẫn upsert Storage đều lặp lại vô hại.
         #
         # Thứ tự Storage-trước là cố ý: thư viện thấy văn bản mà tra chưa ra thì chat đơn
         # giản không trích dẫn nó — không có trích dẫn gãy. Đảo lại mới tệ: retrieval có văn

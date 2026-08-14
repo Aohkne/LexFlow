@@ -311,9 +311,16 @@ def _loc_id(ids: list[str]) -> str:
 
 
 def _tao_bang_moi(db, rows: list[dict]) -> tuple[int, int]:
-    """Đường lần-đầu: chưa có bảng thì không có gì để so, dựng và index như trước."""
+    """Đường lần-đầu: chưa có bảng thì không có gì để so, dựng và index như trước.
+
+    KHÔNG truyền `mode="overwrite"`: hàm này chỉ được gọi khi bộ lọc thông điệp ở người gọi đã
+    xác nhận bảng THẬT SỰ chưa tồn tại, nên `overwrite` không mua được gì — mà lại vô hiệu hoá
+    chính guard đó. Nếu bộ lọc từng có dương tính giả (hiểu nhầm một lỗi khác thành "chưa có
+    bảng"), mặc định của `create_table` (không ghi đè) biến nó thành một lỗi ồn ào thay vì âm
+    thầm mất dữ liệu.
+    """
     _embed_rows(rows)
-    tbl = db.create_table(LANCEDB_TABLE, data=rows, mode="overwrite")
+    tbl = db.create_table(LANCEDB_TABLE, data=rows)
     # `**_FTS_OPTS` KHÔNG được bỏ: index thiếu tham số vẫn dựng được, vẫn trả kết quả, chỉ là
     # kết quả khác index đang phục vụ — không lỗi, không cảnh báo, chỉ lệch.
     if settings.lancedb_cloud_enabled:
@@ -341,10 +348,15 @@ def _id_dang_co(tbl, doc_ids: set[str]) -> dict[str, set[str]]:
     """
     if not doc_ids:
         return {}
+    # `limit` phải là số dương: LanceDB hiểu `limit(0)` là KHÔNG giới hạn, không phải "0 hàng".
+    # Bảng rỗng (`count_rows() == 0`) vì thế rơi vào nhánh không-giới-hạn — vô hại hôm nay vì
+    # bảng rỗng thì chẳng có gì để trả, nhưng ra sớm ở đây thì không phải phụ thuộc vào lập
+    # luận đó, và tiết kiệm luôn một lượt gọi mạng.
+    n = tbl.count_rows()
+    if not n:
+        return {}
     ra: dict[str, set[str]] = {}
-    for h in (
-        tbl.search().where(_loc_doc_id(doc_ids)).select(["id", "doc_id"]).limit(tbl.count_rows()).to_list()
-    ):
+    for h in tbl.search().where(_loc_doc_id(doc_ids)).select(["id", "doc_id"]).limit(n).to_list():
         ra.setdefault(h["doc_id"], set()).add(h["id"])
     return ra
 
@@ -354,6 +366,17 @@ def _ghi_chunk(tbl, pham_vi: set[str], rows: list[dict], id_cu: dict[str, set[st
 
     KHÔNG tự quyết văn bản nào cần ghi — người gọi đã biết. Đường API biết vì admin vừa duyệt
     đúng văn bản đó; đường corpus biết nhờ `_doc_can_nap`.
+
+    ĐIỀU KIỆN NGƯỜI GỌI PHẢI GIỮ: `id_cu` phải phủ ĐỦ mọi `doc_id` trong `pham_vi` — nghĩa là
+    nó được đọc từ chính bảng này cho đúng phạm vi đó (`_id_dang_co` cho đường API,
+    `_doc_can_nap` cho đường corpus). Thiếu một văn bản trong `id_cu` thì hàm này im lặng coi
+    văn bản đó chưa có chunk nào và bỏ sót phần cần xoá — hỏng kiểu không lỗi, không cảnh báo,
+    chỉ còn hàng thừa trong bảng phục vụ. `pham_vi` được giữ tách khỏi `id_cu.keys()` chính vì
+    thế: văn bản mới tinh hợp lệ ở đây (có trong `pham_vi`, vắng trong `id_cu`), nên hàm không
+    có cách nào tự phân biệt "mới" với "người gọi quên đọc".
+
+    `return len(rows)` là số chunk MỚI của lượt này, không phải số hàng bảng có sau đó — người
+    gọi nào cần con số kia thì tự `count_rows()` (xem `write_lancedb`).
 
     Id nào đang có trong bảng thuộc `pham_vi` mà không có trong `rows` thì bị xoá. Một luật phủ
     cả hai ca: văn bản chẻ lại ra ít mảnh hơn, VÀ văn bản không còn điều nào (admin xoá hết Điều
@@ -403,16 +426,21 @@ def write_lancedb(
         # phân trang (`page_token`) mà không đọc hết trang thì "không thấy tên" và "bảng thật
         # sự không tồn tại" lẫn vào nhau, chảy thẳng xuống `_tao_bang_moi` → ghi đè cả bảng.
         #
-        # Cả hai backend ném `ValueError` với thông điệp chứa "was not found" khi mở bảng không
-        # tồn tại, cùng qua `lancedb/db.py:1722` (lancedb 0.34.0). Đo trực tiếp 13/08: local
-        # (embedded, DB tạm trong `.venv`) VÀ remote (LanceDB Cloud thật) — không phải suy đoán.
+        # Cả hai backend ném `ValueError` khi mở bảng không tồn tại, cùng qua `lancedb/db.py:1722`
+        # (lancedb 0.34.0). Đo trực tiếp 13/08: local (embedded, DB tạm trong `.venv`) VÀ remote
+        # (LanceDB Cloud thật) — không phải suy đoán. Thông điệp thật, đọc từ `db.py:1849`
+        # (`drop_table`, cùng khung với `open_table`): `Table '<tên>' was not found`.
         #
         # Bộ lọc thông điệp dưới đây CHỊU LỰC, không phải phòng thủ thừa: `ValueError` là
         # built-in dùng cho vô số lý do, bắt trần nó thì MỘT `ValueError` bất kỳ từ `open_table`
-        # (đối số sai, ...) sẽ bị hiểu nhầm thành "bảng chưa có" rồi ghi đè cả bảng thật. Chuỗi
-        # "not found" vì thế là một hợp đồng ngầm với lancedb — nâng phiên bản thì đo lại; muốn
-        # bỏ nó thì phải thay bằng một phép phân biệt chặt tương đương, không phải xoá suông.
-        if "not found" not in str(e).lower():
+        # (đối số sai, lỗi cột, ...) sẽ bị hiểu nhầm thành "bảng chưa có" rồi ghi đè cả bảng
+        # thật. Lọc riêng theo "not found" (không kèm tên bảng) mắc đúng lỗi đó: một
+        # `ValueError` bất kỳ khác — ví dụ lancedb báo "Column 'x' was not found" cho một
+        # `select` sai cột — cũng chứa "not found" và sẽ lọt qua, kéo theo `_tao_bang_moi` ghi
+        # đè cả bảng đang phục vụ. Đòi khớp CẢ tên bảng thu hẹp đúng bằng thông điệp thật của
+        # lancedb — nâng phiên bản thì đo lại; muốn bỏ nó thì phải thay bằng một phép phân biệt
+        # chặt tương đương, không phải xoá suông.
+        if f"table '{LANCEDB_TABLE.lower()}' was not found" not in str(e).lower():
             raise
         return _tao_bang_moi(db, rows)
 
@@ -556,7 +584,10 @@ def ingest_one_doc(
         # thật trên LanceDB Cloud của dự án (đo 10/08), `table_names()` thì deprecated và có
         # phân trang. Bộ lọc thông điệp CHỊU LỰC — `ValueError` là built-in dùng cho vô số lý
         # do, bắt trần nó biến một trục trặc bất kỳ thành "bảng chưa có" rồi dựng đè bảng thật.
-        if "not found" not in str(e).lower():
+        # Đòi khớp CẢ tên bảng (thông điệp thật của lancedb: `Table '<tên>' was not found`, xem
+        # docstring nhánh tương ứng trong `write_lancedb`) — lọc mỗi "not found" nuốt luôn một
+        # `ValueError` khác chẳng liên quan (vd lỗi cột) rồi vẫn dựng đè.
+        if f"table '{LANCEDB_TABLE.lower()}' was not found" not in str(e).lower():
             raise
 
     if tbl is None:

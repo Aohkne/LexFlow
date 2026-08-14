@@ -241,6 +241,28 @@ def test_loi_tam_thoi_luc_mo_bang_thi_nem_chu_khong_dung_de_bang_moi(monkeypatch
         pipeline.ingest_one_doc(_doc("TT99-2026"), [], [_doc("TT99-2026")])
 
 
+def test_loi_not_found_ve_bang_khac_thi_nem_chu_khong_tao_bang_moi(monkeypatch):
+    """`ValueError` chứa "not found" nhưng KHÔNG PHẢI về bảng `chunks` — vd lỗi cột trong `select`.
+
+    Bộ lọc cũ chỉ soi chữ "not found" nên nuốt luôn ca này rồi ghi đè cả bảng thật. Bộ lọc mới
+    đòi khớp đúng thông điệp `table '<tên bảng>' was not found` mà lancedb thật ném
+    (`.venv/Lib/site-packages/lancedb/db.py:1849`, hàm `drop_table`, cùng khung với `open_table`).
+    """
+    class _DbLoiCot:
+        def open_table(self, ten):
+            raise ValueError("Column 'x' was not found")
+        def create_table(self, *a, **kw):
+            raise AssertionError("không được dựng bảng mới khi lỗi không phải về bảng chunks")
+
+    monkeypatch.setattr("app.core.vectordb.connect", lambda: _DbLoiCot())
+    monkeypatch.setattr(pipeline, "_embed_rows", lambda rows: None)
+    monkeypatch.setattr(pipeline.settings, "neo4j_uri", "")
+    monkeypatch.setattr(pipeline.settings, "neo4j_password", "")
+
+    with pytest.raises(ValueError, match="Column 'x' was not found"):
+        pipeline.ingest_one_doc(_doc("TT99-2026"), [], [_doc("TT99-2026")])
+
+
 def test_bang_chua_co_van_len_do_thi(monkeypatch):
     """Bảng CHƯA TỒN TẠI + văn bản có điều ⇒ `push_one_doc` vẫn phải được gọi.
 

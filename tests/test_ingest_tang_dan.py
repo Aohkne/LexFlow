@@ -345,8 +345,8 @@ def test_bang_chua_ton_tai_thi_dung_duong_cu(monkeypatch, khong_goi_mang):
         def open_table(self, ten):
             raise ValueError(f"Table '{ten}' was not found")
 
-        def create_table(self, ten, data, mode):
-            da_tao.append(f"{ten}:{mode}:{len(data)}")
+        def create_table(self, ten, data):
+            da_tao.append(f"{ten}:{len(data)}")
             return _bang(data)
 
     monkeypatch.setattr(pipeline.vectordb, "connect", lambda: _DbTrong())
@@ -354,7 +354,7 @@ def test_bang_chua_ton_tai_thi_dung_duong_cu(monkeypatch, khong_goi_mang):
 
     n_ghi, n_tong = pipeline.write_lancedb(rows)
 
-    assert da_tao == [f"{pipeline.LANCEDB_TABLE}:overwrite:1"]
+    assert da_tao == [f"{pipeline.LANCEDB_TABLE}:1"]
     assert (n_ghi, n_tong) == (1, 1)
     assert khong_goi_mang == [1]
 
@@ -380,6 +380,30 @@ def test_loi_khac_luc_mo_bang_thi_nem_chu_khong_hieu_nham_la_bang_chua_co(
         pipeline.write_lancedb(rows)
 
     assert khong_goi_mang == [], "lỗi mở bảng mà vẫn embed — bị hiểu nhầm thành bảng chưa có"
+
+
+def test_loi_not_found_ve_bang_khac_thi_nem_chu_khong_tao_bang_moi(monkeypatch, khong_goi_mang):
+    """`ValueError` chứa "not found" nhưng KHÔNG PHẢI về bảng `chunks` — vd lỗi cột trong `select`.
+
+    Bộ lọc cũ chỉ soi chữ "not found" nên nuốt luôn ca này rồi ghi đè cả bảng thật. Bộ lọc mới
+    đòi khớp đúng thông điệp `table '<tên bảng>' was not found` mà lancedb thật ném
+    (`.venv/Lib/site-packages/lancedb/db.py:1849`, hàm `drop_table`, cùng khung với `open_table`).
+    """
+
+    class _DbLoiCot:
+        def open_table(self, ten):
+            raise ValueError("Column 'x' was not found")
+
+        def create_table(self, *a, **kw):
+            raise AssertionError("không được dựng bảng mới khi lỗi không phải về bảng chunks")
+
+    monkeypatch.setattr(pipeline.vectordb, "connect", lambda: _DbLoiCot())
+    rows = [_hang("A", "Điều 1", "x")]
+
+    with pytest.raises(ValueError, match="Column 'x' was not found"):
+        pipeline.write_lancedb(rows)
+
+    assert khong_goi_mang == [], "lỗi cột mà vẫn embed — bị hiểu nhầm thành bảng chưa có"
 
 
 def test_mang_chap_chon_luc_mo_bang_thi_nem_chu_khong_tao_bang_moi(monkeypatch, khong_goi_mang):
