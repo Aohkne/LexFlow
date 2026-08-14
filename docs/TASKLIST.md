@@ -739,6 +739,40 @@ sản phẩm hiện `top_k=6` mặc định (`ChatRequest.top_k`).
   điểm ngữ nghĩa TB 0.862 có nhích không và có kéo nhiễu làm tụt câu khác không. Thuần đo, chưa đổi
   mặc định sản phẩm.
 
+### [ ] T115 · TT45-2024 thiếu `provisions` (cây điều khoản parse rỗng ở nguồn)
+
+Nạp 23 văn bản SBV (14/08): TT45-2024 vào corpus với `provisions = []`. `canh_bao` bản crawl ghi rõ
+"lệch Điều giữa cây điều khoản và toàn văn: **cây 0, toàn văn 46**" — DOM cây điều khoản trên vbpl.vn
+parse ra 0 node dù toàn văn có 46 điều. `provisions` dựng từ `build_provision_tree` (`vbpl.py:625`)
+đọc node DOM, KHÔNG suy được từ text `articles`, nên không dựng lại tại chỗ được.
+
+- **Không ảnh hưởng eval/retrieval:** `pipeline.py` (ingest→chunk) chỉ dùng `articles` (46 điều TT45
+  đều có). `provisions` chỉ nuôi ontology (`app/ontology/parser.py`). Hoãn theo nguyên tắc eval-driven.
+- Bước sửa (khi ontology cần TT45): re-crawl riêng TT45, soi DOM xem vì sao `prov_nodes` rỗng
+  (`canh_bao`: nguồn bỏ markup một dòng khiến cây thiếu, hoặc render khối sửa đổi 2 lần) — đúng ca
+  memory `khong-voi-do-loi-cho-nguon`, soi DOM kiểm chứng đừng đoán. Xong thì `enrich_corpus_from_vbpl.py`
+  nạp `provisions` mới như 22 văn bản kia.
+
+### [ ] T116 · Incremental ingest lớn trên Cloud để FTS mù với hàng mới; `num_indexed_rows` không đáng tin
+
+Nạp 23 văn bản SBV (14/08): bảng 661→1496 chunk, nhưng `text_idx` `num_indexed_rows` **kẹt 661/1496
+suốt 5+ phút** — `_cho_index` trên nhánh Cloud (`pipeline.py:523`) CHỈ `wait_for_index`, KHÔNG
+`create_fts_index(replace=True)` (cố ý, tránh reindex toàn bảng mỗi lượt — comment `:501`), dựa vào
+Cloud tự index nền. Nền không đuổi kịp trong cửa sổ đó ⇒ 835 hàng mới nằm ngoài FTS, nhánh BM25 mù.
+
+- Phải trigger tay `create_fts_index("text", replace=True, **_FTS_OPTS)` mới phủ. **Sau replace,
+  `num_indexed_rows` báo 0** (rồi giữ 0) DÙ FTS query thật đã trả về văn bản mới (test:
+  `search("giao diện lập trình ứng dụng mở", query_type="fts")` → TT64-2024, ND94-2025). Tức
+  `num_indexed_rows` là **metric không đáng tin trên Cloud sau replace** — cảnh báo "phủ X/Y hàng"
+  của `_cho_index` (`:535`) dựa vào nó nên có thể báo oan hoặc bỏ sót.
+- Chưa rõ: rebuild có THỰC SỰ cần không, hay hàng mới vốn tìm được qua flat-scan (chưa test FTS
+  trên hàng mới TRƯỚC khi replace). Cần đo: sau một incremental lớn, FTS query hàng mới trả về
+  không, độc lập với `num_indexed_rows`.
+- Hướng: (a) `_cho_index` Cloud kiểm phủ bằng **FTS query thăm dò** thay vì `num_indexed_rows`;
+  (b) nếu chưa phủ thì `create_fts_index(replace=True)` (chấp nhận reindex sau ingest lớn) hoặc
+  ghi rõ vận hành phải chạy tay. `ingest_one_doc` (/approve) còn không gọi `_cho_index` nên rủi ро
+  tương tự ở quy mô nhỏ.
+
 ---
 
 ## Đã đóng

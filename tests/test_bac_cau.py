@@ -169,11 +169,14 @@ def test_corpus_that_cong_luoc_do_that():
     """Con số đóng lại toàn bộ việc này: 70 cạnh vào, 48 nối hai văn bản có toàn văn,
     22 nối vào node rỗng, **0 cạnh bị mất**.
 
-    Ba mốc đo cùng một phép đo: 48/18/30 (trước nạp) → 58/33/25 (nạp đợt 1, 05/08) →
-    70/48/22 (nạp đợt 2 cùng ngày, sau lượt crawl 22 văn bản). Số học đợt 2 khớp từng
-    phần: +12 cạnh curated (58→70, cả 12 đều nối hai đầu trong corpus nên nội-corpus
-    33+12+3=48 — 3 cạnh vbpl của lược đồ ND52 vừa đủ hai đầu nhờ ND58/TT30-2025/TT34
-    có toàn văn), và node rỗng 25→22 vì đúng 3 đầu mút của lược đồ ND52 rời tập stub."""
+    Bốn mốc đo cùng một phép đo (rels/intra/rỗng): 48/18/30 (trước nạp) → 58/33/25 (nạp đợt 1,
+    05/08) → 70/48/22 (nạp đợt 2 cùng ngày, sau lượt crawl 22 văn bản) → 70/49/21 (nạp 23 văn bản
+    bộ SBV 14/08). Số học đợt 2 khớp từng phần: +12 cạnh curated (58→70, cả 12 đều nối hai đầu
+    trong corpus nên nội-corpus 33+12+3=48 — 3 cạnh vbpl của lược đồ ND52 vừa đủ hai đầu nhờ
+    ND58/TT30-2025/TT34 có toàn văn), và node rỗng 25→22 vì đúng 3 đầu mút của lược đồ ND52 rời
+    tập stub. Đợt SBV (14/08): rels giữ 70 vì KHÔNG thêm quan hệ, nhưng đúng một đầu mút lược đồ
+    ND52 — 64/2024/TT-NHNN (giao diện lập trình mở) — nay có toàn văn, nên intra 48→49 và rỗng
+    22→21; 22 văn bản SBV còn lại không phải đầu mút của lược đồ này nên không đổi gì thêm."""
     docs, rels_corpus = load_corpus("data/corpus.real.json")
     mau = _tho(_ND52)
     canh_vbpl, _ = doc_luoc_do(mau)
@@ -181,11 +184,11 @@ def test_corpus_that_cong_luoc_do_that():
     canh, rong, cb = quy_ve_doc_id(rels, docs, tieu_de_theo_so_hieu(mau))
 
     assert len(rels) == 70 and len(canh) == 70, "không cạnh nào được phép rơi"
-    assert len(rong) == 22
+    assert len(rong) == 21
     assert cb == []
 
     co = {d.doc_id for d in docs}
-    assert sum(1 for c in canh if c.source_doc in co and c.target_doc in co) == 48
+    assert sum(1 for c in canh if c.source_doc in co and c.target_doc in co) == 49
 
 
 def test_moi_van_ban_corpus_deu_khai_so_hieu():

@@ -6,6 +6,32 @@
 
 ---
 
+## 2026-08-14 (3) — nhập 23 văn bản bộ SBV vào corpus (29 → 100 câu), qua spec→plan
+
+**Giai đoạn:** mở rộng corpus phục vụ để bộ test SBV chạy hết 100 câu. Chạm production nên đi
+spec→plan (`docs/superpowers/{specs,plans}/2026-08-14-nhap-23-van-ban-sbv*`), dừng ở cổng maker-checker.
+
+- **Gộp bằng script tái dùng tool có sẵn.** `scripts/gop_corpus_tu_staging.py` tạo BASE entry 23 văn
+  bản (map số hiệu bằng `chuan_so_hieu` — cứu 3 ca lệch: NĐ↔ND + `'TT- NHNN'` thừa dấu cách; article
+  bỏ `char_*`, `valid_from/valid_to` cấp điều = None) rồi `enrich_corpus_from_vbpl.py` thêm thuộc
+  tính như đã làm ND52. Test thuần `tests/test_gop_corpus.py`.
+- **Maker-checker verified:** 23 văn bản mới, **26 văn bản cũ y hệt HEAD (0 đổi)**, relationships
+  nguyên, schema validate 0 lỗi. 3 văn bản hết hiệu lực toàn bộ (TT32/37/45-2024) giữ đúng `valid_to`.
+- **Ingest tăng dần đúng như thiết kế:** 661→1496 chunk, **chỉ 835 embed mới**, 661 cũ không đụng.
+  Neo4j 49 node + 35 cạnh (23 node mồ côi — edge hoãn, eval-driven). `chuyen_sbv.py`: **29 → 100 câu**.
+- **Trục trặc FTS (→ T116):** sau ingest lớn, `text_idx` kẹt 661/1496 (Cloud `_cho_index` chỉ chờ,
+  không rebuild). Trigger tay `create_fts_index(replace=True)`; sau đó FTS query trả về văn bản mới
+  đúng (TT64-2024/ND94-2025) DÙ `num_indexed_rows` báo 0 — metric hỏng trên Cloud.
+- **2 test corpus-stat cập nhật (không phải bug):** `test_bac_cau` rỗng 22→21 + intra 48→49
+  (TT64-2024 giải quyết một đầu mút lược đồ ND52); `test_ontology_citation` co_tiet 23→29
+  (TT57-2024 +5, TT50-2024 +1). Full suite **923 xanh**.
+- **T115** mở: TT45-2024 `provisions` rỗng (cây điều khoản parse hỏng ở nguồn) — không ảnh hưởng
+  eval (retrieval dùng `articles`), hoãn.
+- **Không commit** `eval/bo_sbv*.jsonl` (query bộ SBV) — untrack + gitignore như file kết quả.
+
+**Next:** benchmark 100 câu + judge (hoãn theo yêu cầu, chạy sau); regression gate 36/76 câu; đưa số
+mới vào `EVAL-IR.md` §11/§12.
+
 ## 2026-08-14 (2) — LLM-judge chất lượng câu trả lời (bộ SBV); crawl 23 văn bản đã sẵn staging
 
 **Giai đoạn:** hạng mục 2 Sprint 3 (LLM-judge) — con số đầu tiên đo *câu trả lời* thay vì retrieval.

@@ -60,3 +60,6 @@ data/evaluate/svb_graph/sbv_testset_tvpl.json
 eval/results/answers-sbv.jsonl
 eval/results/judge-sbv-*.json
 eval/results/*bo_sbv*.json
+# Bo eval SBV da chuyen doi (query + nhan cua bo test bai bao) — sinh lai bang eval/chuyen_sbv.py
+eval/bo_sbv.jsonl
+eval/bo_sbv_khong_can_cu.jsonl

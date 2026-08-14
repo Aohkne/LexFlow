@@ -143,10 +143,10 @@ def test_chu_dieu_phai_viet_hoa():
 
 
 def test_bao_phu_corpus_that():
-    """Chạy trên toàn corpus: không nổ, và bắt được đúng 23 viện dẫn có tiết.
+    """Chạy trên toàn corpus: không nổ, và bắt được đúng 29 viện dẫn có tiết.
 
-    Ba mốc cùng ngày 05/08, đo từng văn bản trước khi ghi: 4 (cả 4 của TT23/2019) → 17
-    (nạp đợt 1: TT41 +5, TT66 +8) → 23 (nạp đợt 2: TT30-2025 +3, TT34 +2, TT38 +1).
+    Bốn mốc: 4 (cả 4 của TT23/2019) → 17 (nạp đợt 1, 05/08: TT41 +5, TT66 +8) → 23 (nạp đợt 2:
+    TT30-2025 +3, TT34 +2, TT38 +1) → 29 (nạp 23 văn bản bộ SBV, 14/08: TT57-2024 +5, TT50-2024 +1).
     Toàn bộ số tăng đến từ thông tư sửa đổi nhắm vào tiết (`điểm b (ii) khoản 4 Điều 11`…),
     tức viện dẫn hẹp hơn node đến từ chính loại văn bản mà tầng địa chỉ hoá phải đỡ được.
     """
@@ -158,7 +158,7 @@ def test_bao_phu_corpus_that():
     refs = parse_citations(blob)
     assert len(refs) > 400
     co_tiet = [r for r in refs if r.co_tiet]
-    assert len(co_tiet) == 23, [r.raw for r in co_tiet]
+    assert len(co_tiet) == 29, [r.raw for r in co_tiet]
     # Mọi span phải cắt đúng chuỗi gốc.
     for r in refs:
         assert blob[r.span[0] : r.span[1]] == r.raw
