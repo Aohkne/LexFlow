@@ -118,11 +118,20 @@ class _FakeDB:
     def open_table(self, ten: str) -> _FakeTable:
         if ten not in self.bang:
             # Đúng loại và đúng thông điệp lancedb ném thật — đo 13/08 trên CẢ nhúng lẫn cloud,
-            # cùng khung `lancedb/db.py:1722`.
+            # đo lại 14/08 trên DB tạm. Chuỗi do lõi Rust ném, không có dòng Python để trỏ;
+            # xem khối chú thích ở nhánh `except ValueError` của `write_lancedb`.
             raise ValueError(f"Table '{ten}' was not found")
         return self.bang[ten]
 
-    def create_table(self, ten: str, data, **kw) -> _FakeTable:
+    def create_table(self, ten: str, data) -> _FakeTable:
+        # KHÔNG nhận `**kw`: nuốt kwargs thì một lượt hồi quy đưa `mode="overwrite"` trở lại sẽ
+        # đi qua đây trong im lặng. Chữ ký hẹp khiến nó `TypeError` — giống bảng giả anh em ở
+        # `test_ingest_tang_dan.py`. Và ném khi trùng tên vì lancedb thật ném (`ValueError:
+        # Table 'chunks' already exists`, đo 14/08): đó CHÍNH LÀ tính chất "hỏng ồn ào" mà
+        # `_tao_bang_moi` dựa vào khi bỏ `mode="overwrite"` — bảng giả ghi đè êm ru thì test
+        # không còn kiểm được điều nó tưởng đang kiểm.
+        if ten in self.bang:
+            raise ValueError(f"Table '{ten}' already exists")
         self.bang[ten] = _FakeTable(data)
         return self.bang[ten]
 
@@ -176,9 +185,12 @@ def test_ingest_one_doc_khong_cho_khong_dung_lai_index_tren_duong_bang_da_ton_ta
 
     Chờ index ở đường `/approve` là đổi một khiếm khuyết TẠM THỜI (13 giây mù BM25, đã đo, đã
     chấp nhận) lấy một lượt CHỜ đồng bộ chặn HTTP — đúng thứ việc tách `_cho_index` ra khỏi
-    `_ghi_chunk` sinh ra để tránh. Ca này phải ĐỎ trên bản trước khi sửa finding #1 (khi
-    `_ghi_chunk` còn gọi `_cho_index(tbl)` ở bước cuối): bảng `bang` đã có sẵn chunk + index FTS,
-    nên `_cho_index` sẽ gọi `tbl.wait_for_index(...)`.
+    `_ghi_chunk` sinh ra để tránh. Ca này ĐỎ trên bản trước khi sửa finding #1 (khi `_ghi_chunk`
+    còn gọi `_cho_index(tbl)` ở bước cuối) qua `so_lan_dung_fts`, KHÔNG qua `so_lan_wait_for_index`:
+    fixture để `lancedb_uri` rỗng ⇒ `lancedb_cloud_enabled` False (`app/core/config.py:64-65`) ⇒
+    `_cho_index` dừng ở nhánh nhúng `create_fts_index(replace=True)` và không bao giờ tới
+    `wait_for_index`. Vẫn khẳng định CẢ HAI bộ đếm là cố ý — nhánh nào chạy tuỳ môi trường, mà
+    kết luận "đường duyệt không đụng index" thì phải đúng ở cả hai.
     """
     pipeline.ingest_one_doc(_doc("TT99-2026"), [], [_doc("TT99-2026")])
     assert bang.so_lan_wait_for_index == 0
@@ -242,11 +254,16 @@ def test_loi_tam_thoi_luc_mo_bang_thi_nem_chu_khong_dung_de_bang_moi(monkeypatch
 
 
 def test_loi_not_found_ve_bang_khac_thi_nem_chu_khong_tao_bang_moi(monkeypatch):
-    """`ValueError` chứa "not found" nhưng KHÔNG PHẢI về bảng `chunks` — vd lỗi cột trong `select`.
+    """`ValueError` chứa "not found" nhưng KHÔNG PHẢI về bảng `chunks` thì phải ném lên.
 
-    Bộ lọc cũ chỉ soi chữ "not found" nên nuốt luôn ca này rồi ghi đè cả bảng thật. Bộ lọc mới
-    đòi khớp đúng thông điệp `table '<tên bảng>' was not found` mà lancedb thật ném
-    (`.venv/Lib/site-packages/lancedb/db.py:1849`, hàm `drop_table`, cùng khung với `open_table`).
+    Bộ lọc cũ chỉ soi chữ "not found" nên nuốt luôn ca này rồi ghi đè cả bảng thật; bộ lọc mới
+    đòi khớp cả tên bảng.
+
+    Thông điệp trong test là ca DỰNG, không phải ca đã thấy: trên lancedb 0.34.0 chưa đo được
+    `ValueError` nào khác từ `open_table` mà chứa "not found" (`select` sai cột ném
+    `RuntimeError: lance error: ... No field named nope.` — khác lớp, không lọt vào `except`).
+    Ca này ghim HÀNH VI của bộ lọc trước một tập thông điệp không liệt kê hết được, chứ không
+    tái hiện một lỗi thật.
     """
     class _DbLoiCot:
         def open_table(self, ten):

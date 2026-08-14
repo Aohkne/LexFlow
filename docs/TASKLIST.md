@@ -681,9 +681,12 @@ hành vi cũ (`elif rows:` của bản trước khi hoà nhánh 13/08), không p
   qua CLI), nhưng môi trường mới tinh (CI, demo, tenant mới) mà văn bản đầu duyệt qua UI lại
   rỗng là ca chưa ai kiểm.
 - Bước đầu: thêm test ở `tests/test_ingest_mot_van_ban.py` — bảng chưa tồn tại + văn bản 0 điều
-  → gọi `ingest_one_doc`, khẳng định bảng LanceDB VẪN được dựng (rỗng, có index FTS). Sửa bằng
-  cách gọi `_tao_bang_moi(db, [])` thay vì rẽ nhánh theo `if rows`, sau khi xác nhận
-  `create_table(data=[])` được lancedb thật chấp nhận (không phải suy đoán).
+  → gọi `ingest_one_doc`, khẳng định bảng LanceDB VẪN được dựng (rỗng, có index FTS).
+- Cách sửa hiển nhiên **đã bị bác bằng phép đo** (14/08): `create_table(data=[])` ném
+  `ValueError: Cannot create table from empty list without a schema`, nên gọi thẳng
+  `_tao_bang_moi(db, [])` không chạy. Bản sửa phải truyền `schema` tường minh — dựng schema từ
+  đâu (hằng số viết tay, hay `pa.schema` suy từ `build_chunks` một văn bản giả) là câu hỏi mở
+  và là thứ phải chốt trước khi viết code.
 
 ---
 

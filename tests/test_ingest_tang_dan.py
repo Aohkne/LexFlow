@@ -383,11 +383,13 @@ def test_loi_khac_luc_mo_bang_thi_nem_chu_khong_hieu_nham_la_bang_chua_co(
 
 
 def test_loi_not_found_ve_bang_khac_thi_nem_chu_khong_tao_bang_moi(monkeypatch, khong_goi_mang):
-    """`ValueError` chứa "not found" nhưng KHÔNG PHẢI về bảng `chunks` — vd lỗi cột trong `select`.
+    """`ValueError` chứa "not found" nhưng KHÔNG PHẢI về bảng `chunks` thì phải ném lên.
 
-    Bộ lọc cũ chỉ soi chữ "not found" nên nuốt luôn ca này rồi ghi đè cả bảng thật. Bộ lọc mới
-    đòi khớp đúng thông điệp `table '<tên bảng>' was not found` mà lancedb thật ném
-    (`.venv/Lib/site-packages/lancedb/db.py:1849`, hàm `drop_table`, cùng khung với `open_table`).
+    Bộ lọc cũ chỉ soi chữ "not found" nên nuốt luôn ca này rồi ghi đè cả bảng thật; bộ lọc mới
+    đòi khớp cả tên bảng.
+
+    Thông điệp trong test là ca DỰNG, không phải ca đã thấy — xem docstring bản song sinh ở
+    `tests/test_ingest_mot_van_ban.py` để biết vì sao vẫn ghim.
     """
 
     class _DbLoiCot:

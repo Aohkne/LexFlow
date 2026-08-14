@@ -426,19 +426,33 @@ def write_lancedb(
         # phân trang (`page_token`) mà không đọc hết trang thì "không thấy tên" và "bảng thật
         # sự không tồn tại" lẫn vào nhau, chảy thẳng xuống `_tao_bang_moi` → ghi đè cả bảng.
         #
-        # Cả hai backend ném `ValueError` khi mở bảng không tồn tại, cùng qua `lancedb/db.py:1722`
-        # (lancedb 0.34.0). Đo trực tiếp 13/08: local (embedded, DB tạm trong `.venv`) VÀ remote
-        # (LanceDB Cloud thật) — không phải suy đoán. Thông điệp thật, đọc từ `db.py:1849`
-        # (`drop_table`, cùng khung với `open_table`): `Table '<tên>' was not found`.
+        # Cả hai backend ném `ValueError` khi mở bảng không tồn tại (lancedb 0.34.0). Đo trực
+        # tiếp 13/08: local (embedded, DB tạm trong `.venv`) VÀ remote (LanceDB Cloud thật) —
+        # không phải suy đoán. Thông điệp thật, đo lại 14/08 bằng `open_table` trên DB tạm:
+        # `Table 'chunks' was not found` — lancedb lặp lại ĐÚNG tên được truyền vào (thử
+        # `open_table("Chunks")` ra `Table 'Chunks' ...`), nên `.lower()` cả hai vế là cần.
+        #
+        # Chuỗi này KHÔNG có trong nguồn Python — nó do lõi Rust ném (`_lancedb.pyd`), nên
+        # không có dòng nào để trỏ tới. Chỗ đối chiếu gần nhất là `db.py:1849`, nơi `drop_table`
+        # TIÊU THỤ chính chuỗi đó cho `ignore_missing` — corroboration, không phải khung ném.
+        # Đường đi thật của dự án: sync embedded `LanceDBConnection.open_table` (`db.py:964`),
+        # remote `lancedb/remote/db.py:424`. ĐỪNG đo `db.py:1722` — đó là API async, dự án
+        # không gọi, và nó có thể phân kỳ mà không ai hay.
         #
         # Bộ lọc thông điệp dưới đây CHỊU LỰC, không phải phòng thủ thừa: `ValueError` là
         # built-in dùng cho vô số lý do, bắt trần nó thì MỘT `ValueError` bất kỳ từ `open_table`
-        # (đối số sai, lỗi cột, ...) sẽ bị hiểu nhầm thành "bảng chưa có" rồi ghi đè cả bảng
-        # thật. Lọc riêng theo "not found" (không kèm tên bảng) mắc đúng lỗi đó: một
-        # `ValueError` bất kỳ khác — ví dụ lancedb báo "Column 'x' was not found" cho một
-        # `select` sai cột — cũng chứa "not found" và sẽ lọt qua, kéo theo `_tao_bang_moi` ghi
-        # đè cả bảng đang phục vụ. Đòi khớp CẢ tên bảng thu hẹp đúng bằng thông điệp thật của
-        # lancedb — nâng phiên bản thì đo lại; muốn bỏ nó thì phải thay bằng một phép phân biệt
+        # sẽ bị hiểu nhầm thành "bảng chưa có" rồi ghi đè cả bảng thật — `create_table` chẳng
+        # hạn ném `ValueError: Table 'chunks' already exists` (đo 14/08), đúng lớp ngoại lệ,
+        # chỉ khác thông điệp. Đòi khớp CẢ tên bảng thay vì mỗi "not found" thu hẹp đúng bằng
+        # thông điệp thật.
+        #
+        # Nói cho sòng phẳng: trên 0.34.0 tôi CHƯA đo được một `ValueError` nào khác từ
+        # `open_table` mà lại chứa "not found" (`select` sai cột ném `RuntimeError: lance
+        # error: ... No field named nope.` — khác lớp, không lọt vào `except` này). Siết là
+        # phòng xa cho một tập thông điệp không liệt kê hết được, chứ không phải bịt một ca đã
+        # thấy. Lớp phòng thứ hai — `_tao_bang_moi` bỏ `mode="overwrite"` — mới là thứ biến
+        # dương tính giả thành lỗi ồn ào. Nâng phiên bản thì đo lại (`open_table` trên DB tạm,
+        # in `repr(str(e))`); muốn bỏ nó thì phải thay bằng một phép phân biệt
         # chặt tương đương, không phải xoá suông.
         if f"table '{LANCEDB_TABLE.lower()}' was not found" not in str(e).lower():
             raise
@@ -566,6 +580,13 @@ def ingest_one_doc(
     hành vi `main` đã có trước khi hoà nhánh này, ghi rõ ở đây để người sau biết đó là một lựa
     chọn, không phải bỏ sót.
 
+    MỘT NGOẠI LỆ của câu "không đụng index": nhánh bảng-chưa-tồn-tại gọi `_tao_bang_moi`, mà
+    hàm đó gọi thẳng `create_fts_index` — một lượt dựng index đồng bộ NẰM TRONG request HTTP.
+    Chỉ chạm được ở lượt duyệt ĐẦU TIÊN của một môi trường chưa từng có bảng, và chỉ trên chunk
+    của đúng một văn bản, nên chi phí có trần thấp. Hành vi này có sẵn từ `main` (không phải do
+    hoà nhánh sinh ra), ghi ra đây vì đoạn trên dễ khiến người đọc kết luận đường duyệt không
+    làm gì với index — nó có, chỉ đúng một lần.
+
     `tat_ca_docs` là toàn bộ corpus sau khi đã gộp `doc` — cần cho `quy_ve_doc_id` dựng đủ
     bảng số hiệu, chứ không phải để nạp.
     """
@@ -584,9 +605,10 @@ def ingest_one_doc(
         # thật trên LanceDB Cloud của dự án (đo 10/08), `table_names()` thì deprecated và có
         # phân trang. Bộ lọc thông điệp CHỊU LỰC — `ValueError` là built-in dùng cho vô số lý
         # do, bắt trần nó biến một trục trặc bất kỳ thành "bảng chưa có" rồi dựng đè bảng thật.
-        # Đòi khớp CẢ tên bảng (thông điệp thật của lancedb: `Table '<tên>' was not found`, xem
-        # docstring nhánh tương ứng trong `write_lancedb`) — lọc mỗi "not found" nuốt luôn một
-        # `ValueError` khác chẳng liên quan (vd lỗi cột) rồi vẫn dựng đè.
+        # Đòi khớp CẢ tên bảng (thông điệp thật của lancedb: `Table '<tên>' was not found`) —
+        # lọc mỗi "not found" thì một `ValueError` khác chẳng liên quan cũng lọt rồi vẫn dựng
+        # đè. Nguồn thông điệp, cách đo lại, và giới hạn của phép siết này: xem khối chú thích
+        # ở nhánh tương ứng của `write_lancedb`, đừng chép lại ở đây.
         if f"table '{LANCEDB_TABLE.lower()}' was not found" not in str(e).lower():
             raise
 
