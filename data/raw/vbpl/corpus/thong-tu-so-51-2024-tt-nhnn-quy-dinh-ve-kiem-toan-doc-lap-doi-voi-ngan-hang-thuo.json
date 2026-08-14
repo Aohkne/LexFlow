@@ -1,0 +1,1477 @@
+{
+ "doc_id": "TT51-2024",
+ "title": "Thông tư 51/2024/TT-NHNN của Ngân hàng Nhà nước Việt Nam",
+ "doc_type": "Thông tư",
+ "source": "external",
+ "valid_from": "2025-01-15",
+ "valid_to": null,
+ "so_hieu": "51/2024/TT-NHNN",
+ "co_quan_ban_hanh": "Ngân hàng Nhà nước Việt Nam",
+ "nguoi_ky": "Đoàn Thái Sơn",
+ "chuc_danh": "Phó Thống đốc",
+ "nganh": "Ngân hàng",
+ "linh_vuc": "Thanh tra, giám sát ngân hàng",
+ "ngay_ban_hanh": "2024-11-29",
+ "tinh_trang_hieu_luc": "Hết hiệu lực một phần",
+ "source_url": "https://vbpl.vn/van-ban/chi-tiet/thong-tu-so-51-2024-tt-nhnn-quy-dinh-ve-kiem-toan-doc-lap-doi-voi-ngan-hang-thuong-mai-to-chuc-tin-dung-phi-ngan-hang-to-chuc-tai-chinh-vi-mo-chi-nhanh-ngan-hang-nuoc-ngoai--172395",
+ "source_files": [
+  {
+   "ten": "Thông tư số 51-2024-TT-NHNN.docx",
+   "kich_thuoc": "0.05MB",
+   "url": "https://vbpl-bientap-gateway.moj.gov.vn/api/qtdc/public/doc/minio/buckets/vbpl/172395/Th%C3%B4ng%20t%C6%B0%20s%E1%BB%91%2051-2024-TT-NHNN.docx/download"
+  },
+  {
+   "ten": "VanBanGoc_Thông tư 51-2024-TT-NHNN.pdf",
+   "kich_thuoc": "2.83MB",
+   "url": "https://vbpl-bientap-gateway.moj.gov.vn/api/qtdc/public/doc/minio/buckets/vbpl/172395/VanBanGoc_Th%C3%B4ng%20t%C6%B0%2051-2024-TT-NHNN.pdf/download"
+  }
+ ],
+ "co_toan_van": true,
+ "canh_bao": [],
+ "articles": [
+  {
+   "article": "Điều 1",
+   "text": "Phạm vi điều chỉnh\n1. Thông tư này quy định về kiểm toán độc lập báo cáo tài chính, thực hiện dịch vụ bảo đảm đối với hoạt động của hệ thống kiểm soát nội bộ trong việc lập và trình bày báo cáo tài chính đối với ngân hàng thương mại, tổ chức tín dụng phi ngân hàng, tổ chức tài chính vi mô, chi nhánh ngân hàng nước ngoài.\n2. Ngân hàng thương mại, tổ chức tín dụng phi ngân hàng, tổ chức tài chính vi mô, chi nhánh ngân hàng nước ngoài thực hiện kiểm toán độc lập theo quy định của pháp luật có liên quan và phải tuân thủ các Điều 11, 12, 13, 14 Thông tư này đối với các trường hợp sau đây:\na) Thuê tổ chức kiểm toán độc lập đánh giá một phần hoặc toàn bộ hệ thống kiểm soát nội bộ theo yêu cầu của Ngân hàng Nhà nước Việt Nam (sau đây gọi là Ngân hàng Nhà nước) quy định tại khoản 3 Điều 57 Luật Các tổ chức tín dụng;\nb) Thuê tổ chức kiểm toán độc lập kiểm toán báo cáo tài chính, đánh giá thực trạng tài chính để làm cơ sở xây dựng phương án khắc phục theo yêu cầu của Ngân hàng Nhà nước quy định tại khoản 4 Điều 156 Luật Các tổ chức tín dụng;\nc) Thuê tổ chức kiểm toán độc lập kiểm toán báo cáo tài chính theo quy định tại khoản 1 Điều 167 Luật Các tổ chức tín dụng;\nd) Thuê tổ chức kiểm toán độc lập để thực hiện kiểm toán độc lập phục vụ yêu cầu thanh tra, giám sát ngân hàng theo quy định của Chính phủ về tổ chức và hoạt động của Thanh tra, giám sát ngành Ngân hàng.",
+   "chapter": "Chương I. QUY ĐỊNH CHUNG",
+   "section": null,
+   "superseded": false,
+   "char_start": 1438,
+   "char_end": 2812
+  },
+  {
+   "article": "Điều 2",
+   "text": "Đối tượng áp dụng\nThông tư này áp dụng đối với:\n1. Ngân hàng thương mại, tổ chức tín dụng phi ngân hàng, tổ chức tài chính vi mô, chi nhánh ngân hàng nước ngoài (sau đây gọi là tổ chức tín dụng, chi nhánh ngân hàng nước ngoài).\n2. Tổ chức kiểm toán độc lập, kiểm toán viên hành nghề, kiểm toán viên và các tổ chức, cá nhân khác liên quan đến việc kiểm toán độc lập tổ chức tín dụng, chi nhánh ngân hàng nước ngoài.",
+   "chapter": "Chương I. QUY ĐỊNH CHUNG",
+   "section": null,
+   "superseded": false,
+   "char_start": 2821,
+   "char_end": 3235
+  },
+  {
+   "article": "Điều 3",
+   "text": "Giải thích từ ngữ\nTrong Thông tư này, các từ ngữ dưới đây được hiểu như sau:\n1. Kiểm toán độc lập tổ chức tín dụng, chi nhánh ngân hàng nước ngoài là việc kiểm toán viên hành nghề, tổ chức kiểm toán độc lập kiểm toán báo cáo tài chính, thực hiện dịch vụ bảo đảm đối với hoạt động của hệ thống kiểm soát nội bộ trong việc lập và trình bày báo cáo tài chính của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài theo hợp đồng kiểm toán.\n2. Tổ chức kiểm toán độc lập bao gồm doanh nghiệp kiểm toán và chi nhánh doanh nghiệp kiểm toán nước ngoài tại Việt Nam.",
+   "chapter": "Chương I. QUY ĐỊNH CHUNG",
+   "section": null,
+   "superseded": false,
+   "char_start": 3244,
+   "char_end": 3798
+  },
+  {
+   "article": "Điều 4",
+   "text": "Phạm vi kiểm toán\n1. Tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phải lựa chọn tổ chức kiểm toán độc lập theo quy định của Thông tư này để thực hiện:\na) Kiểm toán báo cáo tài chính;\nb) Dịch vụ bảo đảm đối với hoạt động của hệ thống kiểm soát nội bộ trong việc lập và trình bày báo cáo tài chính.\n2. Việc soát xét báo cáo tài chính bán niên, kiểm toán báo cáo quyết toán dự án hoàn thành và các công việc kiểm toán khác của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài (nếu có) thực hiện theo quy định của pháp luật có liên quan.",
+   "chapter": "Chương I. QUY ĐỊNH CHUNG",
+   "section": null,
+   "superseded": false,
+   "char_start": 3807,
+   "char_end": 4344
+  },
+  {
+   "article": "Điều 5",
+   "text": "Khuyến khích kiểm toán\nNgân hàng Nhà nước khuyến khích tổ chức tín dụng, chi nhánh ngân hàng nước ngoài sử dụng dịch vụ kiểm toán độc lập để kiểm toán đối với các hạn chế nhằm đảm bảo an toàn trong hoạt động của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài.",
+   "chapter": "Chương I. QUY ĐỊNH CHUNG",
+   "section": null,
+   "superseded": false,
+   "char_start": 4353,
+   "char_end": 4614
+  },
+  {
+   "article": "Điều 6",
+   "text": "Thời gian lựa chọn tổ chức kiểm toán độc lập\nTrước khi kết thúc năm tài chính, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phải lựa chọn tổ chức kiểm toán độc lập theo quy định của Thông tư này để kiểm toán báo cáo tài chính, thực hiện dịch vụ bảo đảm đối với hoạt động của hệ thống kiểm soát nội bộ trong việc lập và trình bày báo cáo tài chính năm tài chính tiếp theo.",
+   "chapter": "Chương II. QUY ĐỊNH CỤ THỂ",
+   "section": null,
+   "superseded": false,
+   "char_start": 4649,
+   "char_end": 5024
+  },
+  {
+   "article": "Điều 7",
+   "text": "Thẩm quyền lựa chọn tổ chức kiểm toán độc lập\n1. Hội đồng thành viên quyết định lựa chọn tổ chức kiểm toán độc lập kiểm toán tổ chức tín dụng là công ty trách nhiệm hữu hạn.\n2. Đại hội đồng cổ đông quyết định lựa chọn tổ chức kiểm toán độc lập kiểm toán tổ chức tín dụng là công ty cổ phần, trừ trường hợp quy định tại khoản 3 Điều này.\n3. Hội đồng quản trị quyết định lựa chọn tổ chức kiểm toán độc lập kiểm toán tổ chức tín dụng được kiểm soát đặc biệt là công ty cổ phần.\n4. Tổng giám đốc (Giám đốc) quyết định lựa chọn tổ chức kiểm toán độc lập kiểm toán chi nhánh ngân hàng nước ngoài.",
+   "chapter": "Chương II. QUY ĐỊNH CỤ THỂ",
+   "section": null,
+   "superseded": false,
+   "char_start": 5033,
+   "char_end": 5623
+  },
+  {
+   "article": "Điều 8",
+   "text": "Nội dung kiểm toán độc lập\n1. Kiểm toán độc lập báo cáo tài chính của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài bao gồm kiểm toán:\na) Báo cáo tình hình tài chính;\nb) Báo cáo kết quả hoạt động;\nc) Báo cáo lưu chuyển tiền tệ;\nd) Thuyết minh báo cáo tài chính.\n2. Thực hiện dịch vụ bảo đảm đối với hoạt động của hệ thống kiểm soát nội bộ trong việc lập và trình bày báo cáo tài chính của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài.",
+   "chapter": "Chương II. QUY ĐỊNH CỤ THỂ",
+   "section": null,
+   "superseded": false,
+   "char_start": 5632,
+   "char_end": 6073
+  },
+  {
+   "article": "Điều 9",
+   "text": "Ý kiến kiểm toán độc lập\nCăn cứ vào kết quả kiểm toán, kiểm toán viên hành nghề và tổ chức kiểm toán độc lập phải đưa ra ý kiến theo quy định tại khoản 1 Điều 48 Luật Kiểm toán độc lập.",
+   "chapter": "Chương II. QUY ĐỊNH CỤ THỂ",
+   "section": null,
+   "superseded": false,
+   "char_start": 6082,
+   "char_end": 6267
+  },
+  {
+   "article": "Điều 10",
+   "text": "Kết quả kiểm toán độc lập\n1. Kết quả kiểm toán độc lập đối với tổ chức tín dụng, chi nhánh ngân hàng nước ngoài bao gồm:\na) Báo cáo kiểm toán đối với báo cáo tài chính;\nb) Báo cáo thực hiện dịch vụ bảo đảm đối với hoạt động của hệ thống kiểm soát nội bộ trong việc lập và trình bày báo cáo tài chính;\nc) Thư quản lý và các tài liệu, bằng chứng liên quan.\n2. Báo cáo kiểm toán đối với báo cáo tài chính, báo cáo thực hiện dịch vụ bảo đảm đối với hoạt động của hệ thống kiểm soát nội bộ trong việc lập và trình bày báo cáo tài chính của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phải tuân thủ các quy định của pháp luật về kiểm toán độc lập, chuẩn mực kế toán, chuẩn mực kiểm toán Việt Nam và các quy định khác của pháp luật có liên quan.\n3. Thư quản lý phải phản ánh những vấn đề, sự kiện cụ thể trong quá trình kiểm toán, bao gồm: hiện trạng thực tế, khả năng rủi ro, kiến nghị của kiểm toán viên và ý kiến của người quản lý, điều hành của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài liên quan đến sự kiện đó. Thư quản lý tối thiểu phải có các nội dung sau:\na) Phương pháp tiếp cận chung, phạm vi của cuộc kiểm toán và các yêu cầu cần bổ sung;\nb) Đánh giá những thay đổi về chính sách và thông lệ quan trọng ảnh hưởng đến báo cáo tài chính, hoạt động của hệ thống kiểm soát nội bộ trong việc lập và trình bày báo cáo tài chính của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài;\nc) Rủi ro có thể ảnh hưởng trọng yếu đến báo cáo tài chính, hoạt động của hệ thống kiểm soát nội bộ trong việc lập và trình bày báo cáo tài chính của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài;\nd) Đề xuất điều chỉnh của tổ chức kiểm toán độc lập và kiểm toán viên hành nghề đối với vụ việc, sự kiện đã ảnh hưởng hoặc có thể ảnh hưởng trọng yếu đến báo cáo tài chính, hoạt động của hệ thống kiểm soát nội bộ trong việc lập và trình bày báo cáo tài chính của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài;\nđ) Ý kiến không thống nhất với người quản lý, điều hành tổ chức tín dụng, chi nhánh ngân hàng nước ngoài về các vấn đề có thể ảnh hưởng trọng yếu đến báo cáo tài chính, hoạt động của hệ thống kiểm soát nội bộ trong việc lập và trình bày báo cáo tài chính của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài hoặc đến ý kiến của kiểm toán viên hành nghề và tổ chức kiểm toán độc lập. Kiểm toán viên hành nghề và tổ chức kiểm toán độc lập phải nêu rõ tình trạng giải quyết những ý kiến không thống nhất đó và mức độ ảnh hưởng của vấn đề;\ne) Các vấn đề khác được thỏa thuận trong hợp đồng kiểm toán.",
+   "chapter": "Chương II. QUY ĐỊNH CỤ THỂ",
+   "section": null,
+   "superseded": false,
+   "char_start": 6277,
+   "char_end": 8779
+  },
+  {
+   "article": "Điều 11",
+   "text": "Yêu cầu đối với tổ chức kiểm toán độc lập thực hiện kiểm toán ngân hàng thương mại, tổ chức tín dụng phi ngân hàng, chi nhánh ngân hàng nước ngoài\n1. Đã thành lập và có thời gian hoạt động kiểm toán tại Việt Nam tối thiểu 03 năm.\n2. Có vốn chủ sở hữu, vốn được cấp từ 10 tỷ đồng trở lên.\n3. Có ít nhất 05 kiểm toán viên hành nghề tham gia kiểm toán một ngân hàng thương mại, tổ chức tín dụng phi ngân hàng, chi nhánh ngân hàng nước ngoài. Trong đó, phải có ít nhất 03 kiểm toán viên hành nghề có từ 02 năm kinh nghiệm kiểm toán trong lĩnh vực tài chính, ngân hàng trở lên.\n4. Các kiểm toán viên hành nghề, người đại diện của tổ chức kiểm toán độc lập tham gia kiểm toán ngân hàng thương mại, tổ chức tín dụng phi ngân hàng, chi nhánh ngân hàng nước ngoài phải đáp ứng đủ các tiêu chuẩn quy định tại Điều 13 Thông tư này.\n5. Không có quan hệ mua trái phiếu, mua tài sản, góp vốn, liên doanh, mua cổ phần với ngân hàng thương mại, tổ chức tín dụng phi ngân hàng, chi nhánh ngân hàng nước ngoài được kiểm toán.\n6. Không là khách hàng đang được cấp tín dụng không có bảo đảm, không là khách hàng đang được cấp tín dụng, được cung cấp các dịch vụ khác với điều kiện ưu đãi của ngân hàng thương mại, tổ chức tín dụng phi ngân hàng, chi nhánh ngân hàng nước ngoài được kiểm toán.\n7. Không thực hiện kiểm toán chính ngân hàng thương mại, tổ chức tín dụng phi ngân hàng, chi nhánh ngân hàng nước ngoài đó trong thời gian 05 năm liên tiếp liền kề trước năm kiểm toán.\n8. Không bị xử lý vi phạm pháp luật về kiểm toán độc lập trong 02 năm liền kề trước năm kiểm toán.\n9. Tổ chức kiểm toán, kiểm toán viên hành nghề thực hiện kiểm toán ngân hàng thương mại, tổ chức tín dụng phi ngân hàng, chi nhánh ngân hàng nước ngoài thuộc danh sách tổ chức kiểm toán và danh sách kiểm toán viên hành nghề được chấp thuận thực hiện kiểm toán cho đơn vị có lợi ích công chúng theo công bố của Bộ Tài chính cho giai đoạn thực hiện kiểm toán.\nTrường hợp ngân hàng thương mại, tổ chức tín dụng phi ngân hàng là đơn vị có lợi ích công chúng thuộc lĩnh vực chứng khoán thì tổ chức kiểm toán, kiểm toán viên hành nghề thực hiện kiểm toán cho tổ chức tín dụng phải thuộc danh sách tổ chức kiểm toán và danh sách kiểm toán viên hành nghề được chấp thuận thực hiện kiểm toán cho đơn vị có lợi ích công chúng thuộc lĩnh vực chứng khoán theo công bố của Ủy ban Chứng khoán Nhà nước cho giai đoạn thực hiện kiểm toán.\n10. Không thuộc trường hợp không được thực hiện kiểm toán theo quy định tại Điều 30 Luật Kiểm toán độc lập.\n11. Đáp ứng các quy định khác về kiểm toán độc lập quy định tại Luật Kiểm toán độc lập và các văn bản hướng dẫn Luật Kiểm toán độc lập.",
+   "chapter": "Chương II. QUY ĐỊNH CỤ THỂ",
+   "section": null,
+   "superseded": false,
+   "char_start": 8789,
+   "char_end": 11412
+  },
+  {
+   "article": "Điều 12",
+   "text": "Yêu cầu đối với tổ chức kiểm toán độc lập thực hiện kiểm toán tổ chức tài chính vi mô\n1. Các kiểm toán viên hành nghề và người đại diện của tổ chức kiểm toán độc lập tham gia kiểm toán tổ chức tài chính vi mô phải đáp ứng đủ các tiêu chuẩn quy định tại Điều 13 Thông tư này.\n2. Tổ chức kiểm toán, kiểm toán viên hành nghề thực hiện kiểm toán tổ chức tài chính vi mô thuộc danh sách tổ chức kiểm toán và danh sách kiểm toán viên hành nghề được chấp thuận thực hiện kiểm toán cho đơn vị có lợi ích công chúng theo công bố của Bộ Tài chính cho giai đoạn thực hiện kiểm toán.\n3. Không thực hiện kiểm toán chính tổ chức tài chính vi mô đó trong thời gian 05 năm liên tiếp liền kề trước năm kiểm toán.\n4. Không thuộc trường hợp không được thực hiện kiểm toán theo quy định tại Điều 30 Luật Kiểm toán độc lập.\n5. Đáp ứng các quy định khác về kiểm toán độc lập quy định tại Luật Kiểm toán độc lập và các văn bản hướng dẫn Luật Kiểm toán độc lập.",
+   "chapter": "Chương II. QUY ĐỊNH CỤ THỂ",
+   "section": null,
+   "superseded": false,
+   "char_start": 11422,
+   "char_end": 12359
+  },
+  {
+   "article": "Điều 13",
+   "text": "Tiêu chuẩn đối với kiểm toán viên hành nghề, người đại diện của tổ chức kiểm toán độc lập tham gia kiểm toán tổ chức tín dụng, chi nhánh ngân hàng nước ngoài\n1. Không là khách hàng đang được cấp tín dụng không có bảo đảm, không là khách hàng đang được cấp tín dụng, được cung cấp các dịch vụ khác với điều kiện ưu đãi của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài được kiểm toán.\n2. Không bị xử lý vi phạm pháp luật về kiểm toán độc lập trong 02 năm liền kề trước năm kiểm toán.\n3. Không thuộc trường hợp không được thực hiện kiểm toán theo quy định tại Điều 19 Luật Kiểm toán độc lập.\n4. Đáp ứng các quy định khác về kiểm toán độc lập quy định tại Luật Kiểm toán độc lập và các văn bản hướng dẫn Luật Kiểm toán độc lập.",
+   "chapter": "Chương II. QUY ĐỊNH CỤ THỂ",
+   "section": null,
+   "superseded": false,
+   "char_start": 12369,
+   "char_end": 13096
+  },
+  {
+   "article": "Điều 14",
+   "text": "Trách nhiệm của tổ chức kiểm toán độc lập, kiểm toán viên hành nghề tham gia kiểm toán tổ chức tín dụng, chi nhánh ngân hàng nước ngoài\n1. Thực hiện đầy đủ các quy định tại Điều 18, Điều 29 Luật Kiểm toán độc lập và các quy định khác của pháp luật về kiểm toán độc lập.\n2. Chịu trách nhiệm về tính đầy đủ, chính xác và kịp thời của các thông tin cung cấp cho tổ chức tín dụng, chi nhánh ngân hàng nước ngoài trong quá trình lựa chọn tổ chức kiểm toán độc lập.\n3. Tuân thủ các quy định của pháp luật liên quan đến báo cáo tài chính, hoạt động của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài.\n4. Giải trình hoặc cung cấp thông tin, số liệu liên quan đến hoạt động kiểm toán theo yêu cầu của Ngân hàng Nhà nước.\n5. Trong quá trình kiểm toán, nếu phát hiện tổ chức tín dụng, chi nhánh ngân hàng nước ngoài được kiểm toán không tuân thủ các quy định của pháp luật liên quan đến phạm vi kiểm toán thì phải thông báo và kiến nghị tổ chức tín dụng, chi nhánh ngân hàng nước ngoài được kiểm toán có biện pháp ngăn ngừa, sửa chữa và xử lý sai phạm; ghi ý kiến vào báo cáo kiểm toán hoặc thư quản lý theo yêu cầu tại khoản 2 và khoản 3 Điều 10 Thông tư này.\n6. Sau khi phát hành báo cáo kiểm toán, nếu có nghi ngờ hoặc có phát hiện tổ chức tín dụng, chi nhánh ngân hàng nước ngoài được kiểm toán có những sai phạm trọng yếu do không tuân thủ pháp luật và các quy định liên quan đến phạm vi kiểm toán thì tổ chức kiểm toán độc lập phải thực hiện các thủ tục thông báo cho đơn vị được kiểm toán và người thứ ba theo quy định của chuẩn mực kiểm toán Việt Nam và thông báo cho Ngân hàng Nhà nước.",
+   "chapter": "Chương II. QUY ĐỊNH CỤ THỂ",
+   "section": null,
+   "superseded": false,
+   "char_start": 13106,
+   "char_end": 14692
+  },
+  {
+   "article": "Điều 15",
+   "text": "Trách nhiệm của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài\n1. Lựa chọn tổ chức kiểm toán độc lập theo đúng quy định của Thông tư này.\n2. Trong thời hạn 30 ngày kể từ ngày quyết định lựa chọn tổ chức kiểm toán độc lập, có trách nhiệm gửi thông báo bằng văn bản về tổ chức kiểm toán độc lập được lựa chọn cho Ngân hàng Nhà nước theo quy định sau đây:\na) Tổ chức tín dụng, chi nhánh ngân hàng nước ngoài gửi cho Ngân hàng Nhà nước (qua Cơ quan Thanh tra, giám sát ngân hàng), trừ trường hợp quy định tại điểm b khoản này;\nb) Chi nhánh ngân hàng nước ngoài thuộc đối tượng thanh tra, giám sát an toàn vi mô của Ngân hàng Nhà nước chi nhánh tỉnh, thành phố trực thuộc Trung ương (sau đây gọi là Ngân hàng Nhà nước tỉnh, thành phố) gửi cho Ngân hàng Nhà nước tỉnh, thành phố nơi chi nhánh ngân hàng nước ngoài đặt trụ sở.\n3. Thực hiện đầy đủ các nghĩa vụ quy định tại Điều 39 Luật Kiểm toán độc lập và các quy định khác của pháp luật về kiểm toán độc lập.\n4. Trong thời hạn 90 ngày kể từ ngày kết thúc năm tài chính, gửi kết quả kiểm toán độc lập cho Ngân hàng Nhà nước theo quy định tại điểm a và điểm b khoản 2 Điều này.\n5. Thông báo bằng văn bản cho Ngân hàng Nhà nước trong trường hợp phát sinh tranh chấp về kết quả kiểm toán độc lập, trong đó báo cáo, giải trình và đề xuất ý kiến giải quyết theo quy định pháp luật có liên quan.\n6. Thực hiện việc công bố công khai thông tin tài chính theo đúng quy định hiện hành.",
+   "chapter": "Chương II. QUY ĐỊNH CỤ THỂ",
+   "section": null,
+   "superseded": false,
+   "char_start": 14702,
+   "char_end": 16123
+  },
+  {
+   "article": "Điều 16",
+   "text": "Trách nhiệm của Ngân hàng Nhà nước tỉnh, thành phố nơi tổ chức tín dụng, chi nhánh ngân hàng nước ngoài đặt trụ sở chính\n1. Phân tích, đánh giá và xử lý kết quả kiểm toán độc lập nhận được theo quy định tại khoản 4 Điều 15 Thông tư này.\nTrường hợp phát hiện kiểm toán viên hành nghề và tổ chức kiểm toán vi phạm quy định pháp luật trong quá trình thực hiện kiểm toán độc lập tổ chức tín dụng, chi nhánh ngân hàng nước ngoài, Ngân hàng Nhà nước tỉnh, thành phố báo cáo, đề xuất xử lý kịp thời với Thống đốc Ngân hàng Nhà nước (qua Cơ quan Thanh tra, giám sát ngân hàng).\n2. Báo cáo Thống đốc Ngân hàng Nhà nước (thông qua Cơ quan Thanh tra, giám sát ngân hàng) khi nhận được thông báo bằng văn bản của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài quy định tại khoản 5 Điều 15 Thông tư này.\n3. Thanh tra, kiểm tra tình hình thực hiện quy định tại Thông tư này và xử lý theo thẩm quyền hoặc kiến nghị Thống đốc Ngân hàng Nhà nước (thông qua Cơ quan Thanh tra, giám sát ngân hàng) xử lý đối với tổ chức tín dụng, chi nhánh ngân hàng nước ngoài vi phạm các quy định của Thông tư này và các quy định khác của pháp luật về kiểm toán độc lập.\n4. Có ý kiến về nghiệp vụ chuyên môn thuộc lĩnh vực tiền tệ, ngân hàng trong báo cáo kiểm toán và thư quản lý của chi nhánh ngân hàng nước ngoài trên địa bàn tỉnh, thành phố thuộc đối tượng thanh tra, giám sát an toàn vi mô của Ngân hàng Nhà nước tỉnh, thành phố khi có yêu cầu của cơ quan có thẩm quyền.",
+   "chapter": "Chương II. QUY ĐỊNH CỤ THỂ",
+   "section": null,
+   "superseded": false,
+   "char_start": 16133,
+   "char_end": 17576
+  },
+  {
+   "article": "Điều 17",
+   "text": "Trách nhiệm của Cơ quan Thanh tra, giám sát ngân hàng\n1. Tổng hợp, trình Thống đốc Ngân hàng Nhà nước các báo cáo của Ngân hàng Nhà nước tỉnh, thành phố quy định tại khoản 2 Điều 16 Thông tư này.\n2. Phân tích, đánh giá và kiến nghị việc xử lý kết quả kiểm toán độc lập của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài.\n3. Báo cáo, đề xuất Thống đốc Ngân hàng Nhà nước các nội dung sau đây:\na) Các trường hợp quy định tại khoản 5 Điều 15 Thông tư này;\nb) Có thông báo gửi Bộ Tài chính khi phát hiện hoặc nhận được báo cáo của Ngân hàng Nhà nước tỉnh, thành phố quy định tại khoản 1 Điều 16 Thông tư này về kiểm toán viên hành nghề và tổ chức kiểm toán vi phạm quy định pháp luật trong quá trình thực hiện kiểm toán độc lập tổ chức tín dụng, chi nhánh ngân hàng nước ngoài.\n4. Thanh tra, kiểm tra tình hình thực hiện quy định tại Thông tư này và xử lý theo thẩm quyền hoặc kiến nghị Thống đốc Ngân hàng Nhà nước xử lý đối với tổ chức tín dụng, chi nhánh ngân hàng nước ngoài vi phạm các quy định của Thông tư này và các quy định khác của pháp luật về kiểm toán độc lập.",
+   "chapter": "Chương II. QUY ĐỊNH CỤ THỂ",
+   "section": null,
+   "superseded": false,
+   "char_start": 17586,
+   "char_end": 18657
+  },
+  {
+   "article": "Điều 18",
+   "text": "Trách nhiệm của các đơn vị thuộc Ngân hàng Nhà nước\nCăn cứ chức năng, nhiệm vụ được giao hoặc phân công của Thống đốc Ngân hàng Nhà nước, các đơn vị có ý kiến về nghiệp vụ chuyên môn thuộc lĩnh vực tiền tệ, ngân hàng trong báo cáo kiểm toán và thư quản lý của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài khi có yêu cầu của cơ quan có thẩm quyền, trừ trường hợp quy định tại khoản 4 Điều 16 Thông tư này.",
+   "chapter": "Chương II. QUY ĐỊNH CỤ THỂ",
+   "section": null,
+   "superseded": false,
+   "char_start": 18667,
+   "char_end": 19075
+  },
+  {
+   "article": "Điều 19",
+   "text": "Giải quyết tranh chấp về kiểm toán độc lập\nViệc giải quyết tranh chấp về kiểm toán độc lập của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài thực hiện theo quy định của Luật Kiểm toán độc lập và các văn bản pháp luật có liên quan.",
+   "chapter": "Chương II. QUY ĐỊNH CỤ THỂ",
+   "section": null,
+   "superseded": false,
+   "char_start": 19085,
+   "char_end": 19318
+  },
+  {
+   "article": "Điều 20",
+   "text": "Hiệu lực thi hành\n1. Thông tư này có hiệu lực thi hành kể từ ngày 15 tháng 01 năm 2025.\n2. Các quy định về kiểm toán độc lập đối với ngân hàng thương mại, tổ chức tín dụng phi ngân hàng, tổ chức tài chính vi mô, chi nhánh ngân hàng nước ngoài tại Thông tư số 39/2011/TT-NHNN ngày 15 tháng 12 năm 2011 của Thống đốc Ngân hàng Nhà nước quy định kiểm toán độc lập đối với tổ chức tín dụng, chi nhánh ngân hàng nước ngoài, Thông tư số 24/2021/TT-NHNN ngày 31 tháng 12 năm 2021 của Thống đốc Ngân hàng Nhà nước sửa đổi, bổ sung một số điều của Thông tư số 39/2011/TT-NHNN ngày 15 tháng 12 năm 2011 của Thống đốc Ngân hàng Nhà nước quy định kiểm toán độc lập đối với tổ chức tín dụng, chi nhánh ngân hàng nước ngoài hết hiệu lực kể từ ngày Thông tư này có hiệu lực thi hành.",
+   "chapter": "Chương III. ĐIỀU KHOẢN THI HÀNH",
+   "section": null,
+   "superseded": false,
+   "char_start": 19359,
+   "char_end": 20127
+  },
+  {
+   "article": "Điều 21",
+   "text": "Quy định chuyển tiếp\nHợp đồng kiểm toán được ký kết trước ngày Thông tư này có hiệu lực thi hành được tiếp tục thực hiện theo hợp đồng kiểm toán đã ký. Trường hợp sửa đổi, bổ sung hợp đồng kiểm toán đã ký kết trước ngày Thông tư này có hiệu lực thi hành thì nội dung sửa đổi, bổ sung phải phù hợp với quy định của Thông tư này và pháp luật có liên quan.",
+   "chapter": "Chương III. ĐIỀU KHOẢN THI HÀNH",
+   "section": null,
+   "superseded": false,
+   "char_start": 20137,
+   "char_end": 20490
+  },
+  {
+   "article": "Điều 22",
+   "text": "Trách nhiệm tổ chức thực hiện\nChánh Văn phòng, Chánh Thanh tra giám sát ngân hàng; Thủ trưởng các đơn vị thuộc Ngân hàng Nhà nước; tổ chức tín dụng, chi nhánh ngân hàng nước ngoài; tổ chức kiểm toán độc lập; kiểm toán viên hành nghề, kiểm toán viên và tổ chức, cá nhân liên quan chịu trách nhiệm tổ chức thực hiện Thông tư này./.\nNơi nhận:\n- Ban Lãnh đạo NHNN;\n- Văn phòng Chính phủ;\n- Bộ Tài chính (để phối hợp);\n- Bộ Tư pháp (để kiểm tra);\n- NHTM, TCTD phi ngân hàng, tổ chức tài chính vi mô, chi nhánh NHNNg;\n- Cổng thông tin điện tử của NHNN;\n- Công báo;\n- Lưu: VP, PC, TTGSNH6 (03 bản).\nKT. THỐNG ĐỐC\nPHÓ THỐNG ĐỐC\n(Đã ký)\nĐoàn Thái Sơn",
+   "chapter": "Chương III. ĐIỀU KHOẢN THI HÀNH",
+   "section": null,
+   "superseded": false,
+   "char_start": 20500,
+   "char_end": 21141
+  }
+ ],
+ "provisions": [
+  {
+   "id": "id_577956a0-2c7d-11f1-8537-339c14e1dda3",
+   "cap": "chuong",
+   "so": "I",
+   "tieu_de": "QUY ĐỊNH CHUNG",
+   "text": "",
+   "html": "",
+   "bi_tac_dong": null,
+   "an": false,
+   "con": [
+    {
+     "id": "id_5779a4c0-2c7d-11f1-bec2-37a2862b1530",
+     "cap": "dieu",
+     "so": "1",
+     "tieu_de": "Phạm vi điều chỉnh",
+     "text": "",
+     "html": "",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": [
+      {
+       "id": "id_5779cbd0-2c7d-11f1-a941-03265da6b531",
+       "cap": "khoan",
+       "so": "1",
+       "tieu_de": "",
+       "text": "Thông tư này quy định về kiểm toán độc lập báo cáo tài chính, thực hiện dịch vụ bảo đảm đối với hoạt động của hệ thống kiểm soát nội bộ trong việc lập và trình bày báo cáo tài chính đối với ngân hàng thương mại, tổ chức tín dụng phi ngân hàng, tổ chức tài chính vi mô, chi nhánh ngân hàng nước ngoài.",
+       "html": "1. Thông tư này quy định về kiểm toán độc lập báo cáo tài chính, thực hiện dịch vụ bảo đảm đối với hoạt động của hệ thống kiểm soát nội bộ trong việc lập và trình bày báo cáo tài chính đối với ngân hàng thương mại, tổ chức tín dụng phi ngân hàng, tổ chức tài chính vi mô, chi nhánh ngân hàng nước ngoài.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_5779f2e0-2c7d-11f1-8a17-977c84a23cb5",
+       "cap": "khoan",
+       "so": "2",
+       "tieu_de": "",
+       "text": "Ngân hàng thương mại, tổ chức tín dụng phi ngân hàng, tổ chức tài chính vi mô, chi nhánh ngân hàng nước ngoài thực hiện kiểm toán độc lập theo quy định của pháp luật có liên quan và phải tuân thủ các Điều 11, 12, 13, 14 Thông tư này đối với các trường hợp sau đây:",
+       "html": "2. Ngân hàng thương mại, tổ chức tín dụng phi ngân hàng, tổ chức tài chính vi mô, chi nhánh ngân hàng nước ngoài thực hiện kiểm toán độc lập theo quy định của pháp luật có liên quan và phải tuân thủ các Điều 11, 12, 13, 14 Thông tư này đối với các trường hợp sau đây:",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": [
+        {
+         "id": "id_577a19f0-2c7d-11f1-8797-33d2dbbefbbc",
+         "cap": "diem",
+         "so": "a",
+         "tieu_de": "",
+         "text": "Thuê tổ chức kiểm toán độc lập đánh giá một phần hoặc toàn bộ hệ thống kiểm soát nội bộ theo yêu cầu của Ngân hàng Nhà nước Việt Nam (sau đây gọi là Ngân hàng Nhà nước) quy định tại khoản 3 Điều 57 Luật Các tổ chức tín dụng;",
+         "html": "a) Thuê tổ chức kiểm toán độc lập đánh giá một phần hoặc toàn bộ hệ thống kiểm soát nội bộ theo yêu cầu của Ngân hàng Nhà nước Việt Nam (sau đây gọi là Ngân hàng Nhà nước) quy định tại khoản 3 Điều 57 Luật Các tổ chức tín dụng;",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_577a4100-2c7d-11f1-bbcf-e5b996ef5a1d",
+         "cap": "diem",
+         "so": "b",
+         "tieu_de": "",
+         "text": "Thuê tổ chức kiểm toán độc lập kiểm toán báo cáo tài chính, đánh giá thực trạng tài chính để làm cơ sở xây dựng phương án khắc phục theo yêu cầu của Ngân hàng Nhà nước quy định tại khoản 4 Điều 156 Luật Các tổ chức tín dụng;",
+         "html": "b) Thuê tổ chức kiểm toán độc lập kiểm toán báo cáo tài chính, đánh giá thực trạng tài chính để làm cơ sở xây dựng phương án khắc phục theo yêu cầu của Ngân hàng Nhà nước quy định tại khoản 4 Điều 156 Luật Các tổ chức tín dụng;",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_577a6810-2c7d-11f1-a37c-dd3d60ee9a6f",
+         "cap": "diem",
+         "so": "c",
+         "tieu_de": "",
+         "text": "Thuê tổ chức kiểm toán độc lập kiểm toán báo cáo tài chính theo quy định tại khoản 1 Điều 167 Luật Các tổ chức tín dụng;",
+         "html": "c) Thuê tổ chức kiểm toán độc lập kiểm toán báo cáo tài chính theo quy định tại khoản 1 Điều 167 Luật Các tổ chức tín dụng;",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_577a8f20-2c7d-11f1-b672-f7b8f67bf3d1",
+         "cap": "diem",
+         "so": "d",
+         "tieu_de": "",
+         "text": "Thuê tổ chức kiểm toán độc lập để thực hiện kiểm toán độc lập phục vụ yêu cầu thanh tra, giám sát ngân hàng theo quy định của Chính phủ về tổ chức và hoạt động của Thanh tra, giám sát ngành Ngân hàng.",
+         "html": "d) Thuê tổ chức kiểm toán độc lập để thực hiện kiểm toán độc lập phục vụ yêu cầu thanh tra, giám sát ngân hàng theo quy định của Chính phủ về tổ chức và hoạt động của Thanh tra, giám sát ngành Ngân hàng.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": "id_577a8f2a-2c7d-11f1-af8a-938ad6a3be1b",
+     "cap": "dieu",
+     "so": "2",
+     "tieu_de": "Đối tượng áp dụng",
+     "text": "Thông tư này áp dụng đối với:",
+     "html": "Thông tư này áp dụng đối với:",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": [
+      {
+       "id": "id_577add40-2c7d-11f1-afa8-7de05ac4c57d",
+       "cap": "khoan",
+       "so": "1",
+       "tieu_de": "",
+       "text": "Ngân hàng thương mại, tổ chức tín dụng phi ngân hàng, tổ chức tài chính vi mô, chi nhánh ngân hàng nước ngoài (sau đây gọi là tổ chức tín dụng, chi nhánh ngân hàng nước ngoài).",
+       "html": "1. Ngân hàng thương mại, tổ chức tín dụng phi ngân hàng, tổ chức tài chính vi mô, chi nhánh ngân hàng nước ngoài (sau đây gọi là tổ chức tín dụng, chi nhánh ngân hàng nước ngoài).",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_577b0450-2c7d-11f1-8b43-157bb926741c",
+       "cap": "khoan",
+       "so": "2",
+       "tieu_de": "",
+       "text": "Tổ chức kiểm toán độc lập, kiểm toán viên hành nghề, kiểm toán viên và các tổ chức, cá nhân khác liên quan đến việc kiểm toán độc lập tổ chức tín dụng, chi nhánh ngân hàng nước ngoài.",
+       "html": "2. Tổ chức kiểm toán độc lập, kiểm toán viên hành nghề, kiểm toán viên và các tổ chức, cá nhân khác liên quan đến việc kiểm toán độc lập tổ chức tín dụng, chi nhánh ngân hàng nước ngoài.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      }
+     ]
+    },
+    {
+     "id": "id_577b2b60-2c7d-11f1-90c9-c56714b7f094",
+     "cap": "dieu",
+     "so": "3",
+     "tieu_de": "Giải thích từ ngữ",
+     "text": "Trong Thông tư này, các từ ngữ dưới đây được hiểu như sau:",
+     "html": "Trong Thông tư này, các từ ngữ dưới đây được hiểu như sau:",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": [
+      {
+       "id": "id_577b2b6a-2c7d-11f1-b1cf-3fa21f01eb00",
+       "cap": "khoan",
+       "so": "1",
+       "tieu_de": "",
+       "text": "Kiểm toán độc lập tổ chức tín dụng, chi nhánh ngân hàng nước ngoài là việc kiểm toán viên hành nghề, tổ chức kiểm toán độc lập kiểm toán báo cáo tài chính, thực hiện dịch vụ bảo đảm đối với hoạt động của hệ thống kiểm soát nội bộ trong việc lập và trình bày báo cáo tài chính của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài theo hợp đồng kiểm toán.",
+       "html": "1. <em>Kiểm toán độc lập tổ chức tín dụng, chi nhánh ngân hàng nước ngoài</em> là việc kiểm toán viên hành nghề, tổ chức kiểm toán độc lập kiểm toán báo cáo tài chính, thực hiện dịch vụ bảo đảm đối với hoạt động của hệ thống kiểm soát nội bộ trong việc lập và trình bày báo cáo tài chính của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài theo hợp đồng kiểm toán.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_49977ba0-36de-11f1-9426-99e49a93bb60",
+       "cap": "khoan",
+       "so": "2",
+       "tieu_de": "",
+       "text": "Tổ chức kiểm toán độc lập bao gồm doanh nghiệp kiểm toán và chi nhánh doanh nghiệp kiểm toán nước ngoài tại Việt Nam.",
+       "html": "2<em>. Tổ chức kiểm toán độc lập</em> bao gồm doanh nghiệp kiểm toán và chi nhánh doanh nghiệp kiểm toán nước ngoài tại Việt Nam.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      }
+     ]
+    },
+    {
+     "id": "id_577b5270-2c7d-11f1-99ad-2d7025ee4f26",
+     "cap": "dieu",
+     "so": "4",
+     "tieu_de": "Phạm vi kiểm toán",
+     "text": "",
+     "html": "",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": [
+      {
+       "id": "id_577b7980-2c7d-11f1-8e9c-994acfb40537",
+       "cap": "khoan",
+       "so": "1",
+       "tieu_de": "",
+       "text": "Tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phải lựa chọn tổ chức kiểm toán độc lập theo quy định của Thông tư này để thực hiện:",
+       "html": "1. Tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phải lựa chọn tổ chức kiểm toán độc lập theo quy định của Thông tư này để thực hiện:",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": [
+        {
+         "id": "id_577ba090-2c7d-11f1-b458-9fb998830162",
+         "cap": "diem",
+         "so": "a",
+         "tieu_de": "",
+         "text": "Kiểm toán báo cáo tài chính;",
+         "html": "a) Kiểm toán báo cáo tài chính;",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_577bc7a0-2c7d-11f1-8437-6b7d92fd5250",
+         "cap": "diem",
+         "so": "b",
+         "tieu_de": "",
+         "text": "Dịch vụ bảo đảm đối với hoạt động của hệ thống kiểm soát nội bộ trong việc lập và trình bày báo cáo tài chính.",
+         "html": "b) Dịch vụ bảo đảm đối với hoạt động của hệ thống kiểm soát nội bộ trong việc lập và trình bày báo cáo tài chính.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        }
+       ]
+      },
+      {
+       "id": "id_577bc7aa-2c7d-11f1-9bbb-5d1f27f7c1bb",
+       "cap": "khoan",
+       "so": "2",
+       "tieu_de": "",
+       "text": "Việc soát xét báo cáo tài chính bán niên, kiểm toán báo cáo quyết toán dự án hoàn thành và các công việc kiểm toán khác của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài (nếu có) thực hiện theo quy định của pháp luật có liên quan.",
+       "html": "2. Việc soát xét báo cáo tài chính bán niên, kiểm toán báo cáo quyết toán dự án hoàn thành và các công việc kiểm toán khác của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài (nếu có) thực hiện theo quy định của pháp luật có liên quan.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      }
+     ]
+    },
+    {
+     "id": "id_577beeb0-2c7d-11f1-ad59-eb4aac992534",
+     "cap": "dieu",
+     "so": "5",
+     "tieu_de": "Khuyến khích kiểm toán",
+     "text": "Ngân hàng Nhà nước khuyến khích tổ chức tín dụng, chi nhánh ngân hàng nước ngoài sử dụng dịch vụ kiểm toán độc lập để kiểm toán đối với các hạn chế nhằm đảm bảo an toàn trong hoạt động của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài.",
+     "html": "Ngân hàng Nhà nước khuyến khích tổ chức tín dụng, chi nhánh ngân hàng nước ngoài sử dụng dịch vụ kiểm toán độc lập để kiểm toán đối với các hạn chế nhằm đảm bảo an toàn trong hoạt động của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    }
+   ]
+  },
+  {
+   "id": "id_577c15c0-2c7d-11f1-921f-cfe4907e929f",
+   "cap": "chuong",
+   "so": "II",
+   "tieu_de": "QUY ĐỊNH CỤ THỂ",
+   "text": "",
+   "html": "",
+   "bi_tac_dong": null,
+   "an": false,
+   "con": [
+    {
+     "id": "id_577c3cd0-2c7d-11f1-8920-13daa36cf485",
+     "cap": "dieu",
+     "so": "6",
+     "tieu_de": "Thời gian lựa chọn tổ chức kiểm toán độc lập",
+     "text": "Trước khi kết thúc năm tài chính, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phải lựa chọn tổ chức kiểm toán độc lập theo quy định của Thông tư này để kiểm toán báo cáo tài chính, thực hiện dịch vụ bảo đảm đối với hoạt động của hệ thống kiểm soát nội bộ trong việc lập và trình bày báo cáo tài chính năm tài chính tiếp theo.",
+     "html": "Trước khi kết thúc năm tài chính, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phải lựa chọn tổ chức kiểm toán độc lập theo quy định của Thông tư này để kiểm toán báo cáo tài chính, thực hiện dịch vụ bảo đảm đối với hoạt động của hệ thống kiểm soát nội bộ trong việc lập và trình bày báo cáo tài chính năm tài chính tiếp theo.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_577c63e0-2c7d-11f1-8cb8-855fb23351c1",
+     "cap": "dieu",
+     "so": "7",
+     "tieu_de": "Thẩm quyền lựa chọn tổ chức kiểm toán độc lập",
+     "text": "",
+     "html": "",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": [
+      {
+       "id": "id_577c8af0-2c7d-11f1-9f3c-91b870dfef4d",
+       "cap": "khoan",
+       "so": "1",
+       "tieu_de": "",
+       "text": "Hội đồng thành viên quyết định lựa chọn tổ chức kiểm toán độc lập kiểm toán tổ chức tín dụng là công ty trách nhiệm hữu hạn.",
+       "html": "1. Hội đồng thành viên quyết định lựa chọn tổ chức kiểm toán độc lập kiểm toán tổ chức tín dụng là công ty trách nhiệm hữu hạn.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_577cd910-2c7d-11f1-89ae-9f35a60e2064",
+       "cap": "khoan",
+       "so": "2",
+       "tieu_de": "",
+       "text": "Đại hội đồng cổ đông quyết định lựa chọn tổ chức kiểm toán độc lập kiểm toán tổ chức tín dụng là công ty cổ phần, trừ trường hợp quy định tại khoản 3 Điều này.",
+       "html": "2. Đại hội đồng cổ đông quyết định lựa chọn tổ chức kiểm toán độc lập kiểm toán tổ chức tín dụng là công ty cổ phần, trừ trường hợp quy định tại khoản 3 Điều này.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_577cd91a-2c7d-11f1-bae2-8dd8f3769188",
+       "cap": "khoan",
+       "so": "3",
+       "tieu_de": "",
+       "text": "Hội đồng quản trị quyết định lựa chọn tổ chức kiểm toán độc lập kiểm toán tổ chức tín dụng được kiểm soát đặc biệt là công ty cổ phần.",
+       "html": "3. Hội đồng quản trị quyết định lựa chọn tổ chức kiểm toán độc lập kiểm toán tổ chức tín dụng được kiểm soát đặc biệt là công ty cổ phần.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_577d0020-2c7d-11f1-b464-3b7693da2835",
+       "cap": "khoan",
+       "so": "4",
+       "tieu_de": "",
+       "text": "Tổng giám đốc (Giám đốc) quyết định lựa chọn tổ chức kiểm toán độc lập kiểm toán chi nhánh ngân hàng nước ngoài.",
+       "html": "4. Tổng giám đốc (Giám đốc) quyết định lựa chọn tổ chức kiểm toán độc lập kiểm toán chi nhánh ngân hàng nước ngoài.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      }
+     ]
+    },
+    {
+     "id": "id_577d2730-2c7d-11f1-bbc0-55253b168c48",
+     "cap": "dieu",
+     "so": "8",
+     "tieu_de": "Nội dung kiểm toán độc lập",
+     "text": "",
+     "html": "",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": [
+      {
+       "id": "id_577d4e40-2c7d-11f1-abbd-0d719c6b3c43",
+       "cap": "khoan",
+       "so": "1",
+       "tieu_de": "",
+       "text": "Kiểm toán độc lập báo cáo tài chính của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài bao gồm kiểm toán:",
+       "html": "1. Kiểm toán độc lập báo cáo tài chính của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài bao gồm kiểm toán:",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": [
+        {
+         "id": "id_577d7550-2c7d-11f1-853d-ab8555dedb04",
+         "cap": "diem",
+         "so": "a",
+         "tieu_de": "",
+         "text": "Báo cáo tình hình tài chính;",
+         "html": "a) Báo cáo tình hình tài chính;",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_577d9c60-2c7d-11f1-8fa2-ed1ee3ba3817",
+         "cap": "diem",
+         "so": "b",
+         "tieu_de": "",
+         "text": "Báo cáo kết quả hoạt động;",
+         "html": "b) Báo cáo kết quả hoạt động;",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_577d9c6a-2c7d-11f1-9bbb-1b12151d441c",
+         "cap": "diem",
+         "so": "c",
+         "tieu_de": "",
+         "text": "Báo cáo lưu chuyển tiền tệ;",
+         "html": "c) Báo cáo lưu chuyển tiền tệ;",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_577dc370-2c7d-11f1-88cd-8f6e0ecd2232",
+         "cap": "diem",
+         "so": "d",
+         "tieu_de": "",
+         "text": "Thuyết minh báo cáo tài chính.",
+         "html": "d) Thuyết minh báo cáo tài chính.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        }
+       ]
+      },
+      {
+       "id": "id_577dea80-2c7d-11f1-a68f-11bbc5d00b2c",
+       "cap": "khoan",
+       "so": "2",
+       "tieu_de": "",
+       "text": "Thực hiện dịch vụ bảo đảm đối với hoạt động của hệ thống kiểm soát nội bộ trong việc lập và trình bày báo cáo tài chính của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài.",
+       "html": "2. Thực hiện dịch vụ bảo đảm đối với hoạt động của hệ thống kiểm soát nội bộ trong việc lập và trình bày báo cáo tài chính của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      }
+     ]
+    },
+    {
+     "id": "id_577e1190-2c7d-11f1-8b1d-831c097c67f8",
+     "cap": "dieu",
+     "so": "9",
+     "tieu_de": "Ý kiến kiểm toán độc lập",
+     "text": "Căn cứ vào kết quả kiểm toán, kiểm toán viên hành nghề và tổ chức kiểm toán độc lập phải đưa ra ý kiến theo quy định tại khoản 1 Điều 48 Luật Kiểm toán độc lập.",
+     "html": "Căn cứ vào kết quả kiểm toán, kiểm toán viên hành nghề và tổ chức kiểm toán độc lập phải đưa ra ý kiến theo quy định tại khoản 1 Điều 48 Luật Kiểm toán độc lập.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_577e38a0-2c7d-11f1-9549-5fc762aef49f",
+     "cap": "dieu",
+     "so": "10",
+     "tieu_de": "Kết quả kiểm toán độc lập",
+     "text": "",
+     "html": "",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": [
+      {
+       "id": "id_577e5fb0-2c7d-11f1-96e5-d92eb68b91ff",
+       "cap": "khoan",
+       "so": "1",
+       "tieu_de": "",
+       "text": "Kết quả kiểm toán độc lập đối với tổ chức tín dụng, chi nhánh ngân hàng nước ngoài bao gồm:",
+       "html": "1. Kết quả kiểm toán độc lập đối với tổ chức tín dụng, chi nhánh ngân hàng nước ngoài bao gồm:",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": [
+        {
+         "id": "id_577e86c0-2c7d-11f1-928a-7bc27f6410a6",
+         "cap": "diem",
+         "so": "a",
+         "tieu_de": "",
+         "text": "Báo cáo kiểm toán đối với báo cáo tài chính;",
+         "html": "a) Báo cáo kiểm toán đối với báo cáo tài chính;",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_577eadd0-2c7d-11f1-990d-8f16d278e58e",
+         "cap": "diem",
+         "so": "b",
+         "tieu_de": "",
+         "text": "Báo cáo thực hiện dịch vụ bảo đảm đối với hoạt động của hệ thống kiểm soát nội bộ trong việc lập và trình bày báo cáo tài chính;",
+         "html": "b) Báo cáo thực hiện dịch vụ bảo đảm đối với hoạt động của hệ thống kiểm soát nội bộ trong việc lập và trình bày báo cáo tài chính;",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_577ed4e0-2c7d-11f1-a8a3-7d2277b8908d",
+         "cap": "diem",
+         "so": "c",
+         "tieu_de": "",
+         "text": "Thư quản lý và các tài liệu, bằng chứng liên quan.",
+         "html": "c) Thư quản lý và các tài liệu, bằng chứng liên quan.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        }
+       ]
+      },
+      {
+       "id": "id_577efbf0-2c7d-11f1-80eb-9fdf1a9ca5ec",
+       "cap": "khoan",
+       "so": "2",
+       "tieu_de": "",
+       "text": "Báo cáo kiểm toán đối với báo cáo tài chính, báo cáo thực hiện dịch vụ bảo đảm đối với hoạt động của hệ thống kiểm soát nội bộ trong việc lập và trình bày báo cáo tài chính của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phải tuân thủ các quy định của pháp luật về kiểm toán độc lập, chuẩn mực kế toán, chuẩn mực kiểm toán Việt Nam và các quy định khác của pháp luật có liên quan.",
+       "html": "2. Báo cáo kiểm toán đối với báo cáo tài chính, báo cáo thực hiện dịch vụ bảo đảm đối với hoạt động của hệ thống kiểm soát nội bộ trong việc lập và trình bày báo cáo tài chính của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài phải tuân thủ các quy định của pháp luật về kiểm toán độc lập, chuẩn mực kế toán, chuẩn mực kiểm toán Việt Nam và các quy định khác của pháp luật có liên quan.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_577f2300-2c7d-11f1-b2ab-cde5eeb07547",
+       "cap": "khoan",
+       "so": "3",
+       "tieu_de": "",
+       "text": "Thư quản lý phải phản ánh những vấn đề, sự kiện cụ thể trong quá trình kiểm toán, bao gồm: hiện trạng thực tế, khả năng rủi ro, kiến nghị của kiểm toán viên và ý kiến của người quản lý, điều hành của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài liên quan đến sự kiện đó. Thư quản lý tối thiểu phải có các nội dung sau:",
+       "html": "3. Thư quản lý phải phản ánh những vấn đề, sự kiện cụ thể trong quá trình kiểm toán, bao gồm: hiện trạng thực tế, khả năng rủi ro, kiến nghị của kiểm toán viên và ý kiến của người quản lý, điều hành của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài liên quan đến sự kiện đó. Thư quản lý tối thiểu phải có các nội dung sau:",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": [
+        {
+         "id": "id_577f4a10-2c7d-11f1-a80e-cf872538e55d",
+         "cap": "diem",
+         "so": "a",
+         "tieu_de": "",
+         "text": "Phương pháp tiếp cận chung, phạm vi của cuộc kiểm toán và các yêu cầu cần bổ sung;",
+         "html": "a) Phương pháp tiếp cận chung, phạm vi của cuộc kiểm toán và các yêu cầu cần bổ sung;",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_577f7120-2c7d-11f1-a45c-0737c8cd91ea",
+         "cap": "diem",
+         "so": "b",
+         "tieu_de": "",
+         "text": "Đánh giá những thay đổi về chính sách và thông lệ quan trọng ảnh hưởng đến báo cáo tài chính, hoạt động của hệ thống kiểm soát nội bộ trong việc lập và trình bày báo cáo tài chính của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài;",
+         "html": "b) Đánh giá những thay đổi về chính sách và thông lệ quan trọng ảnh hưởng đến báo cáo tài chính, hoạt động của hệ thống kiểm soát nội bộ trong việc lập và trình bày báo cáo tài chính của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài;",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_577f9830-2c7d-11f1-b9db-c724e4c432aa",
+         "cap": "diem",
+         "so": "c",
+         "tieu_de": "",
+         "text": "Rủi ro có thể ảnh hưởng trọng yếu đến báo cáo tài chính, hoạt động của hệ thống kiểm soát nội bộ trong việc lập và trình bày báo cáo tài chính của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài;",
+         "html": "c) Rủi ro có thể ảnh hưởng trọng yếu đến báo cáo tài chính, hoạt động của hệ thống kiểm soát nội bộ trong việc lập và trình bày báo cáo tài chính của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài;",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_577f983a-2c7d-11f1-a803-235d58b8c2eb",
+         "cap": "diem",
+         "so": "d",
+         "tieu_de": "",
+         "text": "Đề xuất điều chỉnh của tổ chức kiểm toán độc lập và kiểm toán viên hành nghề đối với vụ việc, sự kiện đã ảnh hưởng hoặc có thể ảnh hưởng trọng yếu đến báo cáo tài chính, hoạt động của hệ thống kiểm soát nội bộ trong việc lập và trình bày báo cáo tài chính của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài;",
+         "html": "d) Đề xuất điều chỉnh của tổ chức kiểm toán độc lập và kiểm toán viên hành nghề đối với vụ việc, sự kiện đã ảnh hưởng hoặc có thể ảnh hưởng trọng yếu đến báo cáo tài chính, hoạt động của hệ thống kiểm soát nội bộ trong việc lập và trình bày báo cáo tài chính của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài;",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_577fbf40-2c7d-11f1-a9d6-354c6d5fc73f",
+         "cap": "diem",
+         "so": "đ",
+         "tieu_de": "",
+         "text": "Ý kiến không thống nhất với người quản lý, điều hành tổ chức tín dụng, chi nhánh ngân hàng nước ngoài về các vấn đề có thể ảnh hưởng trọng yếu đến báo cáo tài chính, hoạt động của hệ thống kiểm soát nội bộ trong việc lập và trình bày báo cáo tài chính của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài hoặc đến ý kiến của kiểm toán viên hành nghề và tổ chức kiểm toán độc lập. Kiểm toán viên hành nghề và tổ chức kiểm toán độc lập phải nêu rõ tình trạng giải quyết những ý kiến không thống nhất đó và mức độ ảnh hưởng của vấn đề;",
+         "html": "đ) Ý kiến không thống nhất với người quản lý, điều hành tổ chức tín dụng, chi nhánh ngân hàng nước ngoài về các vấn đề có thể ảnh hưởng trọng yếu đến báo cáo tài chính, hoạt động của hệ thống kiểm soát nội bộ trong việc lập và trình bày báo cáo tài chính của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài hoặc đến ý kiến của kiểm toán viên hành nghề và tổ chức kiểm toán độc lập. Kiểm toán viên hành nghề và tổ chức kiểm toán độc lập phải nêu rõ tình trạng giải quyết những ý kiến không thống nhất đó và mức độ ảnh hưởng của vấn đề;",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_577fe650-2c7d-11f1-939c-ed6e581953f6",
+         "cap": "diem",
+         "so": "e",
+         "tieu_de": "",
+         "text": "Các vấn đề khác được thỏa thuận trong hợp đồng kiểm toán.",
+         "html": "e) Các vấn đề khác được thỏa thuận trong hợp đồng kiểm toán.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": "id_57800d60-2c7d-11f1-b53a-0518bc8f2d91",
+     "cap": "dieu",
+     "so": "11",
+     "tieu_de": "Yêu cầu đối với tổ chức kiểm toán độc lập thực hiện kiểm toán ngân hàng thương mại, tổ chức tín dụng phi ngân hàng, chi nhánh ngân hàng nước ngoài",
+     "text": "Trường hợp ngân hàng thương mại, tổ chức tín dụng phi ngân hàng là đơn vị có lợi ích công chúng thuộc lĩnh vực chứng khoán thì tổ chức kiểm toán, kiểm toán viên hành nghề thực hiện kiểm toán cho tổ chức tín dụng phải thuộc danh sách tổ chức kiểm toán và danh sách kiểm toán viên hành nghề được chấp thuận thực hiện kiểm toán cho đơn vị có lợi ích công chúng thuộc lĩnh vực chứng khoán theo công bố của Ủy ban Chứng khoán Nhà nước cho giai đoạn thực hiện kiểm toán.",
+     "html": "Trường hợp ngân hàng thương mại, tổ chức tín dụng phi ngân hàng là đơn vị có lợi ích công chúng thuộc lĩnh vực chứng khoán thì tổ chức kiểm toán, kiểm toán viên hành nghề thực hiện kiểm toán cho tổ chức tín dụng phải thuộc danh sách tổ chức kiểm toán và danh sách kiểm toán viên hành nghề được chấp thuận thực hiện kiểm toán cho đơn vị có lợi ích công chúng thuộc lĩnh vực chứng khoán theo công bố của Ủy ban Chứng khoán Nhà nước cho giai đoạn thực hiện kiểm toán.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": [
+      {
+       "id": "id_57803470-2c7d-11f1-bd2a-41df26fe4abe",
+       "cap": "khoan",
+       "so": "1",
+       "tieu_de": "",
+       "text": "Đã thành lập và có thời gian hoạt động kiểm toán tại Việt Nam tối thiểu 03 năm.",
+       "html": "1. Đã thành lập và có thời gian hoạt động kiểm toán tại Việt Nam tối thiểu 03 năm.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_57808290-2c7d-11f1-8762-555d9d1e9432",
+       "cap": "khoan",
+       "so": "2",
+       "tieu_de": "",
+       "text": "Có vốn chủ sở hữu, vốn được cấp từ 10 tỷ đồng trở lên.",
+       "html": "2. Có vốn chủ sở hữu, vốn được cấp từ 10 tỷ đồng trở lên.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_5780a9a0-2c7d-11f1-b58c-ebef20e3f472",
+       "cap": "khoan",
+       "so": "3",
+       "tieu_de": "",
+       "text": "Có ít nhất 05 kiểm toán viên hành nghề tham gia kiểm toán một ngân hàng thương mại, tổ chức tín dụng phi ngân hàng, chi nhánh ngân hàng nước ngoài. Trong đó, phải có ít nhất 03 kiểm toán viên hành nghề có từ 02 năm kinh nghiệm kiểm toán trong lĩnh vực tài chính, ngân hàng trở lên.",
+       "html": "3. Có ít nhất 05 kiểm toán viên hành nghề tham gia kiểm toán một ngân hàng thương mại, tổ chức tín dụng phi ngân hàng, chi nhánh ngân hàng nước ngoài. Trong đó, phải có ít nhất 03 kiểm toán viên hành nghề có từ 02 năm kinh nghiệm kiểm toán trong lĩnh vực tài chính, ngân hàng trở lên.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_5780d0b0-2c7d-11f1-a2cc-9d6265671791",
+       "cap": "khoan",
+       "so": "4",
+       "tieu_de": "",
+       "text": "Các kiểm toán viên hành nghề, người đại diện của tổ chức kiểm toán độc lập tham gia kiểm toán ngân hàng thương mại, tổ chức tín dụng phi ngân hàng, chi nhánh ngân hàng nước ngoài phải đáp ứng đủ các tiêu chuẩn quy định tại Điều 13 Thông tư này.",
+       "html": "4. Các kiểm toán viên hành nghề, người đại diện của tổ chức kiểm toán độc lập tham gia kiểm toán ngân hàng thương mại, tổ chức tín dụng phi ngân hàng, chi nhánh ngân hàng nước ngoài phải đáp ứng đủ các tiêu chuẩn quy định tại Điều 13 Thông tư này.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_5780f7c0-2c7d-11f1-a583-597ca1385680",
+       "cap": "khoan",
+       "so": "5",
+       "tieu_de": "",
+       "text": "Không có quan hệ mua trái phiếu, mua tài sản, góp vốn, liên doanh, mua cổ phần với ngân hàng thương mại, tổ chức tín dụng phi ngân hàng, chi nhánh ngân hàng nước ngoài được kiểm toán.",
+       "html": "5. Không có quan hệ mua trái phiếu, mua tài sản, góp vốn, liên doanh, mua cổ phần với ngân hàng thương mại, tổ chức tín dụng phi ngân hàng, chi nhánh ngân hàng nước ngoài được kiểm toán.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_57811ed0-2c7d-11f1-8de5-9b4fd6d8a65e",
+       "cap": "khoan",
+       "so": "6",
+       "tieu_de": "",
+       "text": "Không là khách hàng đang được cấp tín dụng không có bảo đảm, không là khách hàng đang được cấp tín dụng, được cung cấp các dịch vụ khác với điều kiện ưu đãi của ngân hàng thương mại, tổ chức tín dụng phi ngân hàng, chi nhánh ngân hàng nước ngoài được kiểm toán.",
+       "html": "6. Không là khách hàng đang được cấp tín dụng không có bảo đảm, không là khách hàng đang được cấp tín dụng, được cung cấp các dịch vụ khác với điều kiện ưu đãi của ngân hàng thương mại, tổ chức tín dụng phi ngân hàng, chi nhánh ngân hàng nước ngoài được kiểm toán.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_578145e0-2c7d-11f1-905c-2b1a5d981a50",
+       "cap": "khoan",
+       "so": "7",
+       "tieu_de": "",
+       "text": "Không thực hiện kiểm toán chính ngân hàng thương mại, tổ chức tín dụng phi ngân hàng, chi nhánh ngân hàng nước ngoài đó trong thời gian 05 năm liên tiếp liền kề trước năm kiểm toán.",
+       "html": "7. Không thực hiện kiểm toán chính ngân hàng thương mại, tổ chức tín dụng phi ngân hàng, chi nhánh ngân hàng nước ngoài đó trong thời gian 05 năm liên tiếp liền kề trước năm kiểm toán.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_578145ea-2c7d-11f1-8628-33aa79f93b16",
+       "cap": "khoan",
+       "so": "8",
+       "tieu_de": "",
+       "text": "Không bị xử lý vi phạm pháp luật về kiểm toán độc lập trong 02 năm liền kề trước năm kiểm toán.",
+       "html": "8. Không bị xử lý vi phạm pháp luật về kiểm toán độc lập trong 02 năm liền kề trước năm kiểm toán.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_57816cf0-2c7d-11f1-a977-012c26fae8b2",
+       "cap": "khoan",
+       "so": "9",
+       "tieu_de": "",
+       "text": "Tổ chức kiểm toán, kiểm toán viên hành nghề thực hiện kiểm toán ngân hàng thương mại, tổ chức tín dụng phi ngân hàng, chi nhánh ngân hàng nước ngoài thuộc danh sách tổ chức kiểm toán và danh sách kiểm toán viên hành nghề được chấp thuận thực hiện kiểm toán cho đơn vị có lợi ích công chúng theo công bố của Bộ Tài chính cho giai đoạn thực hiện kiểm toán.",
+       "html": "9. Tổ chức kiểm toán, kiểm toán viên hành nghề thực hiện kiểm toán ngân hàng thương mại, tổ chức tín dụng phi ngân hàng, chi nhánh ngân hàng nước ngoài thuộc danh sách tổ chức kiểm toán và danh sách kiểm toán viên hành nghề được chấp thuận thực hiện kiểm toán cho đơn vị có lợi ích công chúng theo công bố của Bộ Tài chính cho giai đoạn thực hiện kiểm toán.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_57819400-2c7d-11f1-b932-0f26d14182ce",
+       "cap": "khoan",
+       "so": "10",
+       "tieu_de": "",
+       "text": "Không thuộc trường hợp không được thực hiện kiểm toán theo quy định tại Điều 30 Luật Kiểm toán độc lập.",
+       "html": "10. Không thuộc trường hợp không được thực hiện kiểm toán theo quy định tại Điều 30 Luật Kiểm toán độc lập.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_5781bb10-2c7d-11f1-a7a5-29d3154e4861",
+       "cap": "khoan",
+       "so": "11",
+       "tieu_de": "",
+       "text": "Đáp ứng các quy định khác về kiểm toán độc lập quy định tại Luật Kiểm toán độc lập và các văn bản hướng dẫn Luật Kiểm toán độc lập.",
+       "html": "11. Đáp ứng các quy định khác về kiểm toán độc lập quy định tại Luật Kiểm toán độc lập và các văn bản hướng dẫn Luật Kiểm toán độc lập.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      }
+     ]
+    },
+    {
+     "id": "id_5781e220-2c7d-11f1-b009-1b746077b0f6",
+     "cap": "dieu",
+     "so": "12",
+     "tieu_de": "Yêu cầu đối với tổ chức kiểm toán độc lập thực hiện kiểm toán tổ chức tài chính vi mô",
+     "text": "",
+     "html": "",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": [
+      {
+       "id": "id_5781e22a-2c7d-11f1-b416-5bd2a1735308",
+       "cap": "khoan",
+       "so": "1",
+       "tieu_de": "",
+       "text": "Các kiểm toán viên hành nghề và người đại diện của tổ chức kiểm toán độc lập tham gia kiểm toán tổ chức tài chính vi mô phải đáp ứng đủ các tiêu chuẩn quy định tại Điều 13 Thông tư này.",
+       "html": "1. Các kiểm toán viên hành nghề và người đại diện của tổ chức kiểm toán độc lập tham gia kiểm toán tổ chức tài chính vi mô phải đáp ứng đủ các tiêu chuẩn quy định tại Điều 13 Thông tư này.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_57823040-2c7d-11f1-9f87-934a752067ec",
+       "cap": "khoan",
+       "so": "2",
+       "tieu_de": "",
+       "text": "Tổ chức kiểm toán, kiểm toán viên hành nghề thực hiện kiểm toán tổ chức tài chính vi mô thuộc danh sách tổ chức kiểm toán và danh sách kiểm toán viên hành nghề được chấp thuận thực hiện kiểm toán cho đơn vị có lợi ích công chúng theo công bố của Bộ Tài chính cho giai đoạn thực hiện kiểm toán.",
+       "html": "2. Tổ chức kiểm toán, kiểm toán viên hành nghề thực hiện kiểm toán tổ chức tài chính vi mô thuộc danh sách tổ chức kiểm toán và danh sách kiểm toán viên hành nghề được chấp thuận thực hiện kiểm toán cho đơn vị có lợi ích công chúng theo công bố của Bộ Tài chính cho giai đoạn thực hiện kiểm toán.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_57825750-2c7d-11f1-a543-772159ffa56f",
+       "cap": "khoan",
+       "so": "3",
+       "tieu_de": "",
+       "text": "Không thực hiện kiểm toán chính tổ chức tài chính vi mô đó trong thời gian 05 năm liên tiếp liền kề trước năm kiểm toán.",
+       "html": "3. Không thực hiện kiểm toán chính tổ chức tài chính vi mô đó trong thời gian 05 năm liên tiếp liền kề trước năm kiểm toán.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_5782cc80-2c7d-11f1-83d8-650118d9fc29",
+       "cap": "khoan",
+       "so": "4",
+       "tieu_de": "",
+       "text": "Không thuộc trường hợp không được thực hiện kiểm toán theo quy định tại Điều 30 Luật Kiểm toán độc lập.",
+       "html": "4. Không thuộc trường hợp không được thực hiện kiểm toán theo quy định tại Điều 30 Luật Kiểm toán độc lập.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_57831aa0-2c7d-11f1-9ecf-d7f662b6b25e",
+       "cap": "khoan",
+       "so": "5",
+       "tieu_de": "",
+       "text": "Đáp ứng các quy định khác về kiểm toán độc lập quy định tại Luật Kiểm toán độc lập và các văn bản hướng dẫn Luật Kiểm toán độc lập.",
+       "html": "5. Đáp ứng các quy định khác về kiểm toán độc lập quy định tại Luật Kiểm toán độc lập và các văn bản hướng dẫn Luật Kiểm toán độc lập.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      }
+     ]
+    },
+    {
+     "id": "id_578341b0-2c7d-11f1-b340-37334e267b4c",
+     "cap": "dieu",
+     "so": "13",
+     "tieu_de": "Tiêu chuẩn đối với kiểm toán viên hành nghề, người đại diện của tổ chức kiểm toán độc lập tham gia kiểm toán tổ chức tín dụng, chi nhánh ngân hàng nước ngoài",
+     "text": "",
+     "html": "",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": [
+      {
+       "id": "id_578368c0-2c7d-11f1-91b5-dda334952ea5",
+       "cap": "khoan",
+       "so": "1",
+       "tieu_de": "",
+       "text": "Không là khách hàng đang được cấp tín dụng không có bảo đảm, không là khách hàng đang được cấp tín dụng, được cung cấp các dịch vụ khác với điều kiện ưu đãi của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài được kiểm toán.",
+       "html": "1. Không là khách hàng đang được cấp tín dụng không có bảo đảm, không là khách hàng đang được cấp tín dụng, được cung cấp các dịch vụ khác với điều kiện ưu đãi của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài được kiểm toán.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_57838fd0-2c7d-11f1-9585-475d430e974d",
+       "cap": "khoan",
+       "so": "2",
+       "tieu_de": "",
+       "text": "Không bị xử lý vi phạm pháp luật về kiểm toán độc lập trong 02 năm liền kề trước năm kiểm toán.",
+       "html": "2. Không bị xử lý vi phạm pháp luật về kiểm toán độc lập trong 02 năm liền kề trước năm kiểm toán.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_5783b6e0-2c7d-11f1-a054-41d8cdd39a65",
+       "cap": "khoan",
+       "so": "3",
+       "tieu_de": "",
+       "text": "Không thuộc trường hợp không được thực hiện kiểm toán theo quy định tại Điều 19 Luật Kiểm toán độc lập.",
+       "html": "3. Không thuộc trường hợp không được thực hiện kiểm toán theo quy định tại Điều 19 Luật Kiểm toán độc lập.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_5783ddf0-2c7d-11f1-b338-a9eed5f2c621",
+       "cap": "khoan",
+       "so": "4",
+       "tieu_de": "",
+       "text": "Đáp ứng các quy định khác về kiểm toán độc lập quy định tại Luật Kiểm toán độc lập và các văn bản hướng dẫn Luật Kiểm toán độc lập.",
+       "html": "4. Đáp ứng các quy định khác về kiểm toán độc lập quy định tại Luật Kiểm toán độc lập và các văn bản hướng dẫn Luật Kiểm toán độc lập.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      }
+     ]
+    },
+    {
+     "id": "id_57840500-2c7d-11f1-9d8d-6322eeb72e74",
+     "cap": "dieu",
+     "so": "14",
+     "tieu_de": "Trách nhiệm của tổ chức kiểm toán độc lập, kiểm toán viên hành nghề tham gia kiểm toán tổ chức tín dụng, chi nhánh ngân hàng nước ngoài",
+     "text": "",
+     "html": "",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": [
+      {
+       "id": "id_57842c10-2c7d-11f1-a09c-49afc3728a36",
+       "cap": "khoan",
+       "so": "1",
+       "tieu_de": "",
+       "text": "Thực hiện đầy đủ các quy định tại Điều 18, Điều 29 Luật Kiểm toán độc lập và các quy định khác của pháp luật về kiểm toán độc lập.",
+       "html": "1. Thực hiện đầy đủ các quy định tại Điều 18, Điều 29 Luật Kiểm toán độc lập và các quy định khác của pháp luật về kiểm toán độc lập.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_57845320-2c7d-11f1-b712-456c62c161dc",
+       "cap": "khoan",
+       "so": "2",
+       "tieu_de": "",
+       "text": "Chịu trách nhiệm về tính đầy đủ, chính xác và kịp thời của các thông tin cung cấp cho tổ chức tín dụng, chi nhánh ngân hàng nước ngoài trong quá trình lựa chọn tổ chức kiểm toán độc lập.",
+       "html": "2. Chịu trách nhiệm về tính đầy đủ, chính xác và kịp thời của các thông tin cung cấp cho tổ chức tín dụng, chi nhánh ngân hàng nước ngoài trong quá trình lựa chọn tổ chức kiểm toán độc lập.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_57847a30-2c7d-11f1-b6a1-ed36e3b3c7e2",
+       "cap": "khoan",
+       "so": "3",
+       "tieu_de": "",
+       "text": "Tuân thủ các quy định của pháp luật liên quan đến báo cáo tài chính, hoạt động của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài.",
+       "html": "3. Tuân thủ các quy định của pháp luật liên quan đến báo cáo tài chính, hoạt động của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_5784c850-2c7d-11f1-bc89-836105bdd967",
+       "cap": "khoan",
+       "so": "4",
+       "tieu_de": "",
+       "text": "Giải trình hoặc cung cấp thông tin, số liệu liên quan đến hoạt động kiểm toán theo yêu cầu của Ngân hàng Nhà nước.",
+       "html": "4. Giải trình hoặc cung cấp thông tin, số liệu liên quan đến hoạt động kiểm toán theo yêu cầu của Ngân hàng Nhà nước.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_5784ef60-2c7d-11f1-b4e8-915a961b0d1f",
+       "cap": "khoan",
+       "so": "5",
+       "tieu_de": "",
+       "text": "Trong quá trình kiểm toán, nếu phát hiện tổ chức tín dụng, chi nhánh ngân hàng nước ngoài được kiểm toán không tuân thủ các quy định của pháp luật liên quan đến phạm vi kiểm toán thì phải thông báo và kiến nghị tổ chức tín dụng, chi nhánh ngân hàng nước ngoài được kiểm toán có biện pháp ngăn ngừa, sửa chữa và xử lý sai phạm; ghi ý kiến vào báo cáo kiểm toán hoặc thư quản lý theo yêu cầu tại khoản 2 và khoản 3 Điều 10 Thông tư này.",
+       "html": "5. Trong quá trình kiểm toán, nếu phát hiện tổ chức tín dụng, chi nhánh ngân hàng nước ngoài được kiểm toán không tuân thủ các quy định của pháp luật liên quan đến phạm vi kiểm toán thì phải thông báo và kiến nghị tổ chức tín dụng, chi nhánh ngân hàng nước ngoài được kiểm toán có biện pháp ngăn ngừa, sửa chữa và xử lý sai phạm; ghi ý kiến vào báo cáo kiểm toán hoặc thư quản lý theo yêu cầu tại khoản 2 và khoản 3 Điều 10 Thông tư này.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_57851670-2c7d-11f1-a8dd-f1a83279213a",
+       "cap": "khoan",
+       "so": "6",
+       "tieu_de": "",
+       "text": "Sau khi phát hành báo cáo kiểm toán, nếu có nghi ngờ hoặc có phát hiện tổ chức tín dụng, chi nhánh ngân hàng nước ngoài được kiểm toán có những sai phạm trọng yếu do không tuân thủ pháp luật và các quy định liên quan đến phạm vi kiểm toán thì tổ chức kiểm toán độc lập phải thực hiện các thủ tục thông báo cho đơn vị được kiểm toán và người thứ ba theo quy định của chuẩn mực kiểm toán Việt Nam và thông báo cho Ngân hàng Nhà nước.",
+       "html": "6. Sau khi phát hành báo cáo kiểm toán, nếu có nghi ngờ hoặc có phát hiện tổ chức tín dụng, chi nhánh ngân hàng nước ngoài được kiểm toán có những sai phạm trọng yếu do không tuân thủ pháp luật và các quy định liên quan đến phạm vi kiểm toán thì tổ chức kiểm toán độc lập phải thực hiện các thủ tục thông báo cho đơn vị được kiểm toán và người thứ ba theo quy định của chuẩn mực kiểm toán Việt Nam và thông báo cho Ngân hàng Nhà nước.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      }
+     ]
+    },
+    {
+     "id": "id_57853d80-2c7d-11f1-87ba-c94fdd9fa649",
+     "cap": "dieu",
+     "so": "15",
+     "tieu_de": "Trách nhiệm của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài",
+     "text": "",
+     "html": "",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": [
+      {
+       "id": "id_57858ba0-2c7d-11f1-9e7c-6998fb046760",
+       "cap": "khoan",
+       "so": "1",
+       "tieu_de": "",
+       "text": "Lựa chọn tổ chức kiểm toán độc lập theo đúng quy định của Thông tư này.",
+       "html": "1. Lựa chọn tổ chức kiểm toán độc lập theo đúng quy định của Thông tư này.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": null,
+       "cap": "khoan",
+       "so": "2",
+       "tieu_de": "",
+       "text": "Trong thời hạn 30 ngày kể từ ngày quyết định lựa chọn tổ chức kiểm toán độc lập, có trách nhiệm gửi thông báo bằng văn bản về tổ chức kiểm toán độc lập được lựa chọn cho Ngân hàng Nhà nước theo quy định sau đây:",
+       "html": "",
+       "bi_tac_dong": [
+        "sua_doi_bo_sung"
+       ],
+       "an": false,
+       "con": [
+        {
+         "id": null,
+         "cap": "diem",
+         "so": "a",
+         "tieu_de": "",
+         "text": "Tổ chức tín dụng, chi nhánh ngân hàng nước ngoài gửi cho Ngân hàng Nhà nước (qua Cơ quan Thanh tra, giám sát ngân hàng), trừ trường hợp quy định tại điểm b khoản này;",
+         "html": "a) Tổ chức tín dụng, chi nhánh ngân hàng nước ngoài gửi cho Ngân hàng Nhà nước (qua Cơ quan Thanh tra, giám sát ngân hàng), trừ trường hợp quy định tại điểm b khoản này;",
+         "bi_tac_dong": [
+          "sua_doi_bo_sung"
+         ],
+         "an": false,
+         "con": []
+        },
+        {
+         "id": null,
+         "cap": "diem",
+         "so": "b",
+         "tieu_de": "",
+         "text": "Chi nhánh ngân hàng nước ngoài thuộc đối tượng thanh tra, giám sát an toàn vi mô của Ngân hàng Nhà nước chi nhánh tỉnh, thành phố trực thuộc Trung ương (sau đây gọi là Ngân hàng Nhà nước tỉnh, thành phố) gửi cho Ngân hàng Nhà nước tỉnh, thành phố nơi chi nhánh ngân hàng nước ngoài đặt trụ sở.",
+         "html": "b) Chi nhánh ngân hàng nước ngoài thuộc đối tượng thanh tra, giám sát an toàn vi mô của Ngân hàng Nhà nước chi nhánh tỉnh, thành phố trực thuộc Trung ương (sau đây gọi là Ngân hàng Nhà nước tỉnh, thành phố) gửi cho Ngân hàng Nhà nước tỉnh, thành phố nơi chi nhánh ngân hàng nước ngoài đặt trụ sở.",
+         "bi_tac_dong": [
+          "sua_doi_bo_sung"
+         ],
+         "an": false,
+         "con": []
+        }
+       ]
+      },
+      {
+       "id": "id_578600d0-2c7d-11f1-a095-134c345088e7",
+       "cap": "khoan",
+       "so": "3",
+       "tieu_de": "",
+       "text": "Thực hiện đầy đủ các nghĩa vụ quy định tại Điều 39 Luật Kiểm toán độc lập và các quy định khác của pháp luật về kiểm toán độc lập.",
+       "html": "3. Thực hiện đầy đủ các nghĩa vụ quy định tại Điều 39 Luật Kiểm toán độc lập và các quy định khác của pháp luật về kiểm toán độc lập.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": null,
+       "cap": "khoan",
+       "so": "4",
+       "tieu_de": "",
+       "text": "Trong thời hạn 90 ngày kể từ ngày kết thúc năm tài chính, gửi kết quả kiểm toán độc lập cho Ngân hàng Nhà nước theo quy định tại điểm a và điểm b khoản 2 Điều này.",
+       "html": "",
+       "bi_tac_dong": [
+        "sua_doi_bo_sung"
+       ],
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_57867600-2c7d-11f1-80f8-c5e7566df85c",
+       "cap": "khoan",
+       "so": "5",
+       "tieu_de": "",
+       "text": "Thông báo bằng văn bản cho Ngân hàng Nhà nước trong trường hợp phát sinh tranh chấp về kết quả kiểm toán độc lập, trong đó báo cáo, giải trình và đề xuất ý kiến giải quyết theo quy định pháp luật có liên quan.",
+       "html": "5. Thông báo bằng văn bản cho Ngân hàng Nhà nước trong trường hợp phát sinh tranh chấp về kết quả kiểm toán độc lập, trong đó báo cáo, giải trình và đề xuất ý kiến giải quyết theo quy định pháp luật có liên quan.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_57869d10-2c7d-11f1-a4be-ed62c2af6e81",
+       "cap": "khoan",
+       "so": "6",
+       "tieu_de": "",
+       "text": "Thực hiện việc công bố công khai thông tin tài chính theo đúng quy định hiện hành.",
+       "html": "6. Thực hiện việc công bố công khai thông tin tài chính theo đúng quy định hiện hành.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      }
+     ]
+    },
+    {
+     "id": null,
+     "cap": "dieu",
+     "so": "16",
+     "tieu_de": "Trách nhiệm của Ngân hàng Nhà nước tỉnh, thành phố nơi tổ chức tín dụng, chi nhánh ngân hàng nước ngoài đặt trụ sở chính",
+     "text": "",
+     "html": "",
+     "bi_tac_dong": [
+      "sua_doi_bo_sung"
+     ],
+     "an": false,
+     "con": [
+      {
+       "id": null,
+       "cap": "khoan",
+       "so": "1",
+       "tieu_de": "",
+       "text": "Phân tích, đánh giá và xử lý kết quả kiểm toán độc lập nhận được theo quy định tại khoản 4 Điều 15 Thông tư này.\nTrường hợp phát hiện kiểm toán viên hành nghề và tổ chức kiểm toán vi phạm quy định pháp luật trong quá trình thực hiện kiểm toán độc lập tổ chức tín dụng, chi nhánh ngân hàng nước ngoài, Ngân hàng Nhà nước tỉnh, thành phố báo cáo, đề xuất xử lý kịp thời với Thống đốc Ngân hàng Nhà nước (qua Cơ quan Thanh tra, giám sát ngân hàng).",
+       "html": "1. Phân tích, đánh giá và xử lý kết quả kiểm toán độc lập nhận được theo quy định tại khoản 4 Điều 15 Thông tư này.<br>Trường hợp phát hiện kiểm toán viên hành nghề và tổ chức kiểm toán vi phạm quy định pháp luật trong quá trình thực hiện kiểm toán độc lập tổ chức tín dụng, chi nhánh ngân hàng nước ngoài, Ngân hàng Nhà nước tỉnh, thành phố báo cáo, đề xuất xử lý kịp thời với Thống đốc Ngân hàng Nhà nước (qua Cơ quan Thanh tra, giám sát ngân hàng).",
+       "bi_tac_dong": [
+        "sua_doi_bo_sung"
+       ],
+       "an": false,
+       "con": []
+      },
+      {
+       "id": null,
+       "cap": "khoan",
+       "so": "2",
+       "tieu_de": "",
+       "text": "Báo cáo Thống đốc Ngân hàng Nhà nước (thông qua Cơ quan Thanh tra, giám sát ngân hàng) khi nhận được thông báo bằng văn bản của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài quy định tại khoản 5 Điều 15 Thông tư này.",
+       "html": "2. Báo cáo Thống đốc Ngân hàng Nhà nước (thông qua Cơ quan Thanh tra, giám sát ngân hàng) khi nhận được thông báo bằng văn bản của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài quy định tại khoản 5 Điều 15 Thông tư này.",
+       "bi_tac_dong": [
+        "sua_doi_bo_sung"
+       ],
+       "an": false,
+       "con": []
+      },
+      {
+       "id": null,
+       "cap": "khoan",
+       "so": "3",
+       "tieu_de": "",
+       "text": "Thanh tra, kiểm tra tình hình thực hiện quy định tại Thông tư này và xử lý theo thẩm quyền hoặc kiến nghị Thống đốc Ngân hàng Nhà nước (thông qua Cơ quan Thanh tra, giám sát ngân hàng) xử lý đối với tổ chức tín dụng, chi nhánh ngân hàng nước ngoài vi phạm các quy định của Thông tư này và các quy định khác của pháp luật về kiểm toán độc lập.",
+       "html": "3. Thanh tra, kiểm tra tình hình thực hiện quy định tại Thông tư này và xử lý theo thẩm quyền hoặc kiến nghị Thống đốc Ngân hàng Nhà nước (thông qua Cơ quan Thanh tra, giám sát ngân hàng) xử lý đối với tổ chức tín dụng, chi nhánh ngân hàng nước ngoài vi phạm các quy định của Thông tư này và các quy định khác của pháp luật về kiểm toán độc lập.",
+       "bi_tac_dong": [
+        "sua_doi_bo_sung"
+       ],
+       "an": false,
+       "con": []
+      },
+      {
+       "id": null,
+       "cap": "khoan",
+       "so": "4",
+       "tieu_de": "",
+       "text": "Có ý kiến về nghiệp vụ chuyên môn thuộc lĩnh vực tiền tệ, ngân hàng trong báo cáo kiểm toán và thư quản lý của chi nhánh ngân hàng nước ngoài trên địa bàn tỉnh, thành phố thuộc đối tượng thanh tra, giám sát an toàn vi mô của Ngân hàng Nhà nước tỉnh, thành phố khi có yêu cầu của cơ quan có thẩm quyền.",
+       "html": "4. Có ý kiến về nghiệp vụ chuyên môn thuộc lĩnh vực tiền tệ, ngân hàng trong báo cáo kiểm toán và thư quản lý của chi nhánh ngân hàng nước ngoài trên địa bàn tỉnh, thành phố thuộc đối tượng thanh tra, giám sát an toàn vi mô của Ngân hàng Nhà nước tỉnh, thành phố khi có yêu cầu của cơ quan có thẩm quyền.",
+       "bi_tac_dong": [
+        "sua_doi_bo_sung"
+       ],
+       "an": false,
+       "con": []
+      }
+     ]
+    },
+    {
+     "id": null,
+     "cap": "dieu",
+     "so": "17",
+     "tieu_de": "Trách nhiệm của Cơ quan Thanh tra, giám sát ngân hàng",
+     "text": "",
+     "html": "",
+     "bi_tac_dong": [
+      "bo_sung",
+      "sua_doi_bo_sung"
+     ],
+     "an": false,
+     "con": [
+      {
+       "id": null,
+       "cap": "khoan",
+       "so": "1",
+       "tieu_de": "",
+       "text": "Tổng hợp, trình Thống đốc Ngân hàng Nhà nước các báo cáo của Ngân hàng Nhà nước tỉnh, thành phố quy định tại khoản 2 Điều 16 Thông tư này.",
+       "html": "1. Tổng hợp, trình Thống đốc Ngân hàng Nhà nước các báo cáo của Ngân hàng Nhà nước tỉnh, thành phố quy định tại khoản 2 Điều 16 Thông tư này.",
+       "bi_tac_dong": [
+        "bo_sung",
+        "sua_doi_bo_sung"
+       ],
+       "an": false,
+       "con": []
+      },
+      {
+       "id": null,
+       "cap": "khoan",
+       "so": "2",
+       "tieu_de": "",
+       "text": "Phân tích, đánh giá và kiến nghị việc xử lý kết quả kiểm toán độc lập của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài.",
+       "html": "2. Phân tích, đánh giá và kiến nghị việc xử lý kết quả kiểm toán độc lập của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài.",
+       "bi_tac_dong": [
+        "bo_sung",
+        "sua_doi_bo_sung"
+       ],
+       "an": false,
+       "con": []
+      },
+      {
+       "id": null,
+       "cap": "khoan",
+       "so": "3",
+       "tieu_de": "",
+       "text": "Báo cáo, đề xuất Thống đốc Ngân hàng Nhà nước các nội dung sau đây:",
+       "html": "3. Báo cáo, đề xuất Thống đốc Ngân hàng Nhà nước các nội dung sau đây:",
+       "bi_tac_dong": [
+        "bo_sung",
+        "sua_doi_bo_sung"
+       ],
+       "an": false,
+       "con": [
+        {
+         "id": null,
+         "cap": "diem",
+         "so": "a",
+         "tieu_de": "",
+         "text": "Các trường hợp quy định tại khoản 5 Điều 15 Thông tư này;",
+         "html": "a) Các trường hợp quy định tại khoản 5 Điều 15 Thông tư này;",
+         "bi_tac_dong": [
+          "bo_sung",
+          "sua_doi_bo_sung"
+         ],
+         "an": false,
+         "con": []
+        },
+        {
+         "id": null,
+         "cap": "diem",
+         "so": "b",
+         "tieu_de": "",
+         "text": "Có thông báo gửi Bộ Tài chính khi phát hiện hoặc nhận được báo cáo của Ngân hàng Nhà nước tỉnh, thành phố quy định tại khoản 1 Điều 16 Thông tư này về kiểm toán viên hành nghề và tổ chức kiểm toán vi phạm quy định pháp luật trong quá trình thực hiện kiểm toán độc lập tổ chức tín dụng, chi nhánh ngân hàng nước ngoài.",
+         "html": "b) Có thông báo gửi Bộ Tài chính khi phát hiện hoặc nhận được báo cáo của Ngân hàng Nhà nước tỉnh, thành phố quy định tại khoản 1 Điều 16 Thông tư này về kiểm toán viên hành nghề và tổ chức kiểm toán vi phạm quy định pháp luật trong quá trình thực hiện kiểm toán độc lập tổ chức tín dụng, chi nhánh ngân hàng nước ngoài.",
+         "bi_tac_dong": [
+          "bo_sung",
+          "sua_doi_bo_sung"
+         ],
+         "an": false,
+         "con": []
+        }
+       ]
+      },
+      {
+       "id": null,
+       "cap": "khoan",
+       "so": "4",
+       "tieu_de": "",
+       "text": "Thanh tra, kiểm tra tình hình thực hiện quy định tại Thông tư này và xử lý theo thẩm quyền hoặc kiến nghị Thống đốc Ngân hàng Nhà nước xử lý đối với tổ chức tín dụng, chi nhánh ngân hàng nước ngoài vi phạm các quy định của Thông tư này và các quy định khác của pháp luật về kiểm toán độc lập.",
+       "html": "4. Thanh tra, kiểm tra tình hình thực hiện quy định tại Thông tư này và xử lý theo thẩm quyền hoặc kiến nghị Thống đốc Ngân hàng Nhà nước xử lý đối với tổ chức tín dụng, chi nhánh ngân hàng nước ngoài vi phạm các quy định của Thông tư này và các quy định khác của pháp luật về kiểm toán độc lập.",
+       "bi_tac_dong": [
+        "bo_sung",
+        "sua_doi_bo_sung"
+       ],
+       "an": false,
+       "con": []
+      }
+     ]
+    },
+    {
+     "id": "id_5788bff0-2c7d-11f1-bdeb-574b8ff27d8a",
+     "cap": "dieu",
+     "so": "18",
+     "tieu_de": "Trách nhiệm của các đơn vị thuộc Ngân hàng Nhà nước",
+     "text": "Căn cứ chức năng, nhiệm vụ được giao hoặc phân công của Thống đốc Ngân hàng Nhà nước, các đơn vị có ý kiến về nghiệp vụ chuyên môn thuộc lĩnh vực tiền tệ, ngân hàng trong báo cáo kiểm toán và thư quản lý của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài khi có yêu cầu của cơ quan có thẩm quyền, trừ trường hợp quy định tại khoản 4 Điều 16 Thông tư này.",
+     "html": "Căn cứ chức năng, nhiệm vụ được giao hoặc phân công của Thống đốc Ngân hàng Nhà nước, các đơn vị có ý kiến về nghiệp vụ chuyên môn thuộc lĩnh vực tiền tệ, ngân hàng trong báo cáo kiểm toán và thư quản lý của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài khi có yêu cầu của cơ quan có thẩm quyền, trừ trường hợp quy định tại khoản 4 Điều 16 Thông tư này.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_5788e700-2c7d-11f1-a0c3-31e5f7708995",
+     "cap": "dieu",
+     "so": "19",
+     "tieu_de": "Giải quyết tranh chấp về kiểm toán độc lập",
+     "text": "Việc giải quyết tranh chấp về kiểm toán độc lập của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài thực hiện theo quy định của Luật Kiểm toán độc lập và các văn bản pháp luật có liên quan.",
+     "html": "Việc giải quyết tranh chấp về kiểm toán độc lập của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài thực hiện theo quy định của Luật Kiểm toán độc lập và các văn bản pháp luật có liên quan.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    }
+   ]
+  },
+  {
+   "id": "id_57890e10-2c7d-11f1-8278-9166c6356b6a",
+   "cap": "chuong",
+   "so": "III",
+   "tieu_de": "ĐIỀU KHOẢN THI HÀNH",
+   "text": "",
+   "html": "",
+   "bi_tac_dong": null,
+   "an": false,
+   "con": [
+    {
+     "id": "id_57893520-2c7d-11f1-bdbf-fd4375a8a7b8",
+     "cap": "dieu",
+     "so": "20",
+     "tieu_de": "Hiệu lực thi hành",
+     "text": "",
+     "html": "",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": [
+      {
+       "id": "id_57895c30-2c7d-11f1-8bf9-971dc4b64417",
+       "cap": "khoan",
+       "so": "1",
+       "tieu_de": "",
+       "text": "Thông tư này có hiệu lực thi hành kể từ ngày 15 tháng 01 năm 2025.",
+       "html": "1. Thông tư này có hiệu lực thi hành kể từ ngày 15 tháng 01 năm 2025.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_57898340-2c7d-11f1-9abc-9b451b9c6612",
+       "cap": "khoan",
+       "so": "2",
+       "tieu_de": "",
+       "text": "Các quy định về kiểm toán độc lập đối với ngân hàng thương mại, tổ chức tín dụng phi ngân hàng, tổ chức tài chính vi mô, chi nhánh ngân hàng nước ngoài tại Thông tư số 39/2011/TT-NHNN ngày 15 tháng 12 năm 2011 của Thống đốc Ngân hàng Nhà nước quy định kiểm toán độc lập đối với tổ chức tín dụng, chi nhánh ngân hàng nước ngoài, Thông tư số 24/2021/TT-NHNN ngày 31 tháng 12 năm 2021 của Thống đốc Ngân hàng Nhà nước sửa đổi, bổ sung một số điều của Thông tư số 39/2011/TT-NHNN ngày 15 tháng 12 năm 2011 của Thống đốc Ngân hàng Nhà nước quy định kiểm toán độc lập đối với tổ chức tín dụng, chi nhánh ngân hàng nước ngoài hết hiệu lực kể từ ngày Thông tư này có hiệu lực thi hành.",
+       "html": "2. Các quy định về kiểm toán độc lập đối với ngân hàng thương mại, tổ chức tín dụng phi ngân hàng, tổ chức tài chính vi mô, chi nhánh ngân hàng nước ngoài tại Thông tư số 39/2011/TT-NHNN ngày 15 tháng 12 năm 2011 của Thống đốc Ngân hàng Nhà nước quy định kiểm toán độc lập đối với tổ chức tín dụng, chi nhánh ngân hàng nước ngoài, Thông tư số 24/2021/TT-NHNN ngày 31 tháng 12 năm 2021 của Thống đốc Ngân hàng Nhà nước sửa đổi, bổ sung một số điều của Thông tư số 39/2011/TT-NHNN ngày 15 tháng 12 năm 2011 của Thống đốc Ngân hàng Nhà nước quy định kiểm toán độc lập đối với tổ chức tín dụng, chi nhánh ngân hàng nước ngoài hết hiệu lực kể từ ngày Thông tư này có hiệu lực thi hành.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      }
+     ]
+    },
+    {
+     "id": "id_5789834a-2c7d-11f1-9cb9-21aa9edfad87",
+     "cap": "dieu",
+     "so": "21",
+     "tieu_de": "Quy định chuyển tiếp",
+     "text": "Hợp đồng kiểm toán được ký kết trước ngày Thông tư này có hiệu lực thi hành được tiếp tục thực hiện theo hợp đồng kiểm toán đã ký. Trường hợp sửa đổi, bổ sung hợp đồng kiểm toán đã ký kết trước ngày Thông tư này có hiệu lực thi hành thì nội dung sửa đổi, bổ sung phải phù hợp với quy định của Thông tư này và pháp luật có liên quan.",
+     "html": "Hợp đồng kiểm toán được ký kết trước ngày Thông tư này có hiệu lực thi hành được tiếp tục thực hiện theo hợp đồng kiểm toán đã ký. Trường hợp sửa đổi, bổ sung hợp đồng kiểm toán đã ký kết trước ngày Thông tư này có hiệu lực thi hành thì nội dung sửa đổi, bổ sung phải phù hợp với quy định của Thông tư này và pháp luật có liên quan.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": null,
+     "cap": "dieu",
+     "so": "22",
+     "tieu_de": "Trách nhiệm tổ chức thực hiện",
+     "text": "Chánh Văn phòng, Chánh Thanh tra giám sát ngân hàng; Thủ trưởng các đơn vị thuộc Ngân hàng Nhà nước; tổ chức tín dụng, chi nhánh ngân hàng nước ngoài; tổ chức kiểm toán độc lập; kiểm toán viên hành nghề, kiểm toán viên và tổ chức, cá nhân liên quan chịu trách nhiệm tổ chức thực hiện Thông tư này./.",
+     "html": "Chánh Văn phòng, Chánh Thanh tra giám sát ngân hàng; Thủ trưởng các đơn vị thuộc Ngân hàng Nhà nước; tổ chức tín dụng, chi nhánh ngân hàng nước ngoài; tổ chức kiểm toán độc lập; kiểm toán viên hành nghề, kiểm toán viên và tổ chức, cá nhân liên quan chịu trách nhiệm tổ chức thực hiện Thông tư này./.",
+     "bi_tac_dong": [
+      "sua_doi_bo_sung"
+     ],
+     "an": false,
+     "con": []
+    }
+   ]
+  }
+ ],
+ "trich_dan": []
+}

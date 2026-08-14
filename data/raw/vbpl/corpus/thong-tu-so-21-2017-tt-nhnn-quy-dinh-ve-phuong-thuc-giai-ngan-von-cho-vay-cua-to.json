@@ -1,0 +1,634 @@
+{
+ "doc_id": "TT21-2017",
+ "title": "Thông tư 21/2017/TT- NHNN của Ngân hàng Nhà nước Việt Nam",
+ "doc_type": "Thông tư",
+ "source": "external",
+ "valid_from": "2018-04-02",
+ "valid_to": null,
+ "so_hieu": "21/2017/TT- NHNN",
+ "co_quan_ban_hanh": "Ngân hàng Nhà nước Việt Nam",
+ "nguoi_ky": "Nguyễn Thị Hồng",
+ "chuc_danh": "Phó Thống đốc",
+ "nganh": "Ngân hàng",
+ "linh_vuc": "Chính sách tiền tệ",
+ "ngay_ban_hanh": "2017-12-29",
+ "tinh_trang_hieu_luc": "Còn hiệu lực",
+ "source_url": "https://vbpl.vn/van-ban/chi-tiet/thong-tu-so-21-2017-tt-nhnn-quy-dinh-ve-phuong-thuc-giai-ngan-von-cho-vay-cua-to-chuc-tin-dung-chi-nhanh-ngan-hang-nuoc-ngoai-doi-voi-khach-hang--127527",
+ "source_files": [
+  {
+   "ten": "Thông tư 21-2017-TT-NHNN.docx",
+   "kich_thuoc": "0.04MB",
+   "url": "https://vbpl-bientap-gateway.moj.gov.vn/api/qtdc/public/doc/minio/buckets/vbpl/127527/Th%C3%B4ng%20t%C6%B0%2021-2017-TT-NHNN.docx/download"
+  },
+  {
+   "ten": "VanBanGoc_Thong tu 21-2017-TT-NHNN.pdf",
+   "kich_thuoc": "4.34MB",
+   "url": "https://vbpl-bientap-gateway.moj.gov.vn/api/qtdc/public/doc/minio/buckets/vbpl/127527/VanBanGoc_Thong%20tu%2021-2017-TT-NHNN.pdf/download"
+  }
+ ],
+ "co_toan_van": true,
+ "canh_bao": [],
+ "articles": [
+  {
+   "article": "Điều 1",
+   "text": "Phạm vi điều chỉnh\n1. Thông tư này quy định về phương thức giải ngân vốn cho vay bao gồm việc sử dụng dịch vụ thanh toán không dùng tiền mặt, bằng tiền mặt để giải ngân vốn cho vay của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài đối với khách hàng.\n2. Thông tư này không điều chỉnh việc giải ngân vốn cho vay của ngân hàng chính sách.",
+   "chapter": null,
+   "section": null,
+   "superseded": false,
+   "char_start": 1308,
+   "char_end": 1647
+  },
+  {
+   "article": "Điều 2",
+   "text": "Đối tượng áp dụng\n1. Tổ chức tín dụng, chi nhánh ngân hàng nước ngoài thực hiện hoạt động cho vay theo quy định của Ngân hàng Nhà nước Việt Nam (sau đây gọi là tổ chức tín dụng cho vay).\n2. Khách hàng vay vốn tại tổ chức tín dụng, chi nhánh ngân hàng nước ngoài (sau đây gọi là khách hàng).\n3. Bên thụ hưởng.\n4. Tổ chức tín dụng, chi nhánh ngân hàng nước ngoài khác, tổ chức cung ứng dịch vụ thanh toán, tổ chức cung ứng dịch vụ trung gian thanh toán liên quan đến hoạt động cho vay của tổ chức tín dụng cho vay.",
+   "chapter": null,
+   "section": null,
+   "superseded": false,
+   "char_start": 1656,
+   "char_end": 2168
+  },
+  {
+   "article": "Điều 3",
+   "text": "Giải thích từ ngữ\nTrong Thông tư này, các từ ngữ dưới đây được hiểu như sau:\n1. Bên thụ hưởng là pháp nhân, cá nhân, hộ gia đình, tổ hợp tác và tổ chức khác không có tư cách pháp nhân có quyền thụ hưởng các khoản thanh toán, chi trả từ khách hàng trong việc mua bán tài sản, hình thành nên tài sản, cung ứng dịch vụ và các quan hệ hợp pháp khác, thuộc nhu cầu vay vốn theo thỏa thuận cho vay được ký kết giữa khách hàng với tổ chức tín dụng cho vay (sau đây gọi là thỏa thuận cho vay).\n2. Giải ngân vốn cho vay là việc tổ chức tín dụng cho vay giao cho khách hàng một khoản tiền thông qua việc sử dụng dịch vụ thanh toán không dùng tiền mặt, bằng tiền mặt để thanh toán, chi trả cho bên thụ hưởng theo mục đích vay vốn ghi trong thỏa thuận cho vay.\n3. Quản lý tài chính tập trung là việc khách hàng sử dụng dịch vụ thanh toán qua tài khoản tại tổ chức tín dụng, chi nhánh ngân hàng nước ngoài để quản lý dòng vốn của mình.\n4. Tổ chức tín dụng quản lý tài chính là tổ chức tín dụng, chi nhánh ngân hàng nước ngoài thực hiện dịch vụ quản lý tài chính tập trung cho khách hàng.",
+   "chapter": null,
+   "section": null,
+   "superseded": false,
+   "char_start": 2177,
+   "char_end": 3251
+  },
+  {
+   "article": "Điều 4",
+   "text": "Phương thức giải ngân vốn cho vay sử dụng dịch vụ thanh toán không dùng tiền mặt\n1. Tổ chức tín dụng cho vay phải sử dụng dịch vụ thanh toán không dùng tiền mặt theo quy định của pháp luật để giải ngân vốn cho vay vào tài khoản thanh toán của bên thụ hưởng tại tổ chức cung ứng dịch vụ thanh toán, trừ trường hợp quy định tại khoản 2 Điều này. Việc chuyển số tiền giải ngân vào tài khoản thanh toán của bên thụ hưởng tại tổ chức cung ứng dịch vụ thanh toán được tổ chức tín dụng cho vay thực hiện ngay trong ngày giải ngân vốn vay theo mục đích ghi trong thỏa thuận cho vay; trường hợp việc giải ngân vốn vay thực hiện sau giờ giao dịch thanh toán trong ngày của tổ chức tín dụng cho vay thì việc chuyển tiền được thực hiện vào ngày làm việc tiếp theo của tổ chức tín dụng đó.\n2. Tổ chức tín dụng cho vay phải sử dụng dịch vụ thanh toán không dùng tiền mặt để giải ngân vốn cho vay vào tài khoản thanh toán của khách hàng tại tổ chức cung ứng dịch vụ thanh toán trong các trường hợp:\na) Khách hàng thanh toán, chi trả cho các mục đích sử dụng vốn vay mà pháp luật quy định phải thực hiện thông qua tài khoản thanh toán của khách hàng;\nb) Khách hàng là bên thụ hưởng có tài khoản thanh toán tại tổ chức cung ứng dịch vụ thanh toán, đã ứng vốn tự có để thanh toán, chi trả các chi phí thuộc chính phương án, dự án kinh doanh hoặc phương án, dự án phục vụ đời sống được tổ chức tín dụng cho vay quyết định cho vay theo quy định của pháp luật;\nc) Khách hàng trực tiếp thanh toán, chi trả tiền mua sản phẩm nông nghiệp thuộc lĩnh vực nông, lâm, diêm nghiệp và thủy sản từ cá nhân, hộ gia đình, chủ trang trại, hộ kinh doanh và tổ hợp tác có hoạt động sản xuất kinh doanh trên địa bàn nông thôn để khách hàng thực hiện phương án sản xuất kinh doanh, phù hợp với mục đích vay vốn ghi trong thỏa thuận cho vay.",
+   "chapter": null,
+   "section": null,
+   "superseded": false,
+   "char_start": 3260,
+   "char_end": 5062
+  },
+  {
+   "article": "Điều 5",
+   "text": "Phương thức giải ngân vốn cho vay bằng tiền mặt\n1. Tổ chức tín dụng cho vay được xem xét quyết định giải ngân vốn cho vay bằng tiền mặt trong các trường hợp:\na) Khách hàng thanh toán, chi trả cho bên thụ hưởng (không bao gồm pháp nhân) không có tài khoản thanh toán tại tổ chức cung ứng dịch vụ thanh toán;\nb) Khách hàng là bên thụ hưởng (không bao gồm pháp nhân) không có tài khoản thanh toán tại tổ chức cung ứng dịch vụ thanh toán, đã ứng vốn tự có để thanh toán, chi trả các chi phí thuộc chính phương án, dự án kinh doanh hoặc phương án, dự án phục vụ đời sống được tổ chức tín dụng cho vay quyết định cho vay theo quy định của pháp luật.\n2. Khách hàng phải gửi cho tổ chức tín dụng cho vay văn bản cam kết của bên thụ hưởng về việc bên thụ hưởng không có tài khoản thanh toán tại tổ chức cung ứng dịch vụ thanh toán.",
+   "chapter": null,
+   "section": null,
+   "superseded": false,
+   "char_start": 5071,
+   "char_end": 5893
+  },
+  {
+   "article": "Điều 6",
+   "text": "Phương thức giải ngân vốn cho vay sử dụng dịch vụ thanh toán không dùng tiền mặt hoặc bằng tiền mặt\nTổ chức tín dụng cho vay được xem xét quyết định phương thức giải ngân vốn cho vay sử dụng dịch vụ thanh toán không dùng tiền mặt hoặc bằng tiền mặt trong trường hợp:\n1. Khách hàng thanh toán, chi trả cho bên thụ hưởng (không bao gồm pháp nhân) có tài khoản thanh toán tại tổ chức cung ứng dịch vụ thanh toán với số tiền vay ghi trong thỏa thuận cho vay có giá trị không vượt quá 100.000.000 đồng (một trăm triệu đồng).\n2. Khách hàng thanh toán, chi trả cho bên thụ hưởng là tổ chức sử dụng vốn nhà nước được thanh toán bằng tiền mặt theo quy định của Ngân hàng Nhà nước Việt Nam.",
+   "chapter": null,
+   "section": null,
+   "superseded": false,
+   "char_start": 5902,
+   "char_end": 6582
+  },
+  {
+   "article": "Điều 7",
+   "text": "Việc áp dụng phương thức giải ngân vốn cho vay đối với một số trường hợp cụ thể\n1. Trường hợp cho vay hợp vốn mà việc giải ngân vốn cho vay được thực hiện thông qua tổ chức tín dụng đầu mối thanh toán (bao gồm cả trường hợp thành viên đầu mối cho vay hợp vốn đồng thời là thành viên đầu mối thanh toán): Các thành viên tham gia cho vay hợp vốn thỏa thuận, quyết định việc sử dụng phương thức giải ngân vốn cho vay theo quy định tại Điều 4, Điều 5, Điều 6 Thông tư này. Việc thanh toán, chi trả cho bên thụ hưởng được tổ chức tín dụng đầu mối thanh toán thực hiện ngay trong ngày nhận được số tiền giải ngân vốn cho vay từ thành viên tham gia cho vay hợp vốn hoặc thành viên đầu mối cho vay hợp vốn; trường hợp số tiền giải ngân nhận được sau giờ giao dịch thanh toán trong ngày của tổ chức tín dụng đầu mối thanh toán thì việc thanh toán, chi trả cho bên thụ hưởng được thực hiện vào ngày làm việc tiếp theo.\n2. Trường hợp khách hàng sử dụng dịch vụ quản lý tài chính tập trung tại tổ chức tín dụng quản lý tài chính không phải là tổ chức tín dụng cho vay: Tổ chức tín dụng cho vay quyết định việc sử dụng phương thức giải ngân vốn cho vay theo quy định tại Điều 4, Điều 5, Điều 6 Thông tư này. Việc thanh toán, chi trả cho bên thụ hưởng được tổ chức tín dụng quản lý tài chính thực hiện ngay trong ngày nhận được số tiền giải ngân từ tổ chức tín dụng cho vay; trường hợp số tiền giải ngân nhận được sau giờ giao dịch thanh toán trong ngày của tổ chức tín dụng quản lý tài chính thì việc thanh toán, chi trả cho bên thụ hưởng được thực hiện vào ngày làm việc tiếp theo.\n3. Trường hợp khách hàng phải sử dụng số tiền vay bằng Đồng Việt Nam mua ngoại tệ nhiều lần để thanh toán, chi trả cho bên thụ hưởng theo mục đích vay vốn ghi trong thỏa thuận cho vay:\na) Khách hàng mua ngoại tệ của chính tổ chức tín dụng cho vay:\n(i) Trường hợp khách hàng sử dụng dịch vụ quản lý tài chính tập trung tại tổ chức tín dụng, chi nhánh ngân hàng nước ngoài khác không phải là tổ chức tín dụng cho vay: Khi có ngoại tệ bán cho khách hàng, tổ chức tín dụng cho vay thực hiện giải ngân vốn cho vay; số ngoại tệ bán từng lần được tổ chức tín dụng cho vay chuyển ngay vào tài khoản tiền gửi vốn chuyên dùng của khách hàng mở tại tổ chức tín dụng quản lý tài chính. Tổ chức tín dụng quản lý tài chính sử dụng dịch vụ thanh toán không dùng tiền mặt để thực hiện việc thanh toán, chi trả cho bên thụ hưởng theo yêu cầu của tổ chức tín dụng cho vay, phù hợp với quy định tại Thông tư này;\n(ii) Trường hợp khách hàng không sử dụng dịch vụ quản lý tài chính tập trung hoặc sử dụng dịch vụ quản lý tài chính tập trung tại tổ chức tín dụng cho vay: Khi có ngoại tệ bán cho khách hàng, tổ chức tín dụng cho vay thực hiện giải ngân vốn cho vay; số ngoại tệ bán từng lần được chuyển ngay vào tài khoản tiền gửi vốn chuyên dùng của khách hàng mở tại tổ chức tín dụng cho vay. Tổ chức tín dụng cho vay sử dụng dịch vụ thanh toán không dùng tiền mặt để thực hiện việc thanh toán, chi trả cho bên thụ hưởng phù hợp với quy định tại Thông tư này.\nb) Khách hàng mua ngoại tệ của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài khác (bao gồm cả tổ chức tín dụng quản lý tài chính) không phải là tổ chức tín dụng cho vay:\n(i) Trường hợp khách hàng sử dụng dịch vụ quản lý tài chính tập trung tại tổ chức tín dụng, chi nhánh ngân hàng nước ngoài khác không phải là tổ chức tín dụng cho vay: Sau khi nhận được số tiền giải ngân từ tổ chức tín dụng cho vay, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài bán ngoại tệ cho khách hàng và chuyển số ngoại tệ này vào tài khoản tiền gửi vốn chuyên dùng của khách hàng mở tại tổ chức tín dụng quản lý tài chính. Tổ chức tín dụng quản lý tài chính sử dụng dịch vụ thanh toán không dùng tiền mặt để thực hiện việc thanh toán, chi trả cho bên thụ hưởng theo yêu cầu của tổ chức tín dụng cho vay, phù hợp với quy định tại Thông tư này;\n(ii) Trường hợp khách hàng không sử dụng dịch vụ quản lý tài chính tập trung hoặc sử dụng dịch vụ quản lý tài chính tập trung tại tổ chức tín dụng cho vay: Sau khi nhận được số tiền giải ngân từ tổ chức tín dụng cho vay, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài bán ngoại tệ cho khách hàng và chuyển số ngoại tệ này vào tài khoản tiền gửi vốn chuyên dùng của khách hàng mở tại tổ chức tín dụng cho vay. Tổ chức tín dụng cho vay sử dụng dịch vụ thanh toán không dùng tiền mặt để thực hiện việc thanh toán, chi trả cho bên thụ hưởng phù hợp với quy định tại Thông tư này.",
+   "chapter": null,
+   "section": null,
+   "superseded": false,
+   "char_start": 6591,
+   "char_end": 11004
+  },
+  {
+   "article": "Điều 8",
+   "text": "Các quy định khác\n1. Đối với tổ chức tín dụng cho vay:\na) Xem xét quyết định việc áp dụng phương thức giải ngân vốn cho vay theo quy định tại Thông tư này trên cơ sở thông tin, tài liệu, chứng từ thanh toán do khách hàng cung cấp và tự chịu trách nhiệm về quyết định của mình;\nb) Quy định về phương thức giải ngân vốn cho vay trong quy định nội bộ về cho vay, quản lý tiền vay phù hợp quy định tại Thông tư này và các quy định của pháp luật có liên quan;\nc) Kiểm soát chặt chẽ việc giải ngân vốn vay vào tài khoản thanh toán của khách hàng nhằm đảm bảo khách hàng sử dụng vốn vay đúng mục đích vay vốn ghi trong thỏa thuận cho vay;\nd) Thông báo cho khách hàng các quy định của pháp luật, quy định nội bộ về phương thức giải ngân vốn cho vay. Thông báo cho khách hàng và tổ chức tín dụng, chi nhánh ngân hàng nước ngoài có liên quan đến giải ngân vốn cho vay quy định về giờ giao dịch thanh toán trong ngày.\n2. Tổ chức tín dụng quản lý tài chính thông báo cho khách hàng và tổ chức tín dụng, chi nhánh ngân hàng nước ngoài có liên quan đến giải ngân vốn cho vay quy định về giờ giao dịch thanh toán trong ngày của mình.\n3. Đối với khách hàng: Cung cấp các thông tin, tài liệu, chứng từ thanh toán theo quy định của tổ chức tín dụng cho vay phục vụ cho việc xem xét quyết định phương thức giải ngân vốn cho vay theo quy định tại Thông tư này. Khách hàng chịu trách nhiệm trước pháp luật về tính chính xác, trung thực của các thông tin, tài liệu và chứng từ cung cấp cho tổ chức tín dụng cho vay.",
+   "chapter": null,
+   "section": null,
+   "superseded": false,
+   "char_start": 11013,
+   "char_end": 12506
+  },
+  {
+   "article": "Điều 9",
+   "text": "Quy định chuyển tiếp\nĐối với các hợp đồng tín dụng hoặc thỏa thuận cho vay ký kết trước ngày Thông tư này có hiệu lực thi hành, khách hàng và tổ chức tín dụng cho vay tiếp tục sử dụng dịch vụ thanh toán không dùng tiền mặt hoặc bằng tiền mặt để giải ngân vốn cho vay theo nội dung đã ký kết phù hợp với quy định của pháp luật hoặc thỏa thuận sửa đổi, bổ sung hợp đồng tín dụng, thỏa thuận cho vay phù hợp với quy định tại Thông tư này.",
+   "chapter": null,
+   "section": null,
+   "superseded": false,
+   "char_start": 12515,
+   "char_end": 12950
+  },
+  {
+   "article": "Điều 10",
+   "text": "Tổ chức thực hiện\n1. Thông tư này có hiệu lực thi hành kể từ ngày 02 tháng 4 năm 2018. Thông tư này thay thế Thông tư số 09/2012/TT-NHNN ngày 10 tháng 4 năm 2012 quy định việc sử dụng các phương tiện thanh toán để giải ngân vốn cho vay của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài đối với khách hàng.\n2. Chánh Văn phòng, Vụ trưởng Vụ Chính sách tiền tệ và Thủ trưởng các đơn vị thuộc Ngân hàng Nhà nước Việt Nam, Giám đốc Ngân hàng Nhà nước chi nhánh các tỉnh, thành phố trực thuộc Trung ương; Chủ tịch Hội đồng quản trị, Chủ tịch Hội đồng thành viên và Tổng giám đốc (Giám đốc) các tổ chức tín dụng, chi nhánh ngân hàng nước ngoài chịu trách nhiệm tổ chức thực hiện Thông tư này./.\nKT. THỐNG ĐỐC\nPHÓ THỐNG ĐỐC\n(Đã ký)\nNguyễn Thị Hồng",
+   "chapter": null,
+   "section": null,
+   "superseded": false,
+   "char_start": 12960,
+   "char_end": 13702
+  }
+ ],
+ "provisions": [
+  {
+   "id": "id_13e1d08a-df4c-11f0-8e93-11c34f93159d",
+   "cap": "dieu",
+   "so": "1",
+   "tieu_de": "Phạm vi điều chỉnh",
+   "text": "",
+   "html": "",
+   "bi_tac_dong": null,
+   "an": false,
+   "con": [
+    {
+     "id": "id_13e1d094-df4c-11f0-9554-d5805c6ff8d9",
+     "cap": "khoan",
+     "so": "1",
+     "tieu_de": "",
+     "text": "Thông tư này quy định về phương thức giải ngân vốn cho vay bao gồm việc sử dụng dịch vụ thanh toán không dùng tiền mặt, bằng tiền mặt để giải ngân vốn cho vay của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài đối với khách hàng.",
+     "html": "1. Thông tư này quy định về phương thức giải ngân vốn cho vay bao gồm việc sử dụng dịch vụ thanh toán không dùng tiền mặt, bằng tiền mặt để giải ngân vốn cho vay của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài đối với khách hàng.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_13e1d09e-df4c-11f0-8c84-8f31dfb764d8",
+     "cap": "khoan",
+     "so": "2",
+     "tieu_de": "",
+     "text": "Thông tư này không điều chỉnh việc giải ngân vốn cho vay của ngân hàng chính sách.",
+     "html": "2. Thông tư này không điều chỉnh việc giải ngân vốn cho vay của ngân hàng chính sách.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    }
+   ]
+  },
+  {
+   "id": "id_13e1d0a8-df4c-11f0-9352-b9d076f74f0f",
+   "cap": "dieu",
+   "so": "2",
+   "tieu_de": "Đối tượng áp dụng",
+   "text": "",
+   "html": "",
+   "bi_tac_dong": null,
+   "an": false,
+   "con": [
+    {
+     "id": "id_13e1d0b2-df4c-11f0-bd73-53c20621c777",
+     "cap": "khoan",
+     "so": "1",
+     "tieu_de": "",
+     "text": "Tổ chức tín dụng, chi nhánh ngân hàng nước ngoài thực hiện hoạt động cho vay theo quy định của Ngân hàng Nhà nước Việt Nam (sau đây gọi là tổ chức tín dụng cho vay).",
+     "html": "1. Tổ chức tín dụng, chi nhánh ngân hàng nước ngoài thực hiện hoạt động cho vay theo quy định của Ngân hàng Nhà nước Việt Nam (sau đây gọi là tổ chức tín dụng cho vay).",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_13e1d0bc-df4c-11f0-9f2f-970faab93c21",
+     "cap": "khoan",
+     "so": "2",
+     "tieu_de": "",
+     "text": "Khách hàng vay vốn tại tổ chức tín dụng, chi nhánh ngân hàng nước ngoài (sau đây gọi là khách hàng).",
+     "html": "2. Khách hàng vay vốn tại tổ chức tín dụng, chi nhánh ngân hàng nước ngoài (sau đây gọi là khách hàng).",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_13e1d0c6-df4c-11f0-8b5a-fdaba3e1dcaf",
+     "cap": "khoan",
+     "so": "3",
+     "tieu_de": "",
+     "text": "Bên thụ hưởng.",
+     "html": "3. Bên thụ hưởng.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_13e1d0d0-df4c-11f0-9176-3b3fc22345c6",
+     "cap": "khoan",
+     "so": "4",
+     "tieu_de": "",
+     "text": "Tổ chức tín dụng, chi nhánh ngân hàng nước ngoài khác, tổ chức cung ứng dịch vụ thanh toán, tổ chức cung ứng dịch vụ trung gian thanh toán liên quan đến hoạt động cho vay của tổ chức tín dụng cho vay.",
+     "html": "4. Tổ chức tín dụng, chi nhánh ngân hàng nước ngoài khác, tổ chức cung ứng dịch vụ thanh toán, tổ chức cung ứng dịch vụ trung gian thanh toán liên quan đến hoạt động cho vay của tổ chức tín dụng cho vay.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    }
+   ]
+  },
+  {
+   "id": "id_13e1d0da-df4c-11f0-8976-a74b5315cb32",
+   "cap": "dieu",
+   "so": "3",
+   "tieu_de": "Giải thích từ ngữ",
+   "text": "Trong Thông tư này, các từ ngữ dưới đây được hiểu như sau:",
+   "html": "Trong Thông tư này, các từ ngữ dưới đây được hiểu như sau:",
+   "bi_tac_dong": null,
+   "an": false,
+   "con": [
+    {
+     "id": "id_13e1d0e4-df4c-11f0-967f-9d6a8051b20b",
+     "cap": "khoan",
+     "so": "1",
+     "tieu_de": "",
+     "text": "Bên thụ hưởng là pháp nhân, cá nhân, hộ gia đình, tổ hợp tác và tổ chức khác không có tư cách pháp nhân có quyền thụ hưởng các khoản thanh toán, chi trả từ khách hàng trong việc mua bán tài sản, hình thành nên tài sản, cung ứng dịch vụ và các quan hệ hợp pháp khác, thuộc nhu cầu vay vốn theo thỏa thuận cho vay được ký kết giữa khách hàng với tổ chức tín dụng cho vay (sau đây gọi là thỏa thuận cho vay).",
+     "html": "1. Bên thụ hưởng là pháp nhân, cá nhân, hộ gia đình, tổ hợp tác và tổ chức khác không có tư cách pháp nhân có quyền thụ hưởng các khoản thanh toán, chi trả từ khách hàng trong việc mua bán tài sản, hình thành nên tài sản, cung ứng dịch vụ và các quan hệ hợp pháp khác, thuộc nhu cầu vay vốn theo thỏa thuận cho vay được ký kết giữa khách hàng với tổ chức tín dụng cho vay (sau đây gọi là thỏa thuận cho vay).",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_13e1d0ee-df4c-11f0-8329-a31ceede4621",
+     "cap": "khoan",
+     "so": "2",
+     "tieu_de": "",
+     "text": "Giải ngân vốn cho vay là việc tổ chức tín dụng cho vay giao cho khách hàng một khoản tiền thông qua việc sử dụng dịch vụ thanh toán không dùng tiền mặt, bằng tiền mặt để thanh toán, chi trả cho bên thụ hưởng theo mục đích vay vốn ghi trong thỏa thuận cho vay.",
+     "html": "2. Giải ngân vốn cho vay là việc tổ chức tín dụng cho vay giao cho khách hàng một khoản tiền thông qua việc sử dụng dịch vụ thanh toán không dùng tiền mặt, bằng tiền mặt để thanh toán, chi trả cho bên thụ hưởng theo mục đích vay vốn ghi trong thỏa thuận cho vay.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_13e1d0f8-df4c-11f0-b557-39a3f61c886f",
+     "cap": "khoan",
+     "so": "3",
+     "tieu_de": "",
+     "text": "Quản lý tài chính tập trung là việc khách hàng sử dụng dịch vụ thanh toán qua tài khoản tại tổ chức tín dụng, chi nhánh ngân hàng nước ngoài để quản lý dòng vốn của mình.",
+     "html": "3. Quản lý tài chính tập trung là việc khách hàng sử dụng dịch vụ thanh toán qua tài khoản tại tổ chức tín dụng, chi nhánh ngân hàng nước ngoài để quản lý dòng vốn của mình.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_13e1d102-df4c-11f0-9509-0dc6285835a6",
+     "cap": "khoan",
+     "so": "4",
+     "tieu_de": "",
+     "text": "Tổ chức tín dụng quản lý tài chính là tổ chức tín dụng, chi nhánh ngân hàng nước ngoài thực hiện dịch vụ quản lý tài chính tập trung cho khách hàng.",
+     "html": "4. Tổ chức tín dụng quản lý tài chính là tổ chức tín dụng, chi nhánh ngân hàng nước ngoài thực hiện dịch vụ quản lý tài chính tập trung cho khách hàng.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    }
+   ]
+  },
+  {
+   "id": "id_13e1d10c-df4c-11f0-a4ac-5377ff5023f1",
+   "cap": "dieu",
+   "so": "4",
+   "tieu_de": "Phương thức giải ngân vốn cho vay sử dụng dịch vụ thanh toán không dùng tiền mặt",
+   "text": "",
+   "html": "",
+   "bi_tac_dong": null,
+   "an": false,
+   "con": [
+    {
+     "id": "id_13e1d116-df4c-11f0-beb4-1f54a6aa75b1",
+     "cap": "khoan",
+     "so": "1",
+     "tieu_de": "",
+     "text": "Tổ chức tín dụng cho vay phải sử dụng dịch vụ thanh toán không dùng tiền mặt theo quy định của pháp luật để giải ngân vốn cho vay vào tài khoản thanh toán của bên thụ hưởng tại tổ chức cung ứng dịch vụ thanh toán, trừ trường hợp quy định tại khoản 2 Điều này. Việc chuyển số tiền giải ngân vào tài khoản thanh toán của bên thụ hưởng tại tổ chức cung ứng dịch vụ thanh toán được tổ chức tín dụng cho vay thực hiện ngay trong ngày giải ngân vốn vay theo mục đích ghi trong thỏa thuận cho vay; trường hợp việc giải ngân vốn vay thực hiện sau giờ giao dịch thanh toán trong ngày của tổ chức tín dụng cho vay thì việc chuyển tiền được thực hiện vào ngày làm việc tiếp theo của tổ chức tín dụng đó.",
+     "html": "1. Tổ chức tín dụng cho vay phải sử dụng dịch vụ thanh toán không dùng tiền mặt theo quy định của pháp luật để giải ngân vốn cho vay vào tài khoản thanh toán của bên thụ hưởng tại tổ chức cung ứng dịch vụ thanh toán, trừ trường hợp quy định tại khoản 2 Điều này. Việc chuyển số tiền giải ngân vào tài khoản thanh toán của bên thụ hưởng tại tổ chức cung ứng dịch vụ thanh toán được tổ chức tín dụng cho vay thực hiện ngay trong ngày giải ngân vốn vay theo mục đích ghi trong thỏa thuận cho vay; trường hợp việc giải ngân vốn vay thực hiện sau giờ giao dịch thanh toán trong ngày của tổ chức tín dụng cho vay thì việc chuyển tiền được thực hiện vào ngày làm việc tiếp theo của tổ chức tín dụng đó.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_13e1d120-df4c-11f0-a9d5-1305d748d6b2",
+     "cap": "khoan",
+     "so": "2",
+     "tieu_de": "",
+     "text": "Tổ chức tín dụng cho vay phải sử dụng dịch vụ thanh toán không dùng tiền mặt để giải ngân vốn cho vay vào tài khoản thanh toán của khách hàng tại tổ chức cung ứng dịch vụ thanh toán trong các trường hợp:",
+     "html": "2. Tổ chức tín dụng cho vay phải sử dụng dịch vụ thanh toán không dùng tiền mặt để giải ngân vốn cho vay vào tài khoản thanh toán của khách hàng tại tổ chức cung ứng dịch vụ thanh toán trong các trường hợp:",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": [
+      {
+       "id": "id_13e1d12a-df4c-11f0-aeba-b3af99054890",
+       "cap": "diem",
+       "so": "a",
+       "tieu_de": "",
+       "text": "Khách hàng thanh toán, chi trả cho các mục đích sử dụng vốn vay mà pháp luật quy định phải thực hiện thông qua tài khoản thanh toán của khách hàng;",
+       "html": "a) Khách hàng thanh toán, chi trả cho các mục đích sử dụng vốn vay mà pháp luật quy định phải thực hiện thông qua tài khoản thanh toán của khách hàng;",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_13e1d134-df4c-11f0-b09d-97586395882b",
+       "cap": "diem",
+       "so": "b",
+       "tieu_de": "",
+       "text": "Khách hàng là bên thụ hưởng có tài khoản thanh toán tại tổ chức cung ứng dịch vụ thanh toán, đã ứng vốn tự có để thanh toán, chi trả các chi phí thuộc chính phương án, dự án kinh doanh hoặc phương án, dự án phục vụ đời sống được tổ chức tín dụng cho vay quyết định cho vay theo quy định của pháp luật;",
+       "html": "b) Khách hàng là bên thụ hưởng có tài khoản thanh toán tại tổ chức cung ứng dịch vụ thanh toán, đã ứng vốn tự có để thanh toán, chi trả các chi phí thuộc chính phương án, dự án kinh doanh hoặc phương án, dự án phục vụ đời sống được tổ chức tín dụng cho vay quyết định cho vay theo quy định của pháp luật;",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_13e1d13e-df4c-11f0-aa7f-6b4d724ac6cc",
+       "cap": "diem",
+       "so": "c",
+       "tieu_de": "",
+       "text": "Khách hàng trực tiếp thanh toán, chi trả tiền mua sản phẩm nông nghiệp thuộc lĩnh vực nông, lâm, diêm nghiệp và thủy sản từ cá nhân, hộ gia đình, chủ trang trại, hộ kinh doanh và tổ hợp tác có hoạt động sản xuất kinh doanh trên địa bàn nông thôn để khách hàng thực hiện phương án sản xuất kinh doanh, phù hợp với mục đích vay vốn ghi trong thỏa thuận cho vay.",
+       "html": "c) Khách hàng trực tiếp thanh toán, chi trả tiền mua sản phẩm nông nghiệp thuộc lĩnh vực nông, lâm, diêm nghiệp và thủy sản từ cá nhân, hộ gia đình, chủ trang trại, hộ kinh doanh và tổ hợp tác có hoạt động sản xuất kinh doanh trên địa bàn nông thôn để khách hàng thực hiện phương án sản xuất kinh doanh, phù hợp với mục đích vay vốn ghi trong thỏa thuận cho vay.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "id_13e1d148-df4c-11f0-aa50-d7cb14fe8449",
+   "cap": "dieu",
+   "so": "5",
+   "tieu_de": "Phương thức giải ngân vốn cho vay bằng tiền mặt",
+   "text": "",
+   "html": "",
+   "bi_tac_dong": null,
+   "an": false,
+   "con": [
+    {
+     "id": "id_13e1d152-df4c-11f0-a7d0-c96880648e75",
+     "cap": "khoan",
+     "so": "1",
+     "tieu_de": "",
+     "text": "Tổ chức tín dụng cho vay được xem xét quyết định giải ngân vốn cho vay bằng tiền mặt trong các trường hợp:",
+     "html": "1. Tổ chức tín dụng cho vay được xem xét quyết định giải ngân vốn cho vay bằng tiền mặt trong các trường hợp:",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": [
+      {
+       "id": "id_13e1d15c-df4c-11f0-85f0-e9bdb4947eb1",
+       "cap": "diem",
+       "so": "a",
+       "tieu_de": "",
+       "text": "Khách hàng thanh toán, chi trả cho bên thụ hưởng (không bao gồm pháp nhân) không có tài khoản thanh toán tại tổ chức cung ứng dịch vụ thanh toán;",
+       "html": "a) Khách hàng thanh toán, chi trả cho bên thụ hưởng (không bao gồm pháp nhân) không có tài khoản thanh toán tại tổ chức cung ứng dịch vụ thanh toán;",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_13e1d166-df4c-11f0-b9fa-77032529de5e",
+       "cap": "diem",
+       "so": "b",
+       "tieu_de": "",
+       "text": "Khách hàng là bên thụ hưởng (không bao gồm pháp nhân) không có tài khoản thanh toán tại tổ chức cung ứng dịch vụ thanh toán, đã ứng vốn tự có để thanh toán, chi trả các chi phí thuộc chính phương án, dự án kinh doanh hoặc phương án, dự án phục vụ đời sống được tổ chức tín dụng cho vay quyết định cho vay theo quy định của pháp luật.",
+       "html": "b) Khách hàng là bên thụ hưởng (không bao gồm pháp nhân) không có tài khoản thanh toán tại tổ chức cung ứng dịch vụ thanh toán, đã ứng vốn tự có để thanh toán, chi trả các chi phí thuộc chính phương án, dự án kinh doanh hoặc phương án, dự án phục vụ đời sống được tổ chức tín dụng cho vay quyết định cho vay theo quy định của pháp luật.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      }
+     ]
+    },
+    {
+     "id": "id_13e1d170-df4c-11f0-b767-63826612f9bd",
+     "cap": "khoan",
+     "so": "2",
+     "tieu_de": "",
+     "text": "Khách hàng phải gửi cho tổ chức tín dụng cho vay văn bản cam kết của bên thụ hưởng về việc bên thụ hưởng không có tài khoản thanh toán tại tổ chức cung ứng dịch vụ thanh toán.",
+     "html": "2. Khách hàng phải gửi cho tổ chức tín dụng cho vay văn bản cam kết của bên thụ hưởng về việc bên thụ hưởng không có tài khoản thanh toán tại tổ chức cung ứng dịch vụ thanh toán.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    }
+   ]
+  },
+  {
+   "id": "id_13e1d17a-df4c-11f0-9e6f-d153fc0712e0",
+   "cap": "dieu",
+   "so": "6",
+   "tieu_de": "Phương thức giải ngân vốn cho vay sử dụng dịch vụ thanh toán không dùng tiền mặt hoặc bằng tiền mặt",
+   "text": "Tổ chức tín dụng cho vay được xem xét quyết định phương thức giải ngân vốn cho vay sử dụng dịch vụ thanh toán không dùng tiền mặt hoặc bằng tiền mặt trong trường hợp:",
+   "html": "Tổ chức tín dụng cho vay được xem xét quyết định phương thức giải ngân vốn cho vay sử dụng dịch vụ thanh toán không dùng tiền mặt hoặc bằng tiền mặt trong trường hợp:",
+   "bi_tac_dong": null,
+   "an": false,
+   "con": [
+    {
+     "id": "id_13e1d184-df4c-11f0-944d-d5de50fa5d2e",
+     "cap": "khoan",
+     "so": "1",
+     "tieu_de": "",
+     "text": "Khách hàng thanh toán, chi trả cho bên thụ hưởng (không bao gồm pháp nhân) có tài khoản thanh toán tại tổ chức cung ứng dịch vụ thanh toán với số tiền vay ghi trong thỏa thuận cho vay có giá trị không vượt quá 100.000.000 đồng (một trăm triệu đồng).",
+     "html": "1. Khách hàng thanh toán, chi trả cho bên thụ hưởng (không bao gồm pháp nhân) có tài khoản thanh toán tại tổ chức cung ứng dịch vụ thanh toán với số tiền vay ghi trong thỏa thuận cho vay có giá trị không vượt quá 100.000.000 đồng (một trăm triệu đồng).",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_13e1d18e-df4c-11f0-9786-915d6e7e082b",
+     "cap": "khoan",
+     "so": "2",
+     "tieu_de": "",
+     "text": "Khách hàng thanh toán, chi trả cho bên thụ hưởng là tổ chức sử dụng vốn nhà nước được thanh toán bằng tiền mặt theo quy định của Ngân hàng Nhà nước Việt Nam.",
+     "html": "2. Khách hàng thanh toán, chi trả cho bên thụ hưởng là tổ chức sử dụng vốn nhà nước được thanh toán bằng tiền mặt theo quy định của Ngân hàng Nhà nước Việt Nam.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    }
+   ]
+  },
+  {
+   "id": "id_13e1d198-df4c-11f0-8465-876b4c78c4ae",
+   "cap": "dieu",
+   "so": "7",
+   "tieu_de": "Việc áp dụng phương thức giải ngân vốn cho vay đối với một số trường hợp cụ thể",
+   "text": "(i) Trường hợp khách hàng sử dụng dịch vụ quản lý tài chính tập trung tại tổ chức tín dụng, chi nhánh ngân hàng nước ngoài khác không phải là tổ chức tín dụng cho vay: Khi có ngoại tệ bán cho khách hàng, tổ chức tín dụng cho vay thực hiện giải ngân vốn cho vay; số ngoại tệ bán từng lần được tổ chức tín dụng cho vay chuyển ngay vào tài khoản tiền gửi vốn chuyên dùng của khách hàng mở tại tổ chức tín dụng quản lý tài chính. Tổ chức tín dụng quản lý tài chính sử dụng dịch vụ thanh toán không dùng tiền mặt để thực hiện việc thanh toán, chi trả cho bên thụ hưởng theo yêu cầu của tổ chức tín dụng cho vay, phù hợp với quy định tại Thông tư này;\n(ii) Trường hợp khách hàng không sử dụng dịch vụ quản lý tài chính tập trung hoặc sử dụng dịch vụ quản lý tài chính tập trung tại tổ chức tín dụng cho vay: Khi có ngoại tệ bán cho khách hàng, tổ chức tín dụng cho vay thực hiện giải ngân vốn cho vay; số ngoại tệ bán từng lần được chuyển ngay vào tài khoản tiền gửi vốn chuyên dùng của khách hàng mở tại tổ chức tín dụng cho vay. Tổ chức tín dụng cho vay sử dụng dịch vụ thanh toán không dùng tiền mặt để thực hiện việc thanh toán, chi trả cho bên thụ hưởng phù hợp với quy định tại Thông tư này.\n(i) Trường hợp khách hàng sử dụng dịch vụ quản lý tài chính tập trung tại tổ chức tín dụng, chi nhánh ngân hàng nước ngoài khác không phải là tổ chức tín dụng cho vay: Sau khi nhận được số tiền giải ngân từ tổ chức tín dụng cho vay, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài bán ngoại tệ cho khách hàng và chuyển số ngoại tệ này vào tài khoản tiền gửi vốn chuyên dùng của khách hàng mở tại tổ chức tín dụng quản lý tài chính. Tổ chức tín dụng quản lý tài chính sử dụng dịch vụ thanh toán không dùng tiền mặt để thực hiện việc thanh toán, chi trả cho bên thụ hưởng theo yêu cầu của tổ chức tín dụng cho vay, phù hợp với quy định tại Thông tư này;\n(ii) Trường hợp khách hàng không sử dụng dịch vụ quản lý tài chính tập trung hoặc sử dụng dịch vụ quản lý tài chính tập trung tại tổ chức tín dụng cho vay: Sau khi nhận được số tiền giải ngân từ tổ chức tín dụng cho vay, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài bán ngoại tệ cho khách hàng và chuyển số ngoại tệ này vào tài khoản tiền gửi vốn chuyên dùng của khách hàng mở tại tổ chức tín dụng cho vay. Tổ chức tín dụng cho vay sử dụng dịch vụ thanh toán không dùng tiền mặt để thực hiện việc thanh toán, chi trả cho bên thụ hưởng phù hợp với quy định tại Thông tư này.",
+   "html": "(i) Trường hợp khách hàng sử dụng dịch vụ quản lý tài chính tập trung tại tổ chức tín dụng, chi nhánh ngân hàng nước ngoài khác không phải là tổ chức tín dụng cho vay: Khi có ngoại tệ bán cho khách hàng, tổ chức tín dụng cho vay thực hiện giải ngân vốn cho vay; số ngoại tệ bán từng lần được tổ chức tín dụng cho vay chuyển ngay vào tài khoản tiền gửi vốn chuyên dùng của khách hàng mở tại tổ chức tín dụng quản lý tài chính. Tổ chức tín dụng quản lý tài chính sử dụng dịch vụ thanh toán không dùng tiền mặt để thực hiện việc thanh toán, chi trả cho bên thụ hưởng theo yêu cầu của tổ chức tín dụng cho vay, phù hợp với quy định tại Thông tư này;<br>(ii) Trường hợp khách hàng không sử dụng dịch vụ quản lý tài chính tập trung hoặc sử dụng dịch vụ quản lý tài chính tập trung tại tổ chức tín dụng cho vay: Khi có ngoại tệ bán cho khách hàng, tổ chức tín dụng cho vay thực hiện giải ngân vốn cho vay; số ngoại tệ bán từng lần được chuyển ngay vào tài khoản tiền gửi vốn chuyên dùng của khách hàng mở tại tổ chức tín dụng cho vay. Tổ chức tín dụng cho vay sử dụng dịch vụ thanh toán không dùng tiền mặt để thực hiện việc thanh toán, chi trả cho bên thụ hưởng phù hợp với quy định tại Thông tư này.<br>(i) Trường hợp khách hàng sử dụng dịch vụ quản lý tài chính tập trung tại tổ chức tín dụng, chi nhánh ngân hàng nước ngoài khác không phải là tổ chức tín dụng cho vay: Sau khi nhận được số tiền giải ngân từ tổ chức tín dụng cho vay, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài bán ngoại tệ cho khách hàng và chuyển số ngoại tệ này vào tài khoản tiền gửi vốn chuyên dùng của khách hàng mở tại tổ chức tín dụng quản lý tài chính. Tổ chức tín dụng quản lý tài chính sử dụng dịch vụ thanh toán không dùng tiền mặt để thực hiện việc thanh toán, chi trả cho bên thụ hưởng theo yêu cầu của tổ chức tín dụng cho vay, phù hợp với quy định tại Thông tư này;<br>(ii) Trường hợp khách hàng không sử dụng dịch vụ quản lý tài chính tập trung hoặc sử dụng dịch vụ quản lý tài chính tập trung tại tổ chức tín dụng cho vay: Sau khi nhận được số tiền giải ngân từ tổ chức tín dụng cho vay, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài bán ngoại tệ cho khách hàng và chuyển số ngoại tệ này vào tài khoản tiền gửi vốn chuyên dùng của khách hàng mở tại tổ chức tín dụng cho vay. Tổ chức tín dụng cho vay sử dụng dịch vụ thanh toán không dùng tiền mặt để thực hiện việc thanh toán, chi trả cho bên thụ hưởng phù hợp với quy định tại Thông tư này.",
+   "bi_tac_dong": null,
+   "an": false,
+   "con": [
+    {
+     "id": "id_13e1d1a2-df4c-11f0-a9cf-cdc976643872",
+     "cap": "khoan",
+     "so": "1",
+     "tieu_de": "",
+     "text": "Trường hợp cho vay hợp vốn mà việc giải ngân vốn cho vay được thực hiện thông qua tổ chức tín dụng đầu mối thanh toán (bao gồm cả trường hợp thành viên đầu mối cho vay hợp vốn đồng thời là thành viên đầu mối thanh toán): Các thành viên tham gia cho vay hợp vốn thỏa thuận, quyết định việc sử dụng phương thức giải ngân vốn cho vay theo quy định tại Điều 4, Điều 5, Điều 6 Thông tư này. Việc thanh toán, chi trả cho bên thụ hưởng được tổ chức tín dụng đầu mối thanh toán thực hiện ngay trong ngày nhận được số tiền giải ngân vốn cho vay từ thành viên tham gia cho vay hợp vốn hoặc thành viên đầu mối cho vay hợp vốn; trường hợp số tiền giải ngân nhận được sau giờ giao dịch thanh toán trong ngày của tổ chức tín dụng đầu mối thanh toán thì việc thanh toán, chi trả cho bên thụ hưởng được thực hiện vào ngày làm việc tiếp theo.",
+     "html": "1. Trường hợp cho vay hợp vốn mà việc giải ngân vốn cho vay được thực hiện thông qua tổ chức tín dụng đầu mối thanh toán (bao gồm cả trường hợp thành viên đầu mối cho vay hợp vốn đồng thời là thành viên đầu mối thanh toán): Các thành viên tham gia cho vay hợp vốn thỏa thuận, quyết định việc sử dụng phương thức giải ngân vốn cho vay theo quy định tại Điều 4, Điều 5, Điều 6 Thông tư này. Việc thanh toán, chi trả cho bên thụ hưởng được tổ chức tín dụng đầu mối thanh toán thực hiện ngay trong ngày nhận được số tiền giải ngân vốn cho vay từ thành viên tham gia cho vay hợp vốn hoặc thành viên đầu mối cho vay hợp vốn; trường hợp số tiền giải ngân nhận được sau giờ giao dịch thanh toán trong ngày của tổ chức tín dụng đầu mối thanh toán thì việc thanh toán, chi trả cho bên thụ hưởng được thực hiện vào ngày làm việc tiếp theo.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_13e1d1ac-df4c-11f0-a0e2-8fd130ccb2bd",
+     "cap": "khoan",
+     "so": "2",
+     "tieu_de": "",
+     "text": "Trường hợp khách hàng sử dụng dịch vụ quản lý tài chính tập trung tại tổ chức tín dụng quản lý tài chính không phải là tổ chức tín dụng cho vay: Tổ chức tín dụng cho vay quyết định việc sử dụng phương thức giải ngân vốn cho vay theo quy định tại Điều 4, Điều 5, Điều 6 Thông tư này. Việc thanh toán, chi trả cho bên thụ hưởng được tổ chức tín dụng quản lý tài chính thực hiện ngay trong ngày nhận được số tiền giải ngân từ tổ chức tín dụng cho vay; trường hợp số tiền giải ngân nhận được sau giờ giao dịch thanh toán trong ngày của tổ chức tín dụng quản lý tài chính thì việc thanh toán, chi trả cho bên thụ hưởng được thực hiện vào ngày làm việc tiếp theo.",
+     "html": "2. Trường hợp khách hàng sử dụng dịch vụ quản lý tài chính tập trung tại tổ chức tín dụng quản lý tài chính không phải là tổ chức tín dụng cho vay: Tổ chức tín dụng cho vay quyết định việc sử dụng phương thức giải ngân vốn cho vay theo quy định tại Điều 4, Điều 5, Điều 6 Thông tư này. Việc thanh toán, chi trả cho bên thụ hưởng được tổ chức tín dụng quản lý tài chính thực hiện ngay trong ngày nhận được số tiền giải ngân từ tổ chức tín dụng cho vay; trường hợp số tiền giải ngân nhận được sau giờ giao dịch thanh toán trong ngày của tổ chức tín dụng quản lý tài chính thì việc thanh toán, chi trả cho bên thụ hưởng được thực hiện vào ngày làm việc tiếp theo.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_13e1d1b6-df4c-11f0-97d6-7de2644957ce",
+     "cap": "khoan",
+     "so": "3",
+     "tieu_de": "",
+     "text": "Trường hợp khách hàng phải sử dụng số tiền vay bằng Đồng Việt Nam mua ngoại tệ nhiều lần để thanh toán, chi trả cho bên thụ hưởng theo mục đích vay vốn ghi trong thỏa thuận cho vay:",
+     "html": "3. Trường hợp khách hàng phải sử dụng số tiền vay bằng Đồng Việt Nam mua ngoại tệ nhiều lần để thanh toán, chi trả cho bên thụ hưởng theo mục đích vay vốn ghi trong thỏa thuận cho vay:",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": [
+      {
+       "id": "id_13e1d1c0-df4c-11f0-95bd-39ee36d046e8",
+       "cap": "diem",
+       "so": "a",
+       "tieu_de": "",
+       "text": "Khách hàng mua ngoại tệ của chính tổ chức tín dụng cho vay:",
+       "html": "a) Khách hàng mua ngoại tệ của chính tổ chức tín dụng cho vay:",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_13e1d1ca-df4c-11f0-9bb7-85daf155d1ec",
+       "cap": "diem",
+       "so": "b",
+       "tieu_de": "",
+       "text": "Khách hàng mua ngoại tệ của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài khác (bao gồm cả tổ chức tín dụng quản lý tài chính) không phải là tổ chức tín dụng cho vay:",
+       "html": "b) Khách hàng mua ngoại tệ của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài khác (bao gồm cả tổ chức tín dụng quản lý tài chính) không phải là tổ chức tín dụng cho vay:",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "id_13e1d1d4-df4c-11f0-8b6b-118cee9c1fbf",
+   "cap": "dieu",
+   "so": "8",
+   "tieu_de": "Các quy định khác",
+   "text": "",
+   "html": "",
+   "bi_tac_dong": null,
+   "an": false,
+   "con": [
+    {
+     "id": "id_13e1d1de-df4c-11f0-9164-093675aa96f2",
+     "cap": "khoan",
+     "so": "1",
+     "tieu_de": "",
+     "text": "Đối với tổ chức tín dụng cho vay:",
+     "html": "1. Đối với tổ chức tín dụng cho vay:",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": [
+      {
+       "id": "id_13e1d1e8-df4c-11f0-b24b-8d1f4237062c",
+       "cap": "diem",
+       "so": "a",
+       "tieu_de": "",
+       "text": "Xem xét quyết định việc áp dụng phương thức giải ngân vốn cho vay theo quy định tại Thông tư này trên cơ sở thông tin, tài liệu, chứng từ thanh toán do khách hàng cung cấp và tự chịu trách nhiệm về quyết định của mình;",
+       "html": "a) Xem xét quyết định việc áp dụng phương thức giải ngân vốn cho vay theo quy định tại Thông tư này trên cơ sở thông tin, tài liệu, chứng từ thanh toán do khách hàng cung cấp và tự chịu trách nhiệm về quyết định của mình;",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_13e1d1f2-df4c-11f0-aaaf-e94c287dffa0",
+       "cap": "diem",
+       "so": "b",
+       "tieu_de": "",
+       "text": "Quy định về phương thức giải ngân vốn cho vay trong quy định nội bộ về cho vay, quản lý tiền vay phù hợp quy định tại Thông tư này và các quy định của pháp luật có liên quan;",
+       "html": "b) Quy định về phương thức giải ngân vốn cho vay trong quy định nội bộ về cho vay, quản lý tiền vay phù hợp quy định tại Thông tư này và các quy định của pháp luật có liên quan;",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_13e1d1fc-df4c-11f0-aea1-6b8690eb1638",
+       "cap": "diem",
+       "so": "c",
+       "tieu_de": "",
+       "text": "Kiểm soát chặt chẽ việc giải ngân vốn vay vào tài khoản thanh toán của khách hàng nhằm đảm bảo khách hàng sử dụng vốn vay đúng mục đích vay vốn ghi trong thỏa thuận cho vay;",
+       "html": "c) Kiểm soát chặt chẽ việc giải ngân vốn vay vào tài khoản thanh toán của khách hàng nhằm đảm bảo khách hàng sử dụng vốn vay đúng mục đích vay vốn ghi trong thỏa thuận cho vay;",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_13e1d206-df4c-11f0-8551-8fdd9dffd2d9",
+       "cap": "diem",
+       "so": "d",
+       "tieu_de": "",
+       "text": "Thông báo cho khách hàng các quy định của pháp luật, quy định nội bộ về phương thức giải ngân vốn cho vay. Thông báo cho khách hàng và tổ chức tín dụng, chi nhánh ngân hàng nước ngoài có liên quan đến giải ngân vốn cho vay quy định về giờ giao dịch thanh toán trong ngày.",
+       "html": "d) Thông báo cho khách hàng các quy định của pháp luật, quy định nội bộ về phương thức giải ngân vốn cho vay. Thông báo cho khách hàng và tổ chức tín dụng, chi nhánh ngân hàng nước ngoài có liên quan đến giải ngân vốn cho vay quy định về giờ giao dịch thanh toán trong ngày.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      }
+     ]
+    },
+    {
+     "id": "id_13e1d210-df4c-11f0-99dd-45761cc7f405",
+     "cap": "khoan",
+     "so": "2",
+     "tieu_de": "",
+     "text": "Tổ chức tín dụng quản lý tài chính thông báo cho khách hàng và tổ chức tín dụng, chi nhánh ngân hàng nước ngoài có liên quan đến giải ngân vốn cho vay quy định về giờ giao dịch thanh toán trong ngày của mình.",
+     "html": "2. Tổ chức tín dụng quản lý tài chính thông báo cho khách hàng và tổ chức tín dụng, chi nhánh ngân hàng nước ngoài có liên quan đến giải ngân vốn cho vay quy định về giờ giao dịch thanh toán trong ngày của mình.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_13e1d21a-df4c-11f0-8846-6f748d34e538",
+     "cap": "khoan",
+     "so": "3",
+     "tieu_de": "",
+     "text": "Đối với khách hàng: Cung cấp các thông tin, tài liệu, chứng từ thanh toán theo quy định của tổ chức tín dụng cho vay phục vụ cho việc xem xét quyết định phương thức giải ngân vốn cho vay theo quy định tại Thông tư này. Khách hàng chịu trách nhiệm trước pháp luật về tính chính xác, trung thực của các thông tin, tài liệu và chứng từ cung cấp cho tổ chức tín dụng cho vay.",
+     "html": "3. Đối với khách hàng: Cung cấp các thông tin, tài liệu, chứng từ thanh toán theo quy định của tổ chức tín dụng cho vay phục vụ cho việc xem xét quyết định phương thức giải ngân vốn cho vay theo quy định tại Thông tư này. Khách hàng chịu trách nhiệm trước pháp luật về tính chính xác, trung thực của các thông tin, tài liệu và chứng từ cung cấp cho tổ chức tín dụng cho vay.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    }
+   ]
+  },
+  {
+   "id": "id_13e1d224-df4c-11f0-9599-e721a71ecf0b",
+   "cap": "dieu",
+   "so": "9",
+   "tieu_de": "Quy định chuyển tiếp",
+   "text": "Đối với các hợp đồng tín dụng hoặc thỏa thuận cho vay ký kết trước ngày Thông tư này có hiệu lực thi hành, khách hàng và tổ chức tín dụng cho vay tiếp tục sử dụng dịch vụ thanh toán không dùng tiền mặt hoặc bằng tiền mặt để giải ngân vốn cho vay theo nội dung đã ký kết phù hợp với quy định của pháp luật hoặc thỏa thuận sửa đổi, bổ sung hợp đồng tín dụng, thỏa thuận cho vay phù hợp với quy định tại Thông tư này.",
+   "html": "Đối với các hợp đồng tín dụng hoặc thỏa thuận cho vay ký kết trước ngày Thông tư này có hiệu lực thi hành, khách hàng và tổ chức tín dụng cho vay tiếp tục sử dụng dịch vụ thanh toán không dùng tiền mặt hoặc bằng tiền mặt để giải ngân vốn cho vay theo nội dung đã ký kết phù hợp với quy định của pháp luật hoặc thỏa thuận sửa đổi, bổ sung hợp đồng tín dụng, thỏa thuận cho vay phù hợp với quy định tại Thông tư này.",
+   "bi_tac_dong": null,
+   "an": false,
+   "con": []
+  },
+  {
+   "id": "id_13e1d22e-df4c-11f0-9638-698be0b1da17",
+   "cap": "dieu",
+   "so": "10",
+   "tieu_de": "Tổ chức thực hiện",
+   "text": "",
+   "html": "",
+   "bi_tac_dong": null,
+   "an": false,
+   "con": [
+    {
+     "id": "id_13e1d238-df4c-11f0-9aa6-af731d91bd60",
+     "cap": "khoan",
+     "so": "1",
+     "tieu_de": "",
+     "text": "Thông tư này có hiệu lực thi hành kể từ ngày 02 tháng 4 năm 2018. Thông tư này thay thế Thông tư số 09/2012/TT-NHNN ngày 10 tháng 4 năm 2012 quy định việc sử dụng các phương tiện thanh toán để giải ngân vốn cho vay của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài đối với khách hàng.",
+     "html": "1. Thông tư này có hiệu lực thi hành kể từ ngày 02 tháng 4 năm 2018. Thông tư này thay thế Thông tư số 09/2012/TT-NHNN ngày 10 tháng 4 năm 2012 quy định việc sử dụng các phương tiện thanh toán để giải ngân vốn cho vay của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài đối với khách hàng.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_13e1d242-df4c-11f0-9941-53b852d9355f",
+     "cap": "khoan",
+     "so": "2",
+     "tieu_de": "",
+     "text": "Chánh Văn phòng, Vụ trưởng Vụ Chính sách tiền tệ và Thủ trưởng các đơn vị thuộc Ngân hàng Nhà nước Việt Nam, Giám đốc Ngân hàng Nhà nước chi nhánh các tỉnh, thành phố trực thuộc Trung ương; Chủ tịch Hội đồng quản trị, Chủ tịch Hội đồng thành viên và Tổng giám đốc (Giám đốc) các tổ chức tín dụng, chi nhánh ngân hàng nước ngoài chịu trách nhiệm tổ chức thực hiện Thông tư này./.",
+     "html": "2. Chánh Văn phòng, Vụ trưởng Vụ Chính sách tiền tệ và Thủ trưởng các đơn vị thuộc Ngân hàng Nhà nước Việt Nam, Giám đốc Ngân hàng Nhà nước chi nhánh các tỉnh, thành phố trực thuộc Trung ương; Chủ tịch Hội đồng quản trị, Chủ tịch Hội đồng thành viên và Tổng giám đốc (Giám đốc) các tổ chức tín dụng, chi nhánh ngân hàng nước ngoài chịu trách nhiệm tổ chức thực hiện Thông tư này./.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    }
+   ]
+  }
+ ],
+ "trich_dan": []
+}

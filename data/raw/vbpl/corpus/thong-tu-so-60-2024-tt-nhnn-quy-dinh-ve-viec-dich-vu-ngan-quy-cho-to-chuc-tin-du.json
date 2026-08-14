@@ -1,0 +1,870 @@
+{
+ "doc_id": "TT60-2024",
+ "title": "Thông tư 60/2024/TT-NHNN của Ngân hàng Nhà nước Việt Nam",
+ "doc_type": "Thông tư",
+ "source": "external",
+ "valid_from": "2025-02-14",
+ "valid_to": null,
+ "so_hieu": "60/2024/TT-NHNN",
+ "co_quan_ban_hanh": "Ngân hàng Nhà nước Việt Nam",
+ "nguoi_ky": "Đào Minh Tú",
+ "chuc_danh": "Phó Thống đốc",
+ "nganh": "Ngân hàng",
+ "linh_vuc": "Phát hành và kho quỹ",
+ "ngay_ban_hanh": "2024-12-31",
+ "tinh_trang_hieu_luc": "Còn hiệu lực",
+ "source_url": "https://vbpl.vn/van-ban/chi-tiet/thong-tu-so-60-2024-tt-nhnn-quy-dinh-ve-viec-dich-vu-ngan-quy-cho-to-chuc-tin-dung-chi-nhanh-ngan-hang-nuoc-ngoai--174100",
+ "source_files": [
+  {
+   "ten": "Thông tư 60-2024-TT-NHNN.docx",
+   "kich_thuoc": "0.04MB",
+   "url": "https://vbpl-bientap-gateway.moj.gov.vn/api/qtdc/public/doc/minio/buckets/vbpl/174100/Th%C3%B4ng%20t%C6%B0%2060-2024-TT-NHNN.docx/download"
+  },
+  {
+   "ten": "VanBanGoc_THông tư 60-2024-TT-NHNN.pdf",
+   "kich_thuoc": "3.1MB",
+   "url": "https://vbpl-bientap-gateway.moj.gov.vn/api/qtdc/public/doc/minio/buckets/vbpl/174100/VanBanGoc_TH%C3%B4ng%20t%C6%B0%2060-2024-TT-NHNN.pdf/download"
+  }
+ ],
+ "co_toan_van": true,
+ "canh_bao": [],
+ "articles": [
+  {
+   "article": "Điều 1",
+   "text": "Phạm vi điều chỉnh\nThông tư này quy định về cung ứng dịch vụ ngân quỹ của ngân hàng thương mại, chi nhánh ngân hàng nước ngoài, ngân hàng hợp tác xã cho tổ chức tín dụng, chi nhánh ngân hàng nước ngoài khác.",
+   "chapter": "Chương I. QUY ĐỊNH CHUNG",
+   "section": null,
+   "superseded": false,
+   "char_start": 993,
+   "char_end": 1200
+  },
+  {
+   "article": "Điều 2",
+   "text": "Đối tượng áp dụng\n1. Ngân hàng thương mại, chi nhánh ngân hàng nước ngoài, ngân hàng hợp tác xã thực hiện cung ứng dịch vụ ngân quỹ cho tổ chức tín dụng, chi nhánh ngân hàng nước ngoài khác (sau đây gọi là tổ chức cung ứng dịch vụ).\n2. Tổ chức tín dụng, chi nhánh ngân hàng nước ngoài sử dụng dịch vụ ngân quỹ (sau đây gọi là tổ chức sử dụng dịch vụ).\n3. Cơ quan, tổ chức, cá nhân có liên quan khác.",
+   "chapter": "Chương I. QUY ĐỊNH CHUNG",
+   "section": null,
+   "superseded": false,
+   "char_start": 1209,
+   "char_end": 1608
+  },
+  {
+   "article": "Điều 3",
+   "text": "Giải thích từ ngữ\nTrong Thông tư này, các từ ngữ dưới đây được hiểu như sau:\n1. Dịch vụ ngân quỹ là dịch vụ vận chuyển tài sản; dịch vụ thu, chi tiền mặt, ngoại tệ; dịch vụ xử lý tiền; dịch vụ tiếp quỹ, gom quỹ tập trung.\n2. Dịch vụ vận chuyển tài sản là dịch vụ của tổ chức cung ứng dịch vụ vận chuyển tiền mặt, tài sản quý, giấy tờ có giá cho tổ chức sử dụng dịch vụ theo thỏa thuận giữa các bên.\n3. Dịch vụ thu, chi tiền mặt, ngoại tệ là dịch vụ của tổ chức cung ứng dịch vụ thực hiện thu, chi tiền mặt, ngoại tệ với tổ chức sử dụng dịch vụ tại địa điểm quy định tại khoản 2 Điều 8 Thông tư này.\n4. Dịch vụ xử lý tiền là dịch vụ của tổ chức cung ứng dịch vụ thực hiện kiểm đếm, tuyển chọn, phân loại tiền đủ tiêu chuẩn lưu thông, không đủ tiêu chuẩn lưu thông, tiền giả, đóng gói, niêm phong tiền mặt, ngoại tệ cho tổ chức sử dụng dịch vụ theo thỏa thuận giữa các bên.\n5. Dịch vụ tiếp quỹ, gom quỹ tập trung là dịch vụ của tổ chức cung ứng dịch vụ thực hiện tiếp quỹ, gom quỹ tiền mặt, ngoại tệ cho các chi nhánh, phòng giao dịch, máy giao dịch tự động và các điểm giao dịch cố định khác của tổ chức sử dụng dịch vụ theo thỏa thuận giữa các bên.\n6. Phí dịch vụ ngân quỹ là khoản tiền tổ chức sử dụng dịch vụ trả cho tổ chức cung ứng dịch vụ theo thỏa thuận giữa các bên.\n7. Người áp tải là người phụ trách chung trên đường vận chuyển, chịu trách nhiệm đảm bảo an toàn tiền mặt, tài sản quý, giấy tờ có giá; tổ chức thực hiện việc giao nhận, vận chuyển theo quy định của Ngân hàng Nhà nước Việt Nam (sau đây gọi tắt là Ngân hàng Nhà nước) về giao nhận, bảo quản, vận chuyển tiền mặt, tài sản quý, giấy tờ có giá.",
+   "chapter": "Chương I. QUY ĐỊNH CHUNG",
+   "section": null,
+   "superseded": false,
+   "char_start": 1617,
+   "char_end": 3231
+  },
+  {
+   "article": "Điều 4",
+   "text": "Nguyên tắc thực hiện cung ứng dịch vụ ngân quỹ\n1. Tổ chức cung ứng dịch vụ chỉ được thực hiện cung ứng dịch vụ ngân quỹ khi:\na) Giấy phép thành lập và hoạt động của ngân hàng thương mại, ngân hàng hợp tác xã, Giấy phép thành lập chi nhánh ngân hàng nước ngoài có nội dung được phép hoạt động cung ứng dịch vụ ngân quỹ cho tổ chức tín dụng, chi nhánh ngân hàng nước ngoài khác;\nb) Có quy định, quy trình nội bộ đối với từng loại hình dịch vụ ngân quỹ cung ứng đảm bảo an toàn tài sản cho tổ chức cung ứng dịch vụ và tổ chức sử dụng dịch vụ.\n2. Khi thực hiện cung ứng dịch vụ ngân quỹ, tổ chức cung ứng dịch vụ phải có cơ sở vật chất đáp ứng yêu cầu hoạt động cung ứng dịch vụ ngân quỹ, gồm:\na) Trường hợp cung ứng dịch vụ vận chuyển tài sản phải trang bị xe chở tiền theo tiêu chuẩn quy định của Ngân hàng Nhà nước. Nếu sử dụng phương tiện khác (ngoài xe chở tiền) để vận chuyển tiền mặt, tài sản quý, giấy tờ có giá, tổ chức cung ứng dịch vụ phải quy định bằng văn bản và hướng dẫn quy trình vận chuyển, bảo vệ; các biện pháp đảm bảo an toàn tài sản;\nb) Trường hợp bảo quản tài sản phải sử dụng kho tiền có tiêu chuẩn kỹ thuật theo quy định của Ngân hàng Nhà nước;\nc) Trang bị các loại phương tiện, máy móc, thiết bị phù hợp với từng loại hình cung ứng dịch vụ ngân quỹ;\nd) Có hệ thống thanh toán, kế toán, quản lý vốn tiền mặt khi cung ứng dịch vụ ngân quỹ.",
+   "chapter": "Chương I. QUY ĐỊNH CHUNG",
+   "section": null,
+   "superseded": false,
+   "char_start": 3240,
+   "char_end": 4598
+  },
+  {
+   "article": "Điều 5",
+   "text": "Mạng lưới thực hiện dịch vụ ngân quỹ\nTrụ sở chính, chi nhánh, phòng giao dịch của ngân hàng thương mại, ngân hàng hợp tác xã; chi nhánh ngân hàng nước ngoài đáp ứng quy định tại Điều 4 Thông tư này được thực hiện dịch vụ ngân quỹ.",
+   "chapter": "Chương I. QUY ĐỊNH CHUNG",
+   "section": null,
+   "superseded": false,
+   "char_start": 4607,
+   "char_end": 4837
+  },
+  {
+   "article": "Điều 6",
+   "text": "Hợp đồng cung ứng dịch vụ ngân quỹ\n1. Khi thực hiện cung ứng dịch vụ ngân quỹ, tổ chức cung ứng dịch vụ phải ký hợp đồng với tổ chức sử dụng dịch vụ. Hợp đồng phải phù hợp với các quy định tại Thông tư này và các quy định khác của pháp luật có liên quan.\n2. Hợp đồng cung ứng dịch vụ ngân quỹ phải có tối thiểu các nội dung sau:\na) Thông tin của các bên tham gia hợp đồng;\nb) Phạm vi cung cấp dịch vụ, thời gian thực hiện hợp đồng;\nc) Phương thức quản lý vốn tiền mặt trong các giao dịch cung ứng dịch vụ ngân quỹ;\nd) Mức phí áp dụng, phương thức thanh toán;\nđ) Xử lý sai sót, thừa thiếu, giải quyết các tranh chấp và vi phạm hợp đồng;\ne) Quyền và nghĩa vụ của các bên tham gia hợp đồng.",
+   "chapter": "Chương I. QUY ĐỊNH CHUNG",
+   "section": null,
+   "superseded": false,
+   "char_start": 4846,
+   "char_end": 5533
+  },
+  {
+   "article": "Điều 7",
+   "text": "Dịch vụ vận chuyển tài sản\n1. Tổ chức cung ứng dịch vụ tiếp nhận nhu cầu của tổ chức sử dụng dịch vụ và ký hợp đồng cung ứng dịch vụ vận chuyển tài sản với tổ chức sử dụng dịch vụ.\n2. Khi thực hiện dịch vụ vận chuyển tài sản, tổ chức cung ứng dịch vụ chịu trách nhiệm bố trí phương tiện vận chuyển và lực lượng bảo vệ; tổ chức sử dụng dịch vụ có trách nhiệm bố trí người giao hoặc nhận và áp tải.\n3. Việc vận chuyển tài sản khi thực hiện dịch vụ ngân quỹ được thực hiện theo quy định của Ngân hàng Nhà nước về giao nhận, bảo quản, vận chuyển tiền mặt, tài sản quý, giấy tờ có giá.",
+   "chapter": "Chương II. QUY ĐỊNH CỤ THỂ",
+   "section": null,
+   "superseded": false,
+   "char_start": 5568,
+   "char_end": 6148
+  },
+  {
+   "article": "Điều 8",
+   "text": "Dịch vụ thu, chi tiền mặt, ngoại tệ\n1. Tổ chức cung ứng dịch vụ tiếp nhận nhu cầu của tổ chức sử dụng dịch vụ và ký hợp đồng cung ứng dịch vụ thu, chi tiền mặt, ngoại tệ với tổ chức sử dụng dịch vụ.\n2. Việc thu, chi tiền mặt, ngoại tệ của tổ chức cung ứng dịch vụ có thể thực hiện tại địa điểm giao dịch thuộc mạng lưới hợp pháp của tổ chức cung ứng dịch vụ và tổ chức sử dụng dịch vụ hoặc tại địa điểm khác theo thỏa thuận của các bên.\n3. Việc thu, chi tiền mặt, ngoại tệ của tổ chức cung ứng dịch vụ được thực hiện theo quy định của Ngân hàng Nhà nước về giao nhận, bảo quản, vận chuyển tiền mặt, tài sản quý, giấy tờ có giá.",
+   "chapter": "Chương II. QUY ĐỊNH CỤ THỂ",
+   "section": null,
+   "superseded": false,
+   "char_start": 6157,
+   "char_end": 6784
+  },
+  {
+   "article": "Điều 9",
+   "text": "Dịch vụ xử lý tiền\n1. Tổ chức cung ứng dịch vụ tiếp nhận nhu cầu của tổ chức sử dụng dịch vụ và ký hợp đồng cung ứng dịch vụ xử lý tiền với tổ chức sử dụng dịch vụ.\n2. Việc giao nhận, kiểm đếm, phân loại, tuyển chọn, đóng gói, niêm phong tiền mặt, ngoại tệ giữa tổ chức cung ứng dịch vụ với tổ chức sử dụng dịch vụ được thực hiện theo quy định của Ngân hàng Nhà nước về giao nhận, bảo quản, vận chuyển tiền mặt, tài sản quý, giấy tờ có giá.",
+   "chapter": "Chương II. QUY ĐỊNH CỤ THỂ",
+   "section": null,
+   "superseded": false,
+   "char_start": 6793,
+   "char_end": 7233
+  },
+  {
+   "article": "Điều 10",
+   "text": "Dịch vụ tiếp quỹ, gom quỹ tập trung\n1. Tổ chức cung ứng dịch vụ tiếp nhận nhu cầu của tổ chức sử dụng dịch vụ và ký hợp đồng cung ứng dịch vụ tiếp quỹ, gom quỹ tập trung với tổ chức sử dụng dịch vụ.\n2. Khi thực hiện dịch vụ tiếp quỹ, gom quỹ tập trung, tổ chức cung ứng dịch vụ chịu trách nhiệm bố trí phương tiện vận chuyển, lực lượng bảo vệ, người áp tải.\n3. Những bó/túi/hộp tiền tiếp quỹ, gom quỹ phải là những bó/túi/hộp tiền có niêm phong của tổ chức cung ứng dịch vụ hoặc của tổ chức sử dụng dịch vụ.\n4. Việc vận chuyển, giao nhận của tổ chức cung ứng dịch vụ với các điểm tiếp quỹ cố định của tổ chức sử dụng dịch vụ thực hiện theo quy định của Ngân hàng Nhà nước về giao nhận, bảo quản, vận chuyển tiền mặt, tài sản quý, giấy tờ có giá.",
+   "chapter": "Chương II. QUY ĐỊNH CỤ THỂ",
+   "section": null,
+   "superseded": false,
+   "char_start": 7243,
+   "char_end": 7988
+  },
+  {
+   "article": "Điều 11",
+   "text": "Phí dịch vụ ngân quỹ\n1. Tổ chức cung ứng dịch vụ xây dựng mức phí đối với từng loại hình dịch vụ, thỏa thuận trực tiếp với tổ chức sử dụng dịch vụ và quy định cụ thể tại hợp đồng cung ứng dịch vụ trên nguyên tắc bình đẳng, tự nguyện, phù hợp với các quy định của pháp luật.\n2. Mức phí phải được niêm yết công khai tại địa điểm giao dịch thuộc mạng lưới hợp pháp của tổ chức cung ứng dịch vụ.",
+   "chapter": "Chương II. QUY ĐỊNH CỤ THỂ",
+   "section": null,
+   "superseded": false,
+   "char_start": 7998,
+   "char_end": 8389
+  },
+  {
+   "article": "Điều 12",
+   "text": "Xử lý thừa, thiếu tiền mặt, tài sản quý, giấy tờ có giá\nViệc xử lý thừa, thiếu tiền mặt, tài sản quý, giấy tờ có giá trong quá trình thực hiện cung ứng dịch vụ ngân quỹ được thực hiện theo quy định của Ngân hàng Nhà nước về giao nhận, bảo quản, vận chuyển tiền mặt, tài sản quý, giấy tờ có giá.",
+   "chapter": "Chương II. QUY ĐỊNH CỤ THỂ",
+   "section": null,
+   "superseded": false,
+   "char_start": 8399,
+   "char_end": 8693
+  },
+  {
+   "article": "Điều 13",
+   "text": "Trách nhiệm của các đơn vị có liên quan thuộc Ngân hàng Nhà nước\nCác đơn vị có liên quan thuộc Ngân hàng Nhà nước chịu trách nhiệm kiểm tra, thanh tra việc thực hiện Thông tư này đối với tổ chức tín dụng, chi nhánh ngân hàng nước ngoài theo thẩm quyền và theo quy định của pháp luật.",
+   "chapter": "Chương III. ĐIỀU KHOẢN THI HÀNH",
+   "section": null,
+   "superseded": false,
+   "char_start": 8734,
+   "char_end": 9017
+  },
+  {
+   "article": "Điều 14",
+   "text": "Trách nhiệm của tổ chức cung ứng dịch vụ\n1. Tổ chức cung ứng dịch vụ căn cứ quy định tại Thông tư này và các quy định của pháp luật có liên quan ban hành quy định, quy trình nội bộ đối với từng loại hình cung ứng dịch vụ ngân quỹ và chịu trách nhiệm đảm bảo an toàn tài sản. Quy định, quy trình nội bộ phải được gửi về Ngân hàng Nhà nước (Cục Phát hành và Kho quỹ) trong thời hạn 10 ngày kể từ ngày ban hành.\n2. Thực hiện các trách nhiệm khác theo quy định của hợp đồng cung ứng dịch vụ ngân quỹ và theo quy định của pháp luật có liên quan.",
+   "chapter": "Chương III. ĐIỀU KHOẢN THI HÀNH",
+   "section": null,
+   "superseded": false,
+   "char_start": 9027,
+   "char_end": 9567
+  },
+  {
+   "article": "Điều 15",
+   "text": "Điều khoản thi hành\n1. Thông tư này có hiệu lực thi hành kể từ ngày 14 tháng 2 năm 2025.\n2. Thủ trưởng các đơn vị thuộc Ngân hàng Nhà nước, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài chịu trách nhiệm tổ chức thực hiện Thông tư này./.\nKT. THỐNG ĐỐC\nPHÓ THỐNG ĐỐC\n(Đã ký)\nĐào Minh Tú",
+   "chapter": "Chương III. ĐIỀU KHOẢN THI HÀNH",
+   "section": null,
+   "superseded": false,
+   "char_start": 9577,
+   "char_end": 9866
+  }
+ ],
+ "provisions": [
+  {
+   "id": "id_0e24535a-e16a-11f0-a6f5-dfef5e48e698",
+   "cap": "chuong",
+   "so": "I",
+   "tieu_de": "QUY ĐỊNH CHUNG",
+   "text": "",
+   "html": "",
+   "bi_tac_dong": null,
+   "an": false,
+   "con": [
+    {
+     "id": "id_0e245364-e16a-11f0-8a7b-c3518032c587",
+     "cap": "dieu",
+     "so": "1",
+     "tieu_de": "Phạm vi điều chỉnh",
+     "text": "Thông tư này quy định về cung ứng dịch vụ ngân quỹ của ngân hàng thương mại, chi nhánh ngân hàng nước ngoài, ngân hàng hợp tác xã cho tổ chức tín dụng, chi nhánh ngân hàng nước ngoài khác.",
+     "html": "Thông tư này quy định về cung ứng dịch vụ ngân quỹ của ngân hàng thương mại, chi nhánh ngân hàng nước ngoài, ngân hàng hợp tác xã cho tổ chức tín dụng, chi nhánh ngân hàng nước ngoài khác.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_0e24536e-e16a-11f0-8fcc-c1c7aaa6977d",
+     "cap": "dieu",
+     "so": "2",
+     "tieu_de": "Đối tượng áp dụng",
+     "text": "",
+     "html": "",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": [
+      {
+       "id": "id_1f481a00-1e72-11f1-8743-ed24bf0bd310",
+       "cap": "khoan",
+       "so": "1",
+       "tieu_de": "",
+       "text": "Ngân hàng thương mại, chi nhánh ngân hàng nước ngoài, ngân hàng hợp tác xã thực hiện cung ứng dịch vụ ngân quỹ cho tổ chức tín dụng, chi nhánh ngân hàng nước ngoài khác (sau đây gọi là tổ chức cung ứng dịch vụ).",
+       "html": "1. Ngân hàng thương mại, chi nhánh ngân hàng nước ngoài, ngân hàng hợp tác xã thực hiện cung ứng dịch vụ ngân quỹ cho tổ chức tín dụng, chi nhánh ngân hàng nước ngoài khác (sau đây gọi là tổ chức cung ứng dịch vụ).",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_20037ac0-1e72-11f1-b554-e76a29cf901d",
+       "cap": "khoan",
+       "so": "2",
+       "tieu_de": "",
+       "text": "Tổ chức tín dụng, chi nhánh ngân hàng nước ngoài sử dụng dịch vụ ngân quỹ (sau đây gọi là tổ chức sử dụng dịch vụ).",
+       "html": "2. Tổ chức tín dụng, chi nhánh ngân hàng nước ngoài sử dụng dịch vụ ngân quỹ (sau đây gọi là tổ chức sử dụng dịch vụ).",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_2004da50-1e72-11f1-a6f1-2728675032cc",
+       "cap": "khoan",
+       "so": "3",
+       "tieu_de": "",
+       "text": "Cơ quan, tổ chức, cá nhân có liên quan khác.",
+       "html": "3. Cơ quan, tổ chức, cá nhân có liên quan khác.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      }
+     ]
+    },
+    {
+     "id": "id_0e245396-e16a-11f0-9c56-11233edb9c36",
+     "cap": "dieu",
+     "so": "3",
+     "tieu_de": "Giải thích từ ngữ",
+     "text": "Trong Thông tư này, các từ ngữ dưới đây được hiểu như sau:",
+     "html": "Trong Thông tư này, các từ ngữ dưới đây được hiểu như sau:",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": [
+      {
+       "id": "id_200639e0-1e72-11f1-9118-a5247e8f0b44",
+       "cap": "khoan",
+       "so": "1",
+       "tieu_de": "",
+       "text": "Dịch vụ ngân quỹ là dịch vụ vận chuyển tài sản; dịch vụ thu, chi tiền mặt, ngoại tệ; dịch vụ xử lý tiền; dịch vụ tiếp quỹ, gom quỹ tập trung.",
+       "html": "1. <em>Dịch vụ ngân quỹ</em> là dịch vụ vận chuyển tài sản; dịch vụ thu, chi tiền mặt, ngoại tệ; dịch vụ xử lý tiền; dịch vụ tiếp quỹ, gom quỹ tập trung.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_20338b70-1e72-11f1-9991-bfdd726ac71f",
+       "cap": "khoan",
+       "so": "2",
+       "tieu_de": "",
+       "text": "Dịch vụ vận chuyển tài sản là dịch vụ của tổ chức cung ứng dịch vụ vận chuyển tiền mặt, tài sản quý, giấy tờ có giá cho tổ chức sử dụng dịch vụ theo thỏa thuận giữa các bên.",
+       "html": "2. <em>Dịch vụ vận chuyển tài sản</em> là dịch vụ của tổ chức cung ứng dịch vụ vận chuyển tiền mặt, tài sản quý, giấy tờ có giá cho tổ chức sử dụng dịch vụ theo thỏa thuận giữa các bên.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_2034eb00-1e72-11f1-ad58-fbb3fdb22c0b",
+       "cap": "khoan",
+       "so": "3",
+       "tieu_de": "",
+       "text": "Dịch vụ thu, chi tiền mặt, ngoại tệ là dịch vụ của tổ chức cung ứng dịch vụ thực hiện thu, chi tiền mặt, ngoại tệ với tổ chức sử dụng dịch vụ tại địa điểm quy định tại khoản 2 Điều 8 Thông tư này.",
+       "html": "3. <em>Dịch vụ thu, chi tiền mặt, ngoại tệ</em> là dịch vụ của tổ chức cung ứng dịch vụ thực hiện thu, chi tiền mặt, ngoại tệ với tổ chức sử dụng dịch vụ tại địa điểm quy định tại khoản 2 Điều 8 Thông tư này.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_20362380-1e72-11f1-8dec-0d1af5dea6eb",
+       "cap": "khoan",
+       "so": "4",
+       "tieu_de": "",
+       "text": "Dịch vụ xử lý tiền là dịch vụ của tổ chức cung ứng dịch vụ thực hiện kiểm đếm, tuyển chọn, phân loại tiền đủ tiêu chuẩn lưu thông, không đủ tiêu chuẩn lưu thông, tiền giả, đóng gói, niêm phong tiền mặt, ngoại tệ cho tổ chức sử dụng dịch vụ theo thỏa thuận giữa các bên.",
+       "html": "4. <em>Dịch vụ xử lý tiền</em> là dịch vụ của tổ chức cung ứng dịch vụ thực hiện kiểm đếm, tuyển chọn, phân loại tiền đủ tiêu chuẩn lưu thông, không đủ tiêu chuẩn lưu thông, tiền giả, đóng gói, niêm phong tiền mặt, ngoại tệ cho tổ chức sử dụng dịch vụ theo thỏa thuận giữa các bên.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_20370de0-1e72-11f1-94ec-5f0437b0d8d8",
+       "cap": "khoan",
+       "so": "5",
+       "tieu_de": "",
+       "text": "Dịch vụ tiếp quỹ, gom quỹ tập trung là dịch vụ của tổ chức cung ứng dịch vụ thực hiện tiếp quỹ, gom quỹ tiền mặt, ngoại tệ cho các chi nhánh, phòng giao dịch, máy giao dịch tự động và các điểm giao dịch cố định khác của tổ chức sử dụng dịch vụ theo thỏa thuận giữa các bên.",
+       "html": "5. <em>Dịch vụ tiếp quỹ, gom quỹ tập trung</em> là dịch vụ của tổ chức cung ứng dịch vụ thực hiện tiếp quỹ, gom quỹ tiền mặt, ngoại tệ cho các chi nhánh, phòng giao dịch, máy giao dịch tự động và các điểm giao dịch cố định khác của tổ chức sử dụng dịch vụ theo thỏa thuận giữa các bên.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_20384660-1e72-11f1-a81e-37a18401d27f",
+       "cap": "khoan",
+       "so": "6",
+       "tieu_de": "",
+       "text": "Phí dịch vụ ngân quỹ là khoản tiền tổ chức sử dụng dịch vụ trả cho tổ chức cung ứng dịch vụ theo thỏa thuận giữa các bên.",
+       "html": "6. <em>Phí dịch vụ ngân quỹ</em> là khoản tiền tổ chức sử dụng dịch vụ trả cho tổ chức cung ứng dịch vụ theo thỏa thuận giữa các bên.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_203957d0-1e72-11f1-9dc1-3f6557ed147f",
+       "cap": "khoan",
+       "so": "7",
+       "tieu_de": "",
+       "text": "Người áp tải là người phụ trách chung trên đường vận chuyển, chịu trách nhiệm đảm bảo an toàn tiền mặt, tài sản quý, giấy tờ có giá; tổ chức thực hiện việc giao nhận, vận chuyển theo quy định của Ngân hàng Nhà nước Việt Nam (sau đây gọi tắt là Ngân hàng Nhà nước) về giao nhận, bảo quản, vận chuyển tiền mặt, tài sản quý, giấy tờ có giá.",
+       "html": "7. <em>Người áp tải</em> là người phụ trách chung trên đường vận chuyển, chịu trách nhiệm đảm bảo an toàn tiền mặt, tài sản quý, giấy tờ có giá; tổ chức thực hiện việc giao nhận, vận chuyển theo quy định của Ngân hàng Nhà nước Việt Nam (sau đây gọi tắt là Ngân hàng Nhà nước) về giao nhận, bảo quản, vận chuyển tiền mặt, tài sản quý, giấy tờ có giá.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      }
+     ]
+    },
+    {
+     "id": "id_0e2453e6-e16a-11f0-8ef6-f7fa6b30a50e",
+     "cap": "dieu",
+     "so": "4",
+     "tieu_de": "Nguyên tắc thực hiện cung ứng dịch vụ ngân quỹ",
+     "text": "",
+     "html": "",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": [
+      {
+       "id": "id_203ade70-1e72-11f1-a2ff-df849150e871",
+       "cap": "khoan",
+       "so": "1",
+       "tieu_de": "",
+       "text": "Tổ chức cung ứng dịch vụ chỉ được thực hiện cung ứng dịch vụ ngân quỹ khi:",
+       "html": "1. Tổ chức cung ứng dịch vụ chỉ được thực hiện cung ứng dịch vụ ngân quỹ khi:",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": [
+        {
+         "id": "id_2063ea40-1e72-11f1-9ffc-09a782621562",
+         "cap": "diem",
+         "so": "a",
+         "tieu_de": "",
+         "text": "Giấy phép thành lập và hoạt động của ngân hàng thương mại, ngân hàng hợp tác xã, Giấy phép thành lập chi nhánh ngân hàng nước ngoài có nội dung được phép hoạt động cung ứng dịch vụ ngân quỹ cho tổ chức tín dụng, chi nhánh ngân hàng nước ngoài khác;",
+         "html": "a) Giấy phép thành lập và hoạt động của ngân hàng thương mại, ngân hàng hợp tác xã, Giấy phép thành lập chi nhánh ngân hàng nước ngoài có nội dung được phép hoạt động cung ứng dịch vụ ngân quỹ cho tổ chức tín dụng, chi nhánh ngân hàng nước ngoài khác;",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_20648680-1e72-11f1-bec5-e599aaa53120",
+         "cap": "diem",
+         "so": "b",
+         "tieu_de": "",
+         "text": "Có quy định, quy trình nội bộ đối với từng loại hình dịch vụ ngân quỹ cung ứng đảm bảo an toàn tài sản cho tổ chức cung ứng dịch vụ và tổ chức sử dụng dịch vụ.",
+         "html": "b) Có quy định, quy trình nội bộ đối với từng loại hình dịch vụ ngân quỹ cung ứng đảm bảo an toàn tài sản cho tổ chức cung ứng dịch vụ và tổ chức sử dụng dịch vụ.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        }
+       ]
+      },
+      {
+       "id": "id_2064fbb0-1e72-11f1-b3ac-3ba1f76b7d95",
+       "cap": "khoan",
+       "so": "2",
+       "tieu_de": "",
+       "text": "Khi thực hiện cung ứng dịch vụ ngân quỹ, tổ chức cung ứng dịch vụ phải có cơ sở vật chất đáp ứng yêu cầu hoạt động cung ứng dịch vụ ngân quỹ, gồm:",
+       "html": "2. Khi thực hiện cung ứng dịch vụ ngân quỹ, tổ chức cung ứng dịch vụ phải có cơ sở vật chất đáp ứng yêu cầu hoạt động cung ứng dịch vụ ngân quỹ, gồm:",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": [
+        {
+         "id": "id_206597f0-1e72-11f1-bd22-3dc1de63258c",
+         "cap": "diem",
+         "so": "a",
+         "tieu_de": "",
+         "text": "Trường hợp cung ứng dịch vụ vận chuyển tài sản phải trang bị xe chở tiền theo tiêu chuẩn quy định của Ngân hàng Nhà nước. Nếu sử dụng phương tiện khác (ngoài xe chở tiền) để vận chuyển tiền mặt, tài sản quý, giấy tờ có giá, tổ chức cung ứng dịch vụ phải quy định bằng văn bản và hướng dẫn quy trình vận chuyển, bảo vệ; các biện pháp đảm bảo an toàn tài sản;",
+         "html": "a) Trường hợp cung ứng dịch vụ vận chuyển tài sản phải trang bị xe chở tiền theo tiêu chuẩn quy định của Ngân hàng Nhà nước. Nếu sử dụng phương tiện khác (ngoài xe chở tiền) để vận chuyển tiền mặt, tài sản quý, giấy tờ có giá, tổ chức cung ứng dịch vụ phải quy định bằng văn bản và hướng dẫn quy trình vận chuyển, bảo vệ; các biện pháp đảm bảo an toàn tài sản;",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_20665b40-1e72-11f1-9a41-a10682acbbb1",
+         "cap": "diem",
+         "so": "b",
+         "tieu_de": "",
+         "text": "Trường hợp bảo quản tài sản phải sử dụng kho tiền có tiêu chuẩn kỹ thuật theo quy định của Ngân hàng Nhà nước;",
+         "html": "b) Trường hợp bảo quản tài sản phải sử dụng kho tiền có tiêu chuẩn kỹ thuật theo quy định của Ngân hàng Nhà nước;",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_2066a960-1e72-11f1-808a-bbe88f756af9",
+         "cap": "diem",
+         "so": "c",
+         "tieu_de": "",
+         "text": "Trang bị các loại phương tiện, máy móc, thiết bị phù hợp với từng loại hình cung ứng dịch vụ ngân quỹ;",
+         "html": "c) Trang bị các loại phương tiện, máy móc, thiết bị phù hợp với từng loại hình cung ứng dịch vụ ngân quỹ;",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_206793c0-1e72-11f1-89ad-35e50eebb69e",
+         "cap": "diem",
+         "so": "d",
+         "tieu_de": "",
+         "text": "Có hệ thống thanh toán, kế toán, quản lý vốn tiền mặt khi cung ứng dịch vụ ngân quỹ.",
+         "html": "d) Có hệ thống thanh toán, kế toán, quản lý vốn tiền mặt khi cung ứng dịch vụ ngân quỹ.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": "id_0e245440-e16a-11f0-b9f7-f5ef98f0270f",
+     "cap": "dieu",
+     "so": "5",
+     "tieu_de": "Mạng lưới thực hiện dịch vụ ngân quỹ",
+     "text": "Trụ sở chính, chi nhánh, phòng giao dịch của ngân hàng thương mại, ngân hàng hợp tác xã; chi nhánh ngân hàng nước ngoài đáp ứng quy định tại Điều 4 Thông tư này được thực hiện dịch vụ ngân quỹ.",
+     "html": "Trụ sở chính, chi nhánh, phòng giao dịch của ngân hàng thương mại, ngân hàng hợp tác xã; chi nhánh ngân hàng nước ngoài đáp ứng quy định tại Điều 4 Thông tư này được thực hiện dịch vụ ngân quỹ.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_0e24544a-e16a-11f0-81c0-b572cba73314",
+     "cap": "dieu",
+     "so": "6",
+     "tieu_de": "Hợp đồng cung ứng dịch vụ ngân quỹ",
+     "text": "",
+     "html": "",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": [
+      {
+       "id": "id_20687e20-1e72-11f1-a2d7-0bd640876f29",
+       "cap": "khoan",
+       "so": "1",
+       "tieu_de": "",
+       "text": "Khi thực hiện cung ứng dịch vụ ngân quỹ, tổ chức cung ứng dịch vụ phải ký hợp đồng với tổ chức sử dụng dịch vụ. Hợp đồng phải phù hợp với các quy định tại Thông tư này và các quy định khác của pháp luật có liên quan.",
+       "html": "1. Khi thực hiện cung ứng dịch vụ ngân quỹ, tổ chức cung ứng dịch vụ phải ký hợp đồng với tổ chức sử dụng dịch vụ. Hợp đồng phải phù hợp với các quy định tại Thông tư này và các quy định khác của pháp luật có liên quan.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_20905170-1e72-11f1-b853-0b17c0efbaa8",
+       "cap": "khoan",
+       "so": "2",
+       "tieu_de": "",
+       "text": "Hợp đồng cung ứng dịch vụ ngân quỹ phải có tối thiểu các nội dung sau:",
+       "html": "2. Hợp đồng cung ứng dịch vụ ngân quỹ phải có tối thiểu các nội dung sau:",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": [
+        {
+         "id": "id_209114c0-1e72-11f1-b306-8f5c6e9a68cb",
+         "cap": "diem",
+         "so": "a",
+         "tieu_de": "",
+         "text": "Thông tin của các bên tham gia hợp đồng;",
+         "html": "a) Thông tin của các bên tham gia hợp đồng;",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_2091d810-1e72-11f1-9898-1d82861b23c6",
+         "cap": "diem",
+         "so": "b",
+         "tieu_de": "",
+         "text": "Phạm vi cung cấp dịch vụ, thời gian thực hiện hợp đồng;",
+         "html": "b) Phạm vi cung cấp dịch vụ, thời gian thực hiện hợp đồng;",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_20927450-1e72-11f1-a78e-81a0a9ae521e",
+         "cap": "diem",
+         "so": "c",
+         "tieu_de": "",
+         "text": "Phương thức quản lý vốn tiền mặt trong các giao dịch cung ứng dịch vụ ngân quỹ;",
+         "html": "c) Phương thức quản lý vốn tiền mặt trong các giao dịch cung ứng dịch vụ ngân quỹ;",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_20931090-1e72-11f1-970b-79bb5128a871",
+         "cap": "diem",
+         "so": "d",
+         "tieu_de": "",
+         "text": "Mức phí áp dụng, phương thức thanh toán;",
+         "html": "d) Mức phí áp dụng, phương thức thanh toán;",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_2093d3e0-1e72-11f1-ae25-2b64b3073f41",
+         "cap": "diem",
+         "so": "đ",
+         "tieu_de": "",
+         "text": "Xử lý sai sót, thừa thiếu, giải quyết các tranh chấp và vi phạm hợp đồng;",
+         "html": "đ) Xử lý sai sót, thừa thiếu, giải quyết các tranh chấp và vi phạm hợp đồng;",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_20947020-1e72-11f1-b7b6-6d95df72b5f4",
+         "cap": "diem",
+         "so": "e",
+         "tieu_de": "",
+         "text": "Quyền và nghĩa vụ của các bên tham gia hợp đồng.",
+         "html": "e) Quyền và nghĩa vụ của các bên tham gia hợp đồng.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "id_0e2454a4-e16a-11f0-bbc9-071bc487c9c2",
+   "cap": "chuong",
+   "so": "II",
+   "tieu_de": "QUY ĐỊNH CỤ THỂ",
+   "text": "",
+   "html": "",
+   "bi_tac_dong": null,
+   "an": false,
+   "con": [
+    {
+     "id": "id_0e2454ae-e16a-11f0-ad64-990f45593808",
+     "cap": "dieu",
+     "so": "7",
+     "tieu_de": "Dịch vụ vận chuyển tài sản",
+     "text": "",
+     "html": "",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": [
+      {
+       "id": "id_20c459c0-1e72-11f1-b094-3b5f83106f46",
+       "cap": "khoan",
+       "so": "1",
+       "tieu_de": "",
+       "text": "Tổ chức cung ứng dịch vụ tiếp nhận nhu cầu của tổ chức sử dụng dịch vụ và ký hợp đồng cung ứng dịch vụ vận chuyển tài sản với tổ chức sử dụng dịch vụ.",
+       "html": "1. Tổ chức cung ứng dịch vụ tiếp nhận nhu cầu của tổ chức sử dụng dịch vụ và ký hợp đồng cung ứng dịch vụ vận chuyển tài sản với tổ chức sử dụng dịch vụ.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_20f1f970-1e72-11f1-95d7-c9b538bf49be",
+       "cap": "khoan",
+       "so": "2",
+       "tieu_de": "",
+       "text": "Khi thực hiện dịch vụ vận chuyển tài sản, tổ chức cung ứng dịch vụ chịu trách nhiệm bố trí phương tiện vận chuyển và lực lượng bảo vệ; tổ chức sử dụng dịch vụ có trách nhiệm bố trí người giao hoặc nhận và áp tải.",
+       "html": "2. Khi thực hiện dịch vụ vận chuyển tài sản, tổ chức cung ứng dịch vụ chịu trách nhiệm bố trí phương tiện vận chuyển và lực lượng bảo vệ; tổ chức sử dụng dịch vụ có trách nhiệm bố trí người giao hoặc nhận và áp tải.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_20f24790-1e72-11f1-9630-1b7d148a0e7c",
+       "cap": "khoan",
+       "so": "3",
+       "tieu_de": "",
+       "text": "Việc vận chuyển tài sản khi thực hiện dịch vụ ngân quỹ được thực hiện theo quy định của Ngân hàng Nhà nước về giao nhận, bảo quản, vận chuyển tiền mặt, tài sản quý, giấy tờ có giá.",
+       "html": "3. Việc vận chuyển tài sản khi thực hiện dịch vụ ngân quỹ được thực hiện theo quy định của Ngân hàng Nhà nước về giao nhận, bảo quản, vận chuyển tiền mặt, tài sản quý, giấy tờ có giá.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      }
+     ]
+    },
+    {
+     "id": "id_0e2454d6-e16a-11f0-bd63-59df76e44679",
+     "cap": "dieu",
+     "so": "8",
+     "tieu_de": "Dịch vụ thu, chi tiền mặt, ngoại tệ",
+     "text": "",
+     "html": "",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": [
+      {
+       "id": "id_20f331f0-1e72-11f1-8447-7bfb37c13cf8",
+       "cap": "khoan",
+       "so": "1",
+       "tieu_de": "",
+       "text": "Tổ chức cung ứng dịch vụ tiếp nhận nhu cầu của tổ chức sử dụng dịch vụ và ký hợp đồng cung ứng dịch vụ thu, chi tiền mặt, ngoại tệ với tổ chức sử dụng dịch vụ.",
+       "html": "1. Tổ chức cung ứng dịch vụ tiếp nhận nhu cầu của tổ chức sử dụng dịch vụ và ký hợp đồng cung ứng dịch vụ thu, chi tiền mặt, ngoại tệ với tổ chức sử dụng dịch vụ.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_21225840-1e72-11f1-ae8b-95327e088aab",
+       "cap": "khoan",
+       "so": "2",
+       "tieu_de": "",
+       "text": "Việc thu, chi tiền mặt, ngoại tệ của tổ chức cung ứng dịch vụ có thể thực hiện tại địa điểm giao dịch thuộc mạng lưới hợp pháp của tổ chức cung ứng dịch vụ và tổ chức sử dụng dịch vụ hoặc tại địa điểm khác theo thỏa thuận của các bên.",
+       "html": "2. Việc thu, chi tiền mặt, ngoại tệ của tổ chức cung ứng dịch vụ có thể thực hiện tại địa điểm giao dịch thuộc mạng lưới hợp pháp của tổ chức cung ứng dịch vụ và tổ chức sử dụng dịch vụ hoặc tại địa điểm khác theo thỏa thuận của các bên.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_2122f480-1e72-11f1-b1d6-21a229e7dae4",
+       "cap": "khoan",
+       "so": "3",
+       "tieu_de": "",
+       "text": "Việc thu, chi tiền mặt, ngoại tệ của tổ chức cung ứng dịch vụ được thực hiện theo quy định của Ngân hàng Nhà nước về giao nhận, bảo quản, vận chuyển tiền mặt, tài sản quý, giấy tờ có giá.",
+       "html": "3. Việc thu, chi tiền mặt, ngoại tệ của tổ chức cung ứng dịch vụ được thực hiện theo quy định của Ngân hàng Nhà nước về giao nhận, bảo quản, vận chuyển tiền mặt, tài sản quý, giấy tờ có giá.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      }
+     ]
+    },
+    {
+     "id": "id_0e2454fe-e16a-11f0-af35-9bbae934ae92",
+     "cap": "dieu",
+     "so": "9",
+     "tieu_de": "Dịch vụ xử lý tiền",
+     "text": "",
+     "html": "",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": [
+      {
+       "id": "id_2123dee0-1e72-11f1-9ec6-336e9ef8ab77",
+       "cap": "khoan",
+       "so": "1",
+       "tieu_de": "",
+       "text": "Tổ chức cung ứng dịch vụ tiếp nhận nhu cầu của tổ chức sử dụng dịch vụ và ký hợp đồng cung ứng dịch vụ xử lý tiền với tổ chức sử dụng dịch vụ.",
+       "html": "1. Tổ chức cung ứng dịch vụ tiếp nhận nhu cầu của tổ chức sử dụng dịch vụ và ký hợp đồng cung ứng dịch vụ xử lý tiền với tổ chức sử dụng dịch vụ.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_21537a60-1e72-11f1-ac4e-57bbd7c23baf",
+       "cap": "khoan",
+       "so": "2",
+       "tieu_de": "",
+       "text": "Việc giao nhận, kiểm đếm, phân loại, tuyển chọn, đóng gói, niêm phong tiền mặt, ngoại tệ giữa tổ chức cung ứng dịch vụ với tổ chức sử dụng dịch vụ được thực hiện theo quy định của Ngân hàng Nhà nước về giao nhận, bảo quản, vận chuyển tiền mặt, tài sản quý, giấy tờ có giá.",
+       "html": "2. Việc giao nhận, kiểm đếm, phân loại, tuyển chọn, đóng gói, niêm phong tiền mặt, ngoại tệ giữa tổ chức cung ứng dịch vụ với tổ chức sử dụng dịch vụ được thực hiện theo quy định của Ngân hàng Nhà nước về giao nhận, bảo quản, vận chuyển tiền mặt, tài sản quý, giấy tờ có giá.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      }
+     ]
+    },
+    {
+     "id": "id_0e24551c-e16a-11f0-bf44-b137cfffaf71",
+     "cap": "dieu",
+     "so": "10",
+     "tieu_de": "Dịch vụ tiếp quỹ, gom quỹ tập trung",
+     "text": "",
+     "html": "",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": [
+      {
+       "id": "id_215464c0-1e72-11f1-958c-298ef001d391",
+       "cap": "khoan",
+       "so": "1",
+       "tieu_de": "",
+       "text": "Tổ chức cung ứng dịch vụ tiếp nhận nhu cầu của tổ chức sử dụng dịch vụ và ký hợp đồng cung ứng dịch vụ tiếp quỹ, gom quỹ tập trung với tổ chức sử dụng dịch vụ.",
+       "html": "1. Tổ chức cung ứng dịch vụ tiếp nhận nhu cầu của tổ chức sử dụng dịch vụ và ký hợp đồng cung ứng dịch vụ tiếp quỹ, gom quỹ tập trung với tổ chức sử dụng dịch vụ.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_21838b10-1e72-11f1-af27-5ddfcec86b6e",
+       "cap": "khoan",
+       "so": "2",
+       "tieu_de": "",
+       "text": "Khi thực hiện dịch vụ tiếp quỹ, gom quỹ tập trung, tổ chức cung ứng dịch vụ chịu trách nhiệm bố trí phương tiện vận chuyển, lực lượng bảo vệ, người áp tải.",
+       "html": "2. Khi thực hiện dịch vụ tiếp quỹ, gom quỹ tập trung, tổ chức cung ứng dịch vụ chịu trách nhiệm bố trí phương tiện vận chuyển, lực lượng bảo vệ, người áp tải.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_21842750-1e72-11f1-bf25-db94c97b6a6e",
+       "cap": "khoan",
+       "so": "3",
+       "tieu_de": "",
+       "text": "Những bó/túi/hộp tiền tiếp quỹ, gom quỹ phải là những bó/túi/hộp tiền có niêm phong của tổ chức cung ứng dịch vụ hoặc của tổ chức sử dụng dịch vụ.",
+       "html": "3. Những bó/túi/hộp tiền tiếp quỹ, gom quỹ phải là những bó/túi/hộp tiền có niêm phong của tổ chức cung ứng dịch vụ hoặc của tổ chức sử dụng dịch vụ.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_2184c390-1e72-11f1-bfb0-6162840fb264",
+       "cap": "khoan",
+       "so": "4",
+       "tieu_de": "",
+       "text": "Việc vận chuyển, giao nhận của tổ chức cung ứng dịch vụ với các điểm tiếp quỹ cố định của tổ chức sử dụng dịch vụ thực hiện theo quy định của Ngân hàng Nhà nước về giao nhận, bảo quản, vận chuyển tiền mặt, tài sản quý, giấy tờ có giá.",
+       "html": "4. Việc vận chuyển, giao nhận của tổ chức cung ứng dịch vụ với các điểm tiếp quỹ cố định của tổ chức sử dụng dịch vụ thực hiện theo quy định của Ngân hàng Nhà nước về giao nhận, bảo quản, vận chuyển tiền mặt, tài sản quý, giấy tờ có giá.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      }
+     ]
+    },
+    {
+     "id": "id_0e24554e-e16a-11f0-8e3d-5dc4dc3f000d",
+     "cap": "dieu",
+     "so": "11",
+     "tieu_de": "Phí dịch vụ ngân quỹ",
+     "text": "",
+     "html": "",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": [
+      {
+       "id": "id_218586e0-1e72-11f1-96a1-698481a4a6e7",
+       "cap": "khoan",
+       "so": "1",
+       "tieu_de": "",
+       "text": "Tổ chức cung ứng dịch vụ xây dựng mức phí đối với từng loại hình dịch vụ, thỏa thuận trực tiếp với tổ chức sử dụng dịch vụ và quy định cụ thể tại hợp đồng cung ứng dịch vụ trên nguyên tắc bình đẳng, tự nguyện, phù hợp với các quy định của pháp luật.",
+       "html": "1. Tổ chức cung ứng dịch vụ xây dựng mức phí đối với từng loại hình dịch vụ, thỏa thuận trực tiếp với tổ chức sử dụng dịch vụ và quy định cụ thể tại hợp đồng cung ứng dịch vụ trên nguyên tắc bình đẳng, tự nguyện, phù hợp với các quy định của pháp luật.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_21af7d10-1e72-11f1-9dc1-1bfc276b1a29",
+       "cap": "khoan",
+       "so": "2",
+       "tieu_de": "",
+       "text": "Mức phí phải được niêm yết công khai tại địa điểm giao dịch thuộc mạng lưới hợp pháp của tổ chức cung ứng dịch vụ.",
+       "html": "2. Mức phí phải được niêm yết công khai tại địa điểm giao dịch thuộc mạng lưới hợp pháp của tổ chức cung ứng dịch vụ.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      }
+     ]
+    },
+    {
+     "id": "id_0e24556c-e16a-11f0-9fff-c3893597b6e4",
+     "cap": "dieu",
+     "so": "12",
+     "tieu_de": "Xử lý thừa, thiếu tiền mặt, tài sản quý, giấy tờ có giá",
+     "text": "Việc xử lý thừa, thiếu tiền mặt, tài sản quý, giấy tờ có giá trong quá trình thực hiện cung ứng dịch vụ ngân quỹ được thực hiện theo quy định của Ngân hàng Nhà nước về giao nhận, bảo quản, vận chuyển tiền mặt, tài sản quý, giấy tờ có giá.",
+     "html": "Việc xử lý thừa, thiếu tiền mặt, tài sản quý, giấy tờ có giá trong quá trình thực hiện cung ứng dịch vụ ngân quỹ được thực hiện theo quy định của Ngân hàng Nhà nước về giao nhận, bảo quản, vận chuyển tiền mặt, tài sản quý, giấy tờ có giá.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    }
+   ]
+  },
+  {
+   "id": "id_0e245576-e16a-11f0-a15a-5b648755f330",
+   "cap": "chuong",
+   "so": "III",
+   "tieu_de": "ĐIỀU KHOẢN THI HÀNH",
+   "text": "",
+   "html": "",
+   "bi_tac_dong": null,
+   "an": false,
+   "con": [
+    {
+     "id": "id_0e245580-e16a-11f0-8560-b5ba3d3261f4",
+     "cap": "dieu",
+     "so": "13",
+     "tieu_de": "Trách nhiệm của các đơn vị có liên quan thuộc Ngân hàng Nhà nước",
+     "text": "Các đơn vị có liên quan thuộc Ngân hàng Nhà nước chịu trách nhiệm kiểm tra, thanh tra việc thực hiện Thông tư này đối với tổ chức tín dụng, chi nhánh ngân hàng nước ngoài theo thẩm quyền và theo quy định của pháp luật.",
+     "html": "Các đơn vị có liên quan thuộc Ngân hàng Nhà nước chịu trách nhiệm kiểm tra, thanh tra việc thực hiện Thông tư này đối với tổ chức tín dụng, chi nhánh ngân hàng nước ngoài theo thẩm quyền và theo quy định của pháp luật.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_0e24558a-e16a-11f0-aef0-ef923dacc15d",
+     "cap": "dieu",
+     "so": "14",
+     "tieu_de": "Trách nhiệm của tổ chức cung ứng dịch vụ",
+     "text": "",
+     "html": "",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": [
+      {
+       "id": "id_21d41c10-1e72-11f1-9ccb-b3bba06017c4",
+       "cap": "khoan",
+       "so": "1",
+       "tieu_de": "",
+       "text": "Tổ chức cung ứng dịch vụ căn cứ quy định tại Thông tư này và các quy định của pháp luật có liên quan ban hành quy định, quy trình nội bộ đối với từng loại hình cung ứng dịch vụ ngân quỹ và chịu trách nhiệm đảm bảo an toàn tài sản. Quy định, quy trình nội bộ phải được gửi về Ngân hàng Nhà nước (Cục Phát hành và Kho quỹ) trong thời hạn 10 ngày kể từ ngày ban hành.",
+       "html": "1. Tổ chức cung ứng dịch vụ căn cứ quy định tại Thông tư này và các quy định của pháp luật có liên quan ban hành quy định, quy trình nội bộ đối với từng loại hình cung ứng dịch vụ ngân quỹ và chịu trách nhiệm đảm bảo an toàn tài sản. Quy định, quy trình nội bộ phải được gửi về Ngân hàng Nhà nước (Cục Phát hành và Kho quỹ) trong thời hạn 10 ngày kể từ ngày ban hành.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_21f8bb10-1e72-11f1-bce6-6de1d5db0aaf",
+       "cap": "khoan",
+       "so": "2",
+       "tieu_de": "",
+       "text": "Thực hiện các trách nhiệm khác theo quy định của hợp đồng cung ứng dịch vụ ngân quỹ và theo quy định của pháp luật có liên quan.",
+       "html": "2. Thực hiện các trách nhiệm khác theo quy định của hợp đồng cung ứng dịch vụ ngân quỹ và theo quy định của pháp luật có liên quan.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      }
+     ]
+    },
+    {
+     "id": "id_0e2455a8-e16a-11f0-8e2a-1daeda376809",
+     "cap": "dieu",
+     "so": "15",
+     "tieu_de": "Điều khoản thi hành",
+     "text": "",
+     "html": "",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": [
+      {
+       "id": "id_21f97e60-1e72-11f1-b323-39bc0e30e6c9",
+       "cap": "khoan",
+       "so": "1",
+       "tieu_de": "",
+       "text": "Thông tư này có hiệu lực thi hành kể từ ngày 14 tháng 2 năm 2025.",
+       "html": "1. Thông tư này có hiệu lực thi hành kể từ ngày 14 tháng 2 năm 2025.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_22280870-1e72-11f1-b756-55eee157ed3e",
+       "cap": "khoan",
+       "so": "2",
+       "tieu_de": "",
+       "text": "Thủ trưởng các đơn vị thuộc Ngân hàng Nhà nước, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài chịu trách nhiệm tổ chức thực hiện Thông tư này./.",
+       "html": "2. Thủ trưởng các đơn vị thuộc Ngân hàng Nhà nước, tổ chức tín dụng, chi nhánh ngân hàng nước ngoài chịu trách nhiệm tổ chức thực hiện Thông tư này./.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "trich_dan": []
+}

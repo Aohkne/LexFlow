@@ -6,6 +6,220 @@
 
 ---
 
+## 2026-08-13 — LanceDB ingest tăng dần (T1–T7 của plan); phát hiện tiền đề T1 đã lỗi thời
+
+**Giai đoạn:** trả nợ chi phí `write_lancedb` ghi đè cả bảng mỗi lượt (mục "Chặn" T1 của
+`docs/TASKLIST.md`), theo quy trình brainstorm→spec→plan→subagent, 7 task tuần tự trong một
+phiên.
+
+- **Done.** `write_lancedb` đổi từ "dựng lại cả bảng" (`create_table(mode="overwrite")`, embed
+  lại cả 661 chunk mỗi lượt) sang ingest tăng dần: so vân tay hàng đọc từ chính bảng thật
+  (`_van_tay`/`_doc_can_nap`, cột lấy từ schema chứ không viết tay) → chỉ embed văn bản đổi →
+  `merge_insert` theo `id` → xoá id mồ côi → chờ index FTS phủ hết (`_cho_index`). `open_table`
+  dò bảng tồn tại thay cho `list_tables()` phân trang (tránh hiểu nhầm "chưa có bảng" thành ghi
+  đè bảng thật). `merge_insert` + `wait_for_index` đã đo chạy thật trên LanceDB Cloud
+  (`scripts/do_merge_insert_remote.py`, bảng nháp tự tạo/tự xoá), không chỉ suy từ `hasattr`.
+- **Kiểm trên dữ liệu thật (Task 7, chỉ đọc — `scripts/soi_doc_can_nap.py`).** Đối chiếu
+  `data/corpus.real.json` với bảng LanceDB Cloud thật: **`cần nạp` = 0/661 chunk, `dư` = 0.**
+  Khác dự đoán ban đầu của plan (kỳ vọng thấy `TT66-2025` trong `cần nạp`, vì T1 ghi bảng còn
+  giữ bản cắt hỏng) — kết quả rỗng buộc dừng và chẩn đoán thêm trước khi đụng tài liệu, theo
+  đúng quy tắc "gặp bất ngờ thì hỏi, đừng đoán".
+- **Phát hiện: tiền đề T1 đã lỗi thời, không phải lỗi vân tay.** `scripts/soi_doc_can_nap.py`
+  gộp thẳng phép chẩn đoán (so TỪNG CỘT một hàng `build_chunks` cạnh một hàng bảng cùng `id`,
+  chạy trên cả 661 hàng chung chứ không riêng `TT66-2025`): `chẩn đoán cột: 661 hàng chung ×
+  10 cột → 0 ô lệch` (không `numpy.bool_`, không `None`/`""` lẫn vào). Thêm đối chứng dương
+  (sửa 1 chunk trong RAM, không ghi bảng) để loại khả năng `_doc_can_nap` chỉ luôn trả tập
+  rỗng: bắt đúng và chỉ đúng văn bản bị sửa — ĐẠT. Kết luận: bảng thật đã khớp bản vá `8dd53f0`
+  (09/08) từ trước, KHÔNG phải lệch kiểu hay vân tay so nhầm (đúng lo ngại Task 7 sinh ra để
+  kiểm). Cơ chế đưa bảng tới
+  trạng thái này chưa rõ — không dòng nào trong worklog ghi một lượt `python -m app.ingestion`
+  chạy sau 09/08. **Không tự đóng T1** vì không biết cơ chế — chờ chủ repo xác nhận.
+- **Ship.** Chưa chạm production ngoài kế hoạch: `scripts/do_merge_insert_remote.py` chỉ động
+  vào bảng nháp tự tạo/tự xoá, `scripts/soi_doc_can_nap.py` chỉ đọc. Đổi: `app/ingestion/
+  pipeline.py` (`write_lancedb`, `_doc_can_nap`, `_van_tay`, `_cho_index`, cờ `--doc`/
+  `--xoa-doc-du`), hai script trên, `docs/TASKLIST.md` (T1 giữ mở kèm số đo mới, T23 thêm bằng
+  chứng, T24/T25/T26 mới), test mới trong `tests/`.
+- **Decision.** T1 lý do "quá đắt" đã hết (ingest giờ chỉ embed văn bản đổi), nhưng **rào duyệt
+  vẫn giữ nguyên** — mọi lượt ghi vẫn chạm bảng đang phục vụ. T1 KHÔNG đóng dù triệu chứng đo
+  được đã hết, vì đóng một mục "Chặn — cần người quyết" mà không biết vì sao hết là đoán, không
+  phải đo.
+- **Next.** (1) Chủ repo xác nhận có lượt ingest nào chạy trên bảng thật sau 09/08 không — xác
+  nhận thì đóng T1 kèm ghi lại bằng gì; không thì T1 vẫn treo như cũ, chỉ đỡ tốn hơn khi chạy.
+  (2) xác nhận FTS đang ascii-fold tiếng Việt trước khi chỉnh tiếp trọng số nhánh thưa (T104) —
+  xem gạch đầu dòng `_FTS_OPTS` ở `app/ingestion/pipeline.py:238-249` (thay cho `T24` cũ, đã bỏ
+  khi nối lại TASKLIST 13/08).
+  (3) T101 — đo độ tươi của `count_rows()` sau `merge_insert` từ xa trước khi tin số ghi vào
+  log CLI (`/documents/{id}/approve` giờ dùng `ingest_one_doc`, không phải `write_lancedb`).
+- **Hoà `main` vào `feat/ai`.** `ingest_one_doc` và `write_lancedb` giờ dùng chung `_ghi_chunk`
+  — cùng một hàm ghi một chunk, thay vì hai đường viết tay riêng dễ lệch nhau.
+- **Phép đo T1 chuyển sang đây.** T1 đã được `main` đóng từ 10/08, nên không còn mục "Chặn" nào
+  để gắn số đo mới vào — chuyển ghi ở đây: bảng thật khớp `build_chunks` **0 ô lệch trên 661
+  hàng × 10 cột**; chunk `TT66-2025 Điều 6` cắt ở đúng ranh giới `(v)`/`(vii)`. Tiền đề "bảng
+  còn giữ bản cắt hỏng" mà plan `2026-08-13-ingest-tang-dan` dựa vào là một bản chụp trước lúc
+  `main` đóng T1, không phải trạng thái hiện tại.
+- **`T24` (`ascii_folding`) bị bỏ, không phải đổi số.** Khi thêm lại các mục còn thiếu của
+  `feat/ai` vào `docs/TASKLIST.md` (số cũ T18/T21–T23/T25–T28 → số mới T100–T107, xem luật dải ở
+  `docs/COMMIT-CONVENTION.md`), một mục — `T24` cũ, ghi nhận FTS gấp dấu tiếng Việt trước khi
+  lọc stop-word — không nối lại: khối chú thích `_FTS_OPTS` trên `main`
+  (`app/ingestion/pipeline.py:238-249`) đã phủ đúng vấn đề này và phủ đúng hơn, đặt thẳng
+  `remove_stop_words: False` để tháo mìn (`thẻ`/`số`/`tổ` bị gấp dấu trước rồi rơi vào stop-word
+  tiếng Anh thành `the`/`so`/`to`) thay vì chỉ ghi nhận.
+- **Sửa 13/08 (review): tổng số mục nối lại là 11, không phải 8.** Bảng ánh xạ ban đầu đếm thiếu
+  ba va chạm số khác nghĩa giữa `feat/ai` cũ và `main`: `T17` (`main` đã đóng "Deploy để mã khớp
+  dữ liệu vừa nạp" ↔ `feat/ai` "Ngưỡng điểm τ + fallback"), `T19` (`main` "Không có cách nghiệm
+  thu truy hồi production" ↔ `feat/ai` "Hậu kiểm HasCitations/EvidenceMismatch"), `T20` (`main`
+  "Dọn node rỗng khớp so_hieu" ↔ `feat/ai` "Corpus phủ 4/37 văn bản"). Thêm lại đúng bằng chép
+  nguyên văn thân mục, số mới `T108`/`T109`/`T110`. Tổng va chạm số thật: **12** (11 nối lại +
+  `T24` bị bỏ), không phải 9 như lượt ghi đầu.
+
+---
+
+## 2026-08-12 (T5) — đo bộ test của chính bài báo SBV-LawGraph; sweep hold-out lệch với hằng số đã chỉnh
+
+**Giai đoạn:** đối sánh trực tiếp với bộ test 100 câu của bài báo (`docs/paper/ACIIDS2026a.pdf`).
+
+- **Done.** `eval/chuyen_sbv.py` chuyển `data/evaluate/svb_graph/sbv_testset_tvpl.json` (100 câu,
+  nhãn cấp điều trên 100% câu) sang định dạng eval, dùng lại tra cứu corpus của `chuyen_tvpl.py`.
+  Corpus phủ **29/100 câu** — 27 văn bản được dẫn, corpus có 4. 71 câu còn lại là negative sạch cả
+  71 (không dẫn lẫn văn bản corpus có) → `eval/bo_sbv_khong_can_cu.jsonl`, dành cho T17.
+- **Không chạy 71 câu ngoài corpus.** Mọi cột của chúng ăn 0 chắc chắn (`recall = precision = rr
+  = 0`), và vì `metrics.tong_hop` là macro-average, mọi ô của **hai bảng IR** "100 câu" = ô bảng
+  29 câu × 0.29 — hệ số đó nói về corpus thiếu văn bản, không nói về chất lượng truy hồi. Chạy 71
+  câu chỉ để lấy đúng con số nhân tay ra được, tốn ~70 phút và 71 lượt gọi API cho không thêm
+  thông tin. `docs/EVAL-IR.md` §11.
+- **Hệ số 0.29 KHÔNG áp cho bảng citation/stale.** `stale_avoidance` trên 100 câu sẽ đọc thành
+  100/100 = 1.0 chứ không phải 0.29 (bốn văn bản corpus phủ đều còn hiệu lực, không có mặt lỗi
+  thời nào để đo), và `conflict_recall` có mẫu số 0 ở cả hai mẫu. Bắt được ở lượt soát cuối —
+  câu "mọi ô" viết ban đầu là quá rộng, và trong chính tài liệu sinh ra để chặn loại lỗi mẫu số
+  này thì đó là câu dễ bị trích sai nhất.
+- **Kết quả — 29/29 câu, đo 12/08** (`eval/results/20260812-093428-bo_sbv.json`; lượt 1 rớt 7/29
+  câu vì `HttpError` thoáng qua của LanceDB Cloud, đã bỏ và chạy lại — mở T22). Mức điều: LexFlow
+  hybrid R@1 **0.69**, MRR@2 0.83, hơn mọi baseline (Naive RAG R@1 0.52). Mức văn bản bão hoà
+  (29/29 câu chỉ dẫn một văn bản) nên không phân biệt gì hơn `citation_accuracy` cũ.
+- **Bộ có trùng câu hỏi.** `bo_sbv.jsonl` 29 dòng nhưng chỉ 26 câu khác nhau — ba cặp trùng cả nội
+  dung lẫn nhãn (question_id 6/30, 7/31, 61/63, cùng TT17-2024), bị đếm hai lần trong macro-
+  average. Cố ý không khử trùng: khử sẽ làm 29 câu thôi là tập con cùng trọng số của 100 câu bài
+  báo, mất khả năng đối sánh.
+- **Sweep hold-out: hằng số hôm 11/08 KHÔNG thắng ở đây.** `TRONG_SO_THUA` hạ 1.0→0.1 hôm 11/08
+  bằng ba bộ đều hỏi luật đã chết; trên bộ này — dữ liệu ngoài, luật đang hiệu lực — **0.25
+  thắng**: R@1 mức điều 0.76 vs 0.69, mức văn bản 0.93 vs 0.90. Đọc thẳng: đây là bằng chứng hằng
+  số chỉnh hôm qua có thể đang overfit vào loại câu hỏi luật đã chết.
+- **Decision — không đổi hằng số.** Luật đã chốt trước khi biết số: 29 câu với `|R| = 1` cho gần
+  như mọi câu nghĩa là một câu = 3,4 điểm R@1, quá mỏng để dịch một hằng số sản phẩm dùng chung.
+  Ghi nhận ở **T21** (`docs/TASKLIST.md`), `app/knowledge/retrieval.py` không đổi một dòng.
+- **Ship.** `docs/EVAL-IR.md` §11, README (một đoạn), `docs/TASKLIST.md` (T17 nhận bộ negative +
+  con số 157 của TVPL; T20 thêm nguồn SBV — 7 văn bản trong phạm vi đưa 29→56/100 câu; T22 mới
+  cho lỗi mạng LanceDB Cloud, đã rớt 7/29 + 7/152 câu trong ngày), `research/crawl_list_sbv.txt`
+  (mới, commit cùng đợt).
+- **Next.** (1) Cào 7 văn bản trong phạm vi ở T20 để bộ SBV lên 56/100 câu, quét sweep lại — lệch
+  còn giữ hay không mới đáng đổi `TRONG_SO_THUA`. (2) T17 (ngưỡng τ) giờ có 71+157 = 228 câu
+  negative sẵn để sweep. (3) T22 — đo tần suất `HttpError` qua vài lượt trước khi vá code.
+
+---
+
+## 2026-08-12 (T4) — đo lại hai bộ TVPL với trọng số mới; kết luận mức điều đảo chiều
+
+**Giai đoạn:** trả nốt món nợ đo lường của 11/08.
+
+- **Done.** Chạy lại đầy đủ cả hai bộ TVPL với `TRONG_SO_THUA = 0.1` (~3 giờ, chạy tách phiên bằng
+  `Start-Process`): `eval/results/20260812-042253-bo_tvpl_dung_thoi.json` (71/76 câu) và
+  `20260812-054048-bo_tvpl_hien_nay.json` (74/76 câu). Bảy câu rơi vì `HttpError` thoáng qua của
+  LanceDB Cloud — try/except mỗi câu bắt đúng như thiết kế, mẫu số ghi rõ ở mọi bảng.
+- **Kết luận mức điều đảo chiều.** Ngày 11/08 bảng mức điều nói Naive RAG hơn LexFlow ở mọi k ≤ 10;
+  với trọng số 0.1 thì LexFlow hơn ở **mọi** k: 0.38/0.62/0.82/0.91/0.93 so với
+  0.26/0.44/0.73/0.82/0.85. Mức văn bản R@1 0.51 → **0.60**.
+- **Phép kiểm nhiễu tự nhiên.** Ba cột baseline không phụ thuộc trọng số, nên độ lệch của chúng
+  giữa hai lượt (mẫu số khác nhau vì lỗi mạng rơi vào câu khác) đúng bằng nhiễu do đổi mẫu: **≤
+  0.02 ở mọi ô**, Naive RAG ở `bo_tvpl_hien_nay` khớp từng chữ số. Chênh lệch của cột LexFlow lớn
+  hơn nhiều lần ⇒ là của trọng số, không phải của mẫu. Đây là thứ khiến bảng này đọc được, không
+  cần thêm lượt chạy nào.
+- **`+graph` đạt trần trên `bo_tvpl_hien_nay`: citation 74/74.** Hôm 11/08 là 71/76, và `+graph`
+  còn làm R@1 **tụt** 0.64 → 0.62 (mở rộng 1-hop kéo thêm ứng viên vào top). Với trọng số 0.1 nó
+  bằng đúng `hybrid` ở mọi k — xếp hạng đã đủ chắc để chịu được ứng viên thêm vào.
+- **`quet_trong_so.py` được xác nhận là công cụ quyết định.** Ba cặp (dự đoán ↔ đo thật) lệch tối
+  đa 0.01: điều 0.38·0.52 ↔ 0.38·0.53, văn bản 0.60·0.73 ↔ 0.60·0.73, `hien_nay` 0.64·0.76 ↔
+  0.63·0.77. Quét trong bộ nhớ vài phút thay được ba giờ benchmark. Khi T8 sửa xong index BM25:
+  quét trước, chạy full sau.
+- **Decision.** Bỏ hẳn bảng của lượt 11/08 khỏi §6 thay vì giữ song song — số cũ vẫn còn nguyên
+  trong §7 đúng chức năng của nó (bằng chứng cho quyết định hạ trọng số) và trong
+  `eval/results/`. Hai bảng cùng đo một thứ ở hai thời điểm là chỗ người đọc trích nhầm.
+- **Ship.** README (bảng kết quả + bảng trước/sau), `docs/EVAL-IR.md` §6 (viết lại) + §7 (thêm
+  bảng đối chiếu sweep ↔ đo thật), `docs/TASKLIST.md` T8 (R@20 mức điều 0.21 → **0.22**) và T16
+  (mốc phải vượt: R@1 mức điều **0.38**).
+- **Next.** (1) **T16 cross-encoder rerank** — mốc 0.38, dùng cloud/API. (2) Cào đợt đầu 5 văn bản
+  trong phạm vi (`research/crawl_list_eval.txt`, T20) — +48 câu. (3) Correctness bằng LLM-judge
+  dùng `long_answer` sẵn có.
+
+---
+
+## 2026-08-11 (T3) — số đầu tiên cho lớp lọc hiệu lực, trên câu hỏi người ngoài soạn
+
+**Giai đoạn:** đo bộ TVPL theo thời điểm (tiếp mục 10/08).
+
+- **Done.** Chạy xong `bo_tvpl_hien_nay.jsonl` — 76 câu hỏi curate từ thuvienphapluat.vn, tất cả
+  hỏi về luật **đã bị thay thế từ 2024-07**, đo với `as_of` = hôm nay. 76/76 câu chạy được, 0 lỗi,
+  `eval/results/20260811-051219-bo_tvpl_hien_nay.json`. Retrieval p50 3767 ms.
+- **Số đo — tránh văn bản hết hiệu lực: baseline 11/76 → LexFlow 76/76.** Tức baseline trả về văn
+  bản đã chết ở **65/76** câu. Đây là con số đầu tiên đo trực tiếp lớp lọc hiệu lực trên câu hỏi
+  **không phải mình tự soạn**. Citation accuracy: baseline 66/76 · hybrid 64/76 · **+graph 71/76**.
+  F2@2 mức văn bản: BM25 0.07 · Naive RAG 0.48 · Advanced RAG 0.11 · **LexFlow 0.73**.
+- **BM25 R@1 = 0.02, Advanced RAG 0.03.** Không phải BM25 yếu chung chung: câu hỏi TVPL viết
+  **từ** văn bản cũ nên dùng đúng từ ngữ của nó, khiến khớp thưa bị **hút về** đúng văn bản đã
+  chết — và Advanced RAG của bài báo đè 75% trọng số lên BM25 nên lãnh trọn. Ca cho thấy điểm khớp
+  từ vựng và tính đúng pháp lý có thể ngược chiều nhau.
+- **Đồ thị lần đầu đóng góp đo được.** Trên 36 câu `+graph` giống hệt `hybrid`; ở đây nâng
+  citation 64/76 → 71/76 (hybrid còn thấp hơn baseline). Cạnh `THAY_THE` chính là đường từ văn bản
+  cũ sang văn bản kế thừa mà bộ này hỏi đúng chỗ. Đổi lại R@1 nhích xuống 0.64 → 0.62 — mở rộng
+  1-hop lợi ở phủ, hại nhẹ ở hạng nhất.
+- **Lớp phủ chạy thật:** 9/76 câu khác khi bật router (36 câu trước là 0/36), 169 hit được nắn
+  trích dẫn, 1 hit bị loại vì bãi bỏ. Nhưng citation ON/OFF đều 71/76 — nắn đổi *nội dung* trích
+  dẫn chứ chưa đổi *văn bản* trả về, mức văn bản không thấy. Muốn đo phải có nhãn cấp điều.
+- **Danh sách văn bản cần cào.** 44 văn bản bộ eval dẫn tới mà corpus chưa có → dựng
+  `research/crawl_list_eval.txt` đúng định dạng `scripts/crawl_vbpl_batch.py` ăn, **chia hai
+  nhóm**: 25 văn bản trong phạm vi sản phẩm (cào hết → 140/251 câu) và 19 văn bản ngoài phạm vi.
+  Ba văn bản "lãi" nhất theo số câu (`09/2020`, `34/2012`, `37/2016` — tổng 90 câu) đều là
+  **CNTT/vận hành hạ tầng**, không phải luật thanh toán: cào chúng là mở rộng sản phẩm, không phải
+  bổ sung dữ liệu.
+- **Chạy nền bị kill hai lần** (36 câu dừng ở 30, TVPL dừng ở 48) vì tiến trình con bị dừng theo
+  phiên. Cách chạy đúng là `Start-Process` tách hẳn — ghi lại ở đây để lần sau khỏi mất công.
+- **Bảng mức điều đầu tiên của dự án — và nó lật một kết luận.** Chạy nốt `bo_tvpl_dung_thoi`
+  (75/76 câu; một câu rơi vì `HttpError` thoáng qua của LanceDB Cloud, try/except bắt đúng nên mẫu
+  số là 75). Bộ này có `relevant_articles` nên lần đầu đo được **mức điều**: ở mức **văn bản**
+  LexFlow hơn mọi baseline (R@1 0.51 vs Naive RAG 0.37), nhưng ở mức **điều thì ngược lại từ R@1
+  tới R@10** — Naive RAG 0.26/0.44/0.71/0.80 so với LexFlow 0.15/0.28/0.57/0.78, mãi tới R@20
+  LexFlow mới vượt (0.90 vs 0.85).
+- **Đọc thẳng: LexFlow tìm đúng *văn bản* sớm nhưng đẩy đúng *điều* lên muộn.** Trần phủ cao hơn,
+  xếp hạng trong nhóm đầu kém hơn dense thuần. Nguyên nhân ở nhánh thưa của RRF: BM25 mức điều gần
+  như vô dụng (R@1 0.02, **R@20 0.21**), nên hợp nhất với nó kéo các điều **sai** của **đúng văn
+  bản** lên trên. Đây là số cụ thể cho **T8** (trước nay chỉ là nhận định) và là căn cứ để làm
+  **T16** (cross-encoder rerank) trước các mục khác — "đúng văn bản, sai thứ tự điều" đúng là dạng
+  lỗi reranker sửa.
+- **Done — và tầng đo lập tức trả công: hạ trọng số nhánh thưa, R@1 mức điều 0.17 → 0.38.**
+  `eval/quet_trong_so.py` truy hồi **một lượt** mỗi câu rồi quét 6 trọng số **trong bộ nhớ** (RRF
+  là phép xếp hạng thuần trên hai danh sách đã có; chạy full benchmark cho từng trọng số mất mỗi
+  lần một giờ mà không thêm thông tin). Kết quả đơn điệu và cùng chiều trên **cả ba** bộ câu hỏi:
+  ở trọng số cân bằng, nhánh BM25 là **lỗ ròng**. Hạ `TRONG_SO_THUA` 1.0 → **0.1**.
+- **Decision — 0.1 chứ không phải 0.** w=0 nhỉnh hơn ở mức điều (0.42 vs 0.38) nhưng đó là kết
+  luận rộng hơn bằng chứng: ba bộ đo đều là câu hỏi diễn đạt tự nhiên, chưa ép loại truy vấn mà
+  khớp từ khoá chính xác mới có giá trị (số hiệu, số tiền, tên định chế). T8 nói index BM25
+  **hỏng**, không nói truy hồi thưa vô giá trị — đặt 0 là chôn luôn khả năng T8 cứu lại nhánh này.
+- **Gate sau khi đổi** (`eval/results/20260811-095117.json`): `n_errors` 0/36, citation 36/36,
+  **stale-avoidance 36/36**, conflict 6/7, `R@1` cột LexFlow 0.72 → **0.78** — khớp đúng con số
+  sweep dự đoán, tức phép quét trong bộ nhớ tái lập được đường thật. 775 test xanh (6 test mới ghim
+  cách RRF cân hai nhánh), ruff sạch.
+- **T16 đắt hơn trước.** Mốc reranker phải vượt nay là R@1 mức điều **0.38**, không còn là 0.17 —
+  phần dễ đã lấy xong bằng một hằng số, không tốn lượt gọi API nào.
+- **Ship.** README + `docs/EVAL-IR.md` §6–§7 + `docs/RAG-DESIGN.md` §7.
+  `20260811-051219-bo_tvpl_hien_nay.json`, `20260811-080300-bo_tvpl_dung_thoi.json`,
+  `20260811-095117.json`. **Lưu ý:** hai bảng §6 đo *trước* khi đổi trọng số (đã đo lại 12/08).
+- **Next.** (0) Đo lại hai bộ TVPL với trọng số mới để §6 khỏi lệch. (1) **T16 cross-encoder
+  rerank** — nay đã có thước, và có mốc phải vượt.
+  (2) Cào đợt đầu 5 văn bản trong phạm vi (`88/2019/NĐ-CP`, `28/2005/PL-UBTVQH11`,
+  `32/2013/TT-NHNN`, `1155/2017/NHCS-KTTC`, Luật các TCTD 2010 + Luật NHNN 2010) — +48 câu.
+  (3) Correctness bằng LLM-judge dùng `long_answer` sẵn có, không cần cào thêm gì.
+
+---
+
 ## 2026-08-11 (T3) — "admin" có hai định nghĩa, và một văn bản bịa lọt vào production
 
 > Phần lớn commit dưới đây mang dấu thời gian **10/08 chiều tối** (14:00–23:13); mục 10/08 đã
@@ -81,6 +295,63 @@
   production**: revision đang phục vụ là `lexflow-api-00024-jsv`, tạo 10/08 21:38 — **trước**
   cả PR #17 lẫn các commit vbpl. Muốn dùng ở `/admin` thì phải deploy lại. (3) Mở PR cho
   `feat/software`.
+
+---
+
+## 2026-08-10 (T2) — dựng tầng đo theo bài báo ACIIDS 2026, và bộ eval biết đến thời gian
+
+**Giai đoạn:** đối chiếu LexFlow với `docs/paper/ACIIDS2026a.pdf` (SBV-LawGraph, HCMUT).
+
+- **Đọc bài báo → khoảng cách thật không nằm ở retrieval mà ở đo lường.** LexFlow đã có hybrid +
+  RRF k=60 + Neo4j 1-hop như họ, và có thêm thứ họ không có: lọc hiệu lực `as_of`, lớp phủ
+  dưới-văn-bản, conflict detector, review tuân thủ. Thứ thiếu là **thước**: họ báo cáo
+  R@k/P@k/MRR@k/F2@k trên 829 câu có nhãn, ta chỉ có citation_accuracy trên 36 câu một nhãn.
+- **Done — tầng đo.** `eval/metrics.py` (thuần hàm), `eval/bo_cau_hoi.py` (định dạng nhãn + loader,
+  dòng hỏng thì **ném** chứ không bỏ qua im lặng), 6 cột so sánh trong `run_benchmark.py`: BM25 ·
+  Naive RAG · Advanced RAG (tái lập §5.2 của họ) và LexFlow hybrid · +graph · +router. Cách đo và
+  các cảnh báo khi đọc số: `docs/EVAL-IR.md`.
+- **Số đo — 36 câu, `eval/results/20260810-145813.json`, 0 câu lỗi.** Gate hồi quy giữ nguyên:
+  stale_avoidance baseline 21/36 → LexFlow **36/36**. Mức văn bản, F2@2: BM25 0.44 · Naive RAG
+  0.69 · Advanced RAG 0.46 · **LexFlow 0.81**; R@1 0.42 / 0.56 / 0.47 / **0.72**.
+- **Hai điều đáng ghi.** (1) **Advanced RAG của bài báo thua Naive RAG** ở đây — trọng số 75% BM25
+  của họ chỉnh cho corpus 840 văn bản, với 26 văn bản thì nhánh BM25 yếu nên đè 75% lên là hại;
+  siêu tham số của họ không chuyển sang corpus khác được. (2) **+graph và +router giống hệt
+  hybrid** ở mức văn bản (router chỉ đổi 1/36 câu) — đồ thị chưa đóng góp gì *đo được*, muốn thấy
+  phải đo ở mức điều mà 36 câu không có nhãn mức đó.
+- **Kiểm tầng đo trước khi tin.** In top-20 thật của 3 câu, tính recall/precision/RR bằng tay ở cả
+  5 mốc k — khớp tuyệt đối. `citation_accuracy` baseline cũ (36/36 ở `top_k=6`) nhất quán với
+  `R@5 = 1.00` của cột Naive RAG, cùng một hàm retrieval.
+- **Done — bộ eval biết đến thời gian.** Bộ curate từ thuvienphapluat.vn về (251 câu, có nhãn cấp
+  điều) nhưng **không có trường ngày**. Không cần: giao các khoảng hiệu lực của những văn bản mỗi
+  câu dẫn cho ra đúng cửa sổ mà nhãn vàng còn đúng, và **không câu nào có giao rỗng**.
+  `eval/chuyen_tvpl.py` sinh **hai** bộ từ cùng 76 câu dùng được — `bo_tvpl_dung_thoi` (`as_of`
+  cuối cửa sổ, nhãn TVPL nguyên bản) và `bo_tvpl_hien_nay` (`as_of` hôm nay, `must_not_doc` là văn
+  bản đã chết, `relevant_docs` là văn bản kế thừa suy từ cạnh `THAY_THE`).
+- **Decision — vì sao phải tách hai bộ.** Corpus phủ đúng 4/37 văn bản bộ eval hỏi tới, và **cả
+  bốn đều hết hiệu lực từ 2024-07** ⇒ tại hôm nay 0/76 câu còn nhãn gốc đúng. Chạy bộ TVPL nguyên
+  trạng với `as_of` = hôm nay thì cột LexFlow bị lọc hết (recall ≈ 0) còn baseline điểm cao, và
+  bảng sẽ nói "baseline thắng tuyệt đối" trong khi LexFlow đang làm đúng chức năng cốt lõi — kết
+  luận sai **ngược**, tệ hơn không đo. Bộ thứ hai chính là chỗ LexFlow tách khỏi mọi baseline của
+  bài báo: BM25/Naive/Advanced **không có khái niệm `as_of`** nên trả cùng kết quả ở cả hai bộ.
+- **Decision — nhãn bộ "hiện nay" là suy diễn, không phải nhãn người.** Nó lấy từ cạnh `THAY_THE`,
+  mà thay thế cấp văn bản không đảm bảo từng điều ánh xạ 1-1 ⇒ bộ này cố ý **chỉ có nhãn cấp văn
+  bản**. Muốn nhãn cấp điều ở luật hiện hành thì phải gán tay: lớp phủ không có ánh xạ điều↔điều.
+- **Decision — phạm vi.** Chỉ tầng đo, **không đổi retrieval sản phẩm** một dòng nào; model dùng
+  cloud/API, không tải model HF về máy. Bốn khoảng cách còn lại so với bài báo (cross-encoder
+  rerank, ngưỡng τ, NER câu hỏi → anchor đồ thị, hậu kiểm `HasCitations`) mở thành T16–T19, cố ý
+  hoãn: chưa có thước thì không chứng minh được thay đổi nào là cải thiện.
+- **Sửa một bẫy có sẵn.** `uv run python eval/run_benchmark.py` vẫn luôn `ModuleNotFoundError` —
+  README ghi lệnh hỏng còn KG-CONFORMANCE vá bằng `PYTHONPATH="."`, tức một bước bắt buộc nằm
+  ngoài mã. Vá tại gốc bằng bootstrap `sys.path` trong script, sửa cả hai tài liệu.
+- **Ship.** `baea510`, `9c26ddb`, `d8d0085`, `ae0b51a` trên `feat/ai`. 769 test xanh, ruff sạch.
+  Chưa push, chưa mở PR.
+- **Chưa xong.** Benchmark trên hai bộ TVPL (152 câu) **chạy dở phải dừng** — máy hết paging file,
+  mới 6/152 câu sau ~15 phút (≈2,5 phút/câu, cả lượt sẽ mất nhiều giờ). Bảng so sánh theo thời
+  điểm vì thế **chưa có số**; `docs/EVAL-IR.md` §6 mới có cách đo, chưa có kết quả.
+- **Next.** (1) Chạy lại benchmark hai bộ TVPL lúc máy rảnh, điền bảng vào `docs/EVAL-IR.md` §6.
+  (2) T20 — cào `09/2020/TT-NHNN` (một văn bản, +51 câu, phủ 76→127/251). (3) Push `feat/ai` và mở
+  PR. (4) T14 vẫn chưa đóng: bộ TVPL chỉ tới cấp điều và 73/76 câu chỉ một căn cứ ⇒ `|R| = 1`,
+  recall vẫn chưa phân biệt được các cột.
 
 ---
 

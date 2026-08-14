@@ -108,8 +108,61 @@ Xem `docs/ARCHITECTURE.md` § Topology.
 So sánh RAG vector thuần vs Hybrid + Versioning + Conflict:
 ```bash
 uv run python eval/run_benchmark.py
+uv run python eval/run_benchmark.py --bo eval/bo_cua_ban.jsonl   # thêm bộ câu hỏi khác
 ```
-Đo: độ chính xác trích dẫn, tỷ lệ tránh văn bản hết hiệu lực, tỷ lệ phát hiện mâu thuẫn.
+Đo hai tầng:
+
+- **Sản phẩm**: độ chính xác trích dẫn, tỷ lệ tránh văn bản hết hiệu lực, tỷ lệ phát hiện mâu thuẫn.
+- **Truy hồi (IR)**: R@{1,2,5,10,20}, P@k, MRR@k, F2@k cho 6 cột — BM25 · Naive RAG · Advanced RAG
+  (tái lập baseline của bài báo SBV-LawGraph) và LexFlow hybrid · +graph · +router. Cách đo, định
+  dạng nhãn vàng và các cảnh báo khi đọc số: `docs/EVAL-IR.md`.
+
+**Đo theo thời điểm** — cùng một câu hỏi, đổi `as_of` thì nhãn vàng đổi theo:
+```bash
+uv run python eval/chuyen_tvpl.py        # data/evaluate/ → 2 bộ (đúng-thời / hiện-nay)
+uv run python -u eval/run_benchmark.py --bo eval/bo_tvpl_dung_thoi.jsonl --bo eval/bo_tvpl_hien_nay.jsonl
+```
+Ba cột baseline không có khái niệm `as_of` nên trả cùng kết quả ở cả hai bộ — xem `docs/EVAL-IR.md` §6.
+
+**Kết quả** — 76 câu hỏi curate từ thuvienphapluat.vn, hỏi về luật đã bị thay thế
+(`bo_tvpl_hien_nay`, đo 12/08; 74/76 câu chạy được, 2 câu rơi vì lỗi mạng LanceDB):
+
+| | tránh văn bản hết hiệu lực | citation accuracy | F2@2 |
+|---|---|---|---|
+| BM25 | — | — | 0.07 |
+| Naive RAG (dense thuần) | **11/74** | 64/74 | 0.48 |
+| Advanced RAG (75% BM25) | — | — | 0.11 |
+| **LexFlow hybrid** | **74/74** | 69/74 | **0.77** |
+| **LexFlow +graph** | **74/74** | **74/74** | 0.77 |
+
+Baseline trả về văn bản đã hết hiệu lực ở **63/74** câu; LexFlow không câu nào. BM25 gần như không
+đúng ở hạng 1 (R@1 = 0.02) vì câu hỏi được viết *từ* văn bản cũ nên khớp từ vựng bị hút về đúng
+văn bản đã chết.
+
+Chính điều đó dẫn tới một thay đổi retrieval. Bảng ở **mức điều** (bộ `bo_tvpl_dung_thoi`) ban đầu
+nói ngược hẳn bảng mức văn bản: LexFlow tìm đúng *văn bản* sớm nhưng đẩy đúng *điều* lên muộn, vì
+nhánh BM25 gần như vô dụng ở mức đó (R@20 = 0.22) nên kéo các điều sai của đúng văn bản lên. Quét
+trọng số nhánh thưa trên cả ba bộ câu hỏi (`uv run python eval/quet_trong_so.py`) rồi hạ
+`TRONG_SO_THUA` 1.0 → 0.1:
+
+| R@1 | mức điều (TVPL) | mức văn bản (TVPL) | mức văn bản (36 câu) |
+|---|---|---|---|
+| trọng số 1.0 | 0.15 | 0.51 | 0.72 |
+| **trọng số 0.1** | **0.38** | **0.60** | **0.78** |
+
+Ở mức điều, LexFlow từ chỗ thua Naive RAG ở mọi k ≤ 10 thành hơn ở **mọi** k, trong khi ba cột
+baseline đứng yên (chúng không phụ thuộc trọng số — đó cũng là phép kiểm nhiễu). Gate hồi quy giữ
+nguyên (stale-avoidance 36/36).
+
+**Bộ test của bài báo** — 100 câu SBV-LawGraph, corpus phủ 29 (`eval/bo_sbv.jsonl`, đo 12/08).
+Đây là bộ duy nhất hỏi về luật **đang hiệu lực**; ba bộ trên đều hỏi về luật đã chết từ 2024-07.
+71 câu còn lại dẫn văn bản corpus không có ⇒ hai bảng IR (mức văn bản, mức điều) ăn 0 ở mọi cột,
+nên trên đúng 100 câu của bài báo, hai bảng IR 29 câu ở `docs/EVAL-IR.md` §11 chỉ cần nhân
+**× 0.29** — con số đó nói về corpus, không nói về truy hồi. Không áp cho `stale_avoidance` (sẽ
+đọc 1.0 trên 100 câu, và vốn đã rỗng nghĩa trên cả hai mẫu vì bộ này không có văn bản hết hiệu lực
+nào để đo).
+
+Cách đo, mẫu số và các cảnh báo: `docs/EVAL-IR.md` §6–§7.
 
 ## Định dạng corpus
 

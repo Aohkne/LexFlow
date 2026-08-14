@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import json
 import re
+from datetime import timedelta
 from pathlib import Path
 
 from app.core import vectordb
@@ -248,14 +249,294 @@ _FTS_OPTS = {
 }
 
 
-def write_lancedb(rows: list[dict]) -> int:
-    if not rows:
-        return 0
+class DocDuTrongBang(RuntimeError):
+    """Bảng còn văn bản mà corpus không có.
+
+    Không tự xoá: `main()` mặc định đọc `data/corpus.sample.json`, nên xoá tự động biến một lần
+    gõ thiếu tham số thành xoá sạch corpus thật. Ghi đè bằng sample thì thấy ngay; xoá âm thầm
+    thì không.
+    """
+
+    def __init__(self, doc_ids: set[str]) -> None:
+        self.doc_ids = sorted(doc_ids)
+        super().__init__(
+            "bảng còn văn bản không có trong corpus: " + ", ".join(self.doc_ids)
+            + " — chạy lại với --xoa-doc-du nếu thật sự muốn xoá chúng"
+        )
+
+
+def _cot_du_lieu(tbl) -> list[str]:
+    """Tên cột trừ `vector`, lấy từ schema chứ KHÔNG viết tay.
+
+    Viết tay thì thêm cột mới mà quên cập nhật danh sách ⇒ cột đó rơi khỏi vân tay và mọi thay
+    đổi trên nó thành vô hình — bảng vẫn có số, chỉ là số cũ.
+    """
+    return [f.name for f in tbl.schema if f.name != "vector"]
+
+
+def _van_tay(r: dict, cot: list[str]) -> tuple:
+    """Vân tay một hàng. Thứ tự khoá lấy từ `cot` nên hai phía luôn so cùng một trật tự."""
+    return tuple((k, r.get(k)) for k in cot)
+
+
+def _doc_can_nap(tbl, rows: list[dict]) -> tuple[set[str], set[str], dict[str, set[str]]]:
+    """(doc cần nạp, doc dư trong bảng, doc_id → id đang có trong bảng).
+
+    Một lượt quét toàn bảng, KHÔNG kèm `where`. Lọc `doc_id IN (<corpus>)` nghe tiết kiệm hơn
+    nhưng loại bỏ đúng thứ cần tìm: doc *dư* theo định nghĩa là doc không có trong corpus. Và
+    nó cũng không tiết kiệm thật — corpus với bảng gần như cùng một tập doc_id. Đo 13/08:
+    5.29s cho 661 hàng.
+
+    Thành phần thứ ba tồn tại để bước xoá mồ côi không phải quét bảng lần hai.
+    """
+    cot = _cot_du_lieu(tbl)
+    moi: dict[str, set[tuple]] = {}
+    for r in rows:
+        moi.setdefault(r["doc_id"], set()).add(_van_tay(r, cot))
+
+    cu: dict[str, set[tuple]] = {}
+    id_cu: dict[str, set[str]] = {}
+    n = tbl.count_rows()
+    if n:  # `limit(0)` có backend hiểu là "không giới hạn" — đừng để nó có cơ hội
+        for h in tbl.search().select(cot).limit(n).to_list():
+            cu.setdefault(h["doc_id"], set()).add(_van_tay(h, cot))
+            id_cu.setdefault(h["doc_id"], set()).add(h["id"])
+
+    return {d for d, v in moi.items() if cu.get(d) != v}, set(cu) - set(moi), id_cu
+
+
+def _loc_id(ids: list[str]) -> str:
+    """`"id IN ('a', 'b')"`. Nháy đơn phải nhân đôi — id chứa nhãn lấy từ văn bản luật."""
+    return "id IN (" + ", ".join("'" + i.replace("'", "''") + "'" for i in sorted(ids)) + ")"
+
+
+def _tao_bang_moi(db, rows: list[dict]) -> tuple[int, int]:
+    """Đường lần-đầu: chưa có bảng thì không có gì để so, dựng và index như trước.
+
+    KHÔNG truyền `mode="overwrite"`: hàm này chỉ được gọi khi bộ lọc thông điệp ở người gọi đã
+    xác nhận bảng THẬT SỰ chưa tồn tại, nên `overwrite` không mua được gì — mà lại vô hiệu hoá
+    chính guard đó. Nếu bộ lọc từng có dương tính giả (hiểu nhầm một lỗi khác thành "chưa có
+    bảng"), mặc định của `create_table` (không ghi đè) biến nó thành một lỗi ồn ào thay vì âm
+    thầm mất dữ liệu.
+    """
     _embed_rows(rows)
-    db = vectordb.connect()
-    tbl = db.create_table(LANCEDB_TABLE, data=rows, mode="overwrite")
-    tbl.create_fts_index("text", replace=True, **_FTS_OPTS)
+    tbl = db.create_table(LANCEDB_TABLE, data=rows)
+    # `**_FTS_OPTS` KHÔNG được bỏ: index thiếu tham số vẫn dựng được, vẫn trả kết quả, chỉ là
+    # kết quả khác index đang phục vụ — không lỗi, không cảnh báo, chỉ lệch.
+    if settings.lancedb_cloud_enabled:
+        tbl.create_fts_index("text", **_FTS_OPTS)
+    else:
+        tbl.create_fts_index("text", replace=True, **_FTS_OPTS)
+    return len(rows), len(rows)
+
+
+def _loc_doc_id(doc_ids: set[str]) -> str:
+    """`"doc_id IN ('A', 'B')"`. Mỗi id đi qua `kiem_doc_id` trước khi vào vị từ.
+
+    Kiểm ở tầng này chứ không tin người gọi: `approve_document` có kiểm rồi, nhưng CLI, script
+    và test thì không — mà chuỗi này đi thẳng vào `where` của LanceDB.
+    """
+    return "doc_id IN (" + ", ".join(f"'{kiem_doc_id(d)}'" for d in sorted(doc_ids)) + ")"
+
+
+def _id_dang_co(tbl, doc_ids: set[str]) -> dict[str, set[str]]:
+    """doc_id → tập id đang có trong bảng, CHỈ cho các văn bản được hỏi.
+
+    Bản có phạm vi của phép đọc mà `_doc_can_nap` làm trên toàn bảng. Đường API dùng bản này vì
+    nó đã biết văn bản nào đổi — bắt nó quét cả bảng (5,29s, đo 13/08) để suy ra một điều nó
+    biết sẵn là trả giá đúng chỗ không nên trả, trên một đường HTTP đồng bộ.
+    """
+    if not doc_ids:
+        return {}
+    # `limit` phải là số dương: LanceDB hiểu `limit(0)` là KHÔNG giới hạn, không phải "0 hàng".
+    # Bảng rỗng (`count_rows() == 0`) vì thế rơi vào nhánh không-giới-hạn — vô hại hôm nay vì
+    # bảng rỗng thì chẳng có gì để trả, nhưng ra sớm ở đây thì không phải phụ thuộc vào lập
+    # luận đó, và tiết kiệm luôn một lượt gọi mạng.
+    n = tbl.count_rows()
+    if not n:
+        return {}
+    ra: dict[str, set[str]] = {}
+    for h in tbl.search().where(_loc_doc_id(doc_ids)).select(["id", "doc_id"]).limit(n).to_list():
+        ra.setdefault(h["doc_id"], set()).add(h["id"])
+    return ra
+
+
+def _ghi_chunk(tbl, pham_vi: set[str], rows: list[dict], id_cu: dict[str, set[str]]) -> int:
+    """Ghi chunk cho đúng các văn bản trong `pham_vi`. Trả số chunk vừa ghi.
+
+    KHÔNG tự quyết văn bản nào cần ghi — người gọi đã biết. Đường API biết vì admin vừa duyệt
+    đúng văn bản đó; đường corpus biết nhờ `_doc_can_nap`.
+
+    ĐIỀU KIỆN NGƯỜI GỌI PHẢI GIỮ: `id_cu` phải phủ ĐỦ mọi `doc_id` trong `pham_vi` — nghĩa là
+    nó được đọc từ chính bảng này cho đúng phạm vi đó (`_id_dang_co` cho đường API,
+    `_doc_can_nap` cho đường corpus). Thiếu một văn bản trong `id_cu` thì hàm này im lặng coi
+    văn bản đó chưa có chunk nào và bỏ sót phần cần xoá — hỏng kiểu không lỗi, không cảnh báo,
+    chỉ còn hàng thừa trong bảng phục vụ. `pham_vi` được giữ tách khỏi `id_cu.keys()` chính vì
+    thế: văn bản mới tinh hợp lệ ở đây (có trong `pham_vi`, vắng trong `id_cu`), nên hàm không
+    có cách nào tự phân biệt "mới" với "người gọi quên đọc".
+
+    `return len(rows)` là số chunk MỚI của lượt này, không phải số hàng bảng có sau đó — người
+    gọi nào cần con số kia thì tự `count_rows()` (xem `write_lancedb`).
+
+    Id nào đang có trong bảng thuộc `pham_vi` mà không có trong `rows` thì bị xoá. Một luật phủ
+    cả hai ca: văn bản chẻ lại ra ít mảnh hơn, VÀ văn bản không còn điều nào (admin xoá hết Điều
+    rồi bấm duyệt) — ca sau chỉ là ca trước với `rows` rỗng.
+
+    Xoá TRƯỚC rồi mới `merge_insert`. Ràng buộc thật là "không chunk nào còn tồn tại sau lượt
+    ghi mà lại vắng mặt giữa chừng"; id mồ côi theo định nghĩa là id sẽ không còn, nên xoá trước
+    không vi phạm — và chết giữa chừng để lại đúng "nội dung cũ trừ phần sắp bỏ" thay vì để lại
+    hàng thừa.
+    """
+    mo_coi = {i for d in pham_vi for i in id_cu.get(d, set())} - {r["id"] for r in rows}
+    if mo_coi:
+        tbl.delete(_loc_id(list(mo_coi)))
+        print(f"[ingest] Đã xoá {len(mo_coi)} chunk không còn trong bản chẻ mới.")
+
+    if rows:
+        _embed_rows(rows)
+        (
+            tbl.merge_insert("id")
+            .when_matched_update_all()
+            .when_not_matched_insert_all()
+            .execute(rows)
+        )
+
     return len(rows)
+
+
+def write_lancedb(
+    rows: list[dict],
+    ep: frozenset[str] = frozenset(),
+    xoa_doc_du: bool = False,
+) -> tuple[int, int]:
+    """Ghi chunk vào LanceDB, chỉ embed văn bản thật sự đổi. Trả `(số vừa ghi, tổng trong bảng)`.
+
+    Đây là tầng QUYẾT ĐỊNH: văn bản nào cần nạp (`_doc_can_nap`), `ep` ép nạp lại, doc dư thì
+    ném `DocDuTrongBang`. Phần GHI thật sự — và lý do thứ tự xoá mồ côi/`merge_insert` không để
+    lại cửa sổ văn bản vắng mặt — nằm ở `_ghi_chunk`, xem docstring của nó.
+    """
+    if not rows:
+        return 0, 0
+
+    db = vectordb.connect()
+    try:
+        tbl = db.open_table(LANCEDB_TABLE)
+    except ValueError as e:
+        # `open_table` LÀ phép dò bảng tồn tại — không liệt kê rồi so tên. `list_tables()` có
+        # phân trang (`page_token`) mà không đọc hết trang thì "không thấy tên" và "bảng thật
+        # sự không tồn tại" lẫn vào nhau, chảy thẳng xuống `_tao_bang_moi` → ghi đè cả bảng.
+        #
+        # Cả hai backend ném `ValueError` khi mở bảng không tồn tại (lancedb 0.34.0). Đo trực
+        # tiếp 13/08: local (embedded, DB tạm trong `.venv`) VÀ remote (LanceDB Cloud thật) —
+        # không phải suy đoán. Thông điệp thật, đo lại 14/08 bằng `open_table` trên DB tạm:
+        # `Table 'chunks' was not found` — lancedb lặp lại ĐÚNG tên được truyền vào (thử
+        # `open_table("Chunks")` ra `Table 'Chunks' ...`), nên `.lower()` cả hai vế là cần.
+        #
+        # Chuỗi này KHÔNG có trong nguồn Python — nó do lõi Rust ném (`_lancedb.pyd`), nên
+        # không có dòng nào để trỏ tới. Chỗ đối chiếu gần nhất là `db.py:1849`, nơi `drop_table`
+        # TIÊU THỤ chính chuỗi đó cho `ignore_missing` — corroboration, không phải khung ném.
+        # Đường đi thật của dự án: sync embedded `LanceDBConnection.open_table` (`db.py:964`),
+        # remote `lancedb/remote/db.py:424`. ĐỪNG đo `db.py:1722` — đó là API async, dự án
+        # không gọi, và nó có thể phân kỳ mà không ai hay.
+        #
+        # Bộ lọc thông điệp dưới đây CHỊU LỰC, không phải phòng thủ thừa: `ValueError` là
+        # built-in dùng cho vô số lý do, bắt trần nó thì MỘT `ValueError` bất kỳ từ `open_table`
+        # sẽ bị hiểu nhầm thành "bảng chưa có" rồi ghi đè cả bảng thật — `create_table` chẳng
+        # hạn ném `ValueError: Table 'chunks' already exists` (đo 14/08), đúng lớp ngoại lệ,
+        # chỉ khác thông điệp. Đòi khớp CẢ tên bảng thay vì mỗi "not found" thu hẹp đúng bằng
+        # thông điệp thật.
+        #
+        # Nói cho sòng phẳng: trên 0.34.0 tôi CHƯA đo được một `ValueError` nào khác từ
+        # `open_table` mà lại chứa "not found" (`select` sai cột ném `RuntimeError: lance
+        # error: ... No field named nope.` — khác lớp, không lọt vào `except` này). Siết là
+        # phòng xa cho một tập thông điệp không liệt kê hết được, chứ không phải bịt một ca đã
+        # thấy. Lớp phòng thứ hai — `_tao_bang_moi` bỏ `mode="overwrite"` — mới là thứ biến
+        # dương tính giả thành lỗi ồn ào. Nâng phiên bản thì đo lại (`open_table` trên DB tạm,
+        # in `repr(str(e))`); muốn bỏ nó thì phải thay bằng một phép phân biệt
+        # chặt tương đương, không phải xoá suông.
+        if f"table '{LANCEDB_TABLE.lower()}' was not found" not in str(e).lower():
+            raise
+        return _tao_bang_moi(db, rows)
+
+    can_nap, du, id_cu = _doc_can_nap(tbl, rows)
+
+    co_that = {r["doc_id"] for r in rows}
+    can_nap |= ep & co_that
+    for d in sorted(ep - co_that):
+        print(f"[ingest] CẢNH BÁO: --doc {d} không có trong corpus, bỏ qua.")
+
+    if du:
+        # Ném TRƯỚC khi embed: sai corpus thì không được đốt tiền rồi mới báo.
+        if not xoa_doc_du:
+            raise DocDuTrongBang(du)
+        tbl.delete(_loc_id([i for d in du for i in id_cu[d]]))
+        print(f"[ingest] Đã xoá {len(du)} văn bản dư khỏi bảng: {', '.join(sorted(du))}")
+
+    nap = [r for r in rows if r["doc_id"] in can_nap]
+    if not nap:
+        print("[ingest] Không văn bản nào đổi — bỏ qua embedding.")
+        _cho_index(tbl)
+        return 0, tbl.count_rows()
+
+    n_ghi = _ghi_chunk(tbl, can_nap, nap, id_cu)
+    _cho_index(tbl)
+    return n_ghi, tbl.count_rows()
+
+
+#: `_cho_index` chạy CHỈ từ `write_lancedb` — đường CLI (`python -m app.ingestion`). KHÔNG chạy
+#: trong `POST /documents/{id}/approve`: `/approve` gọi `ingest_one_doc`
+#: (`app/api/documents.py:311`), và `ingest_one_doc` CỐ Ý không gọi `_cho_index` (xem docstring
+#: của nó — chờ ở đó là đổi một khiếm khuyết tạm thời lấy một lượt chặn HTTP đồng bộ). Timeout ở
+#: đây vì thế chỉ giới hạn một lượt CLI chạy tay/cron, không phải để tránh Cloud Run giết một
+#: request HTTP. Dữ liệu đã ghi xong (merge_insert đã execute) trước khi tới đây, nên chờ chỉ là
+#: TIỆN ÍCH (đo phủ index ngay), không phải điều kiện đúng đắn — mặc định của `wait_for_index` là
+#: 300s, 30s đủ đo mà không treo CLI quá lâu; hết hạn thì nhánh `except` bên dưới hạ nó thành một
+#: dòng cảnh báo, không chặn tiến trình.
+_TIMEOUT_CHO_INDEX = timedelta(seconds=30)
+
+
+def _cho_index(tbl) -> None:
+    """Chờ index FTS phủ hết hàng vừa ghi, rồi KÊU nếu chưa phủ hết.
+
+    Không gọi `create_fts_index` khi index đã có: với `overwrite` thì bắt buộc (bảng vừa bị dựng
+    lại), nhưng với ghi tăng dần nó thành reindex toàn bảng mỗi lượt.
+
+    Phần chưa vào index là phần nhánh sparse mù — không lỗi, chỉ kém đi. Đó là kiểu hỏng chỉ lộ
+    ra ở bảng đo, nên phải kêu thành chữ.
+
+    Chỉ soi index FTS (`index_type == "FTS"`), không phải MỌI index: `docs/TASKLIST.md` T25 đề
+    xuất thêm `create_scalar_index("doc_id")`, và một index BTREE/ANN phủ chậm hơn FTS là bình
+    thường — chờ nó ở đây là chờ nhầm thứ, cảnh báo nó là kêu oan mỗi lượt chạy.
+    """
+    chi_muc = tbl.list_indices()
+    if not chi_muc:
+        # Bảng có nhưng chưa từng index (tạo tay, hoặc create_fts_index từng lỗi).
+        tbl.create_fts_index("text", **_FTS_OPTS)
+        return
+
+    if not settings.lancedb_cloud_enabled:
+        # LanceDB nhúng KHÔNG tự đưa hàng mới vào index FTS. Chờ ở đây là chờ một thứ không bao
+        # giờ tới — dựng lại thẳng. Cục bộ nên chỉ tốn CPU, không tốn API.
+        tbl.create_fts_index("text", replace=True, **_FTS_OPTS)
+        return
+
+    fts = [c for c in chi_muc if c.index_type == "FTS"]
+    ten = [c.name for c in fts]
+    if ten:
+        try:
+            tbl.wait_for_index(ten, timeout=_TIMEOUT_CHO_INDEX)
+        except Exception as exc:  # noqa: BLE001 — chờ hỏng không được làm hỏng lượt ghi đã xong
+            print(f"[ingest] CẢNH BÁO: chờ index {ten} lỗi ({exc}).")
+
+    tong = tbl.count_rows()
+    for c in fts:
+        # `num_indexed_rows` là Optional — None nghĩa là backend chưa báo được số, không phải
+        # "phủ 0 hàng". So `None != tong` luôn đúng và in cảnh báo giả mỗi lượt chạy.
+        if c.num_indexed_rows is not None and c.num_indexed_rows != tong:
+            print(
+                f"[ingest] CẢNH BÁO: index {c.name} mới phủ {c.num_indexed_rows}/{tong} hàng "
+                "— nhánh BM25 đang mù với phần còn lại."
+            )
 
 
 #: `doc_id` đi thẳng vào chuỗi điều kiện của `tbl.delete(...)`, mà nó đến từ JSON admin sửa
@@ -280,14 +561,31 @@ def ingest_one_doc(
 ) -> int:
     """Nạp lại ĐÚNG MỘT văn bản. Trả về số chunk của riêng nó.
 
-    Khác `ingest_docs` ở chỗ không đụng phần còn lại: `delete` theo `doc_id` rồi `add`, thay
-    vì `create_table(mode="overwrite")` ghi đè cả bảng đang phục vụ. Đo 10/08 trên LanceDB
-    Cloud: một vòng delete+add của 23 hàng mất 1,23s, embed 23 chunk mất 1,79s — so với ~52s
-    chỉ riêng phần embed nếu nạp lại toàn bộ 661 chunk.
+    Khác `ingest_docs` ở chỗ không đụng phần còn lại: phần ghi LanceDB dùng chung `_ghi_chunk`
+    với `write_lancedb` (xoá id mồ côi trước, `merge_insert` sau), thay vì
+    `create_table(mode="overwrite")` ghi đè cả bảng đang phục vụ. Đo 10/08 trên LanceDB Cloud:
+    một vòng delete+add của 23 hàng mất 1,23s, embed 23 chunk mất 1,79s — so với ~52s chỉ riêng
+    phần embed nếu nạp lại toàn bộ 661 chunk.
 
-    Cái giá đã đo và chấp nhận: chỉ mục FTS mất ~13 giây mới thấy hàng mới (nó tự cập nhật,
-    không phải dựng lại). Nhánh vector thấy ngay, nên trong 13 giây đó truy hồi vẫn ra kết
-    quả, chỉ thiếu một nhánh.
+    KHÔNG gọi `_cho_index` (khác `write_lancedb`): cái giá ~13 giây (đo 10/08) để chỉ mục FTS
+    phủ hàng mới đã được đo và chấp nhận — nhánh vector thấy ngay, nên truy hồi trong khoảng đó
+    vẫn ra kết quả, chỉ thiếu một nhánh. Chờ ở đây là đổi một khiếm khuyết TẠM THỜI (13 giây mù
+    BM25 trên cloud) lấy một lượt CHỜ đồng bộ chặn `POST /documents/{id}/approve` — đúng thứ
+    việc tách `_cho_index` ra khỏi `_ghi_chunk` tồn tại để tránh.
+
+    Hệ quả trên backend NHÚNG (local, không phải LanceDB Cloud): LanceDB nhúng không tự đưa hàng
+    mới vào index FTS — nó cần `create_fts_index(replace=True)` dựng lại toàn bộ (xem
+    `_cho_index`). Vì đường một-văn-bản không gọi `_cho_index`, chạy `ingest_one_doc` trên máy
+    local sẽ KHÔNG thấy hàng mới ở nhánh BM25 cho tới lượt `write_lancedb` (CLI) kế tiếp — đúng
+    hành vi `main` đã có trước khi hoà nhánh này, ghi rõ ở đây để người sau biết đó là một lựa
+    chọn, không phải bỏ sót.
+
+    MỘT NGOẠI LỆ của câu "không đụng index": nhánh bảng-chưa-tồn-tại gọi `_tao_bang_moi`, mà
+    hàm đó gọi thẳng `create_fts_index` — một lượt dựng index đồng bộ NẰM TRONG request HTTP.
+    Chỉ chạm được ở lượt duyệt ĐẦU TIÊN của một môi trường chưa từng có bảng, và chỉ trên chunk
+    của đúng một văn bản, nên chi phí có trần thấp. Hành vi này có sẵn từ `main` (không phải do
+    hoà nhánh sinh ra), ghi ra đây vì đoạn trên dễ khiến người đọc kết luận đường duyệt không
+    làm gì với index — nó có, chỉ đúng một lần.
 
     `tat_ca_docs` là toàn bộ corpus sau khi đã gộp `doc` — cần cho `quy_ve_doc_id` dựng đủ
     bảng số hiệu, chứ không phải để nạp.
@@ -299,27 +597,32 @@ def ingest_one_doc(
     rows = build_chunks([doc])
 
     db = vectordb.connect()
-    # KHÔNG dùng `db.list_tables()` dù `table_names()` bị đánh dấu deprecated: trên LanceDB
-    # Cloud thật, `list_tables()` ném `HttpError 400` — "Bad request: InvalidArgument:
-    # PgCatalog::open_database() requires a table name to resolve the storage path". Đo
-    # 10/08 trên đúng kết nối `.env` của dự án: `table_names()` chạy tốt (chỉ kèm
-    # DeprecationWarning), `list_tables()` thì không. Xem T18 trong docs/TASKLIST.md.
-    if LANCEDB_TABLE in db.table_names():
+    tbl = None
+    try:
         tbl = db.open_table(LANCEDB_TABLE)
-        # `delete` chạy LUÔN, kể cả khi văn bản không còn điều nào (admin xoá hết Điều trong ô
-        # JSON, hoặc extract ra 0 điều); chỉ `_embed_rows` + `add` mới bị bỏ qua khi `rows`
-        # rỗng. Bản trước về sớm ngay đầu hàm khi `rows` rỗng, và đó là lỗi: chunk cũ nằm lại
-        # trong bảng đang phục vụ nên truy hồi vẫn trả về đúng đoạn văn vừa bị xoá, trong khi
-        # API trả 200 `approved` báo là xong.
-        tbl.delete(f"doc_id = '{doc.doc_id}'")
-        if rows:
-            _embed_rows(rows)
-            tbl.add(rows)
-    elif rows:
-        _embed_rows(rows)
-        tbl = db.create_table(LANCEDB_TABLE, data=rows)
-        tbl.create_fts_index("text", replace=True, **_FTS_OPTS)
-    print(f"[ingest] {doc.doc_id}: {len(rows)} chunk vào LanceDB (thay tại chỗ).")
+    except ValueError as e:
+        # Phép dò bảng là `open_table`, không phải liệt kê: `list_tables()` ném HttpError 400
+        # thật trên LanceDB Cloud của dự án (đo 10/08), `table_names()` thì deprecated và có
+        # phân trang. Bộ lọc thông điệp CHỊU LỰC — `ValueError` là built-in dùng cho vô số lý
+        # do, bắt trần nó biến một trục trặc bất kỳ thành "bảng chưa có" rồi dựng đè bảng thật.
+        # Đòi khớp CẢ tên bảng (thông điệp thật của lancedb: `Table '<tên>' was not found`) —
+        # lọc mỗi "not found" thì một `ValueError` khác chẳng liên quan cũng lọt rồi vẫn dựng
+        # đè. Nguồn thông điệp, cách đo lại, và giới hạn của phép siết này: xem khối chú thích
+        # ở nhánh tương ứng của `write_lancedb`, đừng chép lại ở đây.
+        if f"table '{LANCEDB_TABLE.lower()}' was not found" not in str(e).lower():
+            raise
+
+    if tbl is None:
+        # Chưa có bảng: dựng mới. KHÔNG `return` ở đây — mọi đường phải chảy tới khối Neo4j bên
+        # dưới. Bản đầu tiên của lần rút này `return` sớm ở đây và tái lập đúng lớp lỗi mà
+        # comment gốc dưới cảnh báo: lần ingest đầu trên môi trường mới (bảng chưa tồn tại) dựng
+        # được bảng LanceDB nhưng đồ thị không bao giờ biết văn bản này tồn tại, trong khi API
+        # vẫn trả 200 approved.
+        n = _tao_bang_moi(db, rows)[0] if rows else 0
+        print(f"[ingest] {doc.doc_id}: {n} chunk vào LanceDB (bảng mới).")
+    else:
+        n = _ghi_chunk(tbl, {doc.doc_id}, rows, _id_dang_co(tbl, {doc.doc_id}))
+        print(f"[ingest] {doc.doc_id}: {n} chunk vào LanceDB (thay tại chỗ).")
 
     if settings.neo4j_enabled:
         from app.ingestion.bac_cau import quy_ve_doc_id
@@ -437,13 +740,25 @@ def _noi_lai_lop_phu() -> None:
     push_overlay(goi)
 
 
-def ingest_docs(docs: list[CorpusDocument], rels: list[Relationship]) -> int:
-    """Lõi ingest: chunks → LanceDB (+ Neo4j nếu có). Trả về số chunk."""
+def ingest_docs(
+    docs: list[CorpusDocument],
+    rels: list[Relationship],
+    ep: frozenset[str] = frozenset(),
+    xoa_doc_du: bool = False,
+) -> tuple[int, int]:
+    """Lõi ingest: chunks → LanceDB (+ Neo4j nếu có). Trả `(số chunk vừa ghi, tổng trong bảng)`.
+
+    Mặc định của `ep`/`xoa_doc_du` phải an toàn: `app/api/documents.py` gọi hàm này trần, nên
+    một lỗi đồng bộ ở corpus canonical không được phép biến thành xoá dữ liệu ở LanceDB.
+    """
     rows = build_chunks(docs)
-    print(f"[ingest] {len(docs)} văn bản → {len(rows)} chunk. Đang embedding (Gemini)...")
-    n = write_lancedb(rows)
+    print(f"[ingest] {len(docs)} văn bản → {len(rows)} chunk.")
+    n_ghi, n_tong = write_lancedb(rows, ep=ep, xoa_doc_du=xoa_doc_du)
     target = settings.lancedb_uri if settings.lancedb_cloud_enabled else settings.lancedb_path
-    print(f"[ingest] Đã ghi {n} chunk vào LanceDB ({target}), dim={EMBED_DIM}.")
+    print(
+        f"[ingest] Đã ghi {n_ghi} chunk, bảng có {n_tong} chunk "
+        f"({target}), dim={EMBED_DIM}."
+    )
 
     if settings.neo4j_enabled:
         from app.ingestion.bac_cau import quy_ve_doc_id
@@ -462,12 +777,16 @@ def ingest_docs(docs: list[CorpusDocument], rels: list[Relationship]) -> int:
         _noi_lai_lop_phu()
     else:
         print("[ingest] Bỏ qua Neo4j (chưa cấu hình NEO4J_URI/PASSWORD).")
-    return n
+    return n_ghi, n_tong
 
 
-def main(corpus_path: str | None = None) -> tuple[list[CorpusDocument], list[Relationship]]:
+def main(
+    corpus_path: str | None = None,
+    ep: frozenset[str] = frozenset(),
+    xoa_doc_du: bool = False,
+) -> tuple[list[CorpusDocument], list[Relationship]]:
     path = corpus_path or "data/corpus.sample.json"
     print(f"[ingest] Đọc corpus: {path}")
     docs, rels = load_corpus(path)
-    ingest_docs(docs, rels)
+    ingest_docs(docs, rels, ep=ep, xoa_doc_du=xoa_doc_du)
     return docs, rels

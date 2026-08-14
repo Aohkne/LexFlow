@@ -71,14 +71,41 @@ def _qv(query: str) -> tuple[float, ...]:
     return tuple(embed_query(query))
 
 
-def _rrf(vector_hits: list[dict], fts_hits: list[dict], k: int) -> list[dict]:
-    """Trộn 2 bảng xếp hạng bằng Reciprocal Rank Fusion."""
+#: Đóng góp của nhánh BM25 vào điểm RRF; nhánh vector luôn 1.0. RRF gốc dùng 1.0 cho cả hai.
+#:
+#: Hạ xuống 0.1 ngày 11/08 sau khi quét trên ba bộ câu hỏi (`eval/quet_trong_so.py`,
+#: `docs/EVAL-IR.md` §7): ở trọng số cân bằng, nhánh thưa **kéo kết quả sai lên** trên cả ba.
+#: Nặng nhất ở mức điều — R@1 0.17 → 0.38 khi hạ xuống 0.1 — vì BM25 tìm ra đúng văn bản nhưng
+#: không phân biệt nổi điều nào trong đó (R@20 mức điều chỉ 0.21), nên hợp nhất ngang trọng số
+#: đẩy các điều SAI của ĐÚNG văn bản lên top.
+#:
+#: Không đặt 0: ba bộ đo đều là câu hỏi diễn đạt tự nhiên, chưa ép loại truy vấn mà khớp từ khoá
+#: chính xác mới có giá trị (số hiệu, số tiền, tên định chế). Giữ 0.1 để nhánh thưa còn là điểm
+#: phá hoà, và để T8 (sửa index BM25) còn chỗ chứng minh.
+TRONG_SO_THUA = 0.1
+
+
+def _rrf(
+    vector_hits: list[dict],
+    fts_hits: list[dict],
+    k: int,
+    *,
+    trong_so_thua: float = TRONG_SO_THUA,
+) -> list[dict]:
+    """Trộn 2 bảng xếp hạng bằng Reciprocal Rank Fusion.
+
+    `trong_so_thua` nhân vào đóng góp của nhánh BM25; nhánh vector luôn là 1.0, nên chỉ **tỷ lệ**
+    giữa hai nhánh có nghĩa. Trọng số 0 thì bỏ hẳn nhánh thưa — không phải cộng 0 điểm, vì như thế
+    các hit chỉ có ở nhánh thưa vẫn lọt vào đuôi bảng xếp hạng với điểm 0.
+    """
     scores: dict[str, float] = {}
     rows: dict[str, dict] = {}
-    for ranked in (vector_hits, fts_hits):
+    for ranked, w in ((vector_hits, 1.0), (fts_hits, trong_so_thua)):
+        if w == 0:
+            continue
         for rank, row in enumerate(ranked):
             rid = row["id"]
-            scores[rid] = scores.get(rid, 0.0) + 1.0 / (_RRF_K + rank)
+            scores[rid] = scores.get(rid, 0.0) + w / (_RRF_K + rank)
             rows[rid] = row
     ordered = sorted(scores, key=lambda r: scores[r], reverse=True)
     return [rows[r] for r in ordered[:k]]
@@ -180,6 +207,17 @@ def _sap_nhan(nhan: str) -> tuple:
     return tuple(int(s) for s in _SO_DAU_RE.findall(nhan))
 
 
+def khop_tien_to(nhan: str, tien_to: str) -> bool:
+    """`nhan` có nằm dưới `tien_to` không — ranh giới là DẤU CÁCH, không phải `startswith` trần.
+
+    `"Điều 3"` phải khớp `"Điều 3 Khoản 1-6"` và `"Điều 3 (phần 2)"` nhưng KHÔNG được khớp
+    `"Điều 30"`: corpus thật có đủ cặp Điều 1/Điều 10..19, Điều 3/Điều 30..39 để cái nhầm đó
+    xảy ra hằng ngày. Tách ra khỏi `lay_chunk_theo_tien_to` vì tầng đo (`eval/metrics.py`) cần
+    ĐÚNG luật này để so nhãn vàng với nhãn chunk — chép lại là mở đường cho hai luật lệch nhau.
+    """
+    return nhan == tien_to or nhan.startswith(tien_to + " ")
+
+
 def lay_chunk_theo_tien_to(
     tien_to: list[str], *, moi_tien_to: int = _TOI_DA_MANH_MOI_DIEU
 ) -> list[dict]:
@@ -228,7 +266,7 @@ def lay_chunk_theo_tien_to(
             (
                 r for r in hang
                 if r.get("doc_id") == doc_id
-                and ((a := (r.get("article") or "")) == nhan or a.startswith(nhan + " "))
+                and khop_tien_to(r.get("article") or "", nhan)
             ),
             key=lambda r: _sap_nhan(r.get("article") or ""),
         )
@@ -240,6 +278,91 @@ def lay_chunk_theo_tien_to(
 
 
 def baseline_vector_search(query: str, *, top_k: int = 6) -> list[dict]:
-    """RAG vector thuần (KHÔNG lọc hiệu lực, KHÔNG hybrid) — dùng cho benchmark."""
+    """RAG vector thuần (KHÔNG lọc hiệu lực, KHÔNG hybrid) — dùng cho benchmark.
+
+    Tương ứng cột **NaiveRAG** của bài báo SBV-LawGraph (§5.2): dense embedding, cosine, không
+    rerank.
+    """
     tbl = _open_table()
     return tbl.search(list(_qv(query))).limit(top_k).to_list()
+
+
+def bm25_search(query: str, *, top_k: int = 6) -> list[dict]:
+    """BM25 thuần (LanceDB FTS), KHÔNG lọc hiệu lực — cột **BM25** của bài báo (§5.2).
+
+    FTS chưa sẵn sàng ⇒ trả rỗng thay vì ném: benchmark còn nhiều cột khác, một cột thiếu
+    index không được giết cả lượt đo. Rỗng hiện ra thành recall 0, không thành lỗi im lặng —
+    người đọc bảng thấy ngay.
+    """
+    try:
+        return _open_table().search(query, query_type="fts").limit(top_k).to_list()
+    except Exception:  # noqa: BLE001 — xem docstring
+        return []
+
+
+#: Trọng số của cột AdvancedRAG trong bài báo (§5.2): "75% BM25, 25% semantic".
+_TRONG_SO_BM25 = 0.75
+
+#: Tên trường điểm LanceDB trả về. Vector search trả KHOẢNG CÁCH (nhỏ = gần), FTS trả điểm
+#: BM25 (lớn = hợp). Dò theo danh sách thay vì ghim một tên: đổi phiên bản LanceDB mà tên
+#: trường đổi theo thì hợp điểm có trọng số lặng lẽ thành ngẫu nhiên — nên không tìm thấy
+#: trường nào là LỖI CỨNG, không phải mặc định 0.
+_TRUONG_KHOANG_CACH = ("_distance", "_dist")
+_TRUONG_DIEM_FTS = ("_score", "score", "_relevance_score")
+
+
+def _lay_diem(row: dict, ten: tuple[str, ...]) -> float:
+    for t in ten:
+        v = row.get(t)
+        if v is not None:
+            return float(v)
+    raise KeyError(
+        f"Hàng LanceDB không có trường điểm nào trong {ten}; có: {sorted(row)}. "
+        "Không đoán giá trị — hợp điểm có trọng số sai sẽ không lộ ra ở bảng kết quả."
+    )
+
+
+def _chuan_hoa(rows: list[dict], ten: tuple[str, ...], *, dao_chieu: bool) -> dict[str, float]:
+    """Điểm thô → [0, 1] bằng min-max. `dao_chieu=True` cho khoảng cách (nhỏ = tốt).
+
+    Mọi hàng cùng điểm (hoặc chỉ một hàng) ⇒ trả 1.0 cho tất cả: min-max không xác định ở đó,
+    mà cho 0 thì cả nhánh biến mất khỏi tổng hợp — sai theo hướng khó thấy hơn.
+    """
+    if not rows:
+        return {}
+    tho = {r["id"]: _lay_diem(r, ten) for r in rows}
+    if dao_chieu:
+        tho = {k: -v for k, v in tho.items()}
+    lo, hi = min(tho.values()), max(tho.values())
+    if hi - lo < 1e-12:
+        return dict.fromkeys(tho, 1.0)
+    return {k: (v - lo) / (hi - lo) for k, v in tho.items()}
+
+
+def advanced_rag_search(query: str, *, top_k: int = 6) -> list[dict]:
+    """**AdvancedRAG** của bài báo (§5.2): hợp điểm có trọng số 75% BM25 + 25% dense.
+
+    Khác `hybrid_search` ở hai chỗ, và cả hai đều có chủ đích — đây là cột SO SÁNH, không phải
+    một biến thể của đường sản phẩm: (1) hợp điểm có trọng số thay vì RRF; (2) KHÔNG lọc hiệu
+    lực, đúng như baseline trong bài báo (bài báo không có khái niệm `as_of`).
+    """
+    tbl = _open_table()
+    pool = max(top_k * 3, 15)
+
+    vector_hits = tbl.search(list(_qv(query))).limit(pool).to_list()
+    try:
+        fts_hits = tbl.search(query, query_type="fts").limit(pool).to_list()
+    except Exception:  # noqa: BLE001 — FTS chưa sẵn sàng ⇒ cột này thành dense thuần
+        fts_hits = []
+
+    d_vec = _chuan_hoa(vector_hits, _TRUONG_KHOANG_CACH, dao_chieu=True)
+    d_fts = _chuan_hoa(fts_hits, _TRUONG_DIEM_FTS, dao_chieu=False)
+
+    rows = {r["id"]: r for r in vector_hits}
+    rows.update({r["id"]: r for r in fts_hits})
+    diem = {
+        rid: _TRONG_SO_BM25 * d_fts.get(rid, 0.0) + (1 - _TRONG_SO_BM25) * d_vec.get(rid, 0.0)
+        for rid in rows
+    }
+    xep = sorted(diem, key=lambda r: diem[r], reverse=True)
+    return [rows[r] for r in xep[:top_k]]

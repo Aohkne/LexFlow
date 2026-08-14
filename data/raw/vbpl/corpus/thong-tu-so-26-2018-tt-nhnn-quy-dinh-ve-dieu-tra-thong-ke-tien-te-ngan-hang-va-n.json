@@ -1,0 +1,1531 @@
+{
+ "doc_id": "TT26-2018",
+ "title": "Thông tư 26/2018/TT-NHNN của Ngân hàng Nhà nước Việt Nam",
+ "doc_type": "Thông tư",
+ "source": "external",
+ "valid_from": "2018-12-31",
+ "valid_to": null,
+ "so_hieu": "26/2018/TT-NHNN",
+ "co_quan_ban_hanh": "Ngân hàng Nhà nước Việt Nam",
+ "nguoi_ky": "Nguyễn Thị Hồng",
+ "chuc_danh": "Phó Thống đốc",
+ "nganh": "Ngân hàng",
+ "linh_vuc": "Khác",
+ "ngay_ban_hanh": "2018-11-16",
+ "tinh_trang_hieu_luc": "Còn hiệu lực",
+ "source_url": "https://vbpl.vn/van-ban/chi-tiet/thong-tu-so-26-2018-tt-nhnn-quy-dinh-ve-dieu-tra-thong-ke-tien-te-ngan-hang-va-ngoai-hoi-ngoai-chuong-trinh-dieu-tra-thong-ke-quoc-gia--132146",
+ "source_files": [
+  {
+   "ten": "Thông tư 26-2018-TT-NHNN.docx",
+   "kich_thuoc": "0.04MB",
+   "url": "https://vbpl-bientap-gateway.moj.gov.vn/api/qtdc/public/doc/minio/buckets/vbpl/132146/Th%C3%B4ng%20t%C6%B0%2026-2018-TT-NHNN.docx/download"
+  },
+  {
+   "ten": "VanBanGoc_Thông tư 26-2018-TT-NHNN.pdf",
+   "kich_thuoc": "6.83MB",
+   "url": "https://vbpl-bientap-gateway.moj.gov.vn/api/qtdc/public/doc/minio/buckets/vbpl/132146/VanBanGoc_Th%C3%B4ng%20t%C6%B0%2026-2018-TT-NHNN.pdf/download"
+  }
+ ],
+ "co_toan_van": true,
+ "canh_bao": [],
+ "articles": [
+  {
+   "article": "Điều 1",
+   "text": "Phạm vi điều chỉnh\nThông tư này quy định về điều tra thống kê tiền tệ, ngân hàng và ngoại hối (sau đây gọi là điều tra thống kê tiền tệ và ngân hàng) ngoài Chương trình điều tra thống kê quốc gia.",
+   "chapter": "Chương I. QUY ĐỊNH CHUNG",
+   "section": null,
+   "superseded": false,
+   "char_start": 1125,
+   "char_end": 1321
+  },
+  {
+   "article": "Điều 2",
+   "text": "Đối tượng áp dụng\n1. Đơn vị thuộc Ngân hàng Nhà nước Việt Nam (sau đây gọi là Ngân hàng Nhà nước).\n2. Tổ chức tín dụng, chi nhánh ngân hàng nước ngoài và văn phòng đại diện của tổ chức tín dụng nước ngoài.\n3. Cá nhân và tổ chức khác có liên quan đến điều tra thống kê tiền tệ và ngân hàng ngoài Chương trình điều tra thống kê quốc gia.",
+   "chapter": "Chương I. QUY ĐỊNH CHUNG",
+   "section": null,
+   "superseded": false,
+   "char_start": 1330,
+   "char_end": 1665
+  },
+  {
+   "article": "Điều 3",
+   "text": "Giải thích từ ngữ\nTrong Thông tư này, các từ ngữ dưới đây được hiểu như sau:\n1. Điều tra thống kê tiền tệ và ngân hàng ngoài Chương trình điều tra thống kê quốc gia bao gồm điều tra thống kê tiền tệ và ngân hàng của Ngân hàng Nhà nước và điều tra thống kê tiền tệ và ngân hàng ngoài thống kê nhà nước.\n2. Điều tra thống kê tiền tệ và ngân hàng của Ngân hàng Nhà nước là điều tra thống kê do Ngân hàng Nhà nước thực hiện nhằm thu thập các thông tin thống kê về tiền tệ, ngân hàng và ngoại hối nhưng không thuộc hệ thống chỉ tiêu thống kê quốc gia và các thông tin thống kê có liên quan khác để thực hiện chức năng của Ngân hàng Nhà nước theo quy định của pháp luật.\n3. Điều tra thống kê tiền tệ và ngân hàng ngoài thống kê nhà nước là điều tra thống kê trong lĩnh vực tiền tệ, ngân hàng và ngoại hối do tổ chức, cá nhân thực hiện, không thuộc Chương trình thống kê.\n4. Chương trình thống kê được quy định tại khoản 4 Điều 3 Luật Thống kê.\n5. Chương trình điều tra thống kê tiền tệ và ngân hàng do Thống đốc Ngân hàng Nhà nước (sau đây gọi là Thống đốc) quyết định, được tiến hành định kỳ nhằm thu thập thông tin về các chỉ tiêu thống kê phục vụ yêu cầu quản lý của Ngân hàng Nhà nước trong lĩnh vực tiền tệ, ngân hàng và ngoại hối nhưng không thuộc hệ thống chỉ tiêu thống kê quốc gia và ngoài chế độ báo cáo thống kê của Ngân hàng Nhà nước.\n6. Đối tượng điều tra thống kê tiền tệ và ngân hàng là tổ chức, cá nhân được điều tra thống kê.",
+   "chapter": "Chương I. QUY ĐỊNH CHUNG",
+   "section": null,
+   "superseded": false,
+   "char_start": 1674,
+   "char_end": 3110
+  },
+  {
+   "article": "Điều 4",
+   "text": "Nguyên tắc của hoạt động điều tra thống kê tiền tệ và ngân hàng\n1. Bảo đảm tính trung thực, khách quan, chính xác, đầy đủ, kịp thời.\n2. Bảo đảm tính độc lập về chuyên môn, nghiệp vụ thống kê.\n3. Bảo đảm tính thống nhất về nghiệp vụ; không tổ chức điều tra thống kê trùng lặp, chồng chéo về nội dung với các cuộc điều tra thống kê khác.\n4. Công khai về phương pháp thực hiện điều tra thống kê và công bố thông tin điều tra thống kê theo quy định của pháp luật.\n5. Có tính so sánh.\n6. Bảo đảm quyền bình đẳng trong việc tiếp cận và sử dụng thông tin điều tra thống kê đã được công bố.\n7. Những dữ liệu, thông tin điều tra thống kê về từng tổ chức, cá nhân phải được sử dụng đúng mục đích và được bảo mật theo quy định của pháp luật.",
+   "chapter": "Chương I. QUY ĐỊNH CHUNG",
+   "section": null,
+   "superseded": false,
+   "char_start": 3119,
+   "char_end": 3849
+  },
+  {
+   "article": "Điều 5",
+   "text": "Các loại điều tra thống kê tiền tệ và ngân hàng của Ngân hàng Nhà nước\nCác loại điều tra thống kê tiền tệ và ngân hàng của Ngân hàng Nhà nước bao gồm:\n1. Điều tra thống kê thuộc Chương trình điều tra thống kê tiền tệ và ngân hàng.\n2. Điều tra thống kê tiền tệ và ngân hàng đột xuất.",
+   "chapter": "Chương II. QUY ĐỊNH CỤ THỂ",
+   "section": "Mục 1. ĐIỀU TRA THỐNG KÊ TIỀN TỆ VÀ NGÂN HÀNG CỦA NGÂN HÀNG NHÀ NƯỚC NGOÀI CHƯƠNG TRÌNH ĐIỀU TRA THỐNG KÊ QUỐC GIA",
+   "superseded": false,
+   "char_start": 3998,
+   "char_end": 4280
+  },
+  {
+   "article": "Điều 6",
+   "text": "Điều tra thống kê thuộc Chương trình điều tra thống kê tiền tệ và ngân hàng\n1. Căn cứ chức năng nhiệm vụ được giao và yêu cầu thông tin phục vụ quản lý, điều hành, chậm nhất vào ngày 5 tháng 10 hàng năm, các đơn vị thuộc Ngân hàng Nhà nước đề xuất các cuộc điều tra được thực hiện định kỳ (nếu có) để bổ sung vào Chương trình điều tra thống kê tiền tệ và ngân hàng.\nNội dung đề xuất bao gồm: Tên cuộc điều tra; Mục đích điều tra; Đối tượng điều tra; Phạm vi điều tra; Tính cấp thiết của cuộc điều tra; Phương pháp điều tra; Nội dung, phiếu điều tra; Thời kỳ điều tra; Thời điểm dự kiến tiến hành điều tra; Đơn vị chủ trì; Đơn vị phối hợp; Dự kiến kết quả đầu ra của cuộc điều tra; Dự toán kinh phí; Nguồn kinh phí.\n2. Trên cơ sở đề xuất của các đơn vị (nếu có), chậm nhất vào ngày 30 tháng 12 hàng năm, Vụ Dự báo, thống kê tổng hợp trình Thống đốc xem xét, quyết định sửa đổi, bổ sung Chương trình điều tra thống kê tiền tệ và ngân hàng.",
+   "chapter": "Chương II. QUY ĐỊNH CỤ THỂ",
+   "section": "Mục 1. ĐIỀU TRA THỐNG KÊ TIỀN TỆ VÀ NGÂN HÀNG CỦA NGÂN HÀNG NHÀ NƯỚC NGOÀI CHƯƠNG TRÌNH ĐIỀU TRA THỐNG KÊ QUỐC GIA",
+   "superseded": false,
+   "char_start": 4289,
+   "char_end": 5226
+  },
+  {
+   "article": "Điều 7",
+   "text": "Điều tra thống kê tiền tệ và ngân hàng đột xuất\nĐiều tra thống kê tiền tệ và ngân hàng đột xuất khi phát sinh yêu cầu thu thập thông tin đột xuất trong lĩnh vực tiền tệ và ngân hàng và không thuộc Chương trình điều tra thống kê tiền tệ và ngân hàng.",
+   "chapter": "Chương II. QUY ĐỊNH CỤ THỂ",
+   "section": "Mục 1. ĐIỀU TRA THỐNG KÊ TIỀN TỆ VÀ NGÂN HÀNG CỦA NGÂN HÀNG NHÀ NƯỚC NGOÀI CHƯƠNG TRÌNH ĐIỀU TRA THỐNG KÊ QUỐC GIA",
+   "superseded": false,
+   "char_start": 5235,
+   "char_end": 5484
+  },
+  {
+   "article": "Điều 8",
+   "text": "Chuẩn bị điều tra thống kê\n1. Thành lập Ban Chỉ đạo cuộc điều tra thống kê\na) Đối với các cuộc điều tra có phạm vi rộng, cần sự phối hợp của nhiều đơn vị, Thống đốc quyết định thành lập hoặc không thành lập Ban Chỉ đạo cuộc điều tra thống kê;\nb) Thành phần Ban Chỉ đạo cuộc điều tra thống kê bao gồm: 01 đồng chí trong Ban Lãnh đạo Ngân hàng Nhà nước làm Trưởng ban; 01 cán bộ lãnh đạo của đơn vị chủ trì thực hiện cuộc điều tra làm Phó trưởng Ban, 01 cán bộ lãnh đạo Vụ Dự báo, thống kê (trường hợp không phải là đơn vị chủ trì) và các thành viên khác do Thống đốc quyết định;\nc) Vụ Tổ chức cán bộ làm đầu mối phối hợp với đơn vị có liên quan xây dựng và trình Thống đốc ban hành Quyết định thành lập Ban Chỉ đạo cuộc điều tra thống kê;\nd) Ban Chỉ đạo cuộc điều tra thống kê thực hiện các quyền và nghĩa vụ theo quy định tại Điều 13 Thông tư này.\n2. Quyết định điều tra thống kê\nCuộc điều tra thống kê do Ngân hàng Nhà nước thực hiện phải được Thống đốc quyết định.\n3. Phương án điều tra thống kê\na) Cuộc điều tra thống kê phải có phương án điều tra thống kê được ban hành kèm theo quyết định điều tra thống kê của Thống đốc;\nb) Phương án điều tra thống kê phải được Tổng cục Thống kê thẩm định về chuyên môn, nghiệp vụ thống kê trước khi ban hành. Hồ sơ gửi thẩm định phương án điều tra thống kê quy định tại khoản 2 Điều 32 Luật Thống kê;\nc) Phương án điều tra thống kê gồm các nội dung quy định tại khoản 2 Điều 31 Luật Thống kê.\n4. Phiếu điều tra thống kê\na) Mẫu phiếu điều tra thống kê kèm theo hướng dẫn hỏi, trả lời câu hỏi điều tra;\nb) Chỉ các thông tin được ghi chép, phản ánh hoặc thu thập được trên phiếu điều tra thống kê hợp lệ mới được sử dụng tổng hợp kết quả điều tra thống kê.\n5. Phiếu điều tra thống kê hợp lệ phải đáp ứng các điều kiện sau đây:\na) Có đầy đủ nội dung và hình thức đúng theo mẫu phiếu điều tra thống kê được phê duyệt kèm theo phương án điều tra thống kê;\nb) Nội dung thông tin trên phiếu điều tra thống kê được ghi chép, phản ánh trung thực, đầy đủ, khách quan, chính xác thông tin, ý kiến, quan điểm của đối tượng điều tra thống kê;\nc) Phiếu điều tra thống kê phải được Ban Chỉ đạo cuộc điều tra thống kê hoặc đơn vị chủ trì thực hiện cuộc điều tra thống kê phát ra;\nd) Trong trường hợp điều tra thống kê theo phương pháp trực tiếp, phiếu điều tra thống kê đã hoàn thành ghi chép thông tin thu thập được từ đối tượng điều tra thống kê phải được ký tên, ghi rõ họ và tên của người thực hiện điều tra thống kê.",
+   "chapter": "Chương II. QUY ĐỊNH CỤ THỂ",
+   "section": "Mục 1. ĐIỀU TRA THỐNG KÊ TIỀN TỆ VÀ NGÂN HÀNG CỦA NGÂN HÀNG NHÀ NƯỚC NGOÀI CHƯƠNG TRÌNH ĐIỀU TRA THỐNG KÊ QUỐC GIA",
+   "superseded": false,
+   "char_start": 5493,
+   "char_end": 7938
+  },
+  {
+   "article": "Điều 9",
+   "text": "Thực hiện điều tra thống kê\n1. Tiến hành gửi phiếu điều tra thống kê hoặc cử người thực hiện điều tra thống kê tiếp xúc trực tiếp đối tượng điều tra thống kê để thu thập thông tin thống kê.\n2. Tổng hợp, xử lý thông tin thống kê thu thập được.\n3. Lập và trình Thống đốc phê duyệt báo cáo kết quả cuộc điều tra thống kê.\n4. Báo cáo kết quả cuộc điều tra thống kê cho Tổng cục Thống kê.\n5. Công bố kết quả điều tra thống kê.\n6. Trường hợp cần thiết, trên cơ sở đề xuất của đơn vị chủ trì thực hiện cuộc điều tra thống kê, Thống đốc quyết định việc thuê tổ chức bên ngoài Ngân hàng Nhà nước tiến hành một hoặc một số công việc điều tra thống kê.",
+   "chapter": "Chương II. QUY ĐỊNH CỤ THỂ",
+   "section": "Mục 1. ĐIỀU TRA THỐNG KÊ TIỀN TỆ VÀ NGÂN HÀNG CỦA NGÂN HÀNG NHÀ NƯỚC NGOÀI CHƯƠNG TRÌNH ĐIỀU TRA THỐNG KÊ QUỐC GIA",
+   "superseded": false,
+   "char_start": 7947,
+   "char_end": 8588
+  },
+  {
+   "article": "Điều 10",
+   "text": "Công bố và phổ biến kết quả điều tra thống kê\n1. Thống đốc quyết định việc công bố kết quả điều tra thống kê theo quy định của pháp luật về thống kê.\n2. Các hình thức phổ biến kết quả điều tra thống kê gồm:\na) Trang thông tin điện tử của Ngân hàng Nhà nước;\nb) Niên giám thống kê;\nc) Các sản phẩm thống kê bằng văn bản, các hình thức lưu giữ thông tin điện tử;\nd) Họp báo, thông cáo báo chí;\ne) Phương tiện thông tin đại chúng.",
+   "chapter": "Chương II. QUY ĐỊNH CỤ THỂ",
+   "section": "Mục 1. ĐIỀU TRA THỐNG KÊ TIỀN TỆ VÀ NGÂN HÀNG CỦA NGÂN HÀNG NHÀ NƯỚC NGOÀI CHƯƠNG TRÌNH ĐIỀU TRA THỐNG KÊ QUỐC GIA",
+   "superseded": false,
+   "char_start": 8598,
+   "char_end": 9025
+  },
+  {
+   "article": "Điều 11",
+   "text": "Bảo mật và sử dụng thông tin, kết quả điều tra thống kê\n1. Thông tin, kết quả điều tra thống kê phải được giữ bí mật bao gồm:\na) Thông tin, số liệu gắn với tên, địa chỉ cụ thể của từng tổ chức, cá nhân, trừ trường hợp tổ chức, cá nhân đó đồng ý hoặc luật có quy định khác;\nb) Thông tin điều tra thống kê chưa được người có thẩm quyền công bố;\nc) Những thông tin thuộc danh mục bí mật nhà nước.\n2. Thông tin, kết quả điều tra thống kê được sử dụng theo đúng mục đích quy định tại phương án điều tra thống kê được phê duyệt và theo quy định của pháp luật về thống kê.\n3. Việc trích dẫn, sử dụng thông tin, kết quả điều tra thống kê do Ngân hàng Nhà nước công bố phải trung thực và ghi rõ nguồn gốc thông tin.\n4. Cơ quan, tổ chức, cá nhân được sử dụng thông tin, kết quả điều tra thống kê được công bố để phục vụ hoạt động của mình nhưng không được làm ảnh hưởng tiêu cực đến sự ổn định tiền tệ và an toàn hoạt động ngân hàng, làm phương hại đến lợi ích quốc gia và lợi ích của tổ chức, cá nhân cung cấp thông tin điều tra.",
+   "chapter": "Chương II. QUY ĐỊNH CỤ THỂ",
+   "section": "Mục 1. ĐIỀU TRA THỐNG KÊ TIỀN TỆ VÀ NGÂN HÀNG CỦA NGÂN HÀNG NHÀ NƯỚC NGOÀI CHƯƠNG TRÌNH ĐIỀU TRA THỐNG KÊ QUỐC GIA",
+   "superseded": false,
+   "char_start": 9035,
+   "char_end": 10055
+  },
+  {
+   "article": "Điều 12",
+   "text": "Kinh phí điều tra thống kê\n1. Việc quản lý, cấp và sử dụng kinh phí cho hoạt động điều tra thống kê được thực hiện theo quy định của pháp luật về ngân sách nhà nước.\n2. Kinh phí thực hiện các cuộc điều tra thống kê được tổng hợp trong dự toán ngân sách của Ngân hàng Nhà nước theo quy định của Luật Ngân sách Nhà nước và Luật Thống kê.\n3. Cục Quản trị có trách nhiệm thẩm định và tổng hợp dự toán kinh phí các cuộc điều tra thống kê trên cơ sở đề xuất của các đơn vị thực hiện điều tra thống kê và Vụ Tài chính - Kế toán có trách nhiệm bố trí kinh phí theo quy định.",
+   "chapter": "Chương II. QUY ĐỊNH CỤ THỂ",
+   "section": "Mục 1. ĐIỀU TRA THỐNG KÊ TIỀN TỆ VÀ NGÂN HÀNG CỦA NGÂN HÀNG NHÀ NƯỚC NGOÀI CHƯƠNG TRÌNH ĐIỀU TRA THỐNG KÊ QUỐC GIA",
+   "superseded": false,
+   "char_start": 10065,
+   "char_end": 10631
+  },
+  {
+   "article": "Điều 13",
+   "text": "Quyền và nghĩa vụ của Ban Chỉ đạo cuộc điều tra thống kê\n1. Chỉ đạo xây dựng phương án điều tra thống kê.\n2. Chỉ đạo tổ chức triển khai cuộc điều tra thống kê theo phương án điều tra thống kê.\n3. Chỉ đạo thu thập, tổng hợp, xử lý, phân tích thông tin điều tra thống kê và xây dựng báo cáo kết quả điều tra thống kê.\n4. Trình Thống đốc công bố kết quả điều tra thống kê.",
+   "chapter": "Chương II. QUY ĐỊNH CỤ THỂ",
+   "section": "Mục 1. ĐIỀU TRA THỐNG KÊ TIỀN TỆ VÀ NGÂN HÀNG CỦA NGÂN HÀNG NHÀ NƯỚC NGOÀI CHƯƠNG TRÌNH ĐIỀU TRA THỐNG KÊ QUỐC GIA",
+   "superseded": false,
+   "char_start": 10641,
+   "char_end": 11010
+  },
+  {
+   "article": "Điều 14",
+   "text": "Trách nhiệm của đơn vị chủ trì thực hiện cuộc điều tra thống kê\n1. Xây dựng phương án điều tra thống kê, phiếu điều tra, các tài liệu liên quan.\n2. Phối hợp với Vụ Dự báo, thống kê xây dựng hồ sơ đề nghị Tổng cục Thống kê thẩm định phương án điều tra thống kê.\n3. Chủ trì, phối hợp với Vụ Dự báo, thống kê và các đơn vị liên quan xây dựng, trình Thống đốc ban hành Quyết định điều tra thống kê.\n4. Tham mưu, giúp Ban Chỉ đạo cuộc điều tra thống kê (nếu có) thực hiện các quyền và nghĩa vụ của Ban Chỉ đạo cuộc điều tra thống kê theo quy định tại Điều 13 Thông tư này.\n5. Tổ chức thực hiện phương án điều tra thống kê đã được phê duyệt.\n6. Kiểm tra việc cung cấp thông tin của đối tượng điều tra thống kê.\n7. Thu thập, tổng hợp, xử lý, phân tích thông tin điều tra thống kê và lập báo cáo kết quả cuộc điều tra thống kê trình Thống đốc phê duyệt (trường hợp không thành lập Ban Chỉ đạo cuộc điều tra thống kê) hoặc trình Ban Chỉ đạo cuộc điều tra thống kê trình Thống đốc phê duyệt (trường hợp thành lập Ban Chỉ đạo cuộc điều tra thống kê).\n8. Gửi Vụ Dự báo, thống kê Quyết định điều tra thống kê, phương án điều tra thống kê, báo cáo chi tiết kết quả điều tra thống kê và các số liệu thu thập được thông qua điều tra, nội dung công bố kết quả điều tra ngay sau khi được Thống đốc phê duyệt hoặc ban hành.\n9. Lưu giữ, quản lý hồ sơ, tài liệu của cuộc điều tra thống kê.",
+   "chapter": "Chương II. QUY ĐỊNH CỤ THỂ",
+   "section": "Mục 1. ĐIỀU TRA THỐNG KÊ TIỀN TỆ VÀ NGÂN HÀNG CỦA NGÂN HÀNG NHÀ NƯỚC NGOÀI CHƯƠNG TRÌNH ĐIỀU TRA THỐNG KÊ QUỐC GIA",
+   "superseded": false,
+   "char_start": 11020,
+   "char_end": 12388
+  },
+  {
+   "article": "Điều 15",
+   "text": "Trách nhiệm của Vụ Dự báo, thống kê\n1. Chủ trì, phối hợp với các đơn vị liên quan xây dựng, trình Thống đốc ban hành, sửa đổi, bổ sung và tổ chức triển khai Chương trình điều tra thống kê tiền tệ và ngân hàng.\n2. Chủ trì, phối hợp với các đơn vị liên quan lập hồ sơ thẩm định phương án điều tra thống kê gửi Tổng cục Thống kê thẩm định theo quy định.\n3. Hướng dẫn, theo dõi, kiểm tra các đơn vị liên quan trong việc triển khai Chương trình điều tra thống kê tiền tệ và ngân hàng đã được phê duyệt.\n4. Phối hợp với các đơn vị liên quan xây dựng, trình Thống đốc ban hành quyết định cuộc điều tra thống kê và phê duyệt phương án điều tra thống kê.\n5. Chủ trì, phối hợp với các đơn vị liên quan tổng hợp, báo cáo kết quả các cuộc điều tra thống kê của Ngân hàng Nhà nước cho Tổng cục Thống kê.\n6. Hàng năm, tổng hợp nhận xét, đánh giá, báo cáo Thống đốc tình hình thực hiện quy định về điều tra thống kê tiền tệ và ngân hàng tại Thông tư này.",
+   "chapter": "Chương II. QUY ĐỊNH CỤ THỂ",
+   "section": "Mục 1. ĐIỀU TRA THỐNG KÊ TIỀN TỆ VÀ NGÂN HÀNG CỦA NGÂN HÀNG NHÀ NƯỚC NGOÀI CHƯƠNG TRÌNH ĐIỀU TRA THỐNG KÊ QUỐC GIA",
+   "superseded": false,
+   "char_start": 12398,
+   "char_end": 13337
+  },
+  {
+   "article": "Điều 16",
+   "text": "Quyền và nghĩa vụ của đối tượng điều tra thống kê\n1. Đối tượng điều tra thống kê có các quyền sau đây:\na) Được thông báo về quyết định, mục đích, yêu cầu, phạm vi, nội dung chủ yếu và thời hạn của cuộc điều tra;\nb) Được bảo đảm bí mật thông tin đã cung cấp cho Ngân hàng Nhà nước theo quy định tại Điều 11 Thông tư này;\nc) Khiếu nại, tố cáo hành vi vi phạm pháp luật về điều tra thống kê.\n2. Đối tượng điều tra thống kê có các nghĩa vụ sau đây:\na) Cung cấp thông tin trung thực, chính xác, đầy đủ và đúng thời hạn theo yêu cầu của Ngân hàng Nhà nước;\nb) Không được từ chối hoặc cản trở việc cung cấp thông tin điều tra thống kê cho Ngân hàng Nhà nước;\nc) Chịu sự kiểm tra của Ngân hàng Nhà nước và thanh tra chuyên ngành thống kê về thông tin đã cung cấp.",
+   "chapter": "Chương II. QUY ĐỊNH CỤ THỂ",
+   "section": "Mục 1. ĐIỀU TRA THỐNG KÊ TIỀN TỆ VÀ NGÂN HÀNG CỦA NGÂN HÀNG NHÀ NƯỚC NGOÀI CHƯƠNG TRÌNH ĐIỀU TRA THỐNG KÊ QUỐC GIA",
+   "superseded": false,
+   "char_start": 13347,
+   "char_end": 14102
+  },
+  {
+   "article": "Điều 17",
+   "text": "Điều tra thống kê tiền tệ và ngân hàng ngoài thống kê nhà nước\n1. Tổ chức, cá nhân thực hiện điều tra thống kê tiền tệ và ngân hàng ngoài thống kê nhà nước nhằm phục vụ nghiên cứu khoa học và sản xuất kinh doanh theo quy định của pháp luật.\n2. Tổ chức, cá nhân thực hiện điều tra thống kê tiền tệ và ngân hàng ngoài thống kê nhà nước phải tuân thủ yêu cầu quy định tại Điều 68 Luật thống kê.\n3. Tổ chức, cá nhân không được tiến hành điều tra thống kê hoặc công bố thông tin về điều tra thống kê làm phương hại đến lợi ích quốc gia, sự ổn định tiền tệ, an toàn hoạt động ngân hàng và chính sách tiền tệ quốc gia.\n4. Tổ chức, cá nhân khi công bố kết quả điều tra thống kê tiền tệ và ngân hàng ngoài thống kê nhà nước phải trích dẫn phương pháp điều tra, mẫu điều tra, phạm vi tiến hành điều tra, thời gian và thời điểm tiến hành, kết thúc cuộc điều tra.",
+   "chapter": "Chương II. QUY ĐỊNH CỤ THỂ",
+   "section": "Mục 2. ĐIỀU TRA THỐNG KÊ TIỀN TỆ VÀ NGÂN HÀNG NGOÀI THỐNG KÊ NHÀ NƯỚC",
+   "superseded": false,
+   "char_start": 14181,
+   "char_end": 15032
+  },
+  {
+   "article": "Điều 18",
+   "text": "Giá trị thông tin, kết quả điều tra thống kê tiền tệ và ngân hàng ngoài thống kê nhà nước do các tổ chức, cá nhân thu thập\nThông tin, kết quả của các cuộc điều tra thống kê quy định tại khoản 1 Điều 17 Thông tư này không có giá trị thay thế thông tin thống kê do Ngân hàng Nhà nước công bố.",
+   "chapter": "Chương II. QUY ĐỊNH CỤ THỂ",
+   "section": "Mục 2. ĐIỀU TRA THỐNG KÊ TIỀN TỆ VÀ NGÂN HÀNG NGOÀI THỐNG KÊ NHÀ NƯỚC",
+   "superseded": false,
+   "char_start": 15042,
+   "char_end": 15332
+  },
+  {
+   "article": "Điều 19",
+   "text": "Hiệu lực thi hành\nThông tư này có hiệu lực thi hành kể từ ngày 31 tháng 12 năm 2018 và thay thế Thông tư số 06/2011/TT-NHNN ngày 22 tháng 3 năm 2011 của Ngân hàng Nhà nước quy định về điều tra thống kê trong lĩnh vực tiền tệ, hoạt động ngân hàng và ngoại hối.",
+   "chapter": "Chương III. TỔ CHỨC THỰC HIỆN",
+   "section": null,
+   "superseded": false,
+   "char_start": 15371,
+   "char_end": 15630
+  },
+  {
+   "article": "Điều 20",
+   "text": "Tổ chức thực hiện\nChánh Văn phòng, Vụ trưởng Vụ Dự báo, thống kê, Thủ trưởng các đơn vị thuộc Ngân hàng Nhà nước, Giám đốc Ngân hàng Nhà nước chi nhánh các tỉnh, thành phố trực thuộc Trung ương, Chủ tịch Hội đồng quản trị, Tổng Giám đốc (Giám đốc) các tổ chức tín dụng, chi nhánh ngân hàng nước ngoài chịu trách nhiệm thực hiện Thông tư này./.\nKT. THỐNG ĐỐC\nPHÓ THỐNG ĐỐC\n(Đã ký)\nNguyễn Thị Hồng",
+   "chapter": "Chương III. TỔ CHỨC THỰC HIỆN",
+   "section": null,
+   "superseded": false,
+   "char_start": 15640,
+   "char_end": 16035
+  }
+ ],
+ "provisions": [
+  {
+   "id": "id_6508c69a-df5a-11f0-8194-79d0057de223",
+   "cap": "chuong",
+   "so": "I",
+   "tieu_de": "QUY ĐỊNH CHUNG",
+   "text": "",
+   "html": "",
+   "bi_tac_dong": null,
+   "an": false,
+   "con": [
+    {
+     "id": "id_6508c6a4-df5a-11f0-a4ff-b97952ca4a34",
+     "cap": "dieu",
+     "so": "1",
+     "tieu_de": "Phạm vi điều chỉnh",
+     "text": "Thông tư này quy định về điều tra thống kê tiền tệ, ngân hàng và ngoại hối (sau đây gọi là điều tra thống kê tiền tệ và ngân hàng) ngoài Chương trình điều tra thống kê quốc gia.",
+     "html": "Thông tư này quy định về điều tra thống kê tiền tệ, ngân hàng và ngoại hối (sau đây gọi là điều tra thống kê tiền tệ và ngân hàng) ngoài Chương trình điều tra thống kê quốc gia.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_6508c6ae-df5a-11f0-96bd-97e1d2a09de1",
+     "cap": "dieu",
+     "so": "2",
+     "tieu_de": "Đối tượng áp dụng",
+     "text": "",
+     "html": "",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": [
+      {
+       "id": "id_6508c6b8-df5a-11f0-ba64-d1524557372f",
+       "cap": "khoan",
+       "so": "1",
+       "tieu_de": "",
+       "text": "Đơn vị thuộc Ngân hàng Nhà nước Việt Nam (sau đây gọi là Ngân hàng Nhà nước).",
+       "html": "1. Đơn vị thuộc Ngân hàng Nhà nước Việt Nam (sau đây gọi là Ngân hàng Nhà nước).",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_6508c6c2-df5a-11f0-bc94-c5e028fdda6a",
+       "cap": "khoan",
+       "so": "2",
+       "tieu_de": "",
+       "text": "Tổ chức tín dụng, chi nhánh ngân hàng nước ngoài và văn phòng đại diện của tổ chức tín dụng nước ngoài.",
+       "html": "2. Tổ chức tín dụng, chi nhánh ngân hàng nước ngoài và văn phòng đại diện của tổ chức tín dụng nước ngoài.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_6508c6cc-df5a-11f0-b4a3-4513f8579855",
+       "cap": "khoan",
+       "so": "3",
+       "tieu_de": "",
+       "text": "Cá nhân và tổ chức khác có liên quan đến điều tra thống kê tiền tệ và ngân hàng ngoài Chương trình điều tra thống kê quốc gia.",
+       "html": "3. Cá nhân và tổ chức khác có liên quan đến điều tra thống kê tiền tệ và ngân hàng ngoài Chương trình điều tra thống kê quốc gia.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      }
+     ]
+    },
+    {
+     "id": "id_6508c6d6-df5a-11f0-aac4-91d360901be6",
+     "cap": "dieu",
+     "so": "3",
+     "tieu_de": "Giải thích từ ngữ",
+     "text": "Trong Thông tư này, các từ ngữ dưới đây được hiểu như sau:",
+     "html": "Trong Thông tư này, các từ ngữ dưới đây được hiểu như sau:",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": [
+      {
+       "id": "id_6508c6e0-df5a-11f0-8867-a7f9db53b6f2",
+       "cap": "khoan",
+       "so": "1",
+       "tieu_de": "",
+       "text": "Điều tra thống kê tiền tệ và ngân hàng ngoài Chương trình điều tra thống kê quốc gia bao gồm điều tra thống kê tiền tệ và ngân hàng của Ngân hàng Nhà nước và điều tra thống kê tiền tệ và ngân hàng ngoài thống kê nhà nước.",
+       "html": "1. Điều tra thống kê tiền tệ và ngân hàng ngoài Chương trình điều tra thống kê quốc gia bao gồm điều tra thống kê tiền tệ và ngân hàng của Ngân hàng Nhà nước và điều tra thống kê tiền tệ và ngân hàng ngoài thống kê nhà nước.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_6508c6ea-df5a-11f0-bf91-6957888d6e9f",
+       "cap": "khoan",
+       "so": "2",
+       "tieu_de": "",
+       "text": "Điều tra thống kê tiền tệ và ngân hàng của Ngân hàng Nhà nước là điều tra thống kê do Ngân hàng Nhà nước thực hiện nhằm thu thập các thông tin thống kê về tiền tệ, ngân hàng và ngoại hối nhưng không thuộc hệ thống chỉ tiêu thống kê quốc gia và các thông tin thống kê có liên quan khác để thực hiện chức năng của Ngân hàng Nhà nước theo quy định của pháp luật.",
+       "html": "2. Điều tra thống kê tiền tệ và ngân hàng của Ngân hàng Nhà nước là điều tra thống kê do Ngân hàng Nhà nước thực hiện nhằm thu thập các thông tin thống kê về tiền tệ, ngân hàng và ngoại hối nhưng không thuộc hệ thống chỉ tiêu thống kê quốc gia và các thông tin thống kê có liên quan khác để thực hiện chức năng của Ngân hàng Nhà nước theo quy định của pháp luật.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_6508c6f4-df5a-11f0-ba6a-cbd59f4f95de",
+       "cap": "khoan",
+       "so": "3",
+       "tieu_de": "",
+       "text": "Điều tra thống kê tiền tệ và ngân hàng ngoài thống kê nhà nước là điều tra thống kê trong lĩnh vực tiền tệ, ngân hàng và ngoại hối do tổ chức, cá nhân thực hiện, không thuộc Chương trình thống kê.",
+       "html": "3. Điều tra thống kê tiền tệ và ngân hàng ngoài thống kê nhà nước là điều tra thống kê trong lĩnh vực tiền tệ, ngân hàng và ngoại hối do tổ chức, cá nhân thực hiện, không thuộc Chương trình thống kê.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_6508c6fe-df5a-11f0-8f3d-9d97329f9398",
+       "cap": "khoan",
+       "so": "4",
+       "tieu_de": "",
+       "text": "Chương trình thống kê được quy định tại khoản 4 Điều 3 Luật Thống kê.",
+       "html": "4. Chương trình thống kê được quy định tại khoản 4 Điều 3 Luật Thống kê.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_6508c708-df5a-11f0-8f12-6be9ebbf5a40",
+       "cap": "khoan",
+       "so": "5",
+       "tieu_de": "",
+       "text": "Chương trình điều tra thống kê tiền tệ và ngân hàng do Thống đốc Ngân hàng Nhà nước (sau đây gọi là Thống đốc) quyết định, được tiến hành định kỳ nhằm thu thập thông tin về các chỉ tiêu thống kê phục vụ yêu cầu quản lý của Ngân hàng Nhà nước trong lĩnh vực tiền tệ, ngân hàng và ngoại hối nhưng không thuộc hệ thống chỉ tiêu thống kê quốc gia và ngoài chế độ báo cáo thống kê của Ngân hàng Nhà nước.",
+       "html": "5. Chương trình điều tra thống kê tiền tệ và ngân hàng do Thống đốc Ngân hàng Nhà nước (sau đây gọi là Thống đốc) quyết định, được tiến hành định kỳ nhằm thu thập thông tin về các chỉ tiêu thống kê phục vụ yêu cầu quản lý của Ngân hàng Nhà nước trong lĩnh vực tiền tệ, ngân hàng và ngoại hối nhưng không thuộc hệ thống chỉ tiêu thống kê quốc gia và ngoài chế độ báo cáo thống kê của Ngân hàng Nhà nước.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_6508c712-df5a-11f0-a001-a74b56be715f",
+       "cap": "khoan",
+       "so": "6",
+       "tieu_de": "",
+       "text": "Đối tượng điều tra thống kê tiền tệ và ngân hàng là tổ chức, cá nhân được điều tra thống kê.",
+       "html": "6. Đối tượng điều tra thống kê tiền tệ và ngân hàng là tổ chức, cá nhân được điều tra thống kê.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      }
+     ]
+    },
+    {
+     "id": "id_6508c71c-df5a-11f0-997c-0f186864695f",
+     "cap": "dieu",
+     "so": "4",
+     "tieu_de": "Nguyên tắc của hoạt động điều tra thống kê tiền tệ và ngân hàng",
+     "text": "",
+     "html": "",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": [
+      {
+       "id": "id_6508c726-df5a-11f0-aca8-95f2155b5b91",
+       "cap": "khoan",
+       "so": "1",
+       "tieu_de": "",
+       "text": "Bảo đảm tính trung thực, khách quan, chính xác, đầy đủ, kịp thời.",
+       "html": "1. Bảo đảm tính trung thực, khách quan, chính xác, đầy đủ, kịp thời.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_6508c730-df5a-11f0-9f49-f106b543ddf0",
+       "cap": "khoan",
+       "so": "2",
+       "tieu_de": "",
+       "text": "Bảo đảm tính độc lập về chuyên môn, nghiệp vụ thống kê.",
+       "html": "2. Bảo đảm tính độc lập về chuyên môn, nghiệp vụ thống kê.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_6508c73a-df5a-11f0-a413-05d29d9bb004",
+       "cap": "khoan",
+       "so": "3",
+       "tieu_de": "",
+       "text": "Bảo đảm tính thống nhất về nghiệp vụ; không tổ chức điều tra thống kê trùng lặp, chồng chéo về nội dung với các cuộc điều tra thống kê khác.",
+       "html": "3. Bảo đảm tính thống nhất về nghiệp vụ; không tổ chức điều tra thống kê trùng lặp, chồng chéo về nội dung với các cuộc điều tra thống kê khác.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_6508c744-df5a-11f0-98f9-cbc9c4109cdc",
+       "cap": "khoan",
+       "so": "4",
+       "tieu_de": "",
+       "text": "Công khai về phương pháp thực hiện điều tra thống kê và công bố thông tin điều tra thống kê theo quy định của pháp luật.",
+       "html": "4. Công khai về phương pháp thực hiện điều tra thống kê và công bố thông tin điều tra thống kê theo quy định của pháp luật.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_6508c74e-df5a-11f0-bbc2-79e875021473",
+       "cap": "khoan",
+       "so": "5",
+       "tieu_de": "",
+       "text": "Có tính so sánh.",
+       "html": "5. Có tính so sánh.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_6508c758-df5a-11f0-97ad-354d69e5bb79",
+       "cap": "khoan",
+       "so": "6",
+       "tieu_de": "",
+       "text": "Bảo đảm quyền bình đẳng trong việc tiếp cận và sử dụng thông tin điều tra thống kê đã được công bố.",
+       "html": "6. Bảo đảm quyền bình đẳng trong việc tiếp cận và sử dụng thông tin điều tra thống kê đã được công bố.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_6508c762-df5a-11f0-8554-036d8afa27c2",
+       "cap": "khoan",
+       "so": "7",
+       "tieu_de": "",
+       "text": "Những dữ liệu, thông tin điều tra thống kê về từng tổ chức, cá nhân phải được sử dụng đúng mục đích và được bảo mật theo quy định của pháp luật.",
+       "html": "7. Những dữ liệu, thông tin điều tra thống kê về từng tổ chức, cá nhân phải được sử dụng đúng mục đích và được bảo mật theo quy định của pháp luật.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "id_6508c76c-df5a-11f0-8315-6dda7c3b2ace",
+   "cap": "chuong",
+   "so": "II",
+   "tieu_de": "QUY ĐỊNH CỤ THỂ",
+   "text": "",
+   "html": "",
+   "bi_tac_dong": null,
+   "an": false,
+   "con": [
+    {
+     "id": "id_6508c776-df5a-11f0-a494-d3f74e258cd6",
+     "cap": "muc",
+     "so": "1",
+     "tieu_de": "ĐIỀU TRA THỐNG KÊ TIỀN TỆ VÀ NGÂN HÀNG CỦA NGÂN HÀNG NHÀ NƯỚC NGOÀI CHƯƠNG TRÌNH ĐIỀU TRA THỐNG KÊ QUỐC GIA",
+     "text": "",
+     "html": "",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": [
+      {
+       "id": "id_6508c780-df5a-11f0-a5af-bd928d2eda91",
+       "cap": "dieu",
+       "so": "5",
+       "tieu_de": "Các loại điều tra thống kê tiền tệ và ngân hàng của Ngân hàng Nhà nước",
+       "text": "Các loại điều tra thống kê tiền tệ và ngân hàng của Ngân hàng Nhà nước bao gồm:",
+       "html": "Các loại điều tra thống kê tiền tệ và ngân hàng của Ngân hàng Nhà nước bao gồm:",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": [
+        {
+         "id": "id_6508c78a-df5a-11f0-a9da-af0870157653",
+         "cap": "khoan",
+         "so": "1",
+         "tieu_de": "",
+         "text": "Điều tra thống kê thuộc Chương trình điều tra thống kê tiền tệ và ngân hàng.",
+         "html": "1. Điều tra thống kê thuộc Chương trình điều tra thống kê tiền tệ và ngân hàng.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_6508c794-df5a-11f0-9873-43b39bdb61fe",
+         "cap": "khoan",
+         "so": "2",
+         "tieu_de": "",
+         "text": "Điều tra thống kê tiền tệ và ngân hàng đột xuất.",
+         "html": "2. Điều tra thống kê tiền tệ và ngân hàng đột xuất.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        }
+       ]
+      },
+      {
+       "id": "id_6508c79e-df5a-11f0-bd77-c5bc4cb5a577",
+       "cap": "dieu",
+       "so": "6",
+       "tieu_de": "Điều tra thống kê thuộc Chương trình điều tra thống kê tiền tệ và ngân hàng",
+       "text": "Nội dung đề xuất bao gồm: Tên cuộc điều tra; Mục đích điều tra; Đối tượng điều tra; Phạm vi điều tra; Tính cấp thiết của cuộc điều tra; Phương pháp điều tra; Nội dung, phiếu điều tra; Thời kỳ điều tra; Thời điểm dự kiến tiến hành điều tra; Đơn vị chủ trì; Đơn vị phối hợp; Dự kiến kết quả đầu ra của cuộc điều tra; Dự toán kinh phí; Nguồn kinh phí.",
+       "html": "Nội dung đề xuất bao gồm: Tên cuộc điều tra; Mục đích điều tra; Đối tượng điều tra; Phạm vi điều tra; Tính cấp thiết của cuộc điều tra; Phương pháp điều tra; Nội dung, phiếu điều tra; Thời kỳ điều tra; Thời điểm dự kiến tiến hành điều tra; Đơn vị chủ trì; Đơn vị phối hợp; Dự kiến kết quả đầu ra của cuộc điều tra; Dự toán kinh phí; Nguồn kinh phí.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": [
+        {
+         "id": "id_6508c7a8-df5a-11f0-bf39-437d7c401083",
+         "cap": "khoan",
+         "so": "1",
+         "tieu_de": "",
+         "text": "Căn cứ chức năng nhiệm vụ được giao và yêu cầu thông tin phục vụ quản lý, điều hành, chậm nhất vào ngày 5 tháng 10 hàng năm, các đơn vị thuộc Ngân hàng Nhà nước đề xuất các cuộc điều tra được thực hiện định kỳ (nếu có) để bổ sung vào Chương trình điều tra thống kê tiền tệ và ngân hàng.",
+         "html": "1. Căn cứ chức năng nhiệm vụ được giao và yêu cầu thông tin phục vụ quản lý, điều hành, chậm nhất vào ngày 5 tháng 10 hàng năm, các đơn vị thuộc Ngân hàng Nhà nước đề xuất các cuộc điều tra được thực hiện định kỳ (nếu có) để bổ sung vào Chương trình điều tra thống kê tiền tệ và ngân hàng.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_6508c7b2-df5a-11f0-8276-83a2dda1b73b",
+         "cap": "khoan",
+         "so": "2",
+         "tieu_de": "",
+         "text": "Trên cơ sở đề xuất của các đơn vị (nếu có), chậm nhất vào ngày 30 tháng 12 hàng năm, Vụ Dự báo, thống kê tổng hợp trình Thống đốc xem xét, quyết định sửa đổi, bổ sung Chương trình điều tra thống kê tiền tệ và ngân hàng.",
+         "html": "2. Trên cơ sở đề xuất của các đơn vị (nếu có), chậm nhất vào ngày 30 tháng 12 hàng năm, Vụ Dự báo, thống kê tổng hợp trình Thống đốc xem xét, quyết định sửa đổi, bổ sung Chương trình điều tra thống kê tiền tệ và ngân hàng.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        }
+       ]
+      },
+      {
+       "id": "id_6508c7bc-df5a-11f0-9462-4bed5c9feeb0",
+       "cap": "dieu",
+       "so": "7",
+       "tieu_de": "Điều tra thống kê tiền tệ và ngân hàng đột xuất",
+       "text": "Điều tra thống kê tiền tệ và ngân hàng đột xuất khi phát sinh yêu cầu thu thập thông tin đột xuất trong lĩnh vực tiền tệ và ngân hàng và không thuộc Chương trình điều tra thống kê tiền tệ và ngân hàng.",
+       "html": "Điều tra thống kê tiền tệ và ngân hàng đột xuất khi phát sinh yêu cầu thu thập thông tin đột xuất trong lĩnh vực tiền tệ và ngân hàng và không thuộc Chương trình điều tra thống kê tiền tệ và ngân hàng.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_6508c7c6-df5a-11f0-b4e5-e7a54891b1a7",
+       "cap": "dieu",
+       "so": "8",
+       "tieu_de": "Chuẩn bị điều tra thống kê",
+       "text": "Cuộc điều tra thống kê do Ngân hàng Nhà nước thực hiện phải được Thống đốc quyết định.",
+       "html": "Cuộc điều tra thống kê do Ngân hàng Nhà nước thực hiện phải được Thống đốc quyết định.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": [
+        {
+         "id": "id_6508c7d0-df5a-11f0-aa54-9f596268a7e8",
+         "cap": "khoan",
+         "so": "1",
+         "tieu_de": "",
+         "text": "Thành lập Ban Chỉ đạo cuộc điều tra thống kê",
+         "html": "1. Thành lập Ban Chỉ đạo cuộc điều tra thống kê",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": [
+          {
+           "id": "id_6508c7da-df5a-11f0-9782-8d6a5378c50b",
+           "cap": "diem",
+           "so": "a",
+           "tieu_de": "",
+           "text": "Đối với các cuộc điều tra có phạm vi rộng, cần sự phối hợp của nhiều đơn vị, Thống đốc quyết định thành lập hoặc không thành lập Ban Chỉ đạo cuộc điều tra thống kê;",
+           "html": "a) Đối với các cuộc điều tra có phạm vi rộng, cần sự phối hợp của nhiều đơn vị, Thống đốc quyết định thành lập hoặc không thành lập Ban Chỉ đạo cuộc điều tra thống kê;",
+           "bi_tac_dong": null,
+           "an": false,
+           "con": []
+          },
+          {
+           "id": "id_6508c7e4-df5a-11f0-b7c3-b90244150689",
+           "cap": "diem",
+           "so": "b",
+           "tieu_de": "",
+           "text": "Thành phần Ban Chỉ đạo cuộc điều tra thống kê bao gồm: 01 đồng chí trong Ban Lãnh đạo Ngân hàng Nhà nước làm Trưởng ban; 01 cán bộ lãnh đạo của đơn vị chủ trì thực hiện cuộc điều tra làm Phó trưởng Ban, 01 cán bộ lãnh đạo Vụ Dự báo, thống kê (trường hợp không phải là đơn vị chủ trì) và các thành viên khác do Thống đốc quyết định;",
+           "html": "b) Thành phần Ban Chỉ đạo cuộc điều tra thống kê bao gồm: 01 đồng chí trong Ban Lãnh đạo Ngân hàng Nhà nước làm Trưởng ban; 01 cán bộ lãnh đạo của đơn vị chủ trì thực hiện cuộc điều tra làm Phó trưởng Ban, 01 cán bộ lãnh đạo Vụ Dự báo, thống kê (trường hợp không phải là đơn vị chủ trì) và các thành viên khác do Thống đốc quyết định;",
+           "bi_tac_dong": null,
+           "an": false,
+           "con": []
+          },
+          {
+           "id": "id_6508c7ee-df5a-11f0-873a-2740db9a77aa",
+           "cap": "diem",
+           "so": "c",
+           "tieu_de": "",
+           "text": "Vụ Tổ chức cán bộ làm đầu mối phối hợp với đơn vị có liên quan xây dựng và trình Thống đốc ban hành Quyết định thành lập Ban Chỉ đạo cuộc điều tra thống kê;",
+           "html": "c) Vụ Tổ chức cán bộ làm đầu mối phối hợp với đơn vị có liên quan xây dựng và trình Thống đốc ban hành Quyết định thành lập Ban Chỉ đạo cuộc điều tra thống kê;",
+           "bi_tac_dong": null,
+           "an": false,
+           "con": []
+          },
+          {
+           "id": "id_6508c7f8-df5a-11f0-9c26-458b7b46fc6d",
+           "cap": "diem",
+           "so": "d",
+           "tieu_de": "",
+           "text": "Ban Chỉ đạo cuộc điều tra thống kê thực hiện các quyền và nghĩa vụ theo quy định tại Điều 13 Thông tư này.",
+           "html": "d) Ban Chỉ đạo cuộc điều tra thống kê thực hiện các quyền và nghĩa vụ theo quy định tại Điều 13 Thông tư này.",
+           "bi_tac_dong": null,
+           "an": false,
+           "con": []
+          }
+         ]
+        },
+        {
+         "id": "id_6508c802-df5a-11f0-bb44-4f0ea415fcbd",
+         "cap": "khoan",
+         "so": "2",
+         "tieu_de": "",
+         "text": "Quyết định điều tra thống kê",
+         "html": "2. Quyết định điều tra thống kê",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_6508c80c-df5a-11f0-9e53-fda0b29b8be0",
+         "cap": "khoan",
+         "so": "3",
+         "tieu_de": "",
+         "text": "Phương án điều tra thống kê",
+         "html": "3. Phương án điều tra thống kê",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": [
+          {
+           "id": "id_6508c816-df5a-11f0-bbbf-9528e6ac1c52",
+           "cap": "diem",
+           "so": "a",
+           "tieu_de": "",
+           "text": "Cuộc điều tra thống kê phải có phương án điều tra thống kê được ban hành kèm theo quyết định điều tra thống kê của Thống đốc;",
+           "html": "a) Cuộc điều tra thống kê phải có phương án điều tra thống kê được ban hành kèm theo quyết định điều tra thống kê của Thống đốc;",
+           "bi_tac_dong": null,
+           "an": false,
+           "con": []
+          },
+          {
+           "id": "id_6508c820-df5a-11f0-8ede-31fb2cbd12fc",
+           "cap": "diem",
+           "so": "b",
+           "tieu_de": "",
+           "text": "Phương án điều tra thống kê phải được Tổng cục Thống kê thẩm định về chuyên môn, nghiệp vụ thống kê trước khi ban hành. Hồ sơ gửi thẩm định phương án điều tra thống kê quy định tại khoản 2 Điều 32 Luật Thống kê;",
+           "html": "b) Phương án điều tra thống kê phải được Tổng cục Thống kê thẩm định về chuyên môn, nghiệp vụ thống kê trước khi ban hành. Hồ sơ gửi thẩm định phương án điều tra thống kê quy định tại khoản 2 Điều 32 Luật Thống kê;",
+           "bi_tac_dong": null,
+           "an": false,
+           "con": []
+          },
+          {
+           "id": "id_6508c82a-df5a-11f0-9bb9-59f9b78a3548",
+           "cap": "diem",
+           "so": "c",
+           "tieu_de": "",
+           "text": "Phương án điều tra thống kê gồm các nội dung quy định tại khoản 2 Điều 31 Luật Thống kê.",
+           "html": "c) Phương án điều tra thống kê gồm các nội dung quy định tại khoản 2 Điều 31 Luật Thống kê.",
+           "bi_tac_dong": null,
+           "an": false,
+           "con": []
+          }
+         ]
+        },
+        {
+         "id": "id_6508c834-df5a-11f0-9f74-573f074961a7",
+         "cap": "khoan",
+         "so": "4",
+         "tieu_de": "",
+         "text": "Phiếu điều tra thống kê",
+         "html": "4. Phiếu điều tra thống kê",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": [
+          {
+           "id": "id_6508c83e-df5a-11f0-9885-251e0d991156",
+           "cap": "diem",
+           "so": "a",
+           "tieu_de": "",
+           "text": "Mẫu phiếu điều tra thống kê kèm theo hướng dẫn hỏi, trả lời câu hỏi điều tra;",
+           "html": "a) Mẫu phiếu điều tra thống kê kèm theo hướng dẫn hỏi, trả lời câu hỏi điều tra;",
+           "bi_tac_dong": null,
+           "an": false,
+           "con": []
+          },
+          {
+           "id": "id_6508c848-df5a-11f0-bb93-2f91bcf40961",
+           "cap": "diem",
+           "so": "b",
+           "tieu_de": "",
+           "text": "Chỉ các thông tin được ghi chép, phản ánh hoặc thu thập được trên phiếu điều tra thống kê hợp lệ mới được sử dụng tổng hợp kết quả điều tra thống kê.",
+           "html": "b) Chỉ các thông tin được ghi chép, phản ánh hoặc thu thập được trên phiếu điều tra thống kê hợp lệ mới được sử dụng tổng hợp kết quả điều tra thống kê.",
+           "bi_tac_dong": null,
+           "an": false,
+           "con": []
+          }
+         ]
+        },
+        {
+         "id": "id_6508c852-df5a-11f0-ad6f-9f6e65eb8665",
+         "cap": "khoan",
+         "so": "5",
+         "tieu_de": "",
+         "text": "Phiếu điều tra thống kê hợp lệ phải đáp ứng các điều kiện sau đây:",
+         "html": "5. Phiếu điều tra thống kê hợp lệ phải đáp ứng các điều kiện sau đây:",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": [
+          {
+           "id": "id_6508c85c-df5a-11f0-9482-b7d5c16ad260",
+           "cap": "diem",
+           "so": "a",
+           "tieu_de": "",
+           "text": "Có đầy đủ nội dung và hình thức đúng theo mẫu phiếu điều tra thống kê được phê duyệt kèm theo phương án điều tra thống kê;",
+           "html": "a) Có đầy đủ nội dung và hình thức đúng theo mẫu phiếu điều tra thống kê được phê duyệt kèm theo phương án điều tra thống kê;",
+           "bi_tac_dong": null,
+           "an": false,
+           "con": []
+          },
+          {
+           "id": "id_6508c866-df5a-11f0-b597-dfa85a3b4ea3",
+           "cap": "diem",
+           "so": "b",
+           "tieu_de": "",
+           "text": "Nội dung thông tin trên phiếu điều tra thống kê được ghi chép, phản ánh trung thực, đầy đủ, khách quan, chính xác thông tin, ý kiến, quan điểm của đối tượng điều tra thống kê;",
+           "html": "b) Nội dung thông tin trên phiếu điều tra thống kê được ghi chép, phản ánh trung thực, đầy đủ, khách quan, chính xác thông tin, ý kiến, quan điểm của đối tượng điều tra thống kê;",
+           "bi_tac_dong": null,
+           "an": false,
+           "con": []
+          },
+          {
+           "id": "id_6508c870-df5a-11f0-84ed-812d7742a61c",
+           "cap": "diem",
+           "so": "c",
+           "tieu_de": "",
+           "text": "Phiếu điều tra thống kê phải được Ban Chỉ đạo cuộc điều tra thống kê hoặc đơn vị chủ trì thực hiện cuộc điều tra thống kê phát ra;",
+           "html": "c) Phiếu điều tra thống kê phải được Ban Chỉ đạo cuộc điều tra thống kê hoặc đơn vị chủ trì thực hiện cuộc điều tra thống kê phát ra;",
+           "bi_tac_dong": null,
+           "an": false,
+           "con": []
+          },
+          {
+           "id": "id_6508c87a-df5a-11f0-9ce4-a3f0ae2e645e",
+           "cap": "diem",
+           "so": "d",
+           "tieu_de": "",
+           "text": "Trong trường hợp điều tra thống kê theo phương pháp trực tiếp, phiếu điều tra thống kê đã hoàn thành ghi chép thông tin thu thập được từ đối tượng điều tra thống kê phải được ký tên, ghi rõ họ và tên của người thực hiện điều tra thống kê.",
+           "html": "d) Trong trường hợp điều tra thống kê theo phương pháp trực tiếp, phiếu điều tra thống kê đã hoàn thành ghi chép thông tin thu thập được từ đối tượng điều tra thống kê phải được ký tên, ghi rõ họ và tên của người thực hiện điều tra thống kê.",
+           "bi_tac_dong": null,
+           "an": false,
+           "con": []
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "id": "id_6508c884-df5a-11f0-9ed7-b7e117d84143",
+       "cap": "dieu",
+       "so": "9",
+       "tieu_de": "Thực hiện điều tra thống kê",
+       "text": "",
+       "html": "",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": [
+        {
+         "id": "id_6508c88e-df5a-11f0-a85f-e323ab02c8dd",
+         "cap": "khoan",
+         "so": "1",
+         "tieu_de": "",
+         "text": "Tiến hành gửi phiếu điều tra thống kê hoặc cử người thực hiện điều tra thống kê tiếp xúc trực tiếp đối tượng điều tra thống kê để thu thập thông tin thống kê.",
+         "html": "1. Tiến hành gửi phiếu điều tra thống kê hoặc cử người thực hiện điều tra thống kê tiếp xúc trực tiếp đối tượng điều tra thống kê để thu thập thông tin thống kê.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_6508c898-df5a-11f0-984f-2b0ce2b57f10",
+         "cap": "khoan",
+         "so": "2",
+         "tieu_de": "",
+         "text": "Tổng hợp, xử lý thông tin thống kê thu thập được.",
+         "html": "2. Tổng hợp, xử lý thông tin thống kê thu thập được.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_6508c8a2-df5a-11f0-9222-279cfa95447d",
+         "cap": "khoan",
+         "so": "3",
+         "tieu_de": "",
+         "text": "Lập và trình Thống đốc phê duyệt báo cáo kết quả cuộc điều tra thống kê.",
+         "html": "3. Lập và trình Thống đốc phê duyệt báo cáo kết quả cuộc điều tra thống kê.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_6508c8ac-df5a-11f0-8698-b10da811eaf3",
+         "cap": "khoan",
+         "so": "4",
+         "tieu_de": "",
+         "text": "Báo cáo kết quả cuộc điều tra thống kê cho Tổng cục Thống kê.",
+         "html": "4. Báo cáo kết quả cuộc điều tra thống kê cho Tổng cục Thống kê.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_6508c8b6-df5a-11f0-b2cf-35a2750375ed",
+         "cap": "khoan",
+         "so": "5",
+         "tieu_de": "",
+         "text": "Công bố kết quả điều tra thống kê.",
+         "html": "5. Công bố kết quả điều tra thống kê.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_6508c8c0-df5a-11f0-b3a5-57ac0d372e3f",
+         "cap": "khoan",
+         "so": "6",
+         "tieu_de": "",
+         "text": "Trường hợp cần thiết, trên cơ sở đề xuất của đơn vị chủ trì thực hiện cuộc điều tra thống kê, Thống đốc quyết định việc thuê tổ chức bên ngoài Ngân hàng Nhà nước tiến hành một hoặc một số công việc điều tra thống kê.",
+         "html": "6. Trường hợp cần thiết, trên cơ sở đề xuất của đơn vị chủ trì thực hiện cuộc điều tra thống kê, Thống đốc quyết định việc thuê tổ chức bên ngoài Ngân hàng Nhà nước tiến hành một hoặc một số công việc điều tra thống kê.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        }
+       ]
+      },
+      {
+       "id": "id_6508c8ca-df5a-11f0-b0db-0d126cddf3f2",
+       "cap": "dieu",
+       "so": "10",
+       "tieu_de": "Công bố và phổ biến kết quả điều tra thống kê",
+       "text": "",
+       "html": "",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": [
+        {
+         "id": "id_6508c8d4-df5a-11f0-b3b2-25c00bb53136",
+         "cap": "khoan",
+         "so": "1",
+         "tieu_de": "",
+         "text": "Thống đốc quyết định việc công bố kết quả điều tra thống kê theo quy định của pháp luật về thống kê.",
+         "html": "1. Thống đốc quyết định việc công bố kết quả điều tra thống kê theo quy định của pháp luật về thống kê.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_6508c8de-df5a-11f0-ba31-d199e3f6adb0",
+         "cap": "khoan",
+         "so": "2",
+         "tieu_de": "",
+         "text": "Các hình thức phổ biến kết quả điều tra thống kê gồm:",
+         "html": "2. Các hình thức phổ biến kết quả điều tra thống kê gồm:",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": [
+          {
+           "id": "id_6508c8e8-df5a-11f0-899f-c9b03916b9b8",
+           "cap": "diem",
+           "so": "a",
+           "tieu_de": "",
+           "text": "Trang thông tin điện tử của Ngân hàng Nhà nước;",
+           "html": "a) Trang thông tin điện tử của Ngân hàng Nhà nước;",
+           "bi_tac_dong": null,
+           "an": false,
+           "con": []
+          },
+          {
+           "id": "id_6508c8f2-df5a-11f0-806b-19bc715c9e30",
+           "cap": "diem",
+           "so": "b",
+           "tieu_de": "",
+           "text": "Niên giám thống kê;",
+           "html": "b) Niên giám thống kê;",
+           "bi_tac_dong": null,
+           "an": false,
+           "con": []
+          },
+          {
+           "id": "id_6508c8fc-df5a-11f0-bece-3fe630da3c8a",
+           "cap": "diem",
+           "so": "c",
+           "tieu_de": "",
+           "text": "Các sản phẩm thống kê bằng văn bản, các hình thức lưu giữ thông tin điện tử;",
+           "html": "c) Các sản phẩm thống kê bằng văn bản, các hình thức lưu giữ thông tin điện tử;",
+           "bi_tac_dong": null,
+           "an": false,
+           "con": []
+          },
+          {
+           "id": "id_6508c906-df5a-11f0-aa6d-3f3325a82e1e",
+           "cap": "diem",
+           "so": "d",
+           "tieu_de": "",
+           "text": "Họp báo, thông cáo báo chí;",
+           "html": "d) Họp báo, thông cáo báo chí;",
+           "bi_tac_dong": null,
+           "an": false,
+           "con": []
+          },
+          {
+           "id": "id_6508c910-df5a-11f0-aba4-417cc5aa1c10",
+           "cap": "diem",
+           "so": "e",
+           "tieu_de": "",
+           "text": "Phương tiện thông tin đại chúng.",
+           "html": "e) Phương tiện thông tin đại chúng.",
+           "bi_tac_dong": null,
+           "an": false,
+           "con": []
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "id": "id_6508c91a-df5a-11f0-a437-3db548d5c778",
+       "cap": "dieu",
+       "so": "11",
+       "tieu_de": "Bảo mật và sử dụng thông tin, kết quả điều tra thống kê",
+       "text": "",
+       "html": "",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": [
+        {
+         "id": "id_6508c924-df5a-11f0-9073-adcb469e8d56",
+         "cap": "khoan",
+         "so": "1",
+         "tieu_de": "",
+         "text": "Thông tin, kết quả điều tra thống kê phải được giữ bí mật bao gồm:",
+         "html": "1. Thông tin, kết quả điều tra thống kê phải được giữ bí mật bao gồm:",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": [
+          {
+           "id": "id_6508c92e-df5a-11f0-b9a6-499a46097a44",
+           "cap": "diem",
+           "so": "a",
+           "tieu_de": "",
+           "text": "Thông tin, số liệu gắn với tên, địa chỉ cụ thể của từng tổ chức, cá nhân, trừ trường hợp tổ chức, cá nhân đó đồng ý hoặc luật có quy định khác;",
+           "html": "a) Thông tin, số liệu gắn với tên, địa chỉ cụ thể của từng tổ chức, cá nhân, trừ trường hợp tổ chức, cá nhân đó đồng ý hoặc luật có quy định khác;",
+           "bi_tac_dong": null,
+           "an": false,
+           "con": []
+          },
+          {
+           "id": "id_6508c938-df5a-11f0-95e9-e3227b1bd23a",
+           "cap": "diem",
+           "so": "b",
+           "tieu_de": "",
+           "text": "Thông tin điều tra thống kê chưa được người có thẩm quyền công bố;",
+           "html": "b) Thông tin điều tra thống kê chưa được người có thẩm quyền công bố;",
+           "bi_tac_dong": null,
+           "an": false,
+           "con": []
+          },
+          {
+           "id": "id_6508c942-df5a-11f0-991f-55a531d683af",
+           "cap": "diem",
+           "so": "c",
+           "tieu_de": "",
+           "text": "Những thông tin thuộc danh mục bí mật nhà nước.",
+           "html": "c) Những thông tin thuộc danh mục bí mật nhà nước.",
+           "bi_tac_dong": null,
+           "an": false,
+           "con": []
+          }
+         ]
+        },
+        {
+         "id": "id_6508c94c-df5a-11f0-8b93-c9bfc9084664",
+         "cap": "khoan",
+         "so": "2",
+         "tieu_de": "",
+         "text": "Thông tin, kết quả điều tra thống kê được sử dụng theo đúng mục đích quy định tại phương án điều tra thống kê được phê duyệt và theo quy định của pháp luật về thống kê.",
+         "html": "2. Thông tin, kết quả điều tra thống kê được sử dụng theo đúng mục đích quy định tại phương án điều tra thống kê được phê duyệt và theo quy định của pháp luật về thống kê.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_6508c956-df5a-11f0-945a-21d46b2328df",
+         "cap": "khoan",
+         "so": "3",
+         "tieu_de": "",
+         "text": "Việc trích dẫn, sử dụng thông tin, kết quả điều tra thống kê do Ngân hàng Nhà nước công bố phải trung thực và ghi rõ nguồn gốc thông tin.",
+         "html": "3. Việc trích dẫn, sử dụng thông tin, kết quả điều tra thống kê do Ngân hàng Nhà nước công bố phải trung thực và ghi rõ nguồn gốc thông tin.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_6508c960-df5a-11f0-8ecd-fb98e64180aa",
+         "cap": "khoan",
+         "so": "4",
+         "tieu_de": "",
+         "text": "Cơ quan, tổ chức, cá nhân được sử dụng thông tin, kết quả điều tra thống kê được công bố để phục vụ hoạt động của mình nhưng không được làm ảnh hưởng tiêu cực đến sự ổn định tiền tệ và an toàn hoạt động ngân hàng, làm phương hại đến lợi ích quốc gia và lợi ích của tổ chức, cá nhân cung cấp thông tin điều tra.",
+         "html": "4. Cơ quan, tổ chức, cá nhân được sử dụng thông tin, kết quả điều tra thống kê được công bố để phục vụ hoạt động của mình nhưng không được làm ảnh hưởng tiêu cực đến sự ổn định tiền tệ và an toàn hoạt động ngân hàng, làm phương hại đến lợi ích quốc gia và lợi ích của tổ chức, cá nhân cung cấp thông tin điều tra.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        }
+       ]
+      },
+      {
+       "id": "id_6508c96a-df5a-11f0-ab32-19902b1bc6f2",
+       "cap": "dieu",
+       "so": "12",
+       "tieu_de": "Kinh phí điều tra thống kê",
+       "text": "",
+       "html": "",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": [
+        {
+         "id": "id_6508c974-df5a-11f0-b9ab-3144ffbbd302",
+         "cap": "khoan",
+         "so": "1",
+         "tieu_de": "",
+         "text": "Việc quản lý, cấp và sử dụng kinh phí cho hoạt động điều tra thống kê được thực hiện theo quy định của pháp luật về ngân sách nhà nước.",
+         "html": "1. Việc quản lý, cấp và sử dụng kinh phí cho hoạt động điều tra thống kê được thực hiện theo quy định của pháp luật về ngân sách nhà nước.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_6508c97e-df5a-11f0-962f-41db933c9a6d",
+         "cap": "khoan",
+         "so": "2",
+         "tieu_de": "",
+         "text": "Kinh phí thực hiện các cuộc điều tra thống kê được tổng hợp trong dự toán ngân sách của Ngân hàng Nhà nước theo quy định của Luật Ngân sách Nhà nước và Luật Thống kê.",
+         "html": "2. Kinh phí thực hiện các cuộc điều tra thống kê được tổng hợp trong dự toán ngân sách của Ngân hàng Nhà nước theo quy định của Luật Ngân sách Nhà nước và Luật Thống kê.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_6508c988-df5a-11f0-b9f3-0f39d0dece7c",
+         "cap": "khoan",
+         "so": "3",
+         "tieu_de": "",
+         "text": "Cục Quản trị có trách nhiệm thẩm định và tổng hợp dự toán kinh phí các cuộc điều tra thống kê trên cơ sở đề xuất của các đơn vị thực hiện điều tra thống kê và Vụ Tài chính - Kế toán có trách nhiệm bố trí kinh phí theo quy định.",
+         "html": "3. Cục Quản trị có trách nhiệm thẩm định và tổng hợp dự toán kinh phí các cuộc điều tra thống kê trên cơ sở đề xuất của các đơn vị thực hiện điều tra thống kê và Vụ Tài chính - Kế toán có trách nhiệm bố trí kinh phí theo quy định.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        }
+       ]
+      },
+      {
+       "id": "id_6508c992-df5a-11f0-9ae1-bb59eb1175a9",
+       "cap": "dieu",
+       "so": "13",
+       "tieu_de": "Quyền và nghĩa vụ của Ban Chỉ đạo cuộc điều tra thống kê",
+       "text": "",
+       "html": "",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": [
+        {
+         "id": "id_6508c99c-df5a-11f0-add2-8f9c74d048ca",
+         "cap": "khoan",
+         "so": "1",
+         "tieu_de": "",
+         "text": "Chỉ đạo xây dựng phương án điều tra thống kê.",
+         "html": "1. Chỉ đạo xây dựng phương án điều tra thống kê.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_6508c9a6-df5a-11f0-baac-7b44f1938aad",
+         "cap": "khoan",
+         "so": "2",
+         "tieu_de": "",
+         "text": "Chỉ đạo tổ chức triển khai cuộc điều tra thống kê theo phương án điều tra thống kê.",
+         "html": "2. Chỉ đạo tổ chức triển khai cuộc điều tra thống kê theo phương án điều tra thống kê.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_6508c9b0-df5a-11f0-9ad9-d9d26c01b06c",
+         "cap": "khoan",
+         "so": "3",
+         "tieu_de": "",
+         "text": "Chỉ đạo thu thập, tổng hợp, xử lý, phân tích thông tin điều tra thống kê và xây dựng báo cáo kết quả điều tra thống kê.",
+         "html": "3. Chỉ đạo thu thập, tổng hợp, xử lý, phân tích thông tin điều tra thống kê và xây dựng báo cáo kết quả điều tra thống kê.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_6508c9ba-df5a-11f0-b033-43b2cabe107c",
+         "cap": "khoan",
+         "so": "4",
+         "tieu_de": "",
+         "text": "Trình Thống đốc công bố kết quả điều tra thống kê.",
+         "html": "4. Trình Thống đốc công bố kết quả điều tra thống kê.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        }
+       ]
+      },
+      {
+       "id": "id_6508c9c4-df5a-11f0-9da5-6f4ff0d1b943",
+       "cap": "dieu",
+       "so": "14",
+       "tieu_de": "Trách nhiệm của đơn vị chủ trì thực hiện cuộc điều tra thống kê",
+       "text": "",
+       "html": "",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": [
+        {
+         "id": "id_6508c9ce-df5a-11f0-8a0a-91bf0bc1cf3f",
+         "cap": "khoan",
+         "so": "1",
+         "tieu_de": "",
+         "text": "Xây dựng phương án điều tra thống kê, phiếu điều tra, các tài liệu liên quan.",
+         "html": "1. Xây dựng phương án điều tra thống kê, phiếu điều tra, các tài liệu liên quan.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_6508c9d8-df5a-11f0-9b93-df7dd3f7d380",
+         "cap": "khoan",
+         "so": "2",
+         "tieu_de": "",
+         "text": "Phối hợp với Vụ Dự báo, thống kê xây dựng hồ sơ đề nghị Tổng cục Thống kê thẩm định phương án điều tra thống kê.",
+         "html": "2. Phối hợp với Vụ Dự báo, thống kê xây dựng hồ sơ đề nghị Tổng cục Thống kê thẩm định phương án điều tra thống kê.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_6508c9e2-df5a-11f0-867f-057f56420a99",
+         "cap": "khoan",
+         "so": "3",
+         "tieu_de": "",
+         "text": "Chủ trì, phối hợp với Vụ Dự báo, thống kê và các đơn vị liên quan xây dựng, trình Thống đốc ban hành Quyết định điều tra thống kê.",
+         "html": "3. Chủ trì, phối hợp với Vụ Dự báo, thống kê và các đơn vị liên quan xây dựng, trình Thống đốc ban hành Quyết định điều tra thống kê.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_6508c9ec-df5a-11f0-a5f6-f926bfc9c6d2",
+         "cap": "khoan",
+         "so": "4",
+         "tieu_de": "",
+         "text": "Tham mưu, giúp Ban Chỉ đạo cuộc điều tra thống kê (nếu có) thực hiện các quyền và nghĩa vụ của Ban Chỉ đạo cuộc điều tra thống kê theo quy định tại Điều 13 Thông tư này.",
+         "html": "4. Tham mưu, giúp Ban Chỉ đạo cuộc điều tra thống kê (nếu có) thực hiện các quyền và nghĩa vụ của Ban Chỉ đạo cuộc điều tra thống kê theo quy định tại Điều 13 Thông tư này.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_6508c9f6-df5a-11f0-b575-37b209f7093c",
+         "cap": "khoan",
+         "so": "5",
+         "tieu_de": "",
+         "text": "Tổ chức thực hiện phương án điều tra thống kê đã được phê duyệt.",
+         "html": "5. Tổ chức thực hiện phương án điều tra thống kê đã được phê duyệt.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_6508ca00-df5a-11f0-afd2-d566b9441d7d",
+         "cap": "khoan",
+         "so": "6",
+         "tieu_de": "",
+         "text": "Kiểm tra việc cung cấp thông tin của đối tượng điều tra thống kê.",
+         "html": "6. Kiểm tra việc cung cấp thông tin của đối tượng điều tra thống kê.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_6508ca0a-df5a-11f0-9763-c1b96688a3ec",
+         "cap": "khoan",
+         "so": "7",
+         "tieu_de": "",
+         "text": "Thu thập, tổng hợp, xử lý, phân tích thông tin điều tra thống kê và lập báo cáo kết quả cuộc điều tra thống kê trình Thống đốc phê duyệt (trường hợp không thành lập Ban Chỉ đạo cuộc điều tra thống kê) hoặc trình Ban Chỉ đạo cuộc điều tra thống kê trình Thống đốc phê duyệt (trường hợp thành lập Ban Chỉ đạo cuộc điều tra thống kê).",
+         "html": "7. Thu thập, tổng hợp, xử lý, phân tích thông tin điều tra thống kê và lập báo cáo kết quả cuộc điều tra thống kê trình Thống đốc phê duyệt (trường hợp không thành lập Ban Chỉ đạo cuộc điều tra thống kê) hoặc trình Ban Chỉ đạo cuộc điều tra thống kê trình Thống đốc phê duyệt (trường hợp thành lập Ban Chỉ đạo cuộc điều tra thống kê).",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_6508ca14-df5a-11f0-81cf-7bfd36abf06e",
+         "cap": "khoan",
+         "so": "8",
+         "tieu_de": "",
+         "text": "Gửi Vụ Dự báo, thống kê Quyết định điều tra thống kê, phương án điều tra thống kê, báo cáo chi tiết kết quả điều tra thống kê và các số liệu thu thập được thông qua điều tra, nội dung công bố kết quả điều tra ngay sau khi được Thống đốc phê duyệt hoặc ban hành.",
+         "html": "8. Gửi Vụ Dự báo, thống kê Quyết định điều tra thống kê, phương án điều tra thống kê, báo cáo chi tiết kết quả điều tra thống kê và các số liệu thu thập được thông qua điều tra, nội dung công bố kết quả điều tra ngay sau khi được Thống đốc phê duyệt hoặc ban hành.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_6508ca1e-df5a-11f0-a842-d78c59adbd8a",
+         "cap": "khoan",
+         "so": "9",
+         "tieu_de": "",
+         "text": "Lưu giữ, quản lý hồ sơ, tài liệu của cuộc điều tra thống kê.",
+         "html": "9. Lưu giữ, quản lý hồ sơ, tài liệu của cuộc điều tra thống kê.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        }
+       ]
+      },
+      {
+       "id": "id_6508ca28-df5a-11f0-80c1-d580214ad1ed",
+       "cap": "dieu",
+       "so": "15",
+       "tieu_de": "Trách nhiệm của Vụ Dự báo, thống kê",
+       "text": "",
+       "html": "",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": [
+        {
+         "id": "id_6508ca32-df5a-11f0-9c1e-7b9cd4693dbc",
+         "cap": "khoan",
+         "so": "1",
+         "tieu_de": "",
+         "text": "Chủ trì, phối hợp với các đơn vị liên quan xây dựng, trình Thống đốc ban hành, sửa đổi, bổ sung và tổ chức triển khai Chương trình điều tra thống kê tiền tệ và ngân hàng.",
+         "html": "1. Chủ trì, phối hợp với các đơn vị liên quan xây dựng, trình Thống đốc ban hành, sửa đổi, bổ sung và tổ chức triển khai Chương trình điều tra thống kê tiền tệ và ngân hàng.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_6508ca3c-df5a-11f0-9706-41a327ad9bb8",
+         "cap": "khoan",
+         "so": "2",
+         "tieu_de": "",
+         "text": "Chủ trì, phối hợp với các đơn vị liên quan lập hồ sơ thẩm định phương án điều tra thống kê gửi Tổng cục Thống kê thẩm định theo quy định.",
+         "html": "2. Chủ trì, phối hợp với các đơn vị liên quan lập hồ sơ thẩm định phương án điều tra thống kê gửi Tổng cục Thống kê thẩm định theo quy định.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_6508ca46-df5a-11f0-ad61-3f631f97cb56",
+         "cap": "khoan",
+         "so": "3",
+         "tieu_de": "",
+         "text": "Hướng dẫn, theo dõi, kiểm tra các đơn vị liên quan trong việc triển khai Chương trình điều tra thống kê tiền tệ và ngân hàng đã được phê duyệt.",
+         "html": "3. Hướng dẫn, theo dõi, kiểm tra các đơn vị liên quan trong việc triển khai Chương trình điều tra thống kê tiền tệ và ngân hàng đã được phê duyệt.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_6508ca50-df5a-11f0-a514-6bec1003ffba",
+         "cap": "khoan",
+         "so": "4",
+         "tieu_de": "",
+         "text": "Phối hợp với các đơn vị liên quan xây dựng, trình Thống đốc ban hành quyết định cuộc điều tra thống kê và phê duyệt phương án điều tra thống kê.",
+         "html": "4. Phối hợp với các đơn vị liên quan xây dựng, trình Thống đốc ban hành quyết định cuộc điều tra thống kê và phê duyệt phương án điều tra thống kê.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_6508ca5a-df5a-11f0-a644-0127f5f68f4c",
+         "cap": "khoan",
+         "so": "5",
+         "tieu_de": "",
+         "text": "Chủ trì, phối hợp với các đơn vị liên quan tổng hợp, báo cáo kết quả các cuộc điều tra thống kê của Ngân hàng Nhà nước cho Tổng cục Thống kê.",
+         "html": "5. Chủ trì, phối hợp với các đơn vị liên quan tổng hợp, báo cáo kết quả các cuộc điều tra thống kê của Ngân hàng Nhà nước cho Tổng cục Thống kê.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_6508ca64-df5a-11f0-b948-4df39e3f6a3b",
+         "cap": "khoan",
+         "so": "6",
+         "tieu_de": "",
+         "text": "Hàng năm, tổng hợp nhận xét, đánh giá, báo cáo Thống đốc tình hình thực hiện quy định về điều tra thống kê tiền tệ và ngân hàng tại Thông tư này.",
+         "html": "6. Hàng năm, tổng hợp nhận xét, đánh giá, báo cáo Thống đốc tình hình thực hiện quy định về điều tra thống kê tiền tệ và ngân hàng tại Thông tư này.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        }
+       ]
+      },
+      {
+       "id": "id_6508ca6e-df5a-11f0-9baf-f1386facf7d3",
+       "cap": "dieu",
+       "so": "16",
+       "tieu_de": "Quyền và nghĩa vụ của đối tượng điều tra thống kê",
+       "text": "",
+       "html": "",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": [
+        {
+         "id": "id_6508ca78-df5a-11f0-9eaa-f11e344470a5",
+         "cap": "khoan",
+         "so": "1",
+         "tieu_de": "",
+         "text": "Đối tượng điều tra thống kê có các quyền sau đây:",
+         "html": "1. Đối tượng điều tra thống kê có các quyền sau đây:",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": [
+          {
+           "id": "id_6508ca82-df5a-11f0-8117-25d5a3aeded6",
+           "cap": "diem",
+           "so": "a",
+           "tieu_de": "",
+           "text": "Được thông báo về quyết định, mục đích, yêu cầu, phạm vi, nội dung chủ yếu và thời hạn của cuộc điều tra;",
+           "html": "a) Được thông báo về quyết định, mục đích, yêu cầu, phạm vi, nội dung chủ yếu và thời hạn của cuộc điều tra;",
+           "bi_tac_dong": null,
+           "an": false,
+           "con": []
+          },
+          {
+           "id": "id_6508ca8c-df5a-11f0-840b-2d1a522cfe5e",
+           "cap": "diem",
+           "so": "b",
+           "tieu_de": "",
+           "text": "Được bảo đảm bí mật thông tin đã cung cấp cho Ngân hàng Nhà nước theo quy định tại Điều 11 Thông tư này;",
+           "html": "b) Được bảo đảm bí mật thông tin đã cung cấp cho Ngân hàng Nhà nước theo quy định tại Điều 11 Thông tư này;",
+           "bi_tac_dong": null,
+           "an": false,
+           "con": []
+          },
+          {
+           "id": "id_6508ca96-df5a-11f0-bbec-497ed546c32f",
+           "cap": "diem",
+           "so": "c",
+           "tieu_de": "",
+           "text": "Khiếu nại, tố cáo hành vi vi phạm pháp luật về điều tra thống kê.",
+           "html": "c) Khiếu nại, tố cáo hành vi vi phạm pháp luật về điều tra thống kê.",
+           "bi_tac_dong": null,
+           "an": false,
+           "con": []
+          }
+         ]
+        },
+        {
+         "id": "id_6508caa0-df5a-11f0-8960-43fd16e85e94",
+         "cap": "khoan",
+         "so": "2",
+         "tieu_de": "",
+         "text": "Đối tượng điều tra thống kê có các nghĩa vụ sau đây:",
+         "html": "2. Đối tượng điều tra thống kê có các nghĩa vụ sau đây:",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": [
+          {
+           "id": "id_6508caaa-df5a-11f0-b47b-ab230f925def",
+           "cap": "diem",
+           "so": "a",
+           "tieu_de": "",
+           "text": "Cung cấp thông tin trung thực, chính xác, đầy đủ và đúng thời hạn theo yêu cầu của Ngân hàng Nhà nước;",
+           "html": "a) Cung cấp thông tin trung thực, chính xác, đầy đủ và đúng thời hạn theo yêu cầu của Ngân hàng Nhà nước;",
+           "bi_tac_dong": null,
+           "an": false,
+           "con": []
+          },
+          {
+           "id": "id_6508cab4-df5a-11f0-9554-e5d990b80e6d",
+           "cap": "diem",
+           "so": "b",
+           "tieu_de": "",
+           "text": "Không được từ chối hoặc cản trở việc cung cấp thông tin điều tra thống kê cho Ngân hàng Nhà nước;",
+           "html": "b) Không được từ chối hoặc cản trở việc cung cấp thông tin điều tra thống kê cho Ngân hàng Nhà nước;",
+           "bi_tac_dong": null,
+           "an": false,
+           "con": []
+          },
+          {
+           "id": "id_6508cabe-df5a-11f0-8794-afe99b9adc2a",
+           "cap": "diem",
+           "so": "c",
+           "tieu_de": "",
+           "text": "Chịu sự kiểm tra của Ngân hàng Nhà nước và thanh tra chuyên ngành thống kê về thông tin đã cung cấp.",
+           "html": "c) Chịu sự kiểm tra của Ngân hàng Nhà nước và thanh tra chuyên ngành thống kê về thông tin đã cung cấp.",
+           "bi_tac_dong": null,
+           "an": false,
+           "con": []
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": "id_6508cac8-df5a-11f0-b151-1d6a3a8fbadf",
+     "cap": "muc",
+     "so": "2",
+     "tieu_de": "ĐIỀU TRA THỐNG KÊ TIỀN TỆ VÀ NGÂN HÀNG NGOÀI THỐNG KÊ NHÀ NƯỚC",
+     "text": "",
+     "html": "",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": [
+      {
+       "id": "id_6508cad2-df5a-11f0-a8b4-d102216327f0",
+       "cap": "dieu",
+       "so": "17",
+       "tieu_de": "Điều tra thống kê tiền tệ và ngân hàng ngoài thống kê nhà nước",
+       "text": "",
+       "html": "",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": [
+        {
+         "id": "id_6508cadc-df5a-11f0-b235-0f88948928c2",
+         "cap": "khoan",
+         "so": "1",
+         "tieu_de": "",
+         "text": "Tổ chức, cá nhân thực hiện điều tra thống kê tiền tệ và ngân hàng ngoài thống kê nhà nước nhằm phục vụ nghiên cứu khoa học và sản xuất kinh doanh theo quy định của pháp luật.",
+         "html": "1. Tổ chức, cá nhân thực hiện điều tra thống kê tiền tệ và ngân hàng ngoài thống kê nhà nước nhằm phục vụ nghiên cứu khoa học và sản xuất kinh doanh theo quy định của pháp luật.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_6508cae6-df5a-11f0-b849-9db0b300f8c4",
+         "cap": "khoan",
+         "so": "2",
+         "tieu_de": "",
+         "text": "Tổ chức, cá nhân thực hiện điều tra thống kê tiền tệ và ngân hàng ngoài thống kê nhà nước phải tuân thủ yêu cầu quy định tại Điều 68 Luật thống kê.",
+         "html": "2. Tổ chức, cá nhân thực hiện điều tra thống kê tiền tệ và ngân hàng ngoài thống kê nhà nước phải tuân thủ yêu cầu quy định tại Điều 68 Luật thống kê.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_6508caf0-df5a-11f0-8e00-0182170c104e",
+         "cap": "khoan",
+         "so": "3",
+         "tieu_de": "",
+         "text": "Tổ chức, cá nhân không được tiến hành điều tra thống kê hoặc công bố thông tin về điều tra thống kê làm phương hại đến lợi ích quốc gia, sự ổn định tiền tệ, an toàn hoạt động ngân hàng và chính sách tiền tệ quốc gia.",
+         "html": "3. Tổ chức, cá nhân không được tiến hành điều tra thống kê hoặc công bố thông tin về điều tra thống kê làm phương hại đến lợi ích quốc gia, sự ổn định tiền tệ, an toàn hoạt động ngân hàng và chính sách tiền tệ quốc gia.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_6508cafa-df5a-11f0-994d-1dcdfce11679",
+         "cap": "khoan",
+         "so": "4",
+         "tieu_de": "",
+         "text": "Tổ chức, cá nhân khi công bố kết quả điều tra thống kê tiền tệ và ngân hàng ngoài thống kê nhà nước phải trích dẫn phương pháp điều tra, mẫu điều tra, phạm vi tiến hành điều tra, thời gian và thời điểm tiến hành, kết thúc cuộc điều tra.",
+         "html": "4. Tổ chức, cá nhân khi công bố kết quả điều tra thống kê tiền tệ và ngân hàng ngoài thống kê nhà nước phải trích dẫn phương pháp điều tra, mẫu điều tra, phạm vi tiến hành điều tra, thời gian và thời điểm tiến hành, kết thúc cuộc điều tra.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        }
+       ]
+      },
+      {
+       "id": "id_6508cb04-df5a-11f0-8e21-6fc69e7f4f48",
+       "cap": "dieu",
+       "so": "18",
+       "tieu_de": "Giá trị thông tin, kết quả điều tra thống kê tiền tệ và ngân hàng ngoài thống kê nhà nước do các tổ chức, cá nhân thu thập",
+       "text": "Thông tin, kết quả của các cuộc điều tra thống kê quy định tại khoản 1 Điều 17 Thông tư này không có giá trị thay thế thông tin thống kê do Ngân hàng Nhà nước công bố.",
+       "html": "Thông tin, kết quả của các cuộc điều tra thống kê quy định tại khoản 1 Điều 17 Thông tư này không có giá trị thay thế thông tin thống kê do Ngân hàng Nhà nước công bố.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "id_6508cb0e-df5a-11f0-97ef-f72d09af4495",
+   "cap": "chuong",
+   "so": "III",
+   "tieu_de": "TỔ CHỨC THỰC HIỆN",
+   "text": "",
+   "html": "",
+   "bi_tac_dong": null,
+   "an": false,
+   "con": [
+    {
+     "id": "id_6508cb18-df5a-11f0-8b9d-bb80ed6addf7",
+     "cap": "dieu",
+     "so": "19",
+     "tieu_de": "Hiệu lực thi hành",
+     "text": "Thông tư này có hiệu lực thi hành kể từ ngày 31 tháng 12 năm 2018 và thay thế Thông tư số 06/2011/TT-NHNN ngày 22 tháng 3 năm 2011 của Ngân hàng Nhà nước quy định về điều tra thống kê trong lĩnh vực tiền tệ, hoạt động ngân hàng và ngoại hối.",
+     "html": "Thông tư này có hiệu lực thi hành kể từ ngày 31 tháng 12 năm 2018 và thay thế Thông tư số 06/2011/TT-NHNN ngày 22 tháng 3 năm 2011 của Ngân hàng Nhà nước quy định về điều tra thống kê trong lĩnh vực tiền tệ, hoạt động ngân hàng và ngoại hối.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_6508eda0-df5a-11f0-86a4-0b5309062188",
+     "cap": "dieu",
+     "so": "20",
+     "tieu_de": "Tổ chức thực hiện",
+     "text": "Chánh Văn phòng, Vụ trưởng Vụ Dự báo, thống kê, Thủ trưởng các đơn vị thuộc Ngân hàng Nhà nước, Giám đốc Ngân hàng Nhà nước chi nhánh các tỉnh, thành phố trực thuộc Trung ương, Chủ tịch Hội đồng quản trị, Tổng Giám đốc (Giám đốc) các tổ chức tín dụng, chi nhánh ngân hàng nước ngoài chịu trách nhiệm thực hiện Thông tư này./.",
+     "html": "Chánh Văn phòng, Vụ trưởng Vụ Dự báo, thống kê, Thủ trưởng các đơn vị thuộc Ngân hàng Nhà nước, Giám đốc Ngân hàng Nhà nước chi nhánh các tỉnh, thành phố trực thuộc Trung ương, Chủ tịch Hội đồng quản trị, Tổng Giám đốc (Giám đốc) các tổ chức tín dụng, chi nhánh ngân hàng nước ngoài chịu trách nhiệm thực hiện Thông tư này./.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    }
+   ]
+  }
+ ],
+ "trich_dan": []
+}

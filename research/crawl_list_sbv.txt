@@ -1,0 +1,97 @@
+# Văn bản bộ eval SBV-LawGraph (data/evaluate/svb_graph/sbv_testset_tvpl.json) dẫn tới mà
+# corpus chưa có. Đo 12/08/2026: corpus phủ 4/27 văn bản ⇒ 29/100 câu dùng được.
+#
+# Chạy:  uv run python scripts/crawl_vbpl_batch.py research/crawl_list_sbv.txt
+# Dòng bắt đầu bằng # bị bỏ qua; xoá dòng URL của văn bản nào không định cào cũng được.
+#
+# CẢNH BÁO VỀ CỘT "cộng dồn": tính tham lam theo THỨ TỰ trong file này. Bỏ qua một khối thì
+# các con số dưới nó không còn đúng. Tính lại bằng tay theo đúng thuật tham lam: lặp lại bước
+# "thêm văn bản làm nhiều câu hỏi ĐỦ CĂN CỨ nhất vào tập đang cộng dồn" — một câu hỏi chỉ tính
+# là đủ căn cứ khi TẤT CẢ văn bản nó dẫn đã có mặt trong tập đó.
+#
+# URL do chủ repo tra 12/08/2026 (research/crawl_list_svb.csv). Tên văn bản dưới đây lấy từ
+# slug URL vbpl.vn, KHÔNG còn là suy đoán từ câu hỏi như bản trước — năm tên đã được sửa lại
+# theo nguồn: 08/2023 (điều kiện vay, không phải sửa đổi 12/2022) · 32/2024 (mạng lưới hoạt
+# động, không phải chi nhánh nước ngoài) · 14/2024 (tài sản có, không phải nợ) · 21/2017 (giải
+# ngân vốn, không phải phương thức cho vay) · 57/2024 (TCTD phi ngân hàng).
+
+# ====================================================================================================
+# TRONG PHẠM VI sản phẩm (thanh toán · tài khoản · thẻ · ngoại hối · PCRT · an toàn giao dịch)
+# Cào đủ 7 khối này: 29 → 56/100 câu.
+# ====================================================================================================
+
+# [ 8 câu | cộng dồn 37] 94/2025/NĐ-CP — cơ chế thử nghiệm có kiểm soát trong lĩnh vực ngân hàng
+https://vbpl.vn/van-ban/chi-tiet/nghi-dinh-so-94-2025-nd-cp-quy-dinh-ve-co-che-thu-nghiem-co-kiem-soat-trong-linh-vuc-ngan-hang--177341
+
+# [ 6 câu | cộng dồn 43] 64/2024/TT-NHNN — triển khai giao diện lập trình ứng dụng mở (Open API)
+https://vbpl.vn/van-ban/chi-tiet/thong-tu-so-64-2024-tt-nhnn-quy-dinh-ve-trien-khai-giao-dien-lap-trinh-ung-dung-mo-trong-nganh-ngan-hang--174547
+
+# [ 5 câu | cộng dồn 48] 58/2024/TT-NHNN — xử lý tiền giả, tiền nghi giả trong ngành ngân hàng
+https://vbpl.vn/van-ban/chi-tiet/thong-tu-so-58-2024-tt-nhnn-huong-dan-ve-xu-ly-tien-gia-tien-nghi-gia-trong-nganh-ngan-hang--174116
+
+# [ 3 câu | cộng dồn 51] 50/2024/TT-NHNN — an toàn, bảo mật cho việc cung cấp dịch vụ trực tuyến
+https://vbpl.vn/van-ban/chi-tiet/thong-tu-so-50-2024-tt-nhnn-quy-dinh-ve-an-toan-bao-mat-cho-viec-cung-cap-dich-vu-truc-tuyen-trong-nganh-ngan-hang--171687
+
+# [ 3 câu | cộng dồn 53] 12/2022/TT-NHNN — quản lý ngoại hối với vay, trả nợ nước ngoài của doanh nghiệp
+https://vbpl.vn/van-ban/chi-tiet/thong-tu-so-12-2022-tt-nhnn-huong-dan-ve-quan-ly-ngoai-hoi-doi-voi-viec-vay-tra-no-nuoc-ngoai-cua-doanh-nghiep--156124
+
+# [ 2 câu | cộng dồn 55] 60/2024/TT-NHNN — dịch vụ ngân quỹ cho TCTD, chi nhánh ngân hàng nước ngoài
+https://vbpl.vn/van-ban/chi-tiet/thong-tu-so-60-2024-tt-nhnn-quy-dinh-ve-viec-dich-vu-ngan-quy-cho-to-chuc-tin-dung-chi-nhanh-ngan-hang-nuoc-ngoai--174100
+
+# [ 1 câu | cộng dồn 56] 08/2023/TT-NHNN — điều kiện vay nước ngoài không được Chính phủ bảo lãnh
+https://vbpl.vn/van-ban/chi-tiet/thong-tu-so-08-2023-tt-nhnn-quy-dinh-ve-dieu-kien-vay-nuoc-ngoai-khong-duoc-chinh-phu-bao-lanh--161116
+
+# ====================================================================================================
+# NGOÀI PHẠM VI — ngân hàng nói chung, không phải thanh toán.
+# Cào thêm cả 16 khối này: 56 → 100/100 câu. Nhưng đó là MỞ RỘNG SẢN PHẨM, không phải bổ
+# sung dữ liệu — cùng loại quyết định đã gặp với bộ TVPL (xem research/crawl_list_eval.txt).
+# ====================================================================================================
+
+# [ 7 câu] 26/2024/TT-NHNN — cho thuê tài chính của công ty tài chính tổng hợp, công ty cho thuê tài chính
+https://vbpl.vn/van-ban/chi-tiet/thong-tu-so-26-2024-tt-nhnn-quy-dinh-ve-hoat-dong-cho-thue-tai-chinh-cua-cong-ty-tai-chinh-tong-hop-cong-ty-cho-thue-tai-chinh--168150
+
+# [ 6 câu] 61/2024/TT-NHNN — bảo lãnh ngân hàng
+https://vbpl.vn/van-ban/chi-tiet/thong-tu-so-61-2024-tt-nhnn-quy-dinh-ve-bao-lanh-ngan-hang--174119
+
+# [ 5 câu] 21/2024/TT-NHNN — nghiệp vụ thư tín dụng (L/C) và các hoạt động kinh doanh liên quan
+https://vbpl.vn/van-ban/chi-tiet/thong-tu-so-21-2024-tt-nhnn-quy-dinh-ve-nghiep-vu-thu-tin-dung-va-cac-hoat-dong-kinh-doanh-khac-lien-quan-den-thu-tin-dung--168108
+
+# [ 3 câu] 32/2024/TT-NHNN — mạng lưới hoạt động của ngân hàng thương mại
+https://vbpl.vn/van-ban/chi-tiet/thong-tu-so-32-2024-tt-nhnn-quy-dinh-ve-mang-luoi-hoat-dong-cua-ngan-hang-thuong-mai--168421
+
+# [ 3 câu] 26/2018/TT-NHNN — điều tra thống kê tiền tệ, ngân hàng và ngoại hối ngoài chương trình quốc gia
+https://vbpl.vn/van-ban/chi-tiet/thong-tu-so-26-2018-tt-nhnn-quy-dinh-ve-dieu-tra-thong-ke-tien-te-ngan-hang-va-ngoai-hoi-ngoai-chuong-trinh-dieu-tra-thong-ke-quoc-gia--132146
+
+# [ 3 câu] 51/2024/TT-NHNN — kiểm toán độc lập với NHTM, TCTD phi ngân hàng, tài chính vi mô, chi nhánh NH nước ngoài
+https://vbpl.vn/van-ban/chi-tiet/thong-tu-so-51-2024-tt-nhnn-quy-dinh-ve-kiem-toan-doc-lap-doi-voi-ngan-hang-thuong-mai-to-chuc-tin-dung-phi-ngan-hang-to-chuc-tai-chinh-vi-mo-chi-nhanh-ngan-hang-nuoc-ngoai--172395
+
+# [ 2 câu] 14/2024/TT-NHNN — phân loại tài sản có của tổ chức tài chính vi mô
+https://vbpl.vn/van-ban/chi-tiet/thong-tu-so-14-2024-tt-nhnn-quy-dinh-ve-phan-loai-tai-san-co-cua-to-chuc-tai-chinh-vi-mo--168094
+
+# [ 2 câu] 21/2017/TT-NHNN — phương thức giải ngân vốn cho vay của TCTD, chi nhánh NH nước ngoài
+#   TRÙNG với research/crawl_list_eval.txt (bộ TVPL) — cào một lần dùng cho cả hai bộ.
+https://vbpl.vn/van-ban/chi-tiet/thong-tu-so-21-2017-tt-nhnn-quy-dinh-ve-phuong-thuc-giai-ngan-von-cho-vay-cua-to-chuc-tin-dung-chi-nhanh-ngan-hang-nuoc-ngoai-doi-voi-khach-hang--127527
+
+# [ 2 câu] 45/2024/TT-NHNN — quản lý và tổ chức thực hiện nhiệm vụ khoa học và công nghệ của NHNN
+https://vbpl.vn/van-ban/chi-tiet/thong-tu-so-45-2024-tt-nhnn-quy-dinh-ve-quan-ly-va-to-chuc-thuc-hien-cac-nhiem-vu-khoa-hoc-va-cong-nghe-cua-ngan-hang-nha-nuoc-viet-nam--169729
+
+# [ 2 câu] 39/2016/TT-NHNN — hoạt động cho vay của TCTD, chi nhánh NH nước ngoài đối với khách hàng
+https://vbpl.vn/van-ban/chi-tiet/thong-tu-so-39-2016-tt-nhnn-quy-dinh-ve-hoat-dong-cho-vay-cua-to-chuc-tin-dung-chi-nhanh-ngan-hang-nuoc-ngoai-doi-voi-khach-hang--118230
+
+# [ 2 câu] 02/2025/TT-NHNN — phát hành chứng chỉ tiền gửi trong nước của TCTD, chi nhánh NH nước ngoài
+https://vbpl.vn/van-ban/chi-tiet/thong-tu-so-02-2025-tt-nhnn-quy-dinh-ve-phat-hanh-chung-chi-tien-gui-trong-nuoc-cua-to-chuc-tin-dung-chi-nhanh-ngan-hang-nuoc-ngoai--177273
+
+# [ 2 câu] 48/2018/TT-NHNN — tiền gửi tiết kiệm
+https://vbpl.vn/van-ban/chi-tiet/thong-tu-so-48-2018-tt-nhnn-quy-dinh-ve-tien-gui-tiet-kiem--133534
+
+# [ 2 câu] 26/2025/NĐ-CP — chức năng, nhiệm vụ, quyền hạn và cơ cấu tổ chức của NHNN Việt Nam
+https://vbpl.vn/van-ban/chi-tiet/nghi-dinh-so-26-2025-nd-cp-quy-dinh-chuc-nang-nhiem-vu-quyen-han-va-co-cau-to-chuc-cua-ngan-hang-nha-nuoc-viet-nam--175337
+
+# [ 1 câu] 37/2024/TT-NHNN — cho vay đặc biệt
+https://vbpl.vn/van-ban/chi-tiet/thong-tu-so-37-2024-tt-nhnn-quy-dinh-ve-cho-vay-dac-biet--169626
+
+# [ 1 câu] 57/2024/TT-NHNN — hồ sơ, thủ tục cấp Giấy phép lần đầu của TCTD phi ngân hàng
+https://vbpl.vn/van-ban/chi-tiet/thong-tu-so-57-2024-tt-nhnn-quy-dinh-ho-so-thu-tuc-cap-giay-phep-lan-dau-cua-to-chuc-tin-dung-phi-ngan-hang--173460
+
+# [ 1 câu] 20/2024/TT-NHNN — bao thanh toán và dịch vụ khác liên quan của TCTD, chi nhánh NH nước ngoài
+https://vbpl.vn/van-ban/chi-tiet/thong-tu-so-20-2024-tt-nhnn-quy-dinh-ve-bao-thanh-toan-va-dich-vu-khac-lien-quan-den-bao-thanh-toan-cua-to-chuc-tin-dung-chi-nhanh-ngan-hang-nuoc-ngoai--168109

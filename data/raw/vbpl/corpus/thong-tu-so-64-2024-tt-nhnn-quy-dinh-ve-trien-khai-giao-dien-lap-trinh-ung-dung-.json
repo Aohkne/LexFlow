@@ -1,0 +1,1187 @@
+{
+ "doc_id": "TT64-2024",
+ "title": "Thông tư 64/2024/TT-NHNN của Ngân hàng Nhà nước Việt Nam",
+ "doc_type": "Thông tư",
+ "source": "external",
+ "valid_from": "2025-03-01",
+ "valid_to": null,
+ "so_hieu": "64/2024/TT-NHNN",
+ "co_quan_ban_hanh": "Ngân hàng Nhà nước Việt Nam",
+ "nguoi_ky": "Phạm Tiến Dũng",
+ "chuc_danh": "Phó Thống đốc",
+ "nganh": "Ngân hàng",
+ "linh_vuc": "Công nghệ tin học ngân hàng",
+ "ngay_ban_hanh": "2024-12-31",
+ "tinh_trang_hieu_luc": "Còn hiệu lực",
+ "source_url": "https://vbpl.vn/van-ban/chi-tiet/thong-tu-so-64-2024-tt-nhnn-quy-dinh-ve-trien-khai-giao-dien-lap-trinh-ung-dung-mo-trong-nganh-ngan-hang--174547",
+ "source_files": [
+  {
+   "ten": "Phụ lục 1 đính kèm TT 64-2024-TT-NHNN.docx",
+   "kich_thuoc": "0.84MB",
+   "url": "https://vbpl-bientap-gateway.moj.gov.vn/api/qtdc/public/doc/minio/buckets/vbpl/174547/Ph%E1%BB%A5%20l%E1%BB%A5c%201%20%C4%91%C3%ADnh%20k%C3%A8m%20TT%2064-2024-TT-NHNN.docx/download"
+  },
+  {
+   "ten": "Phụ lục 2 đính kèm TT64-2024-TT-NHNN.docx",
+   "kich_thuoc": "0.03MB",
+   "url": "https://vbpl-bientap-gateway.moj.gov.vn/api/qtdc/public/doc/minio/buckets/vbpl/174547/Ph%E1%BB%A5%20l%E1%BB%A5c%202%20%C4%91%C3%ADnh%20k%C3%A8m%20TT64-2024-TT-NHNN.docx/download"
+  },
+  {
+   "ten": "Thông tư 64-2024-TT-NHNN.doc",
+   "kich_thuoc": "0.13MB",
+   "url": "https://vbpl-bientap-gateway.moj.gov.vn/api/qtdc/public/doc/minio/buckets/vbpl/174547/Th%C3%B4ng%20t%C6%B0%2064-2024-TT-NHNN.doc/download"
+  },
+  {
+   "ten": "VanBanGoc_Phụ lục đính kèm TT64-2024-TT-NHNN.pdf",
+   "kich_thuoc": "2.8MB",
+   "url": "https://vbpl-bientap-gateway.moj.gov.vn/api/qtdc/public/doc/minio/buckets/vbpl/174547/VanBanGoc_Ph%E1%BB%A5%20l%E1%BB%A5c%20%C4%91%C3%ADnh%20k%C3%A8m%20TT64-2024-TT-NHNN.pdf/download"
+  },
+  {
+   "ten": "VanBanGoc_Thông tư 64-2024-TT-NHNN.pdf",
+   "kich_thuoc": "3.61MB",
+   "url": "https://vbpl-bientap-gateway.moj.gov.vn/api/qtdc/public/doc/minio/buckets/vbpl/174547/VanBanGoc_Th%C3%B4ng%20t%C6%B0%2064-2024-TT-NHNN.pdf/download"
+  }
+ ],
+ "co_toan_van": true,
+ "canh_bao": [],
+ "articles": [
+  {
+   "article": "Điều 1",
+   "text": "Phạm vi điều chỉnh\n1.  Thông tư này quy định về việc triển khai giao diện lập trình ứng dụng mở trong ngành Ngân hàng.\n2.   Thông tư này không điều chỉnh việc kết nối, xử lý dữ liệu chứa thông tin thuộc phạm vi bí mật nhà nước. Việc xử lý dữ liệu chứa thông tin thuộc phạm vi bí mật nhà nước được thực hiện theo quy định của pháp luật hiện hành.\n3.   Thông tư này không điều chỉnh việc kết nối, xử lý dữ liệu trực tiếp giữa:\na)    Hệ thống thông tin của Ngân hàng và hệ thống thông tin của tổ chức qua giao diện lập trình ứng dụng để phục vụ nghiệp vụ nội bộ của chính tổ chức đó;\nb)    Hệ thống thông tin của Ngân hàng và hệ thống thông tin của Tổ chức chủ trì hệ thống bù trừ điện tử. Tổ chức chủ trì hệ thống bù trừ điện tử được xác định theo quy định của Ngân hàng Nhà nước Việt Nam về hoạt động cung ứng dịch vụ trung gian thanh toán.",
+   "chapter": "Chương I. QUY ĐỊNH CHUNG",
+   "section": null,
+   "superseded": false,
+   "char_start": 1087,
+   "char_end": 1926
+  },
+  {
+   "article": "Điều 2",
+   "text": "Đối tượng áp dụng\n1.  Ngân hàng thương mại, ngân hàng hợp tác xã, chi nhánh ngân hàng nước ngoài (sau đây gọi chung là Ngân hàng).\n2.   Tổ chức, cá nhân có liên quan trong việc triển khai dịch vụ qua giao diện lập trình ứng dụng mở trong ngành ngân hàng.",
+   "chapter": "Chương I. QUY ĐỊNH CHUNG",
+   "section": null,
+   "superseded": false,
+   "char_start": 1936,
+   "char_end": 2190
+  },
+  {
+   "article": "Điều 3",
+   "text": "Giải thích từ ngữ\nTrong Thông tư này, các thuật ngữ dưới đây được hiểu như sau:\n1.  Giao diện lập trình ứng dụng (tên tiếng anh là: Application Programming Interface, sau đây viết tắt là API) là giao diện cho phép giao tiếp giữa các ứng dụng phần mềm trong một tổ chức hoặc giữa các tổ chức với nhau.\n2.   Giao diện lập trình ứng dụng mở trong ngành Ngân hàng (Open API) là tập hợp các API được Ngân hàng cung cấp cho bên thứ ba trực tiếp kết nối, xử lý dữ liệu để cung ứng dịch vụ cho khách hàng. Open API gồm: Open API cơ bản và Open API khác.\n3.   Hệ thống thử nghiệm Open API là hệ thống thông tin của Ngân hàng cung cấp cho bên thứ ba để thử nghiệm các Open API trước khi triển khai chính thức.\n4.  Khách hàng là cá nhân sử dụng dịch vụ của Ngân hàng.\n5.  Bên thứ ba là tổ chức hoặc Ngân hàng khác có thỏa thuận bằng hợp đồng với Ngân hàng trong việc kết nối, xử lý dữ liệu qua Open API để cung ứng dịch vụ cho khách hàng.\n6.  Sự đồng ý của khách hàng là việc thể hiện rõ ràng, tự nguyện, khẳng định việc cho phép xử lý dữ liệu cá nhân của khách hàng.",
+   "chapter": "Chương I. QUY ĐỊNH CHUNG",
+   "section": null,
+   "superseded": false,
+   "char_start": 2200,
+   "char_end": 3256
+  },
+  {
+   "article": "Điều 4",
+   "text": "Nguyên tắc chung\nNgân hàng, khách hàng và bên thứ ba (sau đây gọi là các bên) khi triển khai Open API phải tuân thủ các yêu cầu sau:\n1.  Tuân thủ các quy định của pháp luật về giữ bí mật, cung cấp thông tin khách hàng và bảo vệ dữ liệu cá nhân. Việc xử lý dữ liệu cá nhân của khách hàng chỉ phục vụ cho chính khách hàng đó, trừ trường hợp theo quy định của pháp luật.\n2.  Dữ liệu trong quá trình xử lý phải được quản lý, lưu trữ, khai thác, sử dụng đúng mục đích tại hợp đồng giữa các bên và phù hợp với quy định của pháp luật.\n3.  Dữ liệu trong quá trình xử lý phải bảo đảm tính cập nhật và chính xác. Trường hợp có sai lệch phải thực hiện đính chính, hiệu chỉnh kịp thời theo thỏa thuận giữa các bên.",
+   "chapter": "Chương I. QUY ĐỊNH CHUNG",
+   "section": null,
+   "superseded": false,
+   "char_start": 3266,
+   "char_end": 3968
+  },
+  {
+   "article": "Điều 5",
+   "text": "Nguyên tắc triển khai Open API\n1.   Khi triển khai Open API cơ bản quy định tại Điều 6 Thông tư này, Ngân hàng phải tuân thủ quy định tại Phụ lục 01, Phụ lục 02 ban hành kèm theo Thông tư này.\n2.  Khi triển khai Open API khác theo nhu cầu thực tế và phù hợp quy định của pháp luật ngoài danh mục Open API quy định tại Điều 6 Thông tư này, Ngân hàng phải tuân thủ quy định tại Phụ lục 02 ban hành kèm theo Thông tư này.\n3.   Ngân hàng chỉ được phép triển khai Open API quy định tại điểm c khoản 1 Điều 6 cho bên thứ ba là Ngân hàng, tổ chức cung ứng dịch vụ trung gian thanh toán.",
+   "chapter": "Chương II. QUY ĐỊNH CỤ THỂ VỀ TRIỂN KHAI OPEN API",
+   "section": "Mục 1. QUY ĐỊNH TRIỂN KHAI OPEN API",
+   "superseded": false,
+   "char_start": 4062,
+   "char_end": 4641
+  },
+  {
+   "article": "Điều 6",
+   "text": "Danh mục Open API\n1.   Danh mục Open API cơ bản được tổ chức thành các nhóm sau:\na)  Open API truy vấn thông tin tỷ giá, lãi suất của Ngân hàng gồm: API Lấy thông tin lãi suất, API Lấy thông tin tỷ giá;\nb)   Open API truy vấn thông tin của khách hàng gồm: API Xác nhận và lấy sự đồng ý của khách hàng, API Lấy mã truy cập, API Làm mới mã truy cập, API Thu hồi mã truy cập, API Lấy danh sách tài khoản, API Lấy thông tin tài khoản, API Lấy lịch sử giao dịch;\nc)   Open API khởi tạo thanh toán, nạp tiền vào ví điện tử, rút tiền ra khỏi ví điện tử gồm:\n(i)  Open API khởi tạo thanh toán gồm: API Khởi tạo thanh toán, API Xác nhận khách hàng Luồng Redirect, API Lấy mã truy cập luồng Redirect, API Cập nhật trạng thái xác nhận thanh toán của khách hàng luồng Decoupled, API Xác nhận thanh toán, API Lấy trạng thái giao dịch, API Lấy trạng thái xác nhận thanh toán của khách hàng luồng Decoupled;\n(ii)   Open API Nạp tiền vào ví điện tử gồm: API Nạp ví điện tử, API Xác nhận OTP, API Cập nhật trạng thái xác nhận nạp ví điện tử của khách hàng luồng Decoupled, API Lấy trạng thái xác nhận nạp ví điện tử của khách hàng luồng Decoupled, API Xác nhận nạp ví điện tử, API Lấy trạng thái giao dịch;\n(iii) Open API Rút tiền ra khỏi ví điện tử.\n2.  Chi tiết đặc tả danh mục Open API tại khoản 1 Điều này được quy định cụ thể tại Phụ lục 01 ban hành kèm theo Thông tư này.",
+   "chapter": "Chương II. QUY ĐỊNH CỤ THỂ VỀ TRIỂN KHAI OPEN API",
+   "section": "Mục 1. QUY ĐỊNH TRIỂN KHAI OPEN API",
+   "superseded": false,
+   "char_start": 4651,
+   "char_end": 6011
+  },
+  {
+   "article": "Điều 7",
+   "text": "Danh mục tiêu chuẩn kỹ thuật\n1.  Các tiêu chuẩn kỹ thuật triển khai Open API gồm tiêu chuẩn kiến trúc, tiêu chuẩn dữ liệu và tiêu chuẩn an toàn thông tin.\n2.  Tiêu chuẩn kỹ thuật triển khai Open API trong ngành Ngân hàng quy định cụ thể tại Phụ lục 02 ban hành kèm theo Thông tư này.",
+   "chapter": "Chương II. QUY ĐỊNH CỤ THỂ VỀ TRIỂN KHAI OPEN API",
+   "section": "Mục 1. QUY ĐỊNH TRIỂN KHAI OPEN API",
+   "superseded": false,
+   "char_start": 6021,
+   "char_end": 6304
+  },
+  {
+   "article": "Điều 8",
+   "text": "Hợp đồng giữa Ngân hàng với bên thứ ba\nNgân hàng phải ký kết hợp đồng với bên thứ ba về việc triển khai Open API, bao gồm tối thiểu các nội dung sau:\n1.  Cam kết bảo mật thông tin, trong đó có thỏa thuận về việc bảo đảm an toàn, bảo mật thông tin khi thực hiện xử lý dữ liệu qua Open API do Ngân hàng cung cấp.\n2.  Cam kết sử dụng dữ liệu do Ngân hàng cung cấp đúng phạm vi, mục đích.\n3.   Bên thứ ba phải thông báo cho Ngân hàng khi phát hiện nhân sự vi phạm quy định về an toàn thông tin mạng khi triển khai Open API.\n4.   Thông tin về dịch vụ cung cấp cho khách hàng được triển khai qua Open API.\n5.   Thông tin về phí dịch vụ cung cấp cho khách hàng được triển khai qua Open API (nếu có).\n6.    Điều khoản về hệ thống thông tin của bên thứ ba kết nối, xử lý dữ liệu qua Open API phải được đánh giá, xác định cấp độ theo quy định của Chính phủ về bảo đảm an toàn hệ thống thông tin theo cấp độ.\n7.     Quyền truy cập dữ liệu của bên thứ ba khi triển khai Open API.\n8.      Điều khoản chấm dứt hợp đồng.",
+   "chapter": "Chương II. QUY ĐỊNH CỤ THỂ VỀ TRIỂN KHAI OPEN API",
+   "section": "Mục 1. QUY ĐỊNH TRIỂN KHAI OPEN API",
+   "superseded": false,
+   "char_start": 6314,
+   "char_end": 7319
+  },
+  {
+   "article": "Điều 9",
+   "text": "Công khai thông tin Open API\nTrước khi chính thức kết nối, xử lý dữ liệu với bên thứ ba, Ngân hàng phải công khai thông tin Open API trên trang thông tin điện tử chính thức của Ngân hàng bao gồm tối thiểu các nội dung sau:\n1.  Thông tin về Hệ thống thử nghiệm Open API.\n2.   Danh mục các Open API Ngân hàng triển khai.",
+   "chapter": "Chương II. QUY ĐỊNH CỤ THỂ VỀ TRIỂN KHAI OPEN API",
+   "section": "Mục 1. QUY ĐỊNH TRIỂN KHAI OPEN API",
+   "superseded": false,
+   "char_start": 7329,
+   "char_end": 7647
+  },
+  {
+   "article": "Điều 10",
+   "text": "Quyền của Ngân hàng\n1.   Yêu cầu bên thứ ba cung cấp các thông tin cần thiết liên quan đến quá trình kết nối, xử lý dữ liệu qua Open API.\n2.    Các quyền khác quy định trong hợp đồng với bên thứ ba.",
+   "chapter": "Chương II. QUY ĐỊNH CỤ THỂ VỀ TRIỂN KHAI OPEN API",
+   "section": "Mục 2. QUYỀN VÀ TRÁCH NHIỆM CỦA NGÂN HÀNG VÀ BÊN THỨ BA",
+   "superseded": false,
+   "char_start": 7713,
+   "char_end": 7911
+  },
+  {
+   "article": "Điều 11",
+   "text": "Trách nhiệm của Ngân hàng\n1.   Hoàn thiện cơ sở hạ tầng hệ thống thông tin phục vụ triển khai Open API để sẵn sàng kết nối, xử lý dữ liệu.\n2.    Xây dựng và hoàn thiện các tài liệu hướng dẫn kết nối, xử lý dữ liệu.\n3.     Bảo đảm chất lượng dữ liệu trong quá trình triển khai Open API. Thông báo kịp thời cho bên thứ ba khi có sai lệch dữ liệu và phối hợp với bên thứ ba đính chính, hiệu chỉnh kịp thời.\n4.     Bảo đảm an toàn, an ninh mạng cho hệ thống thông tin triển khai Open API, đáp ứng tối thiểu cấp độ 3 theo quy định của Chính phủ về bảo đảm an toàn hệ thống thông tin theo cấp độ và tuân thủ quy định của Ngân hàng Nhà nước Việt Nam về an toàn hệ thống thông tin trong hoạt động ngân hàng.\n5.     Cung cấp công cụ hoặc chức năng cho phép khách hàng thực hiện:\na)     Tra cứu các dữ liệu mà khách hàng đồng ý cho bên thứ ba xử lý;\nb)      Rút lại sự đồng ý của khách hàng theo quy định của pháp luật.\n6.      Thiết lập thời hạn được thực hiện truy vấn thông tin của khách hàng sau khi được khách hàng đồng ý không quá 180 ngày, trừ trường hợp có thỏa thuận khác giữa khách hàng với Ngân hàng.\n7.       Cung cấp thông tin tình hình triển khai Open API cho Ngân hàng Nhà nước Việt Nam (thông qua Cục Công nghệ thông tin) khi được yêu cầu.\n8.   Phối hợp với bên thứ ba theo thỏa thuận và với cơ quan có thẩm quyền để giải quyết vướng mắc, tranh chấp trong quá trình triển khai Open API.\n9.   Có giải pháp công nghệ giới hạn số lần truy vấn tự động thông tin của khách hàng từ bên thứ ba.\n10.   Chịu trách nhiệm lựa chọn, thẩm định, giám sát và quản lý bên thứ ba.\n11.   Thực hiện cập nhật hoặc thu hồi quyền truy cập dữ liệu của bên thứ ba khi có thay đổi theo hợp đồng.\n12.   Giám sát hoạt động truy cập:\na)     Có hệ thống giám sát để phát hiện và ngăn chặn các hành vi truy cập bất thường hoặc trái phép từ bên thứ ba;\nb)      Ghi nhật ký toàn bộ việc sử dụng Open API từ bên thứ ba tối thiểu trong vòng 03 tháng và sao lưu tối thiểu 01 năm để phục vụ kiểm tra khi cần thiết.",
+   "chapter": "Chương II. QUY ĐỊNH CỤ THỂ VỀ TRIỂN KHAI OPEN API",
+   "section": "Mục 2. QUYỀN VÀ TRÁCH NHIỆM CỦA NGÂN HÀNG VÀ BÊN THỨ BA",
+   "superseded": false,
+   "char_start": 7922,
+   "char_end": 9906
+  },
+  {
+   "article": "Điều 12",
+   "text": "Quyền và trách nhiệm của bên thứ ba\n1.    Bên thứ ba có các quyền theo hợp đồng hoặc thỏa thuận với Ngân hàng, khách hàng.\n2.     Trách nhiệm của bên thứ ba:\na)  Cung cấp công cụ hoặc chức năng cho phép khách hàng thực hiện trực tuyến:\n(i) Tra cứu các dữ liệu mà khách hàng đồng ý cho bên thứ ba xử lý;\n(ii) Rút lại sự đồng ý của khách hàng theo quy định của pháp luật.\nb)  Thông báo cho khách hàng các điều khoản, điều kiện về việc sử dụng dịch vụ và hướng dẫn khách hàng cách thức sử dụng dịch vụ.\nc)  Ban hành quy trình quản lý rủi ro; quy trình chăm sóc khách hàng; quy trình xử lý khiếu nại; quy trình giải quyết tranh chấp; quy trình bảo đảm hoạt động liên tục và quy trình sử dụng dịch vụ khi cung cấp dịch vụ cho khách hàng.\nd)  Khai thác và sử dụng dữ liệu đúng phạm vi theo thỏa thuận giữa các bên và theo quy định của pháp luật.\nđ) Thông báo kịp thời cho Ngân hàng khi xảy ra sự cố về công nghệ thông tin, an toàn thông tin khi triển khai Open API. Hình thức và thời gian thông báo theo thỏa thuận giữa Ngân hàng và bên thứ ba.\ne)  Thông báo kịp thời cho Ngân hàng khi có sai lệch dữ liệu và phối hợp với Ngân hàng đính chính, hiệu chỉnh kịp thời. Hình thức và thời gian thông báo theo thỏa thuận giữa Ngân hàng và bên thứ ba.",
+   "chapter": "Chương II. QUY ĐỊNH CỤ THỂ VỀ TRIỂN KHAI OPEN API",
+   "section": "Mục 2. QUYỀN VÀ TRÁCH NHIỆM CỦA NGÂN HÀNG VÀ BÊN THỨ BA",
+   "superseded": false,
+   "char_start": 9918,
+   "char_end": 11155
+  },
+  {
+   "article": "Điều 13",
+   "text": "Trách nhiệm của Cục Công nghệ thông tin\n1.  Chủ trì, phối hợp với các đơn vị liên quan thuộc Ngân hàng Nhà nước Việt Nam xử lý các vướng mắc phát sinh trong quá trình thực hiện Thông tư này.\n2.   Theo dõi, tổng hợp, báo cáo Thống đốc Ngân hàng Nhà nước tình hình thực hiện của các Ngân hàng theo quy định tại Thông tư này.\n3.     Kiểm tra Ngân hàng trong việc thực hiện Thông tư này.",
+   "chapter": "Chương III. ĐIỀU KHOẢN THI HÀNH",
+   "section": null,
+   "superseded": false,
+   "char_start": 11197,
+   "char_end": 11580
+  },
+  {
+   "article": "Điều 14",
+   "text": "Hiệu lực thi hành\nThông tư này có hiệu lực thi hành kể từ ngày 01 tháng 3 năm 2025.",
+   "chapter": "Chương III. ĐIỀU KHOẢN THI HÀNH",
+   "section": null,
+   "superseded": false,
+   "char_start": 11591,
+   "char_end": 11674
+  },
+  {
+   "article": "Điều 15",
+   "text": "Điều khoản chuyển tiếp\nCác Ngân hàng đã kết nối, xử lý dữ liệu trực tiếp với bên thứ ba qua API hoặc Open API để cung cấp dịch vụ cho khách hàng cá nhân trước thời điểm Thông tư này có hiệu lực thi hành phải thực hiện:\n1.   Lập danh mục API, Open API đang triển khai và kế hoạch thực hiện chi tiết bảo đảm tuân thủ quy định Thông tư này gửi Ngân hàng Nhà nước Việt Nam (thông qua Cục Công nghệ thông tin), hoàn thành trước ngày 01 tháng 07 năm 2025.\n2.    Tuân thủ các quy định tại Thông tư này, hoàn thành trước ngày 01 tháng 3 năm 2027.",
+   "chapter": "Chương III. ĐIỀU KHOẢN THI HÀNH",
+   "section": null,
+   "superseded": false,
+   "char_start": 11685,
+   "char_end": 12223
+  },
+  {
+   "article": "Điều 16",
+   "text": "Tổ chức thực hiện\nThủ trưởng các đơn vị thuộc Ngân hàng Nhà nước Việt Nam, ngân hàng thương mại, ngân hàng hợp tác xã, chi nhánh ngân hàng nước ngoài chịu trách nhiệm tổ chức thực hiện Thông tư này./.\nNơi nhận:\n- Như Điều 16;\n- Ban Lãnh đạo NHNN;\n- Văn phòng Chính phủ;\n- Bộ Tư pháp (để kiểm tra);\n- Công báo;\n- Cổng TTĐT của NHNN;\n- Lưu: VP, PC, CNTT (03 bản).\nKT. THỐNG ĐỐC\nPHÓ THỐNG ĐỐC\n(Đã ký)\nPhạm Tiến Dũng",
+   "chapter": "Chương III. ĐIỀU KHOẢN THI HÀNH",
+   "section": null,
+   "superseded": false,
+   "char_start": 12234,
+   "char_end": 12646
+  }
+ ],
+ "provisions": [
+  {
+   "id": "id_79d30140-2ccf-11f1-b7da-452e6cdbafcf",
+   "cap": "chuong",
+   "so": "I",
+   "tieu_de": "QUY ĐỊNH CHUNG",
+   "text": "",
+   "html": "",
+   "bi_tac_dong": null,
+   "an": false,
+   "con": [
+    {
+     "id": "id_79d34f60-2ccf-11f1-a8aa-8f7ab02d5997",
+     "cap": "dieu",
+     "so": "1",
+     "tieu_de": "Phạm vi điều chỉnh",
+     "text": "",
+     "html": "",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": [
+      {
+       "id": "id_79d37670-2ccf-11f1-b320-b5f4364c9a00",
+       "cap": "khoan",
+       "so": "1",
+       "tieu_de": "",
+       "text": "Thông tư này quy định về việc triển khai giao diện lập trình ứng dụng mở trong ngành Ngân hàng.",
+       "html": "1. Thông tư này quy định về việc triển khai giao diện lập trình ứng dụng mở trong ngành Ngân hàng.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_79d39d80-2ccf-11f1-a839-2f209619660b",
+       "cap": "khoan",
+       "so": "2",
+       "tieu_de": "",
+       "text": "Thông tư này không điều chỉnh việc kết nối, xử lý dữ liệu chứa thông tin thuộc phạm vi bí mật nhà nước. Việc xử lý dữ liệu chứa thông tin thuộc phạm vi bí mật nhà nước được thực hiện theo quy định của pháp luật hiện hành.",
+       "html": "2. Thông tư này không điều chỉnh việc kết nối, xử lý dữ liệu chứa thông tin thuộc phạm vi bí mật nhà nước. Việc xử lý dữ liệu chứa thông tin thuộc phạm vi bí mật nhà nước được thực hiện theo quy định của pháp luật hiện hành.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_79d3c490-2ccf-11f1-9f24-454746b49cfa",
+       "cap": "khoan",
+       "so": "3",
+       "tieu_de": "",
+       "text": "Thông tư này không điều chỉnh việc kết nối, xử lý dữ liệu trực tiếp giữa:",
+       "html": "3. Thông tư này không điều chỉnh việc kết nối, xử lý dữ liệu trực tiếp giữa:",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": [
+        {
+         "id": "id_79d3eba0-2ccf-11f1-b050-e19449cc88d3",
+         "cap": "diem",
+         "so": "a",
+         "tieu_de": "",
+         "text": "Hệ thống thông tin của Ngân hàng và hệ thống thông tin của tổ chức qua giao diện lập trình ứng dụng để phục vụ nghiệp vụ nội bộ của chính tổ chức đó;",
+         "html": "a) Hệ thống thông tin của Ngân hàng và hệ thống thông tin của tổ chức qua giao diện lập trình ứng dụng để phục vụ nghiệp vụ nội bộ của chính tổ chức đó;",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_79d412b0-2ccf-11f1-b18d-81c46798cdbd",
+         "cap": "diem",
+         "so": "b",
+         "tieu_de": "",
+         "text": "Hệ thống thông tin của Ngân hàng và hệ thống thông tin của Tổ chức chủ trì hệ thống bù trừ điện tử. Tổ chức chủ trì hệ thống bù trừ điện tử được xác định theo quy định của Ngân hàng Nhà nước Việt Nam về hoạt động cung ứng dịch vụ trung gian thanh toán.",
+         "html": "b) Hệ thống thông tin của Ngân hàng và hệ thống thông tin của Tổ chức chủ trì hệ thống bù trừ điện tử. Tổ chức chủ trì hệ thống bù trừ điện tử được xác định theo quy định của Ngân hàng Nhà nước Việt Nam về hoạt động cung ứng dịch vụ trung gian thanh toán.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": "id_79d439c0-2ccf-11f1-9023-5b3b0e71029d",
+     "cap": "dieu",
+     "so": "2",
+     "tieu_de": "Đối tượng áp dụng",
+     "text": "",
+     "html": "",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": [
+      {
+       "id": "id_79d460d0-2ccf-11f1-aa1e-c1aa36103c12",
+       "cap": "khoan",
+       "so": "1",
+       "tieu_de": "",
+       "text": "Ngân hàng thương mại, ngân hàng hợp tác xã, chi nhánh ngân hàng nước ngoài (sau đây gọi chung là Ngân hàng).",
+       "html": "1. Ngân hàng thương mại, ngân hàng hợp tác xã, chi nhánh ngân hàng nước ngoài (sau đây gọi chung là Ngân hàng).",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_79d4aef0-2ccf-11f1-aaaf-4f6e0b79a070",
+       "cap": "khoan",
+       "so": "2",
+       "tieu_de": "",
+       "text": "Tổ chức, cá nhân có liên quan trong việc triển khai dịch vụ qua giao diện lập trình ứng dụng mở trong ngành ngân hàng.",
+       "html": "2. Tổ chức, cá nhân có liên quan trong việc triển khai dịch vụ qua giao diện lập trình ứng dụng mở trong ngành ngân hàng.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      }
+     ]
+    },
+    {
+     "id": "id_79d4d600-2ccf-11f1-9d50-eb7a2e382462",
+     "cap": "dieu",
+     "so": "3",
+     "tieu_de": "Giải thích từ ngữ",
+     "text": "Trong Thông tư này, các thuật ngữ dưới đây được hiểu như sau:",
+     "html": "Trong Thông tư này, các thuật ngữ dưới đây được hiểu như sau:",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": [
+      {
+       "id": "id_c5be7750-2d7a-11f1-a402-37dfdc2872a9",
+       "cap": "khoan",
+       "so": "1",
+       "tieu_de": "",
+       "text": "Giao diện lập trình ứng dụng (tên tiếng anh là: Application Programming Interface, sau đây viết tắt là API) là giao diện cho phép giao tiếp giữa các ứng dụng phần mềm trong một tổ chức hoặc giữa các tổ chức với nhau.",
+       "html": "1. Giao diện lập trình ứng dụng (tên tiếng anh là: Application Programming Interface, sau đây viết tắt là API) là giao diện cho phép giao tiếp giữa các ứng dụng phần mềm trong một tổ chức hoặc giữa các tổ chức với nhau.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_c5bf61b0-2d7a-11f1-9dd5-57d7b1ed9329",
+       "cap": "khoan",
+       "so": "2",
+       "tieu_de": "",
+       "text": "Giao diện lập trình ứng dụng mở trong ngành Ngân hàng (Open API) là tập hợp các API được Ngân hàng cung cấp cho bên thứ ba trực tiếp kết nối, xử lý dữ liệu để cung ứng dịch vụ cho khách hàng. Open API gồm: Open API cơ bản và Open API khác.",
+       "html": "2. Giao diện lập trình ứng dụng mở trong ngành Ngân hàng (Open API) là tập hợp các API được Ngân hàng cung cấp cho bên thứ ba trực tiếp kết nối, xử lý dữ liệu để cung ứng dịch vụ cho khách hàng. Open API gồm: Open API cơ bản và Open API khác.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_c5c02500-2d7a-11f1-ad92-ed767d443ece",
+       "cap": "khoan",
+       "so": "3",
+       "tieu_de": "",
+       "text": "Hệ thống thử nghiệm Open API là hệ thống thông tin của Ngân hàng cung cấp cho bên thứ ba để thử nghiệm các Open API trước khi triển khai chính thức.",
+       "html": "3. Hệ thống thử nghiệm Open API là hệ thống thông tin của Ngân hàng cung cấp cho bên thứ ba để thử nghiệm các Open API trước khi triển khai chính thức.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_c5c2bd10-2d7a-11f1-b728-955800264996",
+       "cap": "khoan",
+       "so": "4",
+       "tieu_de": "",
+       "text": "Khách hàng là cá nhân sử dụng dịch vụ của Ngân hàng.",
+       "html": "4. Khách hàng là cá nhân sử dụng dịch vụ của Ngân hàng.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_c5c35950-2d7a-11f1-9554-dbc6d5048f3c",
+       "cap": "khoan",
+       "so": "5",
+       "tieu_de": "",
+       "text": "Bên thứ ba là tổ chức hoặc Ngân hàng khác có thỏa thuận bằng hợp đồng với Ngân hàng trong việc kết nối, xử lý dữ liệu qua Open API để cung ứng dịch vụ cho khách hàng.",
+       "html": "5. Bên thứ ba là tổ chức hoặc Ngân hàng khác có thỏa thuận bằng hợp đồng với Ngân hàng trong việc kết nối, xử lý dữ liệu qua Open API để cung ứng dịch vụ cho khách hàng.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_c5c3f590-2d7a-11f1-83cf-9fbc9b80d299",
+       "cap": "khoan",
+       "so": "6",
+       "tieu_de": "",
+       "text": "Sự đồng ý của khách hàng là việc thể hiện rõ ràng, tự nguyện, khẳng định việc cho phép xử lý dữ liệu cá nhân của khách hàng.",
+       "html": "6. Sự đồng ý của khách hàng là việc thể hiện rõ ràng, tự nguyện, khẳng định việc cho phép xử lý dữ liệu cá nhân của khách hàng.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      }
+     ]
+    },
+    {
+     "id": "id_79d4fd10-2ccf-11f1-b077-2bd55e2ed79f",
+     "cap": "dieu",
+     "so": "4",
+     "tieu_de": "Nguyên tắc chung",
+     "text": "Ngân hàng, khách hàng và bên thứ ba (sau đây gọi là các bên) khi triển khai Open API phải tuân thủ các yêu cầu sau:",
+     "html": "Ngân hàng, khách hàng và bên thứ ba (sau đây gọi là các bên) khi triển khai Open API phải tuân thủ các yêu cầu sau:",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": [
+      {
+       "id": "id_79d52420-2ccf-11f1-9732-3fd56b9ec961",
+       "cap": "khoan",
+       "so": "1",
+       "tieu_de": "",
+       "text": "Tuân thủ các quy định của pháp luật về giữ bí mật, cung cấp thông tin khách hàng và bảo vệ dữ liệu cá nhân. Việc xử lý dữ liệu cá nhân của khách hàng chỉ phục vụ cho chính khách hàng đó, trừ trường hợp theo quy định của pháp luật.",
+       "html": "1. Tuân thủ các quy định của pháp luật về giữ bí mật, cung cấp thông tin khách hàng và bảo vệ dữ liệu cá nhân. Việc xử lý dữ liệu cá nhân của khách hàng chỉ phục vụ cho chính khách hàng đó, trừ trường hợp theo quy định của pháp luật.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_79d54b30-2ccf-11f1-a85d-49931aa05dbc",
+       "cap": "khoan",
+       "so": "2",
+       "tieu_de": "",
+       "text": "Dữ liệu trong quá trình xử lý phải được quản lý, lưu trữ, khai thác, sử dụng đúng mục đích tại hợp đồng giữa các bên và phù hợp với quy định của pháp luật.",
+       "html": "2. Dữ liệu trong quá trình xử lý phải được quản lý, lưu trữ, khai thác, sử dụng đúng mục đích tại hợp đồng giữa các bên và phù hợp với quy định của pháp luật.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_79d59950-2ccf-11f1-88d2-1f440284bcde",
+       "cap": "khoan",
+       "so": "3",
+       "tieu_de": "",
+       "text": "Dữ liệu trong quá trình xử lý phải bảo đảm tính cập nhật và chính xác. Trường hợp có sai lệch phải thực hiện đính chính, hiệu chỉnh kịp thời theo thỏa thuận giữa các bên.",
+       "html": "3. Dữ liệu trong quá trình xử lý phải bảo đảm tính cập nhật và chính xác. Trường hợp có sai lệch phải thực hiện đính chính, hiệu chỉnh kịp thời theo thỏa thuận giữa các bên.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "id_79d5c060-2ccf-11f1-9f31-9daa27844a60",
+   "cap": "chuong",
+   "so": "II",
+   "tieu_de": "QUY ĐỊNH CỤ THỂ VỀ TRIỂN KHAI OPEN API",
+   "text": "",
+   "html": "",
+   "bi_tac_dong": null,
+   "an": false,
+   "con": [
+    {
+     "id": "id_79d60e80-2ccf-11f1-861e-9f0c2b52573c",
+     "cap": "muc",
+     "so": "1",
+     "tieu_de": "QUY ĐỊNH TRIỂN KHAI OPEN API",
+     "text": "",
+     "html": "",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": [
+      {
+       "id": "id_79d63590-2ccf-11f1-93de-c3885e535e5e",
+       "cap": "dieu",
+       "so": "5",
+       "tieu_de": "Nguyên tắc triển khai Open API",
+       "text": "",
+       "html": "",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": [
+        {
+         "id": "id_79d65ca0-2ccf-11f1-bc8b-7b567aef68b1",
+         "cap": "khoan",
+         "so": "1",
+         "tieu_de": "",
+         "text": "Khi triển khai Open API cơ bản quy định tại Điều 6 Thông tư này, Ngân hàng phải tuân thủ quy định tại Phụ lục 01, Phụ lục 02 ban hành kèm theo Thông tư này.",
+         "html": "1. Khi triển khai Open API cơ bản quy định tại Điều 6 Thông tư này, Ngân hàng phải tuân thủ quy định tại Phụ lục 01, Phụ lục 02 ban hành kèm theo Thông tư này.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_79d6aac0-2ccf-11f1-b5d7-c5d622001b1d",
+         "cap": "khoan",
+         "so": "2",
+         "tieu_de": "",
+         "text": "Khi triển khai Open API khác theo nhu cầu thực tế và phù hợp quy định của pháp luật ngoài danh mục Open API quy định tại Điều 6 Thông tư này, Ngân hàng phải tuân thủ quy định tại Phụ lục 02 ban hành kèm theo Thông tư này.",
+         "html": "2. Khi triển khai Open API khác theo nhu cầu thực tế và phù hợp quy định của pháp luật ngoài danh mục Open API quy định tại Điều 6 Thông tư này, Ngân hàng phải tuân thủ quy định tại Phụ lục 02 ban hành kèm theo Thông tư này.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_79d6d1d0-2ccf-11f1-9715-c95e57b53f2d",
+         "cap": "khoan",
+         "so": "3",
+         "tieu_de": "",
+         "text": "Ngân hàng chỉ được phép triển khai Open API quy định tại điểm c khoản 1 Điều 6 cho bên thứ ba là Ngân hàng, tổ chức cung ứng dịch vụ trung gian thanh toán.",
+         "html": "3. Ngân hàng chỉ được phép triển khai Open API quy định tại điểm c khoản 1 Điều 6 cho bên thứ ba là Ngân hàng, tổ chức cung ứng dịch vụ trung gian thanh toán.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        }
+       ]
+      },
+      {
+       "id": "id_79d71ff0-2ccf-11f1-ace1-899f99ced14d",
+       "cap": "dieu",
+       "so": "6",
+       "tieu_de": "Danh mục Open API",
+       "text": "(i)  Open API khởi tạo thanh toán gồm: API Khởi tạo thanh toán, API Xác nhận khách hàng Luồng Redirect, API Lấy mã truy cập luồng Redirect, API Cập nhật trạng thái xác nhận thanh toán của khách hàng luồng Decoupled, API Xác nhận thanh toán, API Lấy trạng thái giao dịch, API Lấy trạng thái xác nhận thanh toán của khách hàng luồng Decoupled;\n(ii)   Open API Nạp tiền vào ví điện tử gồm: API Nạp ví điện tử, API Xác nhận OTP, API Cập nhật trạng thái xác nhận nạp ví điện tử của khách hàng luồng Decoupled, API Lấy trạng thái xác nhận nạp ví điện tử của khách hàng luồng Decoupled, API Xác nhận nạp ví điện tử, API Lấy trạng thái giao dịch;\n(iii) Open API Rút tiền ra khỏi ví điện tử.",
+       "html": "(i) Open API khởi tạo thanh toán gồm: API Khởi tạo thanh toán, API Xác nhận khách hàng Luồng Redirect, API Lấy mã truy cập luồng Redirect, API Cập nhật trạng thái xác nhận thanh toán của khách hàng luồng Decoupled, API Xác nhận thanh toán, API Lấy trạng thái giao dịch, API Lấy trạng thái xác nhận thanh toán của khách hàng luồng Decoupled;<br>(ii) Open API Nạp tiền vào ví điện tử gồm: API Nạp ví điện tử, API Xác nhận OTP, API Cập nhật trạng thái xác nhận nạp ví điện tử của khách hàng luồng Decoupled, API Lấy trạng thái xác nhận nạp ví điện tử của khách hàng luồng Decoupled, API Xác nhận nạp ví điện tử, API Lấy trạng thái giao dịch;<br>(iii) Open API Rút tiền ra khỏi ví điện tử.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": [
+        {
+         "id": "id_79d74700-2ccf-11f1-a8a7-1f5f20213ac4",
+         "cap": "khoan",
+         "so": "1",
+         "tieu_de": "",
+         "text": "Danh mục Open API cơ bản được tổ chức thành các nhóm sau:",
+         "html": "1. Danh mục Open API cơ bản được tổ chức thành các nhóm sau:",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": [
+          {
+           "id": "id_79d76e10-2ccf-11f1-9236-63320df643bb",
+           "cap": "diem",
+           "so": "a",
+           "tieu_de": "",
+           "text": "Open API truy vấn thông tin tỷ giá, lãi suất của Ngân hàng gồm: API Lấy thông tin lãi suất, API Lấy thông tin tỷ giá;",
+           "html": "a) Open API truy vấn thông tin tỷ giá, lãi suất của Ngân hàng gồm: API Lấy thông tin lãi suất, API Lấy thông tin tỷ giá;",
+           "bi_tac_dong": null,
+           "an": false,
+           "con": []
+          },
+          {
+           "id": "id_79d79520-2ccf-11f1-9de0-354d1988584a",
+           "cap": "diem",
+           "so": "b",
+           "tieu_de": "",
+           "text": "Open API truy vấn thông tin của khách hàng gồm: API Xác nhận và lấy sự đồng ý của khách hàng, API Lấy mã truy cập, API Làm mới mã truy cập, API Thu hồi mã truy cập, API Lấy danh sách tài khoản, API Lấy thông tin tài khoản, API Lấy lịch sử giao dịch;",
+           "html": "b) Open API truy vấn thông tin của khách hàng gồm: API Xác nhận và lấy sự đồng ý của khách hàng, API Lấy mã truy cập, API Làm mới mã truy cập, API Thu hồi mã truy cập, API Lấy danh sách tài khoản, API Lấy thông tin tài khoản, API Lấy lịch sử giao dịch;",
+           "bi_tac_dong": null,
+           "an": false,
+           "con": []
+          },
+          {
+           "id": "id_79d80a50-2ccf-11f1-8c91-97bba9abc241",
+           "cap": "diem",
+           "so": "c",
+           "tieu_de": "",
+           "text": "Open API khởi tạo thanh toán, nạp tiền vào ví điện tử, rút tiền ra khỏi ví điện tử gồm:",
+           "html": "c) Open API khởi tạo thanh toán, nạp tiền vào ví điện tử, rút tiền ra khỏi ví điện tử gồm:",
+           "bi_tac_dong": null,
+           "an": false,
+           "con": []
+          }
+         ]
+        },
+        {
+         "id": "id_79d83160-2ccf-11f1-ae20-b15942d8b2e1",
+         "cap": "khoan",
+         "so": "2",
+         "tieu_de": "",
+         "text": "Chi tiết đặc tả danh mục Open API tại khoản 1 Điều này được quy định cụ thể tại Phụ lục 01 ban hành kèm theo Thông tư này.",
+         "html": "2. Chi tiết đặc tả danh mục Open API tại khoản 1 Điều này được quy định cụ thể tại Phụ lục 01 ban hành kèm theo Thông tư này.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        }
+       ]
+      },
+      {
+       "id": "id_79d85870-2ccf-11f1-bd1e-cf673d3953c2",
+       "cap": "dieu",
+       "so": "7",
+       "tieu_de": "Danh mục tiêu chuẩn kỹ thuật",
+       "text": "",
+       "html": "",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": [
+        {
+         "id": "id_79d8a690-2ccf-11f1-b66c-edd186fdd4bf",
+         "cap": "khoan",
+         "so": "1",
+         "tieu_de": "",
+         "text": "Các tiêu chuẩn kỹ thuật triển khai Open API gồm tiêu chuẩn kiến trúc, tiêu chuẩn dữ liệu và tiêu chuẩn an toàn thông tin.",
+         "html": "1. Các tiêu chuẩn kỹ thuật triển khai Open API gồm tiêu chuẩn kiến trúc, tiêu chuẩn dữ liệu và tiêu chuẩn an toàn thông tin.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_79d8f4b0-2ccf-11f1-b214-cf7b9e264c1c",
+         "cap": "khoan",
+         "so": "2",
+         "tieu_de": "",
+         "text": "Tiêu chuẩn kỹ thuật triển khai Open API trong ngành Ngân hàng quy định cụ thể tại Phụ lục 02 ban hành kèm theo Thông tư này.",
+         "html": "2. Tiêu chuẩn kỹ thuật triển khai Open API trong ngành Ngân hàng quy định cụ thể tại Phụ lục 02 ban hành kèm theo Thông tư này.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        }
+       ]
+      },
+      {
+       "id": "id_79d91bc0-2ccf-11f1-8ca3-bd2a9c3e9d16",
+       "cap": "dieu",
+       "so": "8",
+       "tieu_de": "Hợp đồng giữa Ngân hàng với bên thứ ba",
+       "text": "Ngân hàng phải ký kết hợp đồng với bên thứ ba về việc triển khai Open API, bao gồm tối thiểu các nội dung sau:",
+       "html": "Ngân hàng phải ký kết hợp đồng với bên thứ ba về việc triển khai Open API, bao gồm tối thiểu các nội dung sau:",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": [
+        {
+         "id": "id_c5c55520-2d7a-11f1-817d-ab77f3517821",
+         "cap": "khoan",
+         "so": "1",
+         "tieu_de": "",
+         "text": "Cam kết bảo mật thông tin, trong đó có thỏa thuận về việc bảo đảm an toàn, bảo mật thông tin khi thực hiện xử lý dữ liệu qua Open API do Ngân hàng cung cấp.",
+         "html": "1. Cam kết bảo mật thông tin, trong đó có thỏa thuận về việc bảo đảm an toàn, bảo mật thông tin khi thực hiện xử lý dữ liệu qua Open API do Ngân hàng cung cấp.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_c5c5f160-2d7a-11f1-baa7-856e7a56fd90",
+         "cap": "khoan",
+         "so": "2",
+         "tieu_de": "",
+         "text": "Cam kết sử dụng dữ liệu do Ngân hàng cung cấp đúng phạm vi, mục đích.",
+         "html": "2. Cam kết sử dụng dữ liệu do Ngân hàng cung cấp đúng phạm vi, mục đích.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_c5c6b4b0-2d7a-11f1-aee8-c72f3d48dff1",
+         "cap": "khoan",
+         "so": "3",
+         "tieu_de": "",
+         "text": "Bên thứ ba phải thông báo cho Ngân hàng khi phát hiện nhân sự vi phạm quy định về an toàn thông tin mạng khi triển khai Open API.",
+         "html": "3. Bên thứ ba phải thông báo cho Ngân hàng khi phát hiện nhân sự vi phạm quy định về an toàn thông tin mạng khi triển khai Open API.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_c5c77800-2d7a-11f1-8f72-7d456cf0a534",
+         "cap": "khoan",
+         "so": "4",
+         "tieu_de": "",
+         "text": "Thông tin về dịch vụ cung cấp cho khách hàng được triển khai qua Open API.",
+         "html": "4. Thông tin về dịch vụ cung cấp cho khách hàng được triển khai qua Open API.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_c5c81440-2d7a-11f1-865c-ad51964daef6",
+         "cap": "khoan",
+         "so": "5",
+         "tieu_de": "",
+         "text": "Thông tin về phí dịch vụ cung cấp cho khách hàng được triển khai qua Open API (nếu có).",
+         "html": "5. Thông tin về phí dịch vụ cung cấp cho khách hàng được triển khai qua Open API (nếu có).",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_c5c88970-2d7a-11f1-b85b-a7d7d2f2a1d0",
+         "cap": "khoan",
+         "so": "6",
+         "tieu_de": "",
+         "text": "Điều khoản về hệ thống thông tin của bên thứ ba kết nối, xử lý dữ liệu qua Open API phải được đánh giá, xác định cấp độ theo quy định của Chính phủ về bảo đảm an toàn hệ thống thông tin theo cấp độ.",
+         "html": "6. Điều khoản về hệ thống thông tin của bên thứ ba kết nối, xử lý dữ liệu qua Open API phải được đánh giá, xác định cấp độ theo quy định của Chính phủ về bảo đảm an toàn hệ thống thông tin theo cấp độ.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_c5c8d790-2d7a-11f1-8dea-d34fbc330cb4",
+         "cap": "khoan",
+         "so": "7",
+         "tieu_de": "",
+         "text": "Quyền truy cập dữ liệu của bên thứ ba khi triển khai Open API.",
+         "html": "7. Quyền truy cập dữ liệu của bên thứ ba khi triển khai Open API.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_c5c8fea0-2d7a-11f1-8cd0-ad011b46ea17",
+         "cap": "khoan",
+         "so": "8",
+         "tieu_de": "",
+         "text": "Điều khoản chấm dứt hợp đồng.",
+         "html": "8. Điều khoản chấm dứt hợp đồng.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        }
+       ]
+      },
+      {
+       "id": "id_79d942d0-2ccf-11f1-9391-e76e959b7976",
+       "cap": "dieu",
+       "so": "9",
+       "tieu_de": "Công khai thông tin Open API",
+       "text": "Trước khi chính thức kết nối, xử lý dữ liệu với bên thứ ba, Ngân hàng phải công khai thông tin Open API trên trang thông tin điện tử chính thức của Ngân hàng bao gồm tối thiểu các nội dung sau:",
+       "html": "Trước khi chính thức kết nối, xử lý dữ liệu với bên thứ ba, Ngân hàng phải công khai thông tin Open API trên trang thông tin điện tử chính thức của Ngân hàng bao gồm tối thiểu các nội dung sau:",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": [
+        {
+         "id": "id_c5c94cc0-2d7a-11f1-b4b2-d9be190c0b13",
+         "cap": "khoan",
+         "so": "1",
+         "tieu_de": "",
+         "text": "Thông tin về Hệ thống thử nghiệm Open API.",
+         "html": "1. Thông tin về Hệ thống thử nghiệm Open API.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_c5c973d0-2d7a-11f1-a1b8-3ba86bba883a",
+         "cap": "khoan",
+         "so": "2",
+         "tieu_de": "",
+         "text": "Danh mục các Open API Ngân hàng triển khai.",
+         "html": "2. Danh mục các Open API Ngân hàng triển khai.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": "id_79d969e0-2ccf-11f1-99b6-a9b2c7a3c875",
+     "cap": "muc",
+     "so": "2",
+     "tieu_de": "QUYỀN VÀ TRÁCH NHIỆM CỦA NGÂN HÀNG VÀ BÊN THỨ BA",
+     "text": "",
+     "html": "",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": [
+      {
+       "id": "id_79d9b800-2ccf-11f1-81f5-734d2924ba06",
+       "cap": "dieu",
+       "so": "10",
+       "tieu_de": "Quyền của Ngân hàng",
+       "text": "",
+       "html": "",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": [
+        {
+         "id": "id_79d9df10-2ccf-11f1-bbe1-e5bf2f5bb4a3",
+         "cap": "khoan",
+         "so": "1",
+         "tieu_de": "",
+         "text": "Yêu cầu bên thứ ba cung cấp các thông tin cần thiết liên quan đến quá trình kết nối, xử lý dữ liệu qua Open API.",
+         "html": "1. Yêu cầu bên thứ ba cung cấp các thông tin cần thiết liên quan đến quá trình kết nối, xử lý dữ liệu qua Open API.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_79da2d30-2ccf-11f1-aded-8907bb0aec83",
+         "cap": "khoan",
+         "so": "2",
+         "tieu_de": "",
+         "text": "Các quyền khác quy định trong hợp đồng với bên thứ ba.",
+         "html": "2. Các quyền khác quy định trong hợp đồng với bên thứ ba.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        }
+       ]
+      },
+      {
+       "id": "id_79da5440-2ccf-11f1-90e6-8927a25fe08b",
+       "cap": "dieu",
+       "so": "11",
+       "tieu_de": "Trách nhiệm của Ngân hàng",
+       "text": "",
+       "html": "",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": [
+        {
+         "id": "id_79da7b50-2ccf-11f1-9b33-a1ceb084d136",
+         "cap": "khoan",
+         "so": "1",
+         "tieu_de": "",
+         "text": "Hoàn thiện cơ sở hạ tầng hệ thống thông tin phục vụ triển khai Open API để sẵn sàng kết nối, xử lý dữ liệu.",
+         "html": "1. Hoàn thiện cơ sở hạ tầng hệ thống thông tin phục vụ triển khai Open API để sẵn sàng kết nối, xử lý dữ liệu.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_79dac970-2ccf-11f1-99c7-cf66a890eeb8",
+         "cap": "khoan",
+         "so": "2",
+         "tieu_de": "",
+         "text": "Xây dựng và hoàn thiện các tài liệu hướng dẫn kết nối, xử lý dữ liệu.",
+         "html": "2. Xây dựng và hoàn thiện các tài liệu hướng dẫn kết nối, xử lý dữ liệu.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_79daf080-2ccf-11f1-8981-9fd99a8d12ab",
+         "cap": "khoan",
+         "so": "3",
+         "tieu_de": "",
+         "text": "Bảo đảm chất lượng dữ liệu trong quá trình triển khai Open API. Thông báo kịp thời cho bên thứ ba khi có sai lệch dữ liệu và phối hợp với bên thứ ba đính chính, hiệu chỉnh kịp thời.",
+         "html": "3. Bảo đảm chất lượng dữ liệu trong quá trình triển khai Open API. Thông báo kịp thời cho bên thứ ba khi có sai lệch dữ liệu và phối hợp với bên thứ ba đính chính, hiệu chỉnh kịp thời.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_79db65b0-2ccf-11f1-a315-83f6eb804a6e",
+         "cap": "khoan",
+         "so": "4",
+         "tieu_de": "",
+         "text": "Bảo đảm an toàn, an ninh mạng cho hệ thống thông tin triển khai Open API, đáp ứng tối thiểu cấp độ 3 theo quy định của Chính phủ về bảo đảm an toàn hệ thống thông tin theo cấp độ và tuân thủ quy định của Ngân hàng Nhà nước Việt Nam về an toàn hệ thống thông tin trong hoạt động ngân hàng.",
+         "html": "4. Bảo đảm an toàn, an ninh mạng cho hệ thống thông tin triển khai Open API, đáp ứng tối thiểu cấp độ 3 theo quy định của Chính phủ về bảo đảm an toàn hệ thống thông tin theo cấp độ và tuân thủ quy định của Ngân hàng Nhà nước Việt Nam về an toàn hệ thống thông tin trong hoạt động ngân hàng.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_79db8cc0-2ccf-11f1-89bb-2921e1016948",
+         "cap": "khoan",
+         "so": "5",
+         "tieu_de": "",
+         "text": "Cung cấp công cụ hoặc chức năng cho phép khách hàng thực hiện:",
+         "html": "5. Cung cấp công cụ hoặc chức năng cho phép khách hàng thực hiện:",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": [
+          {
+           "id": "id_79dbb3d0-2ccf-11f1-aa9c-21c2b3c12db2",
+           "cap": "diem",
+           "so": "a",
+           "tieu_de": "",
+           "text": "Tra cứu các dữ liệu mà khách hàng đồng ý cho bên thứ ba xử lý;",
+           "html": "a) Tra cứu các dữ liệu mà khách hàng đồng ý cho bên thứ ba xử lý;",
+           "bi_tac_dong": null,
+           "an": false,
+           "con": []
+          },
+          {
+           "id": "id_79dc01f0-2ccf-11f1-862e-1f15a5a0b613",
+           "cap": "diem",
+           "so": "b",
+           "tieu_de": "",
+           "text": "Rút lại sự đồng ý của khách hàng theo quy định của pháp luật.",
+           "html": "b) Rút lại sự đồng ý của khách hàng theo quy định của pháp luật.",
+           "bi_tac_dong": null,
+           "an": false,
+           "con": []
+          }
+         ]
+        },
+        {
+         "id": "id_79dc2900-2ccf-11f1-badf-5fe5d3f410e5",
+         "cap": "khoan",
+         "so": "6",
+         "tieu_de": "",
+         "text": "Thiết lập thời hạn được thực hiện truy vấn thông tin của khách hàng sau khi được khách hàng đồng ý không quá 180 ngày, trừ trường hợp có thỏa thuận khác giữa khách hàng với Ngân hàng.",
+         "html": "6. Thiết lập thời hạn được thực hiện truy vấn thông tin của khách hàng sau khi được khách hàng đồng ý không quá 180 ngày, trừ trường hợp có thỏa thuận khác giữa khách hàng với Ngân hàng.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_79dc5010-2ccf-11f1-8914-55d0879aad7e",
+         "cap": "khoan",
+         "so": "7",
+         "tieu_de": "",
+         "text": "Cung cấp thông tin tình hình triển khai Open API cho Ngân hàng Nhà nước Việt Nam (thông qua Cục Công nghệ thông tin) khi được yêu cầu.",
+         "html": "7. Cung cấp thông tin tình hình triển khai Open API cho Ngân hàng Nhà nước Việt Nam (thông qua Cục Công nghệ thông tin) khi được yêu cầu.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_79dc9e30-2ccf-11f1-ad1b-89cbd01f8e77",
+         "cap": "khoan",
+         "so": "8",
+         "tieu_de": "",
+         "text": "Phối hợp với bên thứ ba theo thỏa thuận và với cơ quan có thẩm quyền để giải quyết vướng mắc, tranh chấp trong quá trình triển khai Open API.",
+         "html": "8. Phối hợp với bên thứ ba theo thỏa thuận và với cơ quan có thẩm quyền để giải quyết vướng mắc, tranh chấp trong quá trình triển khai Open API.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_79dcc540-2ccf-11f1-b35b-b382e22d1666",
+         "cap": "khoan",
+         "so": "9",
+         "tieu_de": "",
+         "text": "Có giải pháp công nghệ giới hạn số lần truy vấn tự động thông tin của khách hàng từ bên thứ ba.",
+         "html": "9. Có giải pháp công nghệ giới hạn số lần truy vấn tự động thông tin của khách hàng từ bên thứ ba.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_c5ca1010-2d7a-11f1-bac8-f7348c7289c5",
+         "cap": "khoan",
+         "so": "10",
+         "tieu_de": "",
+         "text": "Chịu trách nhiệm lựa chọn, thẩm định, giám sát và quản lý bên thứ ba.",
+         "html": "10. Chịu trách nhiệm lựa chọn, thẩm định, giám sát và quản lý bên thứ ba.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_79dd1360-2ccf-11f1-a065-3b248d1b7e7e",
+         "cap": "khoan",
+         "so": "11",
+         "tieu_de": "",
+         "text": "Thực hiện cập nhật hoặc thu hồi quyền truy cập dữ liệu của bên thứ ba khi có thay đổi theo hợp đồng.",
+         "html": "11. Thực hiện cập nhật hoặc thu hồi quyền truy cập dữ liệu của bên thứ ba khi có thay đổi theo hợp đồng.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_79dd6180-2ccf-11f1-b871-f1144fa8ebfc",
+         "cap": "khoan",
+         "so": "12",
+         "tieu_de": "",
+         "text": "Giám sát hoạt động truy cập:",
+         "html": "12. Giám sát hoạt động truy cập:",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": [
+          {
+           "id": "id_79dd8890-2ccf-11f1-bf08-adb0bf1aa84c",
+           "cap": "diem",
+           "so": "a",
+           "tieu_de": "",
+           "text": "Có hệ thống giám sát để phát hiện và ngăn chặn các hành vi truy cập bất thường hoặc trái phép từ bên thứ ba;",
+           "html": "a) Có hệ thống giám sát để phát hiện và ngăn chặn các hành vi truy cập bất thường hoặc trái phép từ bên thứ ba;",
+           "bi_tac_dong": null,
+           "an": false,
+           "con": []
+          },
+          {
+           "id": "id_79ddafa0-2ccf-11f1-95e4-3b180e27cc1f",
+           "cap": "diem",
+           "so": "b",
+           "tieu_de": "",
+           "text": "Ghi nhật ký toàn bộ việc sử dụng Open API từ bên thứ ba tối thiểu trong vòng 03 tháng và sao lưu tối thiểu 01 năm để phục vụ kiểm tra khi cần thiết.",
+           "html": "b) Ghi nhật ký toàn bộ việc sử dụng Open API từ bên thứ ba tối thiểu trong vòng 03 tháng và sao lưu tối thiểu 01 năm để phục vụ kiểm tra khi cần thiết.",
+           "bi_tac_dong": null,
+           "an": false,
+           "con": []
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "id": "id_79ddd6b0-2ccf-11f1-82b7-77a6e883504c",
+       "cap": "dieu",
+       "so": "12",
+       "tieu_de": "Quyền và trách nhiệm của bên thứ ba",
+       "text": "(i) Tra cứu các dữ liệu mà khách hàng đồng ý cho bên thứ ba xử lý;\n(ii) Rút lại sự đồng ý của khách hàng theo quy định của pháp luật.",
+       "html": "(i) Tra cứu các dữ liệu mà khách hàng đồng ý cho bên thứ ba xử lý;<br>(ii) Rút lại sự đồng ý của khách hàng theo quy định của pháp luật.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": [
+        {
+         "id": "id_79ddfdc0-2ccf-11f1-ae33-af5d557d3694",
+         "cap": "khoan",
+         "so": "1",
+         "tieu_de": "",
+         "text": "Bên thứ ba có các quyền theo hợp đồng hoặc thỏa thuận với Ngân hàng, khách hàng.",
+         "html": "1. Bên thứ ba có các quyền theo hợp đồng hoặc thỏa thuận với Ngân hàng, khách hàng.",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": []
+        },
+        {
+         "id": "id_79de4be0-2ccf-11f1-b34e-2b02c62ae467",
+         "cap": "khoan",
+         "so": "2",
+         "tieu_de": "",
+         "text": "Trách nhiệm của bên thứ ba:",
+         "html": "2. Trách nhiệm của bên thứ ba:",
+         "bi_tac_dong": null,
+         "an": false,
+         "con": [
+          {
+           "id": "id_79de72f0-2ccf-11f1-a0e7-2bc696d00e15",
+           "cap": "diem",
+           "so": "a",
+           "tieu_de": "",
+           "text": "Cung cấp công cụ hoặc chức năng cho phép khách hàng thực hiện trực tuyến:",
+           "html": "a) Cung cấp công cụ hoặc chức năng cho phép khách hàng thực hiện trực tuyến:",
+           "bi_tac_dong": null,
+           "an": false,
+           "con": []
+          },
+          {
+           "id": "id_79de9a00-2ccf-11f1-bf07-afed2a34a6d0",
+           "cap": "diem",
+           "so": "b",
+           "tieu_de": "",
+           "text": "Thông báo cho khách hàng các điều khoản, điều kiện về việc sử dụng dịch vụ và hướng dẫn khách hàng cách thức sử dụng dịch vụ.",
+           "html": "b) Thông báo cho khách hàng các điều khoản, điều kiện về việc sử dụng dịch vụ và hướng dẫn khách hàng cách thức sử dụng dịch vụ.",
+           "bi_tac_dong": null,
+           "an": false,
+           "con": []
+          },
+          {
+           "id": "id_79dec110-2ccf-11f1-9a9c-ab1ce4546fba",
+           "cap": "diem",
+           "so": "c",
+           "tieu_de": "",
+           "text": "Ban hành quy trình quản lý rủi ro; quy trình chăm sóc khách hàng; quy trình xử lý khiếu nại; quy trình giải quyết tranh chấp; quy trình bảo đảm hoạt động liên tục và quy trình sử dụng dịch vụ khi cung cấp dịch vụ cho khách hàng.",
+           "html": "c) Ban hành quy trình quản lý rủi ro; quy trình chăm sóc khách hàng; quy trình xử lý khiếu nại; quy trình giải quyết tranh chấp; quy trình bảo đảm hoạt động liên tục và quy trình sử dụng dịch vụ khi cung cấp dịch vụ cho khách hàng.",
+           "bi_tac_dong": null,
+           "an": false,
+           "con": []
+          },
+          {
+           "id": "id_79dee820-2ccf-11f1-ba41-7de6e7d4ef6f",
+           "cap": "diem",
+           "so": "d",
+           "tieu_de": "",
+           "text": "Khai thác và sử dụng dữ liệu đúng phạm vi theo thỏa thuận giữa các bên và theo quy định của pháp luật.",
+           "html": "d) Khai thác và sử dụng dữ liệu đúng phạm vi theo thỏa thuận giữa các bên và theo quy định của pháp luật.",
+           "bi_tac_dong": null,
+           "an": false,
+           "con": []
+          },
+          {
+           "id": "id_79df0f30-2ccf-11f1-80de-7f3cd3a6f965",
+           "cap": "diem",
+           "so": "đ",
+           "tieu_de": "",
+           "text": "Thông báo kịp thời cho Ngân hàng khi xảy ra sự cố về công nghệ thông tin, an toàn thông tin khi triển khai Open API. Hình thức và thời gian thông báo theo thỏa thuận giữa Ngân hàng và bên thứ ba.",
+           "html": "đ) Thông báo kịp thời cho Ngân hàng khi xảy ra sự cố về công nghệ thông tin, an toàn thông tin khi triển khai Open API. Hình thức và thời gian thông báo theo thỏa thuận giữa Ngân hàng và bên thứ ba.",
+           "bi_tac_dong": null,
+           "an": false,
+           "con": []
+          },
+          {
+           "id": "id_79df3640-2ccf-11f1-a4c5-939c2fa4a8a8",
+           "cap": "diem",
+           "so": "e",
+           "tieu_de": "",
+           "text": "Thông báo kịp thời cho Ngân hàng khi có sai lệch dữ liệu và phối hợp với Ngân hàng đính chính, hiệu chỉnh kịp thời. Hình thức và thời gian thông báo theo thỏa thuận giữa Ngân hàng và bên thứ ba.",
+           "html": "e) Thông báo kịp thời cho Ngân hàng khi có sai lệch dữ liệu và phối hợp với Ngân hàng đính chính, hiệu chỉnh kịp thời. Hình thức và thời gian thông báo theo thỏa thuận giữa Ngân hàng và bên thứ ba.",
+           "bi_tac_dong": null,
+           "an": false,
+           "con": []
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "id_79df8460-2ccf-11f1-b8b8-61b5dea9b91e",
+   "cap": "chuong",
+   "so": "III",
+   "tieu_de": "ĐIỀU KHOẢN THI HÀNH",
+   "text": "",
+   "html": "",
+   "bi_tac_dong": null,
+   "an": false,
+   "con": [
+    {
+     "id": "id_79dfab70-2ccf-11f1-b76f-25fc0a8941bb",
+     "cap": "dieu",
+     "so": "13",
+     "tieu_de": "Trách nhiệm của Cục Công nghệ thông tin",
+     "text": "",
+     "html": "",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": [
+      {
+       "id": "id_79dfd280-2ccf-11f1-afbc-f776c2dc0734",
+       "cap": "khoan",
+       "so": "1",
+       "tieu_de": "",
+       "text": "Chủ trì, phối hợp với các đơn vị liên quan thuộc Ngân hàng Nhà nước Việt Nam xử lý các vướng mắc phát sinh trong quá trình thực hiện Thông tư này.",
+       "html": "1. Chủ trì, phối hợp với các đơn vị liên quan thuộc Ngân hàng Nhà nước Việt Nam xử lý các vướng mắc phát sinh trong quá trình thực hiện Thông tư này.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_79dff990-2ccf-11f1-a64e-399798a83fc2",
+       "cap": "khoan",
+       "so": "2",
+       "tieu_de": "",
+       "text": "Theo dõi, tổng hợp, báo cáo Thống đốc Ngân hàng Nhà nước tình hình thực hiện của các Ngân hàng theo quy định tại Thông tư này.",
+       "html": "2. Theo dõi, tổng hợp, báo cáo Thống đốc Ngân hàng Nhà nước tình hình thực hiện của các Ngân hàng theo quy định tại Thông tư này.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_79e020a0-2ccf-11f1-84d0-09aabd814cf1",
+       "cap": "khoan",
+       "so": "3",
+       "tieu_de": "",
+       "text": "Kiểm tra Ngân hàng trong việc thực hiện Thông tư này.",
+       "html": "3. Kiểm tra Ngân hàng trong việc thực hiện Thông tư này.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      }
+     ]
+    },
+    {
+     "id": "id_79e047b0-2ccf-11f1-a599-0575170d6e50",
+     "cap": "dieu",
+     "so": "14",
+     "tieu_de": "Hiệu lực thi hành",
+     "text": "Thông tư này có hiệu lực thi hành kể từ ngày 01 tháng 3 năm 2025.",
+     "html": "Thông tư này có hiệu lực thi hành kể từ ngày 01 tháng 3 năm 2025.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    },
+    {
+     "id": "id_79e06ec0-2ccf-11f1-b358-1d767acb23a3",
+     "cap": "dieu",
+     "so": "15",
+     "tieu_de": "Điều khoản chuyển tiếp",
+     "text": "Các Ngân hàng đã kết nối, xử lý dữ liệu trực tiếp với bên thứ ba qua API hoặc Open API để cung cấp dịch vụ cho khách hàng cá nhân trước thời điểm Thông tư này có hiệu lực thi hành phải thực hiện:",
+     "html": "Các Ngân hàng đã kết nối, xử lý dữ liệu trực tiếp với bên thứ ba qua API hoặc Open API để cung cấp dịch vụ cho khách hàng cá nhân trước thời điểm Thông tư này có hiệu lực thi hành phải thực hiện:",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": [
+      {
+       "id": "id_79e095d0-2ccf-11f1-994d-2fa544138dab",
+       "cap": "khoan",
+       "so": "1",
+       "tieu_de": "",
+       "text": "Lập danh mục API, Open API đang triển khai và kế hoạch thực hiện chi tiết bảo đảm tuân thủ quy định Thông tư này gửi Ngân hàng Nhà nước Việt Nam (thông qua Cục Công nghệ thông tin), hoàn thành trước ngày 01 tháng 07 năm 2025.",
+       "html": "1. Lập danh mục API, Open API đang triển khai và kế hoạch thực hiện chi tiết bảo đảm tuân thủ quy định Thông tư này gửi Ngân hàng Nhà nước Việt Nam (thông qua Cục Công nghệ thông tin), hoàn thành trước ngày 01 tháng 07 năm 2025.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      },
+      {
+       "id": "id_79e0bce0-2ccf-11f1-b5f5-631176d46b39",
+       "cap": "khoan",
+       "so": "2",
+       "tieu_de": "",
+       "text": "Tuân thủ các quy định tại Thông tư này, hoàn thành trước ngày 01 tháng 3 năm 2027.",
+       "html": "2. Tuân thủ các quy định tại Thông tư này, hoàn thành trước ngày 01 tháng 3 năm 2027.",
+       "bi_tac_dong": null,
+       "an": false,
+       "con": []
+      }
+     ]
+    },
+    {
+     "id": "id_79e0e3f0-2ccf-11f1-a307-0dd4f766f509",
+     "cap": "dieu",
+     "so": "16",
+     "tieu_de": "Tổ chức thực hiện",
+     "text": "Thủ trưởng các đơn vị thuộc Ngân hàng Nhà nước Việt Nam, ngân hàng thương mại, ngân hàng hợp tác xã, chi nhánh ngân hàng nước ngoài chịu trách nhiệm tổ chức thực hiện Thông tư này./.",
+     "html": "Thủ trưởng các đơn vị thuộc Ngân hàng Nhà nước Việt Nam, ngân hàng thương mại, ngân hàng hợp tác xã, chi nhánh ngân hàng nước ngoài chịu trách nhiệm tổ chức thực hiện Thông tư này./.",
+     "bi_tac_dong": null,
+     "an": false,
+     "con": []
+    }
+   ]
+  }
+ ],
+ "trich_dan": []
+}
