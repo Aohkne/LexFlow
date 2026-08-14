@@ -59,3 +59,4 @@ data/evaluate/svb_graph/sbv_testset_tvpl.json
 # -> cung dien "xin phep tac gia" nhu tren, khong commit. Sinh lai duoc bang eval/judge.py.
 eval/results/answers-sbv.jsonl
 eval/results/judge-sbv-*.json
+eval/results/*bo_sbv*.json
