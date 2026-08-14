@@ -481,13 +481,16 @@ bảng `legal_documents` vẫn rỗng, nên `app/core/corpus.py` còn fallback v
 
 ### [ ] T101 · `count_rows()` sau `merge_insert` trên bảng từ xa có tươi không?
 
-`write_lancedb` trả `n_tong = tbl.count_rows()` ngay sau `merge_insert` + `delete`, và số đó đi
-vào audit log của `/documents/{id}/approve` dưới khoá `n_chunks_bang`.
+`write_lancedb` trả `n_tong = tbl.count_rows()` ngay sau `merge_insert` + `delete` — tiền đề này
+giờ chỉ đúng cho đường CLI (`python -m app.ingestion`). `/documents/{id}/approve` gọi
+`ingest_one_doc`, không phải `write_lancedb` (hoà nhánh 13/08); số ghi vào audit log ở đó là
+`n_chunks` (`app/api/documents.py:341`), số của riêng `ingest_one_doc`, không phải
+`n_chunks_bang`.
 
-- Vì sao quan trọng: nếu LanceDB Cloud phục vụ `count_rows` từ manifest có cache thì con số báo
-  cáo trễ một nhịp. **Không sai dữ liệu** — chỉ sai con số ghi vào sổ, mà sổ đó là thứ người ta
-  dùng để đối chiếu về sau. Gate ở Task 1 (`scripts/do_merge_insert_remote.py`) không phủ
-  `count_rows`.
+- Vì sao quan trọng: nếu LanceDB Cloud phục vụ `count_rows` từ manifest có cache thì con số CLI
+  báo ra (`[ingest] Đã ghi ... bảng có N chunk`) trễ một nhịp. **Không sai dữ liệu** — chỉ sai
+  con số in/ghi ra, mà đó là thứ người ta dùng để đối chiếu về sau. Gate ở Task 1
+  (`scripts/do_merge_insert_remote.py`) không phủ `count_rows`.
 - Bước đầu: thêm vào `scripts/do_merge_insert_remote.py` một phép đo `count_rows()` ngay trước và
   ngay sau `merge_insert` trên bảng nháp, so với số hàng đọc bằng `search().to_list()`.
 
@@ -661,6 +664,26 @@ sau nếu bảng đo cho thấy mẫu 76 câu chưa đủ phân biệt.
   định dạng `scripts/crawl_vbpl_batch.py`: `research/crawl_list_sbv.txt` (tên văn bản trong đó
   **suy từ câu hỏi và slug URL**, chưa đọc văn bản gốc — kiểm lại khi tra URL). `21/2017/TT-NHNN`
   trùng với `research/crawl_list_eval.txt` — cào một lần dùng cho cả hai bộ.
+
+### [ ] T111 · Văn bản 0 điều duyệt đầu tiên trên môi trường mới thì bảng LanceDB không được dựng
+
+`ingest_one_doc` trên nhánh "chưa có bảng" chỉ gọi `_tao_bang_moi` khi `rows` không rỗng
+(`n = _tao_bang_moi(db, rows)[0] if rows else 0`) — nếu văn bản ĐẦU TIÊN được duyệt qua
+`/approve` trên một môi trường chưa từng có bảng `chunks` lại có 0 điều (admin xoá hết Điều
+trong ô JSON rồi bấm duyệt), node vẫn lên Neo4j nhưng bảng LanceDB không bao giờ được dựng. Đúng
+hành vi cũ (`elif rows:` của bản trước khi hoà nhánh 13/08), không phải lỗi mới — ghi lại vì
+`CLAUDE.md` bắt việc-đã-biết-chưa-làm phải sống ở đây.
+
+- Vì sao quan trọng: mọi lượt duyệt SAU đó — kể cả văn bản có điều thật — cũng rơi vào cùng
+  nhánh "chưa có bảng" cho tới khi có một văn bản khác 0 điều đi qua, nghĩa là hybrid search
+  hoàn toàn không hoạt động (không bảng, không lỗi) trong khoảng đó mà API vẫn trả
+  `200 approved`. Rủi ro thấp trên corpus thật hôm nay (luôn có văn bản khác 0 điều nạp trước
+  qua CLI), nhưng môi trường mới tinh (CI, demo, tenant mới) mà văn bản đầu duyệt qua UI lại
+  rỗng là ca chưa ai kiểm.
+- Bước đầu: thêm test ở `tests/test_ingest_mot_van_ban.py` — bảng chưa tồn tại + văn bản 0 điều
+  → gọi `ingest_one_doc`, khẳng định bảng LanceDB VẪN được dựng (rỗng, có index FTS). Sửa bằng
+  cách gọi `_tao_bang_moi(db, [])` thay vì rẽ nhánh theo `if rows`, sau khi xác nhận
+  `create_table(data=[])` được lancedb thật chấp nhận (không phải suy đoán).
 
 ---
 

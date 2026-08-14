@@ -45,9 +45,11 @@ phiên.
   phải đo.
 - **Next.** (1) Chủ repo xác nhận có lượt ingest nào chạy trên bảng thật sau 09/08 không — xác
   nhận thì đóng T1 kèm ghi lại bằng gì; không thì T1 vẫn treo như cũ, chỉ đỡ tốn hơn khi chạy.
-  (2) T24 — xác nhận FTS đang ascii-fold tiếng Việt trước khi chỉnh tiếp `TRONG_SO_THUA` (T21).
-  (3) T26 — đo độ tươi của `count_rows()` sau `merge_insert` từ xa trước khi tin số ghi vào audit
-  log `/documents/{id}/approve`.
+  (2) xác nhận FTS đang ascii-fold tiếng Việt trước khi chỉnh tiếp trọng số nhánh thưa (T104) —
+  xem gạch đầu dòng `_FTS_OPTS` ở `app/ingestion/pipeline.py:238-249` (thay cho `T24` cũ, đã bỏ
+  khi nối lại TASKLIST 13/08).
+  (3) T101 — đo độ tươi của `count_rows()` sau `merge_insert` từ xa trước khi tin số ghi vào
+  log CLI (`/documents/{id}/approve` giờ dùng `ingest_one_doc`, không phải `write_lancedb`).
 - **Hoà `main` vào `feat/ai`.** `ingest_one_doc` và `write_lancedb` giờ dùng chung `_ghi_chunk`
   — cùng một hàm ghi một chunk, thay vì hai đường viết tay riêng dễ lệch nhau.
 - **Phép đo T1 chuyển sang đây.** T1 đã được `main` đóng từ 10/08, nên không còn mục "Chặn" nào
