@@ -6,6 +6,54 @@
 
 ---
 
+## 2026-08-14 — PR #24 merge vào `main`; đợt sửa sau review toàn nhánh
+
+**Giai đoạn:** đóng nhánh `feat/ai` sau khi hoà `main` (một cơ chế ghi LanceDB duy nhất), xử lý
+findings của lượt review toàn nhánh, merge.
+
+- **Done — hai lỗi nặng, đều là khiếm khuyết trong spec tôi viết, không phải lỗi cài đặt.**
+  (1) `_ghi_chunk` gọi `_cho_index` ở bước cuối, nên `/documents/{id}/approve` vô tình nhận một
+  lượt `wait_for_index(timeout=30s)` đồng bộ — đúng thứ `ingest_one_doc` của `main` đã cố ý
+  tránh (docstring của nó ghi rõ cái giá đã đo: FTS trễ ~13 giây, chấp nhận). Đưa `_cho_index`
+  ra khỏi `_ghi_chunk`, trả về từng người gọi: `write_lancedb` gọi, `ingest_one_doc` không.
+  (2) Phép dò bảng lọc `ValueError` bằng chuỗi con `"not found"` trần, cộng
+  `create_table(mode="overwrite")`: một dương tính giả đủ sức thay cả bảng 661 chunk đang phục
+  vụ bằng ~23 chunk của văn bản vừa duyệt rồi vẫn trả `200 approved` — bán kính `main` không
+  với tới được (nó dò bằng `table_names()` và `create_table` không `mode`). Siết bộ lọc đòi
+  khớp cả tên bảng **và** bỏ `mode="overwrite"`: hai lớp độc lập, mỗi lớp một mình đã đủ chặn.
+- **Đo lại trên lancedb 0.34.0 thật (DB tạm, không chạm bảng phục vụ).** `open_table` bảng
+  thiếu → `ValueError: Table 'chunks' was not found`, và lancedb lặp lại ĐÚNG tên được truyền
+  vào (`open_table("Chunks")` → `Table 'Chunks' ...`), nên `.lower()` hai vế là cần chứ không
+  phải trang trí. `create_table` trùng tên → `ValueError: Table 'chunks' already exists` —
+  cùng lớp ngoại lệ với phép dò, khác thông điệp, đó là lý do cụ thể không được bắt trần
+  `ValueError`. `create_table(data=[])` → `ValueError: Cannot create table from empty list
+  without a schema` (bác thẳng cách sửa hiển nhiên của T111).
+- **Tự bắt một chỗ bịa của chính mình.** Comment sản phẩm và hai test mới nêu
+  `Column 'x' was not found` như ca thật thúc đẩy việc siết bộ lọc. Đo ra: `select` sai cột ném
+  `RuntimeError: lance error: ... No field named nope.` — khác lớp, không lọt vào
+  `except ValueError`. Trên 0.34.0 **chưa đo được** `ValueError` nào khác từ `open_table` mà
+  chứa `"not found"`. Việc siết vẫn đúng, nhưng nó là phòng xa cho một tập thông điệp không
+  liệt kê hết được, KHÔNG phải vá một ca đã thấy — đã viết lại đúng như vậy trong comment và
+  trong cả hai docstring test.
+- **Trích dẫn sai đã sửa.** `db.py:1722` là API **async** dự án không gọi (đường thật:
+  `db.py:964` sync nhúng, `remote/db.py:424`); `db.py:1849` có thật nhưng là chỗ `drop_table`
+  **tiêu thụ** chuỗi cho `ignore_missing`, không phải khung ném — chuỗi do lõi Rust
+  (`_lancedb.pyd`) ném, không có dòng Python nào để trỏ. Quan trọng vì comment đó là thứ duy
+  nhất chỉ cho người sau cách kiểm lại hợp đồng khi nâng phiên bản; trỏ nhầm sang API async thì
+  người ta đo một đường code đang không chạy rồi yên tâm ship.
+- **Ship.** `main` = `89f04b1` (merge PR #24), 915 test xanh, ruff sạch, CI xanh cả `backend`
+  lẫn `web`. Chưa deploy Cloud Run.
+- **Decision.** Giữ `.superpowers/sdd/2026-08-13-hoa-nhanh-ingest/` (gitignored) thay vì xoá
+  theo quy trình: brief/report/diff của lượt này là thứ duy nhất ghi lại vì sao từng ruling
+  được quyết, mà xoá thì không lấy lại được.
+- **Next.** (1) Nhánh `feat/ai-compliance` (worktree `D:/Vinuni/VSF/LexFlow`) đang đứng trước
+  merge này — hoà `main` vào nó TRƯỚC khi làm tiếp, không thì PR sau lại đụng đúng vùng
+  `pipeline.py`/`documents.py` vừa hoà. (2) T111 — vá ca văn bản 0 điều duyệt đầu tiên trên môi
+  trường chưa có bảng, cần chốt schema tường minh lấy từ đâu. (3) T101 — đo độ tươi
+  `count_rows()` sau `merge_insert` từ xa.
+
+---
+
 ## 2026-08-13 — LanceDB ingest tăng dần (T1–T7 của plan); phát hiện tiền đề T1 đã lỗi thời
 
 **Giai đoạn:** trả nợ chi phí `write_lancedb` ghi đè cả bảng mỗi lượt (mục "Chặn" T1 của
