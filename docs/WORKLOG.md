@@ -6,6 +6,38 @@
 
 ---
 
+## 2026-08-14 (2) — LLM-judge chất lượng câu trả lời (bộ SBV); crawl 23 văn bản đã sẵn staging
+
+**Giai đoạn:** hạng mục 2 Sprint 3 (LLM-judge) — con số đầu tiên đo *câu trả lời* thay vì retrieval.
+
+- **Done — `eval/judge.py` + `tests/test_judge.py`.** Chấm Correctness §5.3 trên bộ SBV (29 câu,
+  `reference_answer` do tác giả bài báo viết, join theo `question_id`): tương đương ngữ nghĩa bằng
+  LLM, "có trích dẫn" + "trích dẫn khớp" bằng Python (doc_id luôn từ chunk thật). Hai pha có cache
+  (`answers-sbv.jsonl`) để chỉnh prompt không phải sinh lại.
+- **Bug thật, tìm root cause + sửa.** `chat_json` mặc định dùng model **reasoning**, model đó đi
+  vào vòng suy nghĩ cực dài trên nội dung pháp lý — treo > 2 phút/câu không trả về (pha chấm "đứng
+  im"). Đo cô lập: `reasoning=False` chấm 12s/câu với verdict + giải thích đúng. Sửa `cham_ngu_nghia`
+  dùng `reasoning=False`, ghi rõ trong docstring để không ai bật lại.
+- **Kết quả (2 đợt, `docs/EVAL-IR.md` §12).** Điểm ngữ nghĩa TB **0.862**, "dung" 23/29, trích dẫn
+  khớp 29/29. **Độ ổn định 0/29 verdict đổi (100%)** → 1 phiếu đủ, không cần self-consistency 2+1.
+- **Đào article-level 2 câu "sai".** qid=5 hụt **retrieval độ sâu** (điều vàng ngoài top-6, hạng 4
+  ở k=20; "lỗi hiệu lực" judge nêu là artifact đáp án cũ — chunk còn hiệu lực thật). qid=55 hụt
+  **sinh câu trả lời vơ đũa** (điều vàng hạng 2, retrieval đúng). → mở **T114** (top-k/reranker).
+- **Corpus SBV: crawl KHÔNG còn là nút thắt.** 23 văn bản bộ SBV thiếu đã cào sẵn staging
+  `data/raw/vbpl/corpus/` (`0 cào mới, 23 bỏ qua`); 70/71 câu chỉ thiếu 1 văn bản nên nhập tăng dần
+  mở khoá độc lập (top 6 → +37 câu). Nút thắt còn lại là **nhập + duyệt** (T113). Làm rõ nhầm lẫn:
+  **840 của bài báo là số VĂN BẢN** (9.661 mới là điều); 23 văn bản là để phủ **bộ test 100 câu**,
+  không phải để bằng kho 840 — và không nhắm tới 840 (sai phạm vi sản phẩm).
+- **Tự sửa lỗi mình gây ra:** ghi đè + xoá nhầm `research/crawl_list_sbv.txt` (file đã commit, có
+  sẵn 23 URL chủ repo tra 12/08) → `git checkout` khôi phục, xoá file thừa tự tạo.
+- **Không commit** `answers-sbv.jsonl` + `judge-sbv-*.json` (nhúng câu hỏi/đáp án bộ SBV, cần xin
+  phép tác giả) — thêm vào `.gitignore` cạnh `sbv_testset_tvpl.json`. **Lưu ý:**
+  `eval/results/20260812-093428-bo_sbv.json` đã lỡ commit từ trước và có chứa query — cần quyết
+  có gỡ khỏi track không.
+
+**Next:** (1) nhập 23 văn bản staging → chạy 29→100 câu (T113, qua spec→plan); (2) đo T114 (judge ở
+top_k cao hơn); (3) cột baseline Naive RAG cho one-pager (hạng mục 5).
+
 ## 2026-08-14 — PR #24 merge vào `main`; đợt sửa sau review toàn nhánh
 
 **Giai đoạn:** đóng nhánh `feat/ai` sau khi hoà `main` (một cơ chế ghi LanceDB duy nhất), xử lý

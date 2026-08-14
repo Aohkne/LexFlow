@@ -54,3 +54,8 @@ docs/SCHEMA_KG.md
 # data/evaluate/svb_graph/README.md
 data/evaluate/svb_graph/sbv_testset_tvpl.json
 !data/evaluate/svb_graph/README.md
+
+# Ket qua chay tren bo SBV nhung nhung cau hoi / cau tra loi cua bo do (query, reference_answer)
+# -> cung dien "xin phep tac gia" nhu tren, khong commit. Sinh lai duoc bang eval/judge.py.
+eval/results/answers-sbv.jsonl
+eval/results/judge-sbv-*.json

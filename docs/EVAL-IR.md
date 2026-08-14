@@ -510,8 +510,80 @@ lập, thống kê tiền tệ, …) đưa 56 → **100/100** — không câu n�
 là **mở rộng sản phẩm**, không phải bổ sung dữ liệu — cùng phán đoán đã ghi với bộ TVPL ở §6
 (`research/crawl_list_eval.txt`).
 
-Danh sách đầy đủ, đúng định dạng `scripts/crawl_vbpl_batch.py` ăn: `research/crawl_list_sbv.txt`.
-Tên văn bản trong file đó **suy từ câu hỏi và slug URL của bộ eval**, không phải đọc văn bản gốc —
-kiểm lại tên khi tra URL, sai tên thì cào nhầm văn bản mà không ai biết. `21/2017/TT-NHNN` có mặt
-ở cả hai danh sách (`research/crawl_list_eval.txt` của bộ TVPL và danh sách này) — cào một lần
-dùng chung cho cả hai bộ.
+Danh sách đầy đủ, đúng định dạng `scripts/crawl_vbpl_batch.py` ăn: `research/crawl_list_sbv.txt`
+(23 URL do chủ repo tra 12/08 từ `research/crawl_list_svb.csv`, kèm thứ tự cộng dồn tham lam và tên
+đã sửa theo slug). `21/2017/TT-NHNN` có mặt ở cả hai danh sách (`research/crawl_list_eval.txt` của
+bộ TVPL và danh sách này) — cào một lần dùng chung cho cả hai bộ.
+
+**Cập nhật 14/08: cả 23 văn bản đã cào về staging `data/raw/vbpl/corpus/`** (`crawl_vbpl_batch.py`
+báo `0 cào mới, 23 bỏ qua, 0 hỏng`). Nút thắt còn lại **không phải cào mà là nhập** (enrich vào
+`data/corpus.real.json` + duyệt maker-checker), rồi `uv run python eval/chuyen_sbv.py` để split tự
+cập nhật 29 → tối đa 100. Việc nhập chạm corpus phục vụ nên đi qua spec→plan (T113).
+
+## 12. Correctness — LLM-judge chất lượng câu trả lời (`eval/judge.py`)
+
+Mọi bảng trên đo **retrieval** (tìm đúng văn bản/điều chưa). Mục này đo **câu trả lời** — thứ người
+dùng thực đọc. Chấm trên `bo_sbv.jsonl` (29 dòng / 26 câu khác nhau — không khử trùng, như bảng IR),
+sinh câu trả lời qua đường sản phẩm `answer.build_answer`, join `reference_answer` do tác giả bài báo
+viết theo `question_id`. Ba tiêu chí Correctness §5.3, chỉ tiêu chí ngữ nghĩa tốn LLM; "có trích dẫn"
+và "trích dẫn khớp" kiểm bằng Python (doc_id luôn từ chunk thật nên không bịa được).
+
+### Kết quả — 2026-08-14, đo hai đợt
+
+| | Đợt 1 | Đợt 2 |
+|---|---|---|
+| Điểm ngữ nghĩa TB (dung=1 · thieu=0.5 · sai=0) | **0.862** | 0.862 |
+| Tỷ lệ "dung" hoàn toàn | **0.793** (23/29) | 0.793 |
+| Tỷ lệ có trích dẫn | 1.000 (29/29) | 1.000 |
+| Tỷ lệ trích dẫn khớp văn bản vàng | 1.000 (29/29) | 1.000 |
+
+Files: `eval/results/judge-sbv-20260814T075404Z.json` (đợt 1), `judge-sbv-20260814T082920Z.json` (đợt 2).
+
+**Độ ổn định: 0/29 verdict đổi giữa hai đợt (100%).** temperature=0 + `reasoning=False` cho kết quả
+tái lập hoàn toàn — nên **1 phiếu là đủ**, không cần self-consistency 2+1 như `review._judge`.
+
+> `reasoning=False` là **bắt buộc**, không phải tối ưu: model reasoning (mặc định `chat_json`) đi vào
+> vòng suy nghĩ cực dài trên nội dung pháp lý, treo > 2 phút/câu không trả về; model thường chấm 12s
+> với verdict + giải thích đúng. Đối chiếu ngữ nghĩa với đáp án cho sẵn không cần suy luận sâu.
+
+### 6 câu chưa "dung" — hụt ở đâu
+
+**Trích dẫn khớp 29/29 nghĩa là retriever lấy đúng văn bản vàng ở cả 6 câu này** — hụt nằm **sau
+retrieval** (điều/khoản chi tiết hoặc cách sinh câu trả lời), không phải tìm sai văn bản.
+
+| qid | verdict | Hụt gì |
+|---|---|---|
+| 4 | thieu | Sót "CMND (còn hiệu lực)" trong hồ sơ mở ví |
+| 64 | thieu | Chỉ nói "người đại diện hợp pháp", sót nhánh "người đại diện theo uỷ quyền" |
+| 90 | thieu | Sót 2 biện pháp (hợp đồng ngân hàng hợp tác; tài khoản đảm bảo thanh toán, Điều 27 TT40) |
+| 86 | thieu | Liệt kê đúng đủ 3 hình thức nhưng không nói số "03" dù câu hỏi hỏi "mấy" (judge khắt khe) |
+| 55 | **sai** | Kết luận ngược: trả "Không" trong khi rút *tiền mặt bằng thẻ vật lý tại ATM* không cần sinh trắc học |
+| 5 | **sai** | Trích Điều 25 TT40 mà không ghi chú hiệu lực từ 01/07/2025 (có thể lỗi lớp hiệu lực, hoặc đáp án tham chiếu viết ở thời điểm cũ — cần kiểm chunk) |
+
+4/6 là completeness (đúng hướng, thiếu ý). Chi tiết `ly_do` từng câu trong file JSON.
+
+**Đào article-level hai câu "sai" (14/08) — hụt ở hai tầng khác nhau:**
+
+- **qid=5 → hụt RETRIEVAL (độ sâu mức điều).** Nhãn vàng `TT40-2024::Điều 23` (điều định nghĩa
+  "xác thực thông tin khách hàng") **không nằm trong top_k=6** mà câu trả lời thấy — nhưng ở top_k=20
+  nó xếp **hạng 4**. Tức điều chi phối truy hồi được và xếp hạng tốt, chỉ rơi ngoài cửa sổ top-6 của
+  đường sản phẩm ⇒ câu trả lời dựng thiếu chính điều đó nên sót "trách nhiệm khách hàng về tính trung
+  thực". Đây là **thiếu reranker / top-k nông**, đúng khoảng cách đã ghi ở §8 và §10. Phần "lỗi hiệu
+  lực" judge nêu là **artifact của đáp án tham chiếu**: chunk `Điều 25 Khoản 6` hệ trích có
+  `valid_from=2024-07-17`, đang hiệu lực tại as_of 2026-08-12, nên coi là hiện hành là đúng — đáp án
+  tham chiếu ghi "01/07/2025" là bản cũ, không phải bug lớp hiệu lực.
+- **qid=55 → hụt SINH CÂU TRẢ LỜI (vơ đũa), retrieval đúng.** Nhãn vàng `TT17-2024::Điều 17` nằm
+  **hạng 2** ở top_k=6. Chunk kéo về là `Điều 17 Khoản 5` (quy tắc giao dịch bằng *phương tiện điện
+  tử* cần sinh trắc học), không có khoản miễn trừ cho rút tiền mặt bằng thẻ vật lý tại ATM. Câu trả
+  lời nói đúng phạm vi ("không thể rút … *bằng phương tiện điện tử*") nhưng chốt "Không" quá tuyệt
+  đối, bỏ lối rút tiền mặt bằng thẻ vật lý mà đáp án phân biệt. Cần kiểm toàn văn Điều 17 xem corpus
+  có khoản miễn trừ mà retrieval bỏ sót không.
+
+Phát hiện phụ: qid=5 cho thấy **top-6 và top-20 xếp hạng khác nhau** (Điều 23 vắng ở k=6, hạng 4 ở
+k=20) — RRF fuse theo pool nông/sâu ra thứ tự khác, củng cố lập luận thiếu reranker. Ghi ở `T114`.
+
+### Không so trực tiếp với bài báo
+
+Bài báo dùng **2 annotator người** chấm Correctness; ta dùng **LLM-judge 1 phiếu**. Mẫu 29 câu là
+nhỏ (một câu ≈ 3,4 điểm), và 3 câu là bản sao. Con số đọc là "chất lượng câu trả lời trên đúng bộ
+câu của bài báo, đo bằng LLM-judge tái lập được", không phải điểm so ngang bảng Correctness của họ.

@@ -688,6 +688,57 @@ hành vi cũ (`elif rows:` của bản trước khi hoà nhánh 13/08), không p
   đâu (hằng số viết tay, hay `pa.schema` suy từ `build_chunks` một văn bản giả) là câu hỏi mở
   và là thứ phải chốt trước khi viết code.
 
+### [~] T112 · LLM-judge chất lượng câu trả lời (Correctness) — hạng mục 2 Sprint 3
+
+`eval/judge.py` (mới, 14/08) chấm CHẤT LƯỢNG câu trả lời trên bộ SBV (`eval/bo_sbv.jsonl`, 29 câu):
+join `reference_answer` do tác giả bài báo viết theo `question_id`, sinh câu trả lời qua đường sản
+phẩm `answer.build_answer`, chấm 3 tiêu chí Correctness §5.3 — tương đương ngữ nghĩa (LLM,
+temperature=0), có trích dẫn + trích dẫn khớp corpus (thuần Python). Kết quả vào
+`eval/results/judge-sbv-*.json`. Test thuần ở `tests/test_judge.py`.
+
+- Đã xong 14/08: (a) độ ổn định đo hai đợt — **0/29 verdict đổi (100%)**, nên 1 phiếu đủ, không
+  cần self-consistency 2+1; (b) bug **`chat_json` mặc định reasoning treo > 2 phút/câu** trên nội
+  dung pháp lý → sửa `cham_ngu_nghia` dùng `reasoning=False` (12s/câu); (c) số + phân tích 6 câu
+  hụt ghi vào `docs/EVAL-IR.md` §12. Kết quả: điểm ngữ nghĩa TB 0.862, "dung" 23/29, trích dẫn
+  khớp 29/29.
+- Còn dở: (1) chưa có **cột baseline** (Naive RAG) để so — cần khi dựng one-pager (hạng mục 5),
+  lúc đó tách phần sinh câu trả lời để dùng chunk naive; (2) hai câu "sai" (qid 55, 5) nên đào
+  article-level để biết hụt ở retrieval khoản hay sinh câu trả lời; (3) mẫu 29 câu nhỏ + 3 câu
+  trùng, KHÔNG so trực tiếp Correctness 2-annotator của bài báo.
+
+### [ ] T113 · Mở rộng corpus để chạy hết bộ SBV 100 câu (29 → 100)
+
+Bộ SBV hiện chỉ chạy 29/100 câu vì corpus thiếu **23 văn bản** được dẫn (tập `van_ban_thieu`
+của `eval/bo_sbv_khong_can_cu.jsonl`). Không phải hệ trả sai — thiếu nguồn. **70/71 câu chỉ thiếu
+đúng 1 văn bản** nên cào tăng dần được, mở khoá độc lập: top 6 văn bản mở ~37 câu, top 11 mở ~52,
+cả 23 mở 71 (đuôi dài, mỗi văn bản +1). Toàn TT + NĐ-CP, không VBHN.
+
+- Đã xong 14/08: `research/crawl_list_sbv.txt` đủ 23 URL (chủ repo tra 12/08), và **cào xong về
+  staging `data/raw/vbpl/corpus/`** (`0 cào mới, 23 bỏ qua, 0 hỏng`). Việc cào KHÔNG còn là nút thắt.
+- Nút thắt còn lại: **nhập** — enrich vào `data/corpus.real.json` + duyệt maker-checker. Nhập tăng
+  dần (T104) đã sẵn; chỉ thiếu thời gian duyệt. Chạm corpus phục vụ nên qua spec→plan.
+- Sau khi nhập: `uv run python eval/chuyen_sbv.py` (split tự cập nhật) → `run_benchmark.py`
+  `--bo eval/bo_sbv.jsonl` + `judge.py`. Đây chạm corpus phục vụ (production) nên đi qua
+  spec→plan như quy ước, không nhập ad-hoc.
+- Không nhắm quy mô bài báo (840 văn bản): sai phạm vi sản phẩm (lát cắt thanh toán), xem
+  `docs/EVAL-IR.md` §8.
+
+### [ ] T114 · Top-k / reranker đường trả lời — điều chi phối rơi ngoài top-6
+
+Judge SBV (§12 `docs/EVAL-IR.md`) lộ một ca hụt mức điều: qid=5 nhãn vàng `TT40-2024::Điều 23`
+**không nằm top_k=6** mà `answer.build_answer` dùng, nhưng ở top_k=20 xếp **hạng 4**. Điều chi phối
+truy hồi được và xếp hạng tốt, chỉ rơi ngoài cửa sổ top-6 ⇒ câu trả lời dựng thiếu điều đó. Đường
+sản phẩm hiện `top_k=6` mặc định (`ChatRequest.top_k`).
+
+- Quan sát kèm theo: **top-6 và top-20 ra thứ tự khác nhau** (không phải prefix ổn định) — RRF fuse
+  theo pool nông/sâu cho ranking khác. Cần hiểu vì sao trước khi chỉnh, không chỉ nống k lên.
+- Hai hướng, chưa chốt: (a) tăng `top_k` đường trả lời (rẻ, nhưng nhồi context nhiều hơn, có thể
+  kéo nhiễu); (b) thêm **cross-encoder rerank** sau retrieval (đúng thứ bài báo có mà LexFlow thiếu,
+  xem §10) — đắt hơn, cần model. Đo lại F2@k mức điều + judge Correctness sau mỗi hướng.
+- Bước đầu: chạy `eval/judge.py` với đường trả lời `top_k` cao hơn (vd 10/12) trên 29 câu SBV, xem
+  điểm ngữ nghĩa TB 0.862 có nhích không và có kéo nhiễu làm tụt câu khác không. Thuần đo, chưa đổi
+  mặc định sản phẩm.
+
 ---
 
 ## Đã đóng
