@@ -63,3 +63,5 @@ eval/results/*bo_sbv*.json
 # Bo eval SBV da chuyen doi (query + nhan cua bo test bai bao) — sinh lai bang eval/chuyen_sbv.py
 eval/bo_sbv.jsonl
 eval/bo_sbv_khong_can_cu.jsonl
+# Checkpoint per-cau cua benchmark (nhung query cua bo -> co the la SBV). Sinh lai duoc.
+eval/results/cache-*.jsonl

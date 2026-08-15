@@ -231,9 +231,23 @@ def _in_bang_ir(ir: dict) -> None:
             )
 
 
-def evaluate(duong_dan: str | Path = QUESTIONS) -> dict:
+def evaluate(duong_dan: str | Path = QUESTIONS, moi: bool = False) -> dict:
     cases = nap(duong_dan)
     n = len(cases)
+
+    # Checkpoint từng câu: job ~1 giờ, không lưu dở thì mỗi lần bị cắt là mất trắng + tốn API.
+    # Chạy lại chỉ bù câu chưa có trong cache. `--moi` để bỏ cache (bắt buộc khi corpus/nhãn đổi,
+    # nếu không sẽ trộn kết quả cũ với cấu hình mới). Câu LỖI không cache -> tự thử lại.
+    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+    cache_path = RESULTS_DIR / f"cache-{Path(duong_dan).stem}.jsonl"
+    if moi:
+        cache_path.unlink(missing_ok=True)
+    cache: dict[str, dict] = {}
+    if cache_path.exists():
+        for line in cache_path.read_text(encoding="utf-8").splitlines():
+            if line.strip():
+                r = json.loads(line)
+                cache[r["query"]] = r
 
     base = {"cite": 0, "stale": 0}
     ours = {"cite": 0, "stale": 0, "conflict": 0}
@@ -253,13 +267,19 @@ def evaluate(duong_dan: str | Path = QUESTIONS) -> dict:
     print("-" * 96, flush=True)
     for i, case in enumerate(cases, start=1):
         q = case.query
-        try:
-            r = _run_case(case)
-        except Exception as exc:  # noqa: BLE001 — một câu lỗi không được giết cả lượt đo
-            print(f"{i:<4}{q[:53]:<55} LỖI: {exc!r}", flush=True)
-            errors.append({"query": q, "error": repr(exc), "traceback": traceback.format_exc()})
-            details.append({"query": q, "group": case.group, "error": repr(exc)})
-            continue
+        cached = cache.get(q)
+        if cached is not None:
+            r = cached
+        else:
+            try:
+                r = _run_case(case)
+            except Exception as exc:  # noqa: BLE001 — một câu lỗi không được giết cả lượt đo
+                print(f"{i:<4}{q[:53]:<55} LỖI: {exc!r}", flush=True)
+                errors.append({"query": q, "error": repr(exc), "traceback": traceback.format_exc()})
+                details.append({"query": q, "group": case.group, "error": repr(exc)})
+                continue
+            with cache_path.open("a", encoding="utf-8") as fh:
+                fh.write(json.dumps(r, ensure_ascii=False) + "\n")
 
         latencies.append(r["latency_s"])
         base["cite"] += r["baseline"]["cite"]
@@ -366,8 +386,13 @@ def main() -> list[dict]:
         default=None,
         help="Bộ câu hỏi .jsonl (lặp lại được). Mặc định: eval/questions.jsonl",
     )
+    ap.add_argument(
+        "--moi",
+        action="store_true",
+        help="Bỏ cache checkpoint, chạy lại từ đầu (bắt buộc khi corpus/nhãn đã đổi).",
+    )
     args = ap.parse_args()
-    return [evaluate(p) for p in (args.bo or [QUESTIONS])]
+    return [evaluate(p, moi=args.moi) for p in (args.bo or [QUESTIONS])]
 
 
 if __name__ == "__main__":
