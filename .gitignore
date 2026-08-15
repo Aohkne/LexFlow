@@ -14,6 +14,10 @@ data/lancedb/
 # Downloaded HF datasets (large binaries, re-downloadable)
 data/tuvanphapluat/
 
+# Bo VLQA (VLSP 2025 DRiLL) — data thi dau tai ve, ~240 MB, khong phat tan lai qua repo
+data/raw/VLQA/
+data/raw/VLQA*.zip
+
 # Bản tải về từ nút download của scripts/tuvanphapluat_viewer.py — trùng từng ký tự với
 # eval/tuvanphapluat_selected.jsonl (chỉ khác kiểu xuống dòng), nên chỉ bản kia được version
 data/evaluate/

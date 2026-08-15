@@ -125,6 +125,14 @@ top-20 trên corpus 26 văn bản chỉ ra 4–5 `doc_id` khác nhau. Ba điều
   `top_k=6`) nhất quán với `R@5 = 1.00` của cột Naive RAG — cùng một hàm retrieval, hai cách đo
   không mâu thuẫn.
 
+**Đo lại 2026-08-15 sau khi nạp 23 văn bản (index mới, 49 doc)** — `eval/results/20260815-101504.json`,
+gate hồi quy sau khi mở rộng corpus. LexFlow **không đổi**: `n_errors 0/36`, `citation_accuracy`
+36/36 và `stale_avoidance` 36/36 ở cả ba cột hybrid/+graph/+router — y hệt trước khi nạp. IR mức
+văn bản dịch lên (LexFlow hybrid R@1 0.72 → **0.83**, MRR@2 0.85 → **0.90**) vì index đã re-ingest
+sạch (T1 đóng) và corpus có thêm ứng viên; đây là đo lại tốt hơn, không phải hồi quy. Cột baseline
+(dense thuần, không lọc hiệu lực) tụt `citation_accuracy` 36 → 34/36 vì thấy thêm 23 văn bản nên
+2 câu bị doc mới chen — đúng bản chất cột đối chứng, không chạm đường sản phẩm.
+
 ## 6. Bộ câu hỏi TVPL — đo theo thời điểm
 
 `data/evaluate/eval_filtered_clean.jsonl`: 251 câu hỏi-đáp luật ngân hàng lấy từ
@@ -325,13 +333,13 @@ quét lại trước rồi mới chạy full.
 
 | | Bài báo | LexFlow |
 |---|---|---|
-| Corpus | 840 văn bản → 9.661 điều; LKG 5.221 node / 6.019 cạnh | 26 văn bản → 425 điều / 661 chunk; 35 quan hệ |
-| Bộ câu hỏi | ALQAC2025 (729 QA) + SBV Legal (100 QA) | 36 câu tự soạn · 76 câu TVPL · 29/100 câu SBV Legal của chính bài báo |
+| Corpus | 840 văn bản → 9.661 điều; LKG 5.221 node / 6.019 cạnh | 49 văn bản → 1.041 điều / 1.496 chunk; 35 quan hệ |
+| Bộ câu hỏi | ALQAC2025 (729 QA) + SBV Legal (100 QA) | 36 câu tự soạn · 76 câu TVPL · 100/100 câu SBV Legal của chính bài báo |
 | Embedding | `paraphrase-vietnamese-law` (fine-tune trên ViLQA/ALQAC2024) | `gemini-embedding-001`, 768 chiều |
 | Rerank | ViRanker + `bge-reranker-v2-m3` (cross-encoder) | **không có** |
 | Vector store | Qdrant | LanceDB |
 
-Với 26 văn bản, `R@20` sẽ bão hoà gần 1.0 và mất khả năng phân biệt — đó là tính chất của mẫu nhỏ,
+Với 49 văn bản, `R@20` vẫn bão hoà gần 1.0 và mất khả năng phân biệt — đó là tính chất của mẫu nhỏ,
 không phải bằng chứng hệ tốt. Bảng ở §5 chỉ dùng để **so các cột với nhau trên cùng corpus**.
 
 ## 9. Cảnh báo khi đọc số
@@ -364,102 +372,87 @@ quyết định của repo này. `data/evaluate/svb_graph/README.md` (có versio
 kích thước, số bản ghi và đường dẫn cần đặt file vào — kiểm hash trước khi chạy lại
 `chuyen_sbv.py`, vì hash khác nghĩa là dữ liệu khác và split 29/71/100 dưới đây sẽ không tái lập.
 
-Khác ba bộ trước ở ba điểm: (1) hỏi về luật **đang hiệu lực** — bốn văn bản corpus phủ được
-(TT17-2024, TT18-2024, TT40-2024, NĐ52-2024) đều còn hiệu lực, trong khi mọi số IR trước nay đo
-trên luật đã chết từ 2024-07, tức ca biên nơi lớp lọc hiệu lực toả sáng, không phải ca thường
-ngày của sản phẩm; (2) là **dữ liệu ngoài** — `TRONG_SO_THUA = 0.1` được chỉnh trên ba bộ tự
-dựng, đều thiên về luật đã chết, nên bộ này là hold-out thật để kiểm hằng số đó có overfit không;
-(3) nhãn cấp điều đầy đủ trên 100% câu, trong khi bộ TVPL chỉ đạt 68/76 sau chuyển đổi.
+Khác ba bộ trước ở ba điểm: (1) hỏi về luật **đang hiệu lực** — mọi văn bản được dẫn đều còn hiệu
+lực, trong khi phần lớn số IR trước nay đo trên luật đã chết từ 2024-07, tức ca biên nơi lớp lọc
+hiệu lực toả sáng, không phải ca thường ngày của sản phẩm; (2) là **dữ liệu ngoài** —
+`TRONG_SO_THUA = 0.1` được chỉnh trên ba bộ tự dựng, đều thiên về luật đã chết, nên bộ này là
+hold-out thật để kiểm hằng số đó có overfit không; (3) nhãn cấp điều đầy đủ trên 100% câu, trong
+khi bộ TVPL chỉ đạt 68/76 sau chuyển đổi.
 
-**Phủ corpus:** 29/100 câu dùng được. 27 văn bản được dẫn, corpus có 4. 0 câu có cửa sổ hiệu lực
-rỗng, 0 nhãn trỏ vào điều mà corpus không có. 71 câu còn lại là **negative sạch cả 71** — không
-câu nào dẫn lẫn một văn bản corpus có; chúng nằm ở `eval/bo_sbv_khong_can_cu.jsonl`, dành cho T17.
+**Phủ corpus (cập nhật 14/08):** 100/100 câu dùng được. 27 văn bản được dẫn, corpus có đủ cả 27 sau
+khi nạp 23 văn bản SBV (T113). 0 câu có cửa sổ hiệu lực rỗng, 0 nhãn trỏ vào điều corpus không có.
+`chuyen_sbv.py` chạy lại tự đưa bộ từ 29 → 100 câu; `eval/bo_sbv_khong_can_cu.jsonl` (trước là 71
+câu negative vì thiếu văn bản) nay rỗng — không còn câu nào bị chặn vì corpus thiếu.
 
-### Vì sao KHÔNG chạy 71 câu kia
-
-71 câu đó dẫn văn bản ngoài corpus nên không kết quả nào khớp được: `recall = precision = rr = 0`
-ở **mọi cột của hai bảng IR** (mức văn bản, mức điều). `metrics.tong_hop` là macro-average, nên
-thêm 71 số 0 vào trung bình của 29 câu làm `recall`, `precision`, `mrr` nhân `29/100`. `f2 =
-5PR/(4P+R)` cũng vậy: nhân cả `P` và `R` với `c` cho `5c²PR / c(4P+R) = c · 5PR/(4P+R)`.
-
-Tức **mọi ô của hai bảng IR (mức văn bản, mức điều) trên 100 câu = ô tương ứng của bảng 29 câu ×
-0.29**. Chạy 71 câu tốn ~70 phút và 71 lượt gọi API để thu về một hằng số nhân, và vì mọi cột co
-cùng tỷ lệ, nó không phân biệt được cột nào với cột nào.
-
-Phép nhân này **không** áp cho bảng citation/tránh-hết-hiệu-lực/mâu-thuẫn ở đầu §11: thêm 71 câu
-hỏi về văn bản mà cả bốn văn bản corpus phủ đều còn hiệu lực sẽ cho `stale_avoidance` đọc
-100/100 = 1.0, không phải × 0.29 — chỉ số đó vốn đã **rỗng nghĩa trên cả hai mẫu** vì bộ này không
-có văn bản hết hiệu lực nào để đo (xem cảnh báo cạnh bảng dưới). `conflict_recall` có mẫu số 0 trên
-cả 29 lẫn 100 câu, cũng vô nghĩa theo cùng lý do.
-
-Nên khi đặt cạnh Table 3 của bài báo, con số phải đọc là: *trên đúng 100 câu của bài báo, hai bảng
-IR của LexFlow phải nhân 0.29 vì corpus thiếu 71/100 văn bản được hỏi.* Con số đó nói về
-**corpus**, không nói về truy hồi. Ở §8, cảnh báo về **corpus** (26 văn bản, `R@20` bão hoà) và về
-**rerank** (LexFlow không có) vẫn nguyên giá trị; dòng **bộ câu hỏi** thì không còn đúng nữa — từ
-đợt đo này LexFlow đã có kết quả trên 29/100 câu của chính bộ SBV Legal và 76 câu TVPL, không còn
-gói gọn trong "36 câu tự soạn" như bảng đó từng ghi.
+Lịch sử: trước 14/08 chỉ 29/100 câu chạy được (corpus khi đó phủ 4/27 văn bản), 71 câu kia là
+negative sạch, và hai bảng IR khi ấy phải nhân 0.29 khi đặt cạnh Table 3 của bài báo. Nạp 23 văn
+bản đã xoá hệ số đó: từ đợt 15/08 hai bảng đo trên đúng 100 câu như đề bài báo cho. Ở §8, cảnh báo
+về **corpus** (`R@20` bão hoà trên mẫu nhỏ) và **rerank** (LexFlow không có) vẫn nguyên giá trị.
 
 ### Bộ có trùng câu hỏi — không khử
 
-`eval/bo_sbv.jsonl` có **29 dòng nhưng chỉ 26 câu hỏi khác nhau**. Ba cặp trùng khớp cả nội dung
-câu hỏi lẫn nhãn vàng, cả ba đều thuộc TT17-2024: `question_id` 6/30, 7/31, 61/63. Chúng vì thế bị
-**đếm hai lần** trong mọi macro-average của bảng dưới.
+`eval/bo_sbv.jsonl` có **100 dòng nhưng chỉ 94 câu hỏi khác nhau** (6 dòng trùng). Chúng vì thế bị
+**đếm nhiều lần** trong mọi macro-average của bảng dưới.
 
 Cố ý **không khử trùng**: bộ này tồn tại để đối sánh với bài báo, mà bài báo đo trên đúng 100 dòng
-như đề cho — khử trùng sẽ làm 29 câu của LexFlow thôi là một tập con cùng trọng số của 100 câu đó.
-Giữ nguyên, chỉ ghi rõ ở đây.
+như đề cho — khử trùng sẽ làm bộ của LexFlow lệch khỏi 100 dòng đó. Giữ nguyên, chỉ ghi rõ ở đây.
 
-### Kết quả — `bo_sbv.jsonl`, 29/29 câu, đo 2026-08-12
+### Kết quả — `bo_sbv.jsonl`, 100/100 câu, đo 2026-08-15
 
-`eval/results/20260812-093428-bo_sbv.json`. Index: LanceDB Cloud **chưa** re-ingest (T1 còn mở).
-Retrieval p50 3730 ms. Lượt chạy đầu bị bỏ vì rớt 7/29 câu do `HttpError` thoáng qua của LanceDB
-Cloud (xem T22 trong `docs/TASKLIST.md`); bảng dưới là lượt chạy lại, 0/29 lỗi.
+`eval/results/20260815-021257-bo_sbv.json` (gitignored — nhúng query của bài báo). Index: LanceDB
+Cloud đã re-ingest đủ 23 văn bản (1496 chunk / 49 doc), FTS phủ chunk mới. Retrieval p50 3074 ms,
+0/100 lỗi.
 
 | | citation accuracy | tránh văn bản hết hiệu lực | phát hiện mâu thuẫn |
 |---|---|---|---|
-| baseline (dense thuần) | 29/29 | 29/29 | — |
-| LexFlow hybrid | 29/29 | 29/29 | 0/0 |
-| LexFlow +graph | 29/29 | 29/29 | 0/0 |
+| baseline (dense thuần) | 99/100 | 100/100 | — |
+| LexFlow hybrid | 99/100 | 100/100 | 0/0 |
+| LexFlow +graph | 99/100 | 100/100 | 0/0 |
 
 Router (lớp phủ dưới-văn-bản, áp trên cột +graph): citation accuracy và tránh văn bản hết hiệu
-lực giữ nguyên 29/29 cả OFF lẫn ON. 5/29 câu trả về docs khác nhau khi bật router, 4 hit bị loại
-vì bãi bỏ, 68 hit được nắn trích dẫn (tổng trên 29 câu).
+lực giữ nguyên 99/100 và 100/100 cả OFF lẫn ON. 5/100 câu trả về docs khác nhau khi bật router,
+1 hit bị loại vì bãi bỏ, 65 hit được nắn trích dẫn (tổng trên 100 câu).
 
-| Mức **văn bản** (29 câu có nhãn) | R@1 | R@2 | R@5 | R@10 | R@20 | MRR@2 | P@2 | F2@2 |
+| Mức **văn bản** (100 câu có nhãn) | R@1 | R@2 | R@5 | R@10 | R@20 | MRR@2 | P@2 | F2@2 |
 |---|---|---|---|---|---|---|---|---|
-| BM25 | 0.28 | 0.41 | 0.86 | 0.97 | 0.97 | 0.34 | 0.21 | 0.34 |
-| Naive RAG | 0.76 | 0.93 | 1.00 | 1.00 | 1.00 | 0.84 | 0.47 | 0.78 |
-| Advanced RAG | 0.41 | 0.66 | 0.97 | 1.00 | 1.00 | 0.53 | 0.33 | 0.55 |
-| **LexFlow hybrid** | **0.90** | **1.00** | 1.00 | 1.00 | 1.00 | **0.95** | **0.50** | **0.83** |
-| LexFlow +graph | 0.90 | 1.00 | 1.00 | 1.00 | 1.00 | 0.95 | 0.50 | 0.83 |
-| LexFlow +router | 0.90 | 1.00 | 1.00 | 1.00 | 1.00 | 0.95 | 0.50 | 0.83 |
+| BM25 | 0.69 | 0.78 | 0.91 | 0.98 | 0.99 | 0.74 | 0.39 | 0.65 |
+| Naive RAG | 0.89 | 0.95 | 0.99 | 0.99 | 0.99 | 0.93 | 0.48 | 0.80 |
+| Advanced RAG | 0.73 | 0.83 | 0.96 | 1.00 | 1.00 | 0.79 | 0.42 | 0.70 |
+| **LexFlow hybrid** | **0.94** | **0.97** | 0.99 | 0.99 | 0.99 | **0.96** | **0.49** | **0.81** |
+| LexFlow +graph | 0.94 | 0.97 | 0.99 | 0.99 | 0.99 | 0.96 | 0.49 | 0.81 |
+| LexFlow +router | 0.94 | 0.97 | 0.99 | 0.99 | 0.99 | 0.96 | 0.49 | 0.81 |
 
-| Mức **điều** (29 câu có nhãn) | R@1 | R@2 | R@5 | R@10 | R@20 | MRR@2 | P@2 | F2@2 |
+| Mức **điều** (100 câu có nhãn) | R@1 | R@2 | R@5 | R@10 | R@20 | MRR@2 | P@2 | F2@2 |
 |---|---|---|---|---|---|---|---|---|
-| BM25 | 0.16 | 0.19 | 0.60 | 0.78 | 0.85 | 0.19 | 0.10 | 0.16 |
-| Naive RAG | 0.52 | 0.84 | 0.94 | 0.98 | 0.99 | 0.71 | 0.45 | 0.72 |
-| Advanced RAG | 0.26 | 0.53 | 0.68 | 0.89 | 0.95 | 0.41 | 0.29 | 0.46 |
-| **LexFlow hybrid** | **0.69** | **0.91** | 0.98 | 0.98 | 0.99 | **0.83** | **0.50** | **0.78** |
-| LexFlow +graph | 0.69 | 0.91 | 0.98 | 0.98 | 0.99 | 0.83 | 0.50 | 0.78 |
-| LexFlow +router | 0.69 | 0.91 | 0.98 | 0.98 | 0.99 | 0.83 | 0.50 | 0.78 |
+| BM25 | 0.50 | 0.55 | 0.74 | 0.87 | 0.94 | 0.55 | 0.29 | 0.47 |
+| Naive RAG | 0.73 | 0.88 | 0.96 | 0.98 | 0.99 | 0.83 | 0.47 | 0.74 |
+| Advanced RAG | 0.56 | 0.72 | 0.87 | 0.94 | 0.98 | 0.67 | 0.38 | 0.61 |
+| **LexFlow hybrid** | **0.79** | **0.89** | 0.95 | 0.98 | 0.99 | **0.87** | **0.47** | **0.76** |
+| LexFlow +graph | 0.79 | 0.89 | 0.95 | 0.98 | 0.99 | 0.87 | 0.47 | 0.76 |
+| LexFlow +router | 0.79 | 0.89 | 0.95 | 0.98 | 0.99 | 0.87 | 0.47 | 0.76 |
 
 **Đọc bảng này phải nhớ bốn điều:**
 
-- **29/29 câu chỉ dẫn đúng một văn bản.** Ở mức văn bản `R@k` vì thế suy biến thành "đúng văn bản
-  có nằm trong top-k không" và không nói thêm gì so với `citation_accuracy`. Số đáng đọc nằm ở
-  **mức điều** (26 câu một điều · 2 câu hai điều · 1 câu ba điều).
-- **Một câu = 3,4 điểm R@1.** Mọi chênh lệch dưới 0.07 giữa hai cột là chênh lệch của **hai câu**
-  — và ba trong 29 câu là bản sao của nhau (xem trên), nên thực chất còn ít câu độc lập hơn cả 29.
+- **99/100 câu chỉ dẫn đúng một văn bản** (1 câu dẫn hai). Ở mức văn bản `R@k` vì thế gần như suy
+  biến thành "đúng văn bản có nằm trong top-k không" và không nói thêm nhiều so với
+  `citation_accuracy`. Số đáng đọc nằm ở **mức điều** (91 câu một điều · 5 câu hai · 4 câu ba).
+- **Một câu = 1 điểm R@1.** Chênh lệch dưới 0.02 giữa hai cột là chênh của **một câu** — và 6/100
+  dòng là bản sao (xem trên), nên số câu độc lập là 94.
 - **`stale_avoidance` (tránh văn bản hết hiệu lực) bằng 1.0 nhưng rỗng nghĩa** — bộ này không có
-  `must_not_doc` vì không có mặt lỗi thời nào để đo (bốn văn bản corpus phủ đều còn hiệu lực), nên
+  `must_not_doc` vì không có mặt lỗi thời nào để đo (mọi văn bản được dẫn đều còn hiệu lực), nên
   chỉ số đó mặc định đúng chứ không đo gì. Giống `bo_tvpl_dung_thoi` ở §6.
 - **Từ R@5 trở lên các cột hội tụ và hết khả năng phân biệt.** Ở mức điều, LexFlow hybrid đi
-  0.98/0.98/0.99 tại R@5/R@10/R@20 — sát nút Naive RAG 0.94/0.98/0.99, và tới R@10 hai cột không
-  còn phân biệt được nữa. Cùng nguyên nhân đã ghi ở §5: corpus 26 văn bản không đủ để top-20 chứa
-  nhiều ứng viên hợp lý, nên mọi cột đều bão hoà gần 1.0 ở k lớn bất kể xếp hạng tốt hay dở. Chênh
-  lệch thật chỉ còn thấy được ở R@1/MRR@2 — cột phải đọc, không phải cột nào cũng đọc được.
+  0.95/0.98/0.99 tại R@5/R@10/R@20 — sát nút Naive RAG 0.96/0.98/0.99, tới R@10 hai cột không còn
+  phân biệt được nữa. Cùng nguyên nhân đã ghi ở §5: corpus 49 văn bản vẫn chưa đủ để top-20 chứa
+  nhiều ứng viên hợp lý, nên mọi cột bão hoà gần 1.0 ở k lớn bất kể xếp hạng tốt hay dở. Chênh lệch
+  thật chỉ còn thấy được ở **R@1/MRR@2** — nơi LexFlow hybrid dẫn cả hai mức (văn bản 0.94/0.96,
+  điều 0.79/0.87), trên Naive RAG (0.89/0.93 và 0.73/0.83) và bỏ xa BM25, Advanced RAG.
 
 ### Sweep hold-out — `TRONG_SO_THUA` trên dữ liệu ngoài
+
+> Sweep dưới đây đo trên **tập 29 câu pre-expansion** (corpus 4/27 văn bản, đo 12/08); chưa sweep
+> lại trên 100 câu. Kết luận "không đổi hằng số" vẫn giữ (lý do là mẫu quá mỏng, không phải con số
+> cụ thể) — nếu sau này cần chỉnh `TRONG_SO_THUA`, sweep lại trên 100 câu trước.
 
 Mức văn bản (29 câu có nhãn) — trọng số nhánh thưa trong RRF
 
@@ -515,75 +508,60 @@ Danh sách đầy đủ, đúng định dạng `scripts/crawl_vbpl_batch.py` ăn
 đã sửa theo slug). `21/2017/TT-NHNN` có mặt ở cả hai danh sách (`research/crawl_list_eval.txt` của
 bộ TVPL và danh sách này) — cào một lần dùng chung cho cả hai bộ.
 
-**Cập nhật 14/08: cả 23 văn bản đã cào về staging `data/raw/vbpl/corpus/`** (`crawl_vbpl_batch.py`
-báo `0 cào mới, 23 bỏ qua, 0 hỏng`). Nút thắt còn lại **không phải cào mà là nhập** (enrich vào
-`data/corpus.real.json` + duyệt maker-checker), rồi `uv run python eval/chuyen_sbv.py` để split tự
-cập nhật 29 → tối đa 100. Việc nhập chạm corpus phục vụ nên đi qua spec→plan (T113).
+**Đã xong 14/08 (T113):** cả 23 văn bản đã nhập vào `data/corpus.real.json` (26 → 49 doc, base +
+enrich), re-ingest LanceDB (1496 chunk) và Neo4j (49 Document node), `chuyen_sbv.py` đưa split
+29 → **100/100**. Bảng IR ở trên là kết quả đo trọn 100 câu (15/08) sau khi nhập.
 
 ## 12. Correctness — LLM-judge chất lượng câu trả lời (`eval/judge.py`)
 
 Mọi bảng trên đo **retrieval** (tìm đúng văn bản/điều chưa). Mục này đo **câu trả lời** — thứ người
-dùng thực đọc. Chấm trên `bo_sbv.jsonl` (29 dòng / 26 câu khác nhau — không khử trùng, như bảng IR),
+dùng thực đọc. Chấm trên `bo_sbv.jsonl` (100 dòng / 94 câu khác nhau — không khử trùng, như bảng IR),
 sinh câu trả lời qua đường sản phẩm `answer.build_answer`, join `reference_answer` do tác giả bài báo
 viết theo `question_id`. Ba tiêu chí Correctness §5.3, chỉ tiêu chí ngữ nghĩa tốn LLM; "có trích dẫn"
 và "trích dẫn khớp" kiểm bằng Python (doc_id luôn từ chunk thật nên không bịa được).
 
-### Kết quả — 2026-08-14, đo hai đợt
+### Kết quả — `bo_sbv.jsonl`, 100 câu, đo 2026-08-15
 
-| | Đợt 1 | Đợt 2 |
-|---|---|---|
-| Điểm ngữ nghĩa TB (dung=1 · thieu=0.5 · sai=0) | **0.862** | 0.862 |
-| Tỷ lệ "dung" hoàn toàn | **0.793** (23/29) | 0.793 |
-| Tỷ lệ có trích dẫn | 1.000 (29/29) | 1.000 |
-| Tỷ lệ trích dẫn khớp văn bản vàng | 1.000 (29/29) | 1.000 |
+`eval/results/judge-sbv-20260815T110256Z.json` (gitignored). Sinh câu trả lời qua đường sản phẩm
+sau khi corpus mở rộng (49 doc), rồi chấm 3 tiêu chí.
 
-Files: `eval/results/judge-sbv-20260814T075404Z.json` (đợt 1), `judge-sbv-20260814T082920Z.json` (đợt 2).
+| Tiêu chí | 100 câu |
+|---|---|
+| Điểm ngữ nghĩa TB (dung=1 · thieu=0.5 · sai=0) | **0.885** |
+| Tỷ lệ "dung" hoàn toàn | **0.790** (79/100) |
+| Tỷ lệ có trích dẫn | 1.000 (100/100) |
+| Tỷ lệ trích dẫn khớp văn bản vàng | 0.990 (99/100) |
 
-**Độ ổn định: 0/29 verdict đổi giữa hai đợt (100%).** temperature=0 + `reasoning=False` cho kết quả
-tái lập hoàn toàn — nên **1 phiếu là đủ**, không cần self-consistency 2+1 như `review._judge`.
+Phân bố verdict: **79 dung · 19 thiếu · 2 sai**.
 
-> `reasoning=False` là **bắt buộc**, không phải tối ưu: model reasoning (mặc định `chat_json`) đi vào
-> vòng suy nghĩ cực dài trên nội dung pháp lý, treo > 2 phút/câu không trả về; model thường chấm 12s
-> với verdict + giải thích đúng. Đối chiếu ngữ nghĩa với đáp án cho sẵn không cần suy luận sâu.
+> **1 phiếu là đủ.** Độ ổn định đã kiểm trên bộ 29 câu (14/08): 0/29 verdict đổi giữa hai đợt
+> (temperature=0 + `reasoning=False` cho kết quả tái lập hoàn toàn), nên đợt 100 câu chỉ chạy 1 vòng.
+> `reasoning=False` là **bắt buộc**: model reasoning (mặc định `chat_json`) treo > 2 phút/câu trên nội
+> dung pháp lý; model thường chấm ~12s với verdict + giải thích đúng.
 
-### 6 câu chưa "dung" — hụt ở đâu
+**So bộ 29 câu (0.862 · 0.793 dung):** điểm ngữ nghĩa nhích lên 0.885, tỷ lệ dung giữ ~0.79 trên mẫu
+lớn gấp hơn ba. Corpus mở rộng đổi một số câu: **qid=5** (trước "sai" vì thiếu Điều 23) nay **dung** —
+23 văn bản mới đưa đủ căn cứ; **qid=55** từ "sai" xuống "thiếu" (đúng phạm vi hơn, vẫn sót lối rút
+tiền mặt bằng thẻ vật lý).
 
-**Trích dẫn khớp 29/29 nghĩa là retriever lấy đúng văn bản vàng ở cả 6 câu này** — hụt nằm **sau
-retrieval** (điều/khoản chi tiết hoặc cách sinh câu trả lời), không phải tìm sai văn bản.
+### 2 câu "sai" + 19 câu "thiếu" — hụt ở đâu
+
+**Trích dẫn khớp 99/100 nghĩa là retriever lấy đúng văn bản vàng gần như mọi câu** — hụt chất lượng
+nằm **sau retrieval** (điều/khoản chi tiết hoặc cách sinh câu trả lời), không phải tìm sai văn bản.
 
 | qid | verdict | Hụt gì |
 |---|---|---|
-| 4 | thieu | Sót "CMND (còn hiệu lực)" trong hồ sơ mở ví |
-| 64 | thieu | Chỉ nói "người đại diện hợp pháp", sót nhánh "người đại diện theo uỷ quyền" |
-| 90 | thieu | Sót 2 biện pháp (hợp đồng ngân hàng hợp tác; tài khoản đảm bảo thanh toán, Điều 27 TT40) |
-| 86 | thieu | Liệt kê đúng đủ 3 hình thức nhưng không nói số "03" dù câu hỏi hỏi "mấy" (judge khắt khe) |
-| 55 | **sai** | Kết luận ngược: trả "Không" trong khi rút *tiền mặt bằng thẻ vật lý tại ATM* không cần sinh trắc học |
-| 5 | **sai** | Trích Điều 25 TT40 mà không ghi chú hiệu lực từ 01/07/2025 (có thể lỗi lớp hiệu lực, hoặc đáp án tham chiếu viết ở thời điểm cũ — cần kiểm chunk) |
+| 27 | **sai** | "Bảo lãnh có hình thức nào" — liệt kê đúng 5 hình thức nhưng **thêm** nội dung không phải "hình thức" (vơ rộng), judge tính sai |
+| 35 | **sai** | "Open API triển khai từ ngày nào" — trả "không có quy định cụ thể", trong khi Điều 5 TT64-2024 nêu **01/03/2025**. Câu vừa mở khoá (TT64 mới nạp), retrieval đúng văn bản nhưng generation phủ định nhầm |
+| 55, 64, 86, 90, 4, … (19 câu thiếu) | thiếu | Phần lớn là **completeness** — đúng hướng, sót một ý/nhánh (qid=55 sót rút tiền mặt bằng thẻ vật lý tại ATM; qid=86 không nói số "03" dù hỏi "mấy") |
 
-4/6 là completeness (đúng hướng, thiếu ý). Chi tiết `ly_do` từng câu trong file JSON.
-
-**Đào article-level hai câu "sai" (14/08) — hụt ở hai tầng khác nhau:**
-
-- **qid=5 → hụt RETRIEVAL (độ sâu mức điều).** Nhãn vàng `TT40-2024::Điều 23` (điều định nghĩa
-  "xác thực thông tin khách hàng") **không nằm trong top_k=6** mà câu trả lời thấy — nhưng ở top_k=20
-  nó xếp **hạng 4**. Tức điều chi phối truy hồi được và xếp hạng tốt, chỉ rơi ngoài cửa sổ top-6 của
-  đường sản phẩm ⇒ câu trả lời dựng thiếu chính điều đó nên sót "trách nhiệm khách hàng về tính trung
-  thực". Đây là **thiếu reranker / top-k nông**, đúng khoảng cách đã ghi ở §8 và §10. Phần "lỗi hiệu
-  lực" judge nêu là **artifact của đáp án tham chiếu**: chunk `Điều 25 Khoản 6` hệ trích có
-  `valid_from=2024-07-17`, đang hiệu lực tại as_of 2026-08-12, nên coi là hiện hành là đúng — đáp án
-  tham chiếu ghi "01/07/2025" là bản cũ, không phải bug lớp hiệu lực.
-- **qid=55 → hụt SINH CÂU TRẢ LỜI (vơ đũa), retrieval đúng.** Nhãn vàng `TT17-2024::Điều 17` nằm
-  **hạng 2** ở top_k=6. Chunk kéo về là `Điều 17 Khoản 5` (quy tắc giao dịch bằng *phương tiện điện
-  tử* cần sinh trắc học), không có khoản miễn trừ cho rút tiền mặt bằng thẻ vật lý tại ATM. Câu trả
-  lời nói đúng phạm vi ("không thể rút … *bằng phương tiện điện tử*") nhưng chốt "Không" quá tuyệt
-  đối, bỏ lối rút tiền mặt bằng thẻ vật lý mà đáp án phân biệt. Cần kiểm toàn văn Điều 17 xem corpus
-  có khoản miễn trừ mà retrieval bỏ sót không.
-
-Phát hiện phụ: qid=5 cho thấy **top-6 và top-20 xếp hạng khác nhau** (Điều 23 vắng ở k=6, hạng 4 ở
-k=20) — RRF fuse theo pool nông/sâu ra thứ tự khác, củng cố lập luận thiếu reranker. Ghi ở `T114`.
+Chi tiết `ly_do` từng câu trong file JSON. **Cả hai câu "sai" đều là lỗi GENERATION** (vơ rộng /
+phủ định nhầm), retrieval trích đúng văn bản vàng — củng cố hai khoảng cách đã ghi: hậu kiểm câu trả
+lời (`T109`) và top-k nông / reranker (`T114`). Riêng qid=35 đáng chú ý: câu vừa mở khoá nhờ nạp
+TT64-2024 mà sinh sai — nạp văn bản mở rộng độ phủ nhưng không tự động sửa chất lượng sinh.
 
 ### Không so trực tiếp với bài báo
 
-Bài báo dùng **2 annotator người** chấm Correctness; ta dùng **LLM-judge 1 phiếu**. Mẫu 29 câu là
-nhỏ (một câu ≈ 3,4 điểm), và 3 câu là bản sao. Con số đọc là "chất lượng câu trả lời trên đúng bộ
-câu của bài báo, đo bằng LLM-judge tái lập được", không phải điểm so ngang bảng Correctness của họ.
+Bài báo dùng **2 annotator người** chấm Correctness; ta dùng **LLM-judge 1 phiếu**. Con số đọc là
+"chất lượng câu trả lời trên đúng 100 câu của bài báo, đo bằng LLM-judge tái lập được", không phải
+điểm so ngang bảng Correctness của họ.

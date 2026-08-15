@@ -6,6 +6,36 @@
 
 ---
 
+## 2026-08-15 — đo trọn bộ SBV 100 câu (IR + regression + Correctness); khảo sát VLQA
+
+**Giai đoạn:** chạy nốt phần đo đã hoãn hôm 14/08 sau khi corpus mở rộng 49 văn bản, đưa số vào
+`EVAL-IR.md`. Đường sản phẩm không đổi — chỉ đo lường + tài liệu.
+
+- **Benchmark bộ SBV 100 câu (IR đầy đủ).** LexFlow hybrid dẫn cả hai mức: văn bản R@1 **0.94** /
+  MRR@2 0.96, điều R@1 **0.79** / MRR@2 0.87 — trên Naive RAG (0.89 / 0.73) và bỏ xa BM25,
+  Advanced RAG. `+graph` == `+router` == hybrid từng chữ số (graph không thêm gì đo được). Cột gate:
+  citation 99/100, tránh-hết-hiệu-lực 100/100, 0 lỗi. EVAL-IR §11 viết lại (xoá logic ×0.29 lỗi thời).
+- **Checkpoint cho benchmark + judge (sửa gốc, không phải workaround).** Nền bị kill hai lần
+  (câu 65, rồi câu 2) — job ~1 giờ **không lưu dở** nên mỗi lần chết mất trắng + tốn API. Thêm cache
+  per-câu (append JSONL, khoá theo id/question_id, `--moi`/`--sinh-lai` để bỏ) vào `run_benchmark.py`
+  và `judge.py`; chạy lại chỉ bù câu thiếu. Sau đó chạy trọn cả hai một lượt.
+- **Regression 36 câu — KHÔNG hồi quy.** LexFlow cite/stale **36/36 y nguyên** trước-sau khi thêm 23
+  văn bản; index mới còn cho IR nhích lên (hybrid R@1 0.72 → **0.83**, T1 đóng). Baseline (không lọc
+  hiệu lực) tụt cite 36→34 do thấy thêm ứng viên — đúng bản chất cột đối chứng. EVAL-IR §5 ghi note.
+- **Judge Correctness 100 câu.** Ngữ nghĩa TB **0.885**, dung **79%**, có trích dẫn 100%, trích dẫn
+  khớp 99%. 2 câu "sai" đều là lỗi **generation** (qid=27 vơ rộng; qid=35 phủ định nhầm ngày Open API
+  dù Điều 5 TT64-2024 nêu rõ) — retrieval đúng văn bản. Corpus mở rộng đổi vài câu (qid=5 sai→dung).
+  EVAL-IR §12 viết lại. Củng cố T109 (hậu kiểm) + T114 (top-k nông).
+- **Khảo sát VLQA (VLSP 2025 DRiLL) → T117.** Đo: 2.157 văn bản / 59.636 điều / 82,28M ký tự ≈
+  **25,7M token embed ≈ $3.85** (một lần). Infra KHÔNG phải nút thắt — đính chính: Neo4j node cấp
+  **văn bản** (2.157 node), không cấp điều; nên bỏ Neo4j cho bộ này, chạy vector+FTS. Việc chính là
+  adapter schema `id/aid` → `CorpusDocument`. Cảnh báo: luật tổng quát → chứng minh lõi retrieval,
+  không chạm lớp compliance banking.
+
+**Ship:** không đổi runtime/deploy. **Decision:** benchmark/judge phải checkpoint (nền không ổn định
+cho job dài); VLQA nếu làm thì tách nhánh corpus riêng qua spec→plan. **Next:** T117 (spec→plan VLQA
+nếu chủ repo chốt); T114 reranker/top-k; T109 hậu kiểm câu trả lời.
+
 ## 2026-08-14 (3) — nhập 23 văn bản bộ SBV vào corpus (29 → 100 câu), qua spec→plan
 
 **Giai đoạn:** mở rộng corpus phục vụ để bộ test SBV chạy hết 100 câu. Chạm production nên đi

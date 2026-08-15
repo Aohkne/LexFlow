@@ -7,7 +7,7 @@
 > (hoặc chính mình ba tuần sau) bắt tay vào mà không phải điều tra lại. Mọi con số đều kèm
 > ngày đo; số không có ngày là số chưa kiểm.
 >
-> Cập nhật gần nhất: 2026-08-10.
+> Cập nhật gần nhất: 2026-08-15.
 
 ---
 
@@ -772,6 +772,36 @@ Cloud tự index nền. Nền không đuổi kịp trong cửa sổ đó ⇒ 835
   (b) nếu chưa phủ thì `create_fts_index(replace=True)` (chấp nhận reindex sau ingest lớn) hoặc
   ghi rõ vận hành phải chạy tay. `ingest_one_doc` (/approve) còn không gọi `_cho_index` nên rủi ро
   tương tự ở quy mô nhỏ.
+
+### [ ] T117 · Ingest bộ VLQA (VLSP 2025 DRiLL) để chứng minh retrieval ở scale + có điểm leaderboard
+
+Bộ SBV 49 văn bản quá nhỏ để phân biệt các cột (R@20 bão hoà ~0.99, EVAL-IR §11). VLQA
+(`data/raw/VLQA/`, VLSP 2025 DRiLL — thử thách **truy hồi**, đoán `relevant_laws`) cho corpus lớn
+thật + tập test công khai để so leaderboard. **Đo 15/08:**
+
+```
+legal_corpus.json   2.157 văn bản · 59.636 điều · 82,28M ký tự
+token embed         ~25,7M (đo mẫu 40 điều: 3,21 ký tự/token)
+train.json          2.190 câu CÓ nhãn (đo/tinh chỉnh local)
+public/private test 312 / 627 câu (nhãn rỗng — nộp)
+```
+
+- **Chi phí tiền: ~$4** — embed corpus 25,7M token × $0.15/1M (gemini-embedding-001, giá tra
+  15/08) = $3.85; query 939 câu test ~$0.01. Retrieval-only, không cần sinh câu trả lời cho DRiLL.
+- **Infra KHÔNG phải nút thắt** (đính chính khảo sát đầu): Neo4j node là **cấp văn bản** (1/văn
+  bản), không phải cấp điều → 2.157 node, cách xa mọi ngưỡng free; `DonVi` = 0 vì đến từ
+  `push_overlay` banking, VLQA không có. **Nên bỏ hẳn Neo4j cho bộ này** (graph không thêm gì đo
+  được, EVAL-IR §5/§11). LanceDB ~60k chunk ≈ 184 MB vector — canh rebuild FTS ở scale này (T116).
+- **Việc kỹ thuật chính = adapter schema**: VLQA dùng `id/aid` số nguyên, LexFlow dùng `doc_id`
+  chuỗi + nhãn "Điều N". Phải (a) chuyển `{id, law_id, content:[{aid, content_Article}]}` →
+  `CorpusDocument`, **giữ `aid` trong chunk id** để nộp lại được; (b) map kết quả retrieval → danh
+  sách `aid`. Corpus VLQA không kèm relationships.
+- **Cảnh báo giá trị**: VLQA là luật TỔNG QUÁT (hôn nhân, phạm nhân, chứng khoán…), không banking →
+  chứng minh **lõi retrieval** (hybrid RRF), KHÔNG chạm lớp compliance/hiệu lực/conflict. Tách
+  **nhánh corpus riêng**, đừng trộn vào corpus banking sản phẩm.
+- **Bước đầu**: viết spec→plan (chạm ingest/schema/infra — task ảnh hưởng lớn), rồi adapter
+  `legal_corpus.json` → CorpusDocument giữ `aid`, ingest LanceDB (skip Neo4j), đo IR trên
+  `train.json` 2.190 câu bằng `eval/metrics.py` trước khi nộp `public_test.json`.
 
 ---
 
