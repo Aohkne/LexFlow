@@ -4,7 +4,7 @@ Mọi bảng đo khác trong repo đo *retrieval* (tìm đúng văn bản chưa)
 đo *câu trả lời* — thứ người dùng thực sự đọc ở buổi demo. Là hạng mục 2 Sprint 3
 (`docs/ROADMAP-SPRINT.md`), nằm trong DoD.
 
-Chấm trên **bộ SBV** (`eval/bo_sbv.jsonl`, 29 câu): nhãn cấp điều 100%, luật đang hiệu lực,
+Chấm trên **bộ SBV** (`eval/bo_sbv.jsonl`, 100 câu): nhãn cấp điều 100%, luật đang hiệu lực,
 là **dữ liệu ngoài** — và mỗi câu có `reference_answer` do chính tác giả bài báo viết (join lại từ
 `data/evaluate/svb_graph/sbv_testset_tvpl.json` theo `question_id`; file nhãn giữ sạch, không nhét
 đáp án vào — xem `docs/superpowers/specs/2026-08-12-danh-gia-bo-sbv.md`).
@@ -73,14 +73,28 @@ def _ref_answers() -> dict[int, str]:
     return {r["question_id"]: r.get("reference_answer", "") for r in rows}
 
 
+def _append_jsonl(path: Path, row: dict) -> None:
+    """Ghi 1 dòng JSONL, chèn '\\n' nếu file cũ chưa kết thúc bằng newline (tránh dính hai dòng)."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    prefix = "\n" if path.exists() and path.read_bytes()[-1:] not in (b"\n", b"") else ""
+    with path.open("a", encoding="utf-8") as fh:
+        fh.write(prefix + json.dumps(row, ensure_ascii=False) + "\n")
+
+
 def sinh_cau_tra_loi(cases: list[CauHoi]) -> list[dict]:
-    """Chạy đường sản phẩm (`build_answer`) cho từng câu → answer + doc_id đã dẫn. Ghi cache."""
-    ra: list[dict] = []
+    """Chạy đường sản phẩm (`build_answer`) cho từng câu → answer + doc_id đã dẫn.
+
+    Ghi cache TỪNG CÂU (append, khoá theo question_id) để lượt bị cắt chạy lại chỉ bù câu còn
+    thiếu — job 100 câu quá dài để mất trắng khi nền bị kill. Câu LỖI không ghi cache -> tự thử lại.
+    """
+    da_co = {r["question_id"] for r in doc_cache()} if CACHE.exists() else set()
     for i, c in enumerate(cases, 1):
         qid = c.tho.get("question_id")
+        if qid in da_co:
+            continue
         try:
             resp = build_answer(ChatRequest(query=c.query, as_of=c.as_of))
-            ra.append({
+            _append_jsonl(CACHE, {
                 "question_id": qid,
                 "query": c.query,
                 "answer": resp.answer,
@@ -90,9 +104,7 @@ def sinh_cau_tra_loi(cases: list[CauHoi]) -> list[dict]:
             print(f"  [{i}/{len(cases)}] qid={qid} sinh xong ({len(resp.citations)} trích dẫn)")
         except Exception as e:  # noqa: BLE001 — một câu lỗi mạng không giết cả lượt (như run_benchmark)
             print(f"  [{i}/{len(cases)}] qid={qid} LỖI: {e}")
-    CACHE.parent.mkdir(parents=True, exist_ok=True)
-    CACHE.write_text("\n".join(json.dumps(r, ensure_ascii=False) for r in ra), encoding="utf-8")
-    return ra
+    return doc_cache()
 
 
 def doc_cache() -> list[dict]:
@@ -155,7 +167,7 @@ def in_bang(tong: dict) -> None:
     print(f"  tỷ lệ 'dung' hoàn toàn : {tong['ty_le_dung']:.3f}")
     print(f"  tỷ lệ có trích dẫn     : {tong['ty_le_co_trich_dan']:.3f}")
     print(f"  tỷ lệ trích dẫn khớp   : {tong['ty_le_trich_dan_khop']:.3f}")
-    print("  Lưu ý: 1 phiếu (temperature=0), mẫu 29 câu — KHÔNG so trực tiếp Correctness 2-annotator của bài báo.")
+    print(f"  Lưu ý: 1 phiếu (temperature=0), mẫu {tong['n']} câu — KHÔNG so trực tiếp Correctness 2-annotator của bài báo.")
 
 
 def main() -> None:
@@ -166,26 +178,44 @@ def main() -> None:
     cases = nap(BO)
     refs = _ref_answers()
 
-    if args.sinh_lai or not CACHE.exists():
-        print(f"Sinh câu trả lời cho {len(cases)} câu (đường sản phẩm)…")
-        answers = sinh_cau_tra_loi(cases)
-    else:
-        answers = doc_cache()
-        print(f"Dùng cache: {len(answers)} câu trả lời ({CACHE.name}). --sinh-lai để sinh mới.")
+    if args.sinh_lai:
+        CACHE.unlink(missing_ok=True)
+    print(f"Sinh/bù câu trả lời cho {len(cases)} câu (đường sản phẩm, cache {CACHE.name})…")
+    answers = sinh_cau_tra_loi(cases)
 
-    by_query = {c.query: c for c in cases}
+    # Pha chấm cũng checkpoint: verdict LLM ~12s/câu, mất khi nền bị kill thì phí. Khoá theo
+    # question_id (duy nhất từng dòng -> không khử trùng). --sinh-lai xoá cả cache verdict.
+    by_qid = {c.tho.get("question_id"): c for c in cases}
+    vcache = RESULTS_DIR / "cache-judge-sbv.jsonl"
+    if args.sinh_lai:
+        vcache.unlink(missing_ok=True)
+    da_cham = {}
+    if vcache.exists():
+        for line in vcache.read_text(encoding="utf-8").splitlines():
+            if line.strip():
+                v = json.loads(line)
+                da_cham[v["question_id"]] = v
+
     ket_qua: list[dict] = []
     print(f"\nChấm {len(answers)} câu…")
     for i, a in enumerate(answers, 1):
-        c = by_query.get(a["query"])
-        ref = refs.get(a["question_id"], "")
+        qid = a["question_id"]
+        c = by_qid.get(qid)
+        ref = refs.get(qid, "")
         if c is None or not ref:
-            print(f"  [{i}] qid={a['question_id']} BỎ (thiếu case hoặc reference_answer)")
+            print(f"  [{i}] qid={qid} BỎ (thiếu case hoặc reference_answer)")
+            continue
+        cached = da_cham.get(qid)
+        if cached is not None:
+            ket_qua.append(cached)
+            print(f"  [{i}/{len(answers)}] qid={qid} {cached['tuong_duong']} (cache)")
             continue
         py = cham_python(a["cited_docs"], c.relevant_docs)
         ng = cham_ngu_nghia(a["query"], a["answer"], ref)
-        ket_qua.append({"question_id": a["question_id"], "query": a["query"], **py, **ng})
-        print(f"  [{i}/{len(answers)}] qid={a['question_id']} {ng['tuong_duong']}")
+        row = {"question_id": qid, "query": a["query"], **py, **ng}
+        _append_jsonl(vcache, row)
+        ket_qua.append(row)
+        print(f"  [{i}/{len(answers)}] qid={qid} {ng['tuong_duong']}")
 
     tong = tong_hop(ket_qua)
     in_bang(tong)
