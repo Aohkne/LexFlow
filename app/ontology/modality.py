@@ -24,7 +24,10 @@ if TYPE_CHECKING:
 # Nhóm dấu hiệu. Thứ tự trong mỗi nhóm không quan trọng — việc khớp dài-nhất-trước
 # được xử lý khi dựng regex bên dưới.
 MODALITY: dict[str, list[str]] = {
-    "nghia_vu": ["phải", "có trách nhiệm", "có nghĩa vụ", "buộc phải", "bắt buộc"],
+    # "trách nhiệm" trần: khuôn "Trách nhiệm của X:" trong tiêu đề Điều/Khoản là cách
+    # áp nghĩa vụ chuẩn của văn bản QPPL — thiếu nó thì nhãn "Có trách nhiệm" bị kết tội
+    # bịa dù nguồn là "3. Trách nhiệm của ... đối với ĐVCNTT:" (ca TT15-Đ20-k3, 16/08).
+    "nghia_vu": ["phải", "có trách nhiệm", "có nghĩa vụ", "buộc phải", "bắt buộc", "trách nhiệm"],
     "cam": ["không được phép", "không được", "nghiêm cấm", "cấm"],
     "cho_phep": ["được phép", "có quyền", "được"],
     "dieu_kien": ["trong trường hợp", "với điều kiện", "trừ trường hợp", "khi", "nếu"],
