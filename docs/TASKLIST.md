@@ -7,7 +7,7 @@
 > (hoặc chính mình ba tuần sau) bắt tay vào mà không phải điều tra lại. Mọi con số đều kèm
 > ngày đo; số không có ngày là số chưa kiểm.
 >
-> Cập nhật gần nhất: 2026-08-10.
+> Cập nhật gần nhất: 2026-08-16.
 
 ---
 
@@ -261,6 +261,29 @@ giờ **từng miss quy được về một nguyên nhân đo trực tiếp**, c
   (và `40/2024...dieu_8#khoan_1`) đang lỗi cứng — rẻ nhất, gỡ ngay nhóm 1; (b) gate CU dạng
   "hợp đồng phải có tối thiểu..." ở mức toàn hợp đồng thay vì từng điều — gỡ nhóm 3;
   (c) nhóm 2 để lại cho quyết định schema (nối premise vào judge) — đắt, cần bàn.
+
+### [ ] T27 · 2 ca tư vấn pháp chế thật — nguồn eval hỏi đáp, nhưng 3/4 văn bản viện dẫn ngoài corpus
+
+`docs/compliance/tu_van_phap_ly.md` (local-only, cả thư mục gitignored — tài liệu nội bộ
+ngân hàng, **không commit, không chép nội dung tư vấn vào file nào được commit**; ở đây chỉ
+ghi số hiệu văn bản). Soi 16/08: 2 ca tư vấn của phòng pháp chế về nghiệp vụ Mobile Money,
+mỗi ca gồm mô tả quy trình → câu hỏi → ý kiến kèm căn cứ điều khoản, tổng ~5 cặp hỏi–đáp.
+
+- **Không dùng trực tiếp được cho pipeline compliance**: đầu vào của `python -m app.compliance`
+  là hợp đồng có cấu trúc Điều/Khoản, còn đây là tình huống nghiệp vụ dạng tường thuật. Muốn
+  dùng phải thêm dạng task mới (đánh giá tuân thủ mức quy trình) — chưa có, chưa mở.
+- **Giá trị thật nằm ở nhánh hỏi đáp**: ~5 câu hỏi có đáp án do pháp chế ngân hàng soạn, trích
+  dẫn tường minh tới điều/khoản — nhãn người ngoài dự án gán, đúng thứ benchmark tự sinh đang
+  thiếu (máy tự chấm máy). Ứng viên cho bộ câu hỏi so sánh LexFlow vs SVB (Sprint 3).
+- **Chốt chặn đo 16/08**: 4 văn bản được viện dẫn thì chỉ `40/2024/TT-NHNN` có trong corpus
+  (và là văn bản duy nhất đã có CU — 92 bản ghi ontology liên quan). Ba văn bản vắng:
+  `368/2025/NĐ-CP · 64/2024/TT-NHNN · 77/2025/TT-NHNN` — hệ hỏi đáp hiện **không thể** trả
+  đúng các câu này dù prompt tốt đến đâu.
+- Giá trị phụ cho compliance (sau này): lập luận CASE 2 về trách nhiệm ngân hàng mở TKĐBTT
+  (Đ3.7, Đ27 NĐ 368) có cấu trúc y hệt ActorCU — nguồn seed CU tốt khi NĐ 368 vào corpus.
+- **Bước đầu tiên:** đưa 3 văn bản trên vào danh sách ưu tiên của đợt nạp 840 (Sprint 3, dòng
+  «Nạp đầy đủ văn bản»); sau khi ingest xong mới chuyển ~5 cặp hỏi–đáp thành file eval — nhớ
+  ràng buộc **không commit dữ liệu dẫn xuất từ tài liệu nội bộ** (cùng lệ với gold.jsonl).
 
 ---
 
