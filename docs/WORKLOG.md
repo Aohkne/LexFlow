@@ -25,9 +25,24 @@
   nhân miss) và T27.
 - **Decision.** Không mở dạng task mới «đánh giá tuân thủ mức quy trình» cho 2 ca tư vấn —
   để chúng làm eval hỏi đáp sau khi nạp 3 văn bản trên (xếp vào đợt nạp 840).
-- **Next.** 3 mục T26 theo thứ tự rẻ→đắt: sửa 2 bản ghi CU lỗi cứng (gỡ miss #30) →
-  gate mức toàn-hợp-đồng cho CU «nội dung tối thiểu» (gỡ #194) → cân nhắc nối premise
-  vào judge (#13/#35, cần bàn schema).
+- **Done (3 mục T26 — recall 0/4 → 3/4, số đo thật).** (a) Sửa 2 bản ghi CU lỗi cứng:
+  thêm "trách nhiệm" trần vào từ điển tình thái rồi trích lại k3 qua CLI (guard chạy
+  thật); Đ8-k1 sửa tay nhãn về dạng liệt kê kèm ghi chú → graph 61 CU. (b) Gate mức toàn
+  hợp đồng: CU "nội dung tối thiểu" (TT40-Đ8, TT18-Đ9 — chọn tất định theo subject, không
+  qua retrieval) judge một lượt trên toàn văn. (c) Khái niệm khớp nguyên văn/hypernym đi
+  cùng prompt judge, verdict mang id khái niệm; docstring `KhaiNiem` ghi lại quyết định
+  schema. Commit `7123b13` + `418894b`.
+- **Ba bug lộ khi chạy thật (đều vá + test):** quote null làm vỡ PhanQuyet; gold #30 ghi
+  số điều kiểu int nên không bao giờ khớp (dòng duy nhất/95); 127/981 verdict là "LLM bỏ
+  sót" đổi lặng thành thieu_thong_tin — suýt ghi công RỖNG cho #13/#35, prompt nay bắt trả
+  đủ mọi id rồi đo lại từ đầu. Máy kill job nền 4 lần → CLI có checkpoint per-điều
+  (khoá sha1 text+pred+prompt), chạy nhịp 10 phút resume dần.
+- **Số cuối (đã soi từng ghi công là verdict thật):** ThuHo 1/1 (#30 trúng TT15-Đ20-k3
+  vừa sửa) · PAYFAC 2/3 (#194 trúng TT40-Đ8 ở lượt toàn văn; #35 qua TT18-Đ9 toàn văn —
+  khớp mức văn bản, luật sư viện dẫn Đ3; #13 sót vì judge chấm định nghĩa `tuan_thu` thật
+  — bất đồng phán định, không phải độ phủ). Vượt mốc ≥2/4 của kế hoạch Sprint 3.
+- **Next.** 2 commit mới chưa push (chờ duyệt); còn mở: 50 verdict "bỏ sót" ở điều plan
+  lớn của ThuHo; #13 cần người phân xử judge vs luật sư (chi tiết ở T26).
 
 ## 2026-08-13 (T4) — POC GraphCompliance chạy thật: recall 0/4 cả hai đường, và con số 0 biết nói
 

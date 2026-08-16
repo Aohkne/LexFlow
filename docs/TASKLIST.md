@@ -257,10 +257,36 @@ giờ **từng miss quy được về một nguyên nhân đo trực tiếp**, c
    dung X" là ràng buộc **mức toàn văn bản** — gate theo từng điều chỉ bắt được khi
    retrieval may mắn (ThuHo Đ2 bắt được đúng kiểu này: TT40-Đ8 k5/k7 ra `thieu_thong_tin`).
 
-- **Bước kế tiếp:** (a) sửa tay/trích lại bản ghi `15/2024/TT-NHNN#than/dieu_20#khoan_3`
+- ~~**Bước kế tiếp:** (a) sửa tay/trích lại bản ghi `15/2024/TT-NHNN#than/dieu_20#khoan_3`
   (và `40/2024...dieu_8#khoan_1`) đang lỗi cứng — rẻ nhất, gỡ ngay nhóm 1; (b) gate CU dạng
   "hợp đồng phải có tối thiểu..." ở mức toàn hợp đồng thay vì từng điều — gỡ nhóm 3;
-  (c) nhóm 2 để lại cho quyết định schema (nối premise vào judge) — đắt, cần bàn.
+  (c) nhóm 2 để lại cho quyết định schema (nối premise vào judge) — đắt, cần bàn.~~
+
+**Cập nhật 16/08 — đã làm cả (a)(b)(c), recall đo lại: ThuHo 1/1 · PAYFAC 2/3** (commit
+`7123b13` + `418894b`; hai lần chạy trọn trên corpus thật, checkpoint per-điều mới thêm vì
+máy kill job nền 4 lần giữa chừng).
+
+- **(a)** k3 trích lại sau khi thêm "trách nhiệm" trần vào từ điển tình thái (khuôn
+  "Trách nhiệm của X:" là cách áp nghĩa vụ chuẩn — guard kết tội oan nhãn "Có trách nhiệm");
+  Đ8-k1 sửa tay nhãn về dạng liệt kê như k2, kèm ghi chú trong bản ghi. Graph nạp **61 CU**.
+- **(b)** `lap_cu_plan` → thêm `lap_plan_toan_van`: điều luật có actor-CU mà subject là
+  "hợp đồng/thỏa thuận" (đo trên 61 CU: đúng TT40-Đ8 + TT18-Đ9) vào một lượt judge trên
+  toàn văn, chọn tất định không qua retrieval. Recall ghi công verdict toàn-văn theo tiền
+  tố văn bản.
+- **(c)** Khái niệm khớp nguyên văn/hypernym trong điều hợp đồng đi cùng prompt judge
+  (không thêm lượt LLM), verdict mang id khái niệm. Đã sửa docstring `KhaiNiem` ghi lại
+  thay đổi triết lý: định nghĩa vào judge để so CÁCH DÙNG thuật ngữ, không phải nghĩa vụ.
+- **Ba bug lộ ra khi chạy thật, đều đã vá + test:** LLM trả quote null làm vỡ `PhanQuyet`;
+  gold #30 ghi `dieu_hop_dong` kiểu **int** (dòng duy nhất/95) nên không bao giờ khớp khoá
+  chuỗi — recall nay `str()` hoá; **127/981 verdict là "LLM bỏ sót"** bị đổi lặng thành
+  `thieu_thong_tin` (suýt ghi công rỗng cho #13/#35) — prompt nay BẮT BUỘC trả đủ mọi id,
+  đo lại còn 50+5.
+- **Đọc số cho đúng:** #30 và #194 bắt bằng verdict trúng đúng điều luật sư viện dẫn; #35
+  bắt qua TT18-**Đ9** ở lượt toàn văn (gold chỉ ghi `van_ban` mức số hiệu, luật sư viện dẫn
+  Đ3 — định nghĩa Đ3 judge chấm `tuan_thu` thật); #13 sót vì judge đánh giá thật định nghĩa
+  NĐ52-Đ3 và kết luận `tuan_thu` — **bất đồng phán định**, không phải lỗ hổng độ phủ.
+- **Còn mở:** 50 verdict "LLM bỏ sót" còn lại ở ThuHo (điều có plan lớn) — cân nhắc chẻ
+  prompt theo lô CU; và #13 cần người đọc lại comment gốc để phân xử judge vs luật sư.
 
 ### [ ] T27 · 2 ca tư vấn pháp chế thật — nguồn eval hỏi đáp, nhưng 3/4 văn bản viện dẫn ngoài corpus
 
