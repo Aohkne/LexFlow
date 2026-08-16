@@ -633,6 +633,16 @@ bằng chứng ⇒ từ chối trả lời. LexFlow chỉ **dặn** trong system
 
 - Bước đầu: `HasCitations` là phép rẻ nhất — regex `\[.+—.+\]` trên câu trả lời, không khớp thì
   đánh dấu. Đo tỷ lệ rớt trên bộ eval trước, rồi mới quyết có chặn hay chỉ cảnh báo.
+- **Chẩn đoán 16/08 — lỗi chủ đạo là THIẾU tính đầy đủ, không phải trích-dẫn-sai.** Phân loại 19 câu
+  judge "thiếu" (§12) trên bộ SBV: **18/19 chỉ có 1 điều vàng** (không thể do tail retrieval), **cả
+  19/19 `trich_dan_khop=True`** (retrieval + trích dẫn đúng văn bản ở mọi câu). Đọc `ly_do`: mẫu đồng
+  nhất "nêu đúng cốt lõi, cited đúng, TUY NHIÊN bỏ sót [mục/điều kiện phụ]" — vd qid 60 sót "để gửi
+  tiền", qid 47 sót ý TP.HCM, qid 84 sót thời hạn 07 ngày. Tức **trích xuất thiếu từ chính điều đã lấy
+  đúng** → thuần generation.
+- **Hệ quả: mở rộng T109 sang chiều COMPLETENESS.** HasCitations/EvidenceMismatch chỉ bắt trích-dẫn-sai,
+  không bắt được kiểu lỗi này. Cần thêm phép hậu kiểm "đã liệt kê đủ các mục/điều kiện trong điều đã
+  dẫn chưa?" (vd so số gạch đầu dòng của câu trả lời với số khoản/điểm của điều được trích), hoặc chỉnh
+  prompt sinh để liệt-kê-đủ. Đây là hướng chạm đúng ~20/21 câu chưa hoàn hảo (18 thiếu + 2 sai).
 
 ### [ ] T110 · Corpus phủ 4/37 văn bản mà bộ eval TVPL hỏi tới
 
@@ -749,6 +759,10 @@ sản phẩm hiện `top_k=6` mặc định (`ChatRequest.top_k`).
     sai (§12) là lỗi **sinh** không phải retrieval → rerank không chạm, xếp sau việc generation. Giữ `[ ]`.
   - Bàn đo giữ lại: `eval/thu_rerank.py` (đổi provider qua `.env`) + `eval/modal_reranker.py`. Chi tiết
     số + phân tích: `docs/EVAL-IR.md` §13.
+  - **Chẩn đoán 16/08 củng cố "chưa đưa lên sản phẩm":** rerank chỉ hại R@5 ở câu nhiều-căn-cứ, mà bộ SBV
+    chỉ 8/100 câu có ≥2 điều vàng, và trong 19 câu judge "thiếu" chỉ **1** thuộc nhóm đó (xem T109). Giải
+    pháp rerank-fusion (giữ R@5) cứu ≤1/19 câu hiện lỗi → gần vô ích trên dữ liệu này. Ưu tiên T109
+    (completeness) trước; rerank để dành khi bộ câu nhiều-căn-cứ trở nên quan trọng.
 
 ### [ ] T115 · TT45-2024 thiếu `provisions` (cây điều khoản parse rỗng ở nguồn)
 

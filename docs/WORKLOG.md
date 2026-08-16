@@ -27,9 +27,15 @@ nghiệm — không đụng đường sản phẩm, không đụng regression ga
   Gain giới hạn (+5.8pt R@1 đổi −1.5pt R@5), chỉ đáng khi trả lời dựa top-1..2. Quan trọng: 2 câu judge
   sai (§12) là lỗi **sinh** không phải retrieval → rerank không chạm. Giữ `[ ]`, chưa lên sản phẩm.
 
+- **Chẩn đoán 19 câu judge "thiếu" → chốt ưu tiên.** 18/19 chỉ 1 điều vàng (không thể tail retrieval),
+  cả 19/19 `trich_dan_khop=True` (retrieval đúng ở mọi câu). Mẫu `ly_do` đồng nhất: đúng cốt lõi + cited
+  đúng, nhưng **bỏ sót mục/điều kiện phụ TỪ CHÍNH điều đã lấy** → thuần generation, không phải retrieval.
+  Rerank-fusion (giữ R@5) cứu ≤1/19 → gần vô ích. Sắc lại T109: thêm chiều **completeness** (liệt-kê-đủ),
+  rộng hơn HasCitations/EvidenceMismatch. Đã ghi vào T109 + T114.
+
 **Ship:** không đổi runtime; Modal app chỉ là bàn đo, không phải dịch vụ sản phẩm. **Decision:** rerank
-nếu làm thì dùng Cohere API, bỏ hướng self-host ViRanker; ưu tiên việc chạm generation trước.
-**Next:** T109 (hậu kiểm câu trả lời — chạm đúng lỗi sinh); T117 (VLQA nếu chủ repo chốt).
+nếu làm thì dùng Cohere API, bỏ hướng self-host ViRanker; ưu tiên T109 (generation/completeness) trước —
+lỗi thật là trích-xuất-thiếu, không phải retrieval. **Next:** T109 (completeness check); T117 (VLQA nếu chủ repo chốt).
 
 ## 2026-08-15 — đo trọn bộ SBV 100 câu (IR + regression + Correctness); khảo sát VLQA
 
