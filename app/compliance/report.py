@@ -11,11 +11,26 @@ from app.core.schemas import ReviewFinding
 _BAT_VERDICTS = {"vi_pham", "thieu_thong_tin"}
 
 
-def tinh_recall(gold_rows: list[dict], phan_quyet_theo_dieu: dict[str, list[dict]]) -> dict:
+def _khop_van_ban(pqs: list[dict], van_ban: list[str]) -> bool:
+    return any(
+        pq.get("verdict") in _BAT_VERDICTS
+        and any(pq.get("cu_id", "").startswith(vb) for vb in van_ban)
+        for pq in pqs
+    )
+
+
+def tinh_recall(
+    gold_rows: list[dict],
+    phan_quyet_theo_dieu: dict[str, list[dict]],
+    toan_van: list[dict] | None = None,
+) -> dict:
     """Recall trên gold `loai=="phap_ly"`. `trong_corpus=False` → loại khỏi mẫu số.
 
     "Bắt được": tồn tại phán quyết đúng điều với verdict vi_pham/thieu_thong_tin và
-    `cu_id` bắt đầu bằng một trong các `van_ban` của dòng gold.
+    `cu_id` bắt đầu bằng một trong các `van_ban` của dòng gold. Phán quyết ở lượt
+    TOÀN hợp đồng (`toan_van`) được tính cho mọi dòng gold khớp `van_ban` — CU mức
+    văn bản không có neo điều hợp đồng, chỗ luật sư treo comment chỉ là nơi thuận
+    tay; điều kiện "trích đúng điều luật" (tiền tố cu_id) vẫn giữ nguyên.
     """
     mau_so = 0
     ngoai_pham_vi = 0
@@ -29,11 +44,12 @@ def tinh_recall(gold_rows: list[dict], phan_quyet_theo_dieu: dict[str, list[dict
             continue
         mau_so += 1
         van_ban = g.get("van_ban") or []
-        bat = any(
-            pq.get("verdict") in _BAT_VERDICTS
-            and any(pq.get("cu_id", "").startswith(vb) for vb in van_ban)
-            for pq in phan_quyet_theo_dieu.get(g["dieu_hop_dong"], [])
-        )
+        # str(): gold viết tay có dòng để số điều là int (ca thật: #30 là dòng
+        # duy nhất trong 95) — khoá của `moi` luôn là chuỗi, .get(2) trượt "2"
+        # trong im lặng và comment đó vĩnh viễn không thể được ghi công.
+        bat = _khop_van_ban(
+            phan_quyet_theo_dieu.get(str(g["dieu_hop_dong"]), []), van_ban
+        ) or _khop_van_ban(toan_van or [], van_ban)
         if bat:
             bat_duoc += 1
         else:
@@ -79,10 +95,12 @@ def render_md(
     cu: dict[str, ReviewFinding],
     moi: dict[str, list[dict]],
     canh_bao: list[str] | None = None,
+    toan_van: list[dict] | None = None,
 ) -> str:
     gold_theo_dieu: dict[str, list[dict]] = {}
     for g in gold_rows:
-        gold_theo_dieu.setdefault(g.get("dieu_hop_dong") or "", []).append(g)
+        so = g.get("dieu_hop_dong")
+        gold_theo_dieu.setdefault(str(so) if so is not None else "", []).append(g)
 
     lines = [
         f"# Báo cáo đối chiếu — {hd.ten}", "",
@@ -94,8 +112,10 @@ def render_md(
             f"| Điều {d.so}. {_esc(d.tieu_de)} | {_gold_cell(gold_theo_dieu.get(d.so, []))} "
             f"| {_cu_cell(cu.get(d.so))} | {_moi_cell(moi.get(d.so, []))} |"
         )
+    if toan_van:
+        lines.append(f"| (toàn hợp đồng) | — | — | {_moi_cell(toan_van)} |")
 
-    r = tinh_recall(gold_rows, moi)
+    r = tinh_recall(gold_rows, moi, toan_van)
     lines += [
         "", "## Recall",
         f"- Mẫu số (gold pháp lý trong corpus): {r['mau_so']}",

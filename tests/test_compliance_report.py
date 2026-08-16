@@ -43,6 +43,38 @@ def test_bo_sot_ghi_comment_id():
     assert r["bo_sot"] == ["13"]
 
 
+def test_recall_dieu_hop_dong_kieu_int_van_khop():
+    # Gold viết tay có dòng để số điều là int (#30 — dòng duy nhất trong 95):
+    # trước khi chuẩn hoá str(), verdict đúng điều vẫn không bao giờ được ghi công.
+    gold = [{"dieu_hop_dong": 2, "loai": "phap_ly", "trong_corpus": True,
+             "van_ban": ["15/2024/TT-NHNN"], "comment_id": "30"}]
+    moi = {"2": [{"verdict": "thieu_thong_tin",
+                  "cu_id": "15/2024/TT-NHNN#than/dieu_20#khoan_3"}]}
+    assert tinh_recall(gold, moi)["bat_duoc"] == 1
+
+
+def test_recall_tinh_ca_luot_toan_van():
+    # Verdict ở lượt toàn hợp đồng khớp van_ban → bắt được, dù không có phán
+    # quyết nào ở đúng điều hợp đồng (ca #194: CU mức văn bản không có neo điều).
+    toan_van = [{"verdict": "thieu_thong_tin",
+                 "cu_id": "52/2024/NĐ-CP#than/dieu_3#khoan_15"}]
+    assert tinh_recall(_GOLD, {}, toan_van)["bat_duoc"] == 1
+    # sai văn bản thì vẫn không tính
+    sai = [{"verdict": "vi_pham", "cu_id": "40/2024/TT-NHNN#than/dieu_8#khoan_1"}]
+    assert tinh_recall(_GOLD, {}, sai)["bat_duoc"] == 0
+
+
+def test_render_md_co_dong_toan_hop_dong():
+    hd = HopDong(ten="HD-test", dieu=[
+        DieuHopDong(so="1", tieu_de="Phí", text="Bên B trả phí.", doan=(0, 1)),
+    ])
+    toan_van = [{"verdict": "thieu_thong_tin", "cu_id": "A/1#than/dieu_8#khoan_1",
+                 "can_cu": "không thấy nội dung tối thiểu"}]
+    md = render_md(hd, [], {}, {}, toan_van=toan_van)
+    assert "| (toàn hợp đồng) |" in md
+    assert "A/1#than/dieu_8#khoan_1" in md
+
+
 def test_render_md_duong_cu_va_ca_la():
     """Đường cũ (ReviewFinding thật) + khối Ca lạ không rỗng — cả hai chưa được
     smoke test CLI (luôn --bo-duong-cu, luôn canh_bao=[]) phủ tới."""
@@ -83,8 +115,11 @@ def _ho_so(tmp_path):
 
     cu_dir = tmp_path / "ontology"
     cu_dir.mkdir()
-    (cu_dir / "pred.jsonl").write_text(
-        json.dumps(_actor(_CU_ID)), encoding="utf-8")
+    # subject "Hợp đồng hoặc thỏa thuận" → CU này cũng vào lượt TOÀN hợp đồng;
+    # canh luôn phép dịch doc_id (--against) → so_hieu (id CU) trong __main__.
+    actor = _actor(_CU_ID)
+    actor["subject"]["text"] = "Hợp đồng hoặc thỏa thuận"
+    (cu_dir / "pred.jsonl").write_text(json.dumps(actor), encoding="utf-8")
     (cu_dir / "premise.jsonl").write_text("", encoding="utf-8")
     (cu_dir / "khainiem.jsonl").write_text("", encoding="utf-8")
 
@@ -172,6 +207,37 @@ def test_cli_end_to_end_offline(tmp_path, monkeypatch):
     # dòng gold của hợp đồng khác bị lọc — không lên bảng, không vào mẫu số
     assert "Mẫu số (gold pháp lý trong corpus): 1" in text
     assert "c-khac" not in text
+    # subject CU là "Hợp đồng hoặc thỏa thuận" → lượt toàn hợp đồng chạy được,
+    # tức phép dịch doc_id (--against DOC-A) → so_hieu (A/1) không bị đứt
+    assert "| (toàn hợp đồng) |" in text
+
+
+def test_cli_resume_tu_cache_khong_goi_llm(tmp_path, monkeypatch):
+    """Chạy lần 2 với LLM/retrieval bị CẤM: phải ra đúng báo cáo nhờ checkpoint
+    per-điều (máy hay kill job nền giữa batch dài — lệ đã ghi 13–16/08)."""
+    docx, cu_dir, corpus_path, gold_path = _ho_so(tmp_path)
+    _gia_lap_duong_moi(monkeypatch)
+
+    import app.compliance.__main__ as main_mod
+
+    out_path = tmp_path / "bao_cao.md"
+    argv = [
+        str(docx), "--against", "DOC-A", "--corpus", str(corpus_path),
+        "--gold", str(gold_path), "--out", str(out_path),
+        "--as-of", "2026-08-12", "--cu-dir", str(cu_dir), "--bo-duong-cu",
+    ]
+    main_mod.main(argv)
+    assert out_path.with_suffix(".cache.json").exists()
+    text_lan_1 = out_path.read_text(encoding="utf-8")
+
+    def _cam(*_a, **_k):
+        raise AssertionError("lần 2 phải đi từ cache, không được gọi lại")
+
+    for mod, ten in [(er_triples, "chat_json"), (judge, "chat_json"),
+                     (gate, "search_in_docs")]:
+        monkeypatch.setattr(mod, ten, _cam)
+    main_mod.main(argv)
+    assert out_path.read_text(encoding="utf-8") == text_lan_1
 
 
 def test_cli_end_to_end_ca_hai_duong(tmp_path, monkeypatch):

@@ -282,9 +282,14 @@ class KhaiNiem(BaseModel):
     """Một thuật ngữ được định nghĩa — tầng PREMISE, mức Khoản.
 
     Premise là *"non-deontic definitional or interpretive material"* của
-    GraphCompliance: không đặt ra nghĩa vụ, không bị đem ra phán định tuân thủ.
-    Điều "Giải thích từ ngữ" mỗi khoản là một thuật ngữ, nên gán ở mức Khoản để
-    đổ thẳng vào node `KhaiNiem` mà KG v0.5 đã thiết kế.
+    GraphCompliance: không đặt ra nghĩa vụ. Điều "Giải thích từ ngữ" mỗi khoản là
+    một thuật ngữ, nên gán ở mức Khoản để đổ thẳng vào node `KhaiNiem` mà KG v0.5
+    đã thiết kế.
+
+    Sửa 16/08 (T26 nhóm 2): định nghĩa ĐƯỢC đưa vào judge — không phải như nghĩa
+    vụ, mà để đối chiếu CÁCH hợp đồng dùng/định nghĩa thuật ngữ với định nghĩa
+    luật (2 miss gold #13/#35 đều là comment viện dẫn điều định nghĩa). Verdict
+    mang id khái niệm để recall khớp tiền tố văn bản như CU thường.
 
     Giữ nguyên kỷ luật span: `thuat_ngu`/`dinh_nghia` là lát cắt `dieu.text`,
     không phải chữ LLM viết.

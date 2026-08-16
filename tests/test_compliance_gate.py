@@ -1,6 +1,6 @@
 """Compliance Gate: retrieval → CU ứng viên → meta-CU chặn → CU plan. Tất định."""
 from app.compliance import gate
-from app.compliance.gate import lap_cu_plan
+from app.compliance.gate import lap_cu_plan, lap_plan_toan_van
 from app.compliance.hypernym import DeXuat
 from app.compliance.policy_graph import PolicyGraph
 from app.ontology.schema import ActorCU, MetaCU
@@ -132,6 +132,75 @@ def test_chu_the_phu_dinh_khong_khop_thi_khong_loai(monkeypatch):
     plan = lap_cu_plan("điều hợp đồng", hypernyms, _pg_voi_cong_chu_the_phu_dinh(),
                         ["DOC-A"], as_of="2026-08-11", so_hieu_cua={"DOC-A": "A/1"})
     assert len(plan.items) == 1
+
+
+def test_plan_toan_van_chon_ca_dieu_theo_subject():
+    # Điều 8: khoản 1 có subject "Hợp đồng hoặc thỏa thuận" → CẢ điều vào plan
+    # (kéo theo khoản 2 dù subject nó không nhắc). Điều 9 chỉ nhắc hợp đồng trong
+    # ACTION → không chọn (nghĩa vụ của tổ chức, thuộc gate theo điều). Văn bản
+    # ngoài --against bị loại.
+    k1 = _actor("A/1#than/dieu_8#khoan_1")
+    k1["subject"] = _field("Hợp đồng hoặc thỏa thuận")
+    k2 = _actor("A/1#than/dieu_8#khoan_2")
+    d9 = _actor("A/1#than/dieu_9#khoan_1")
+    d9["action"] = _field("phải có hợp đồng hợp tác với ngân hàng")
+    ngoai = _actor("B/2#than/dieu_8#khoan_1")
+    ngoai["subject"] = _field("Hợp đồng hoặc thỏa thuận")
+
+    plan = lap_plan_toan_van(_pg([k1, k2, d9, ngoai]), ["A/1"], as_of="2026-08-16")
+
+    assert sorted(i.cu.id for i in plan.items) == [
+        "A/1#than/dieu_8#khoan_1", "A/1#than/dieu_8#khoan_2",
+    ]
+    assert all("CU mức hợp đồng" in i.ly_do for i in plan.items)
+
+
+def test_plan_toan_van_van_qua_meta_gate():
+    # Meta-CU cổng thoi_gian (mốc 2027 chưa tới) chặn cả plan toàn văn — lượt
+    # toàn hợp đồng không được nhảy cóc qua tầng meta.
+    k1 = _actor("A/1#than/dieu_5#khoan_1")
+    k1["subject"] = _field("Hợp đồng hoặc thỏa thuận")
+    pg = _pg([k1, _meta("A/1#than/dieu_5#khoan_2", gates=[{
+        "kind": "thoi_gian", "pham_vi": "dieu", "targets": ["A/1#than/dieu_5"],
+        "suy_ra_duoc": True, "phu_dinh": False, "ngoai_tru": [], "ghi_chu": "",
+    }], dieu_kien_cong={"kind": "thoi_gian", "ngay": "2027-01-01", "moc": "bat_dau"})])
+
+    plan = lap_plan_toan_van(pg, ["A/1"], as_of="2026-08-16")
+
+    assert plan.items == []
+    assert any("2027-01-01" in g for g in plan.ghi_chu)
+
+
+def _kn(id, thuat_ngu, dinh_nghia="…"):
+    from app.ontology.schema import KhaiNiem
+    return KhaiNiem(id=id, thuat_ngu=thuat_ngu, dinh_nghia=dinh_nghia,
+                     char_span_thuat_ngu=None, char_span_dinh_nghia=None)
+
+
+def test_khai_niem_lien_quan_khop_nguyen_van_va_hypernym():
+    from app.compliance.gate import khai_niem_lien_quan
+    pg = PolicyGraph([], [], [
+        _kn("A/1#than/dieu_3#khoan_1", "Ví điện tử"),
+        _kn("A/1#than/dieu_3#khoan_2", "Đại lý thanh toán"),
+        _kn("A/1#than/dieu_3#khoan_3", "Séc"),   # không nhắc tới → loại
+        # thuật ngữ "bẩn" — cả câu, không bao giờ khớp nguyên văn → tự rơi
+        _kn("A/1#than/dieu_3#khoan_4", "1. Dịch vụ X bao gồm: a, b, c và mọi thứ khác."),
+    ])
+    hyp = [DeXuat(entity="bên B", hypernym="Đại lý thanh toán", do_tin=0.9, manh=True)]
+    khop, ghi_chu = khai_niem_lien_quan("Khách nạp tiền vào VÍ ĐIỆN TỬ.", hyp, pg)
+    assert sorted(k.thuat_ngu for k in khop) == ["Ví điện tử", "Đại lý thanh toán"]
+    assert ghi_chu == []
+
+
+def test_khai_niem_lien_quan_cat_co_ghi_chu():
+    from app.compliance.gate import khai_niem_lien_quan
+    pg = PolicyGraph([], [], [
+        _kn(f"A/1#than/dieu_3#khoan_{i}", f"thuật ngữ {i}") for i in range(1, 6)
+    ])
+    text = " — ".join(f"thuật ngữ {i}" for i in range(1, 6))
+    khop, ghi_chu = khai_niem_lien_quan(text, [], pg, gioi_han=3)
+    assert len(khop) == 3
+    assert any("khớp 5" in g for g in ghi_chu)
 
 
 def test_subject_khop_hypernym_duoc_them(monkeypatch):

@@ -16,10 +16,11 @@ from app.compliance.hypernym import DeXuat
 from app.compliance.policy_graph import PolicyGraph, dieu_prefix
 from app.knowledge.lop_phu import chu_thich_ket_qua
 from app.knowledge.retrieval import search_in_docs
-from app.ontology.schema import ActorCU, ComplianceUnit, Gate, MetaCU
+from app.ontology.schema import ActorCU, ComplianceUnit, Gate, KhaiNiem, MetaCU
 
 _SO_DIEU_RE = re.compile(r"Điều\s+(\d+[a-z]?)")
 _TOP_K = 8
+_GIOI_HAN_DINH_NGHIA = 8
 
 
 class PlanItem(BaseModel):
@@ -31,6 +32,9 @@ class PlanItem(BaseModel):
 class CUPlan(BaseModel):
     items: list[PlanItem]
     ghi_chu: list[str]
+    # Tầng premise: định nghĩa pháp lý mà điều hợp đồng có dùng thuật ngữ —
+    # judge đối chiếu CÁCH DÙNG, không phải nghĩa vụ (schema.py KhaiNiem, 16/08).
+    dinh_nghia: list[KhaiNiem] = []
 
 
 def _target_hit(cu_id: str, targets: list[str]) -> bool:
@@ -164,24 +168,89 @@ def _ap_dung_gate(
     ghi_chu.append(f"meta {m.id} gate {g.kind} không xác quyết được")
 
 
-def lap_cu_plan(
-    text_dieu_hd: str, hypernyms: list[DeXuat], pg: PolicyGraph,
-    against_ids: list[str], as_of: str, so_hieu_cua: dict[str, str],
+def _ap_meta_va_dong_goi(
+    cands: dict[str, tuple[ComplianceUnit, str]], hyp_set: set[str],
+    pg: PolicyGraph, as_of: str,
 ) -> CUPlan:
-    cands = _ung_vien(text_dieu_hd, hypernyms, pg, against_ids, as_of, so_hieu_cua)
-    hyp_set = {h.hypernym for h in hypernyms}
+    """Đuôi chung của hai đường lập plan: áp meta-gate rồi đóng gói actor-CU."""
     ghi_chu: list[str] = []
     unresolved: set[str] = set()
-
     for mid in sorted(_meta_cu_ung_vien(cands, pg)):
         m = pg.cu[mid]
         assert isinstance(m, MetaCU)
         for g in m.gates:
             _ap_dung_gate(m, g, as_of, hyp_set, cands, unresolved, ghi_chu)
-
     items = [
         PlanItem(cu=cu, ly_do=ly_do, gate_chua_xac_quyet=cid in unresolved)
         for cid, (cu, ly_do) in cands.items()
         if isinstance(cu, ActorCU)
     ]
     return CUPlan(items=items, ghi_chu=ghi_chu)
+
+
+def khai_niem_lien_quan(
+    text_dieu_hd: str, hypernyms: list[DeXuat], pg: PolicyGraph,
+    gioi_han: int = _GIOI_HAN_DINH_NGHIA,
+) -> tuple[list[KhaiNiem], list[str]]:
+    """Khái niệm mà điều hợp đồng CÓ dùng — chọn tất định, không LLM.
+
+    Khớp khi thuật ngữ nằm nguyên văn trong điều (không phân biệt hoa thường)
+    hoặc trùng một hypernym đã map. Quá `gioi_han` thì cắt + ghi chú (không cắt
+    im lặng); thuật ngữ dài bẩn (cả câu, đo 16/08 có bản ghi 352 ký tự) tự rơi
+    vì không bao giờ khớp nguyên văn.
+    """
+    low = text_dieu_hd.lower()
+    hyp = {h.hypernym.lower() for h in hypernyms}
+    khop = [
+        k for k in pg.khai_niem
+        if (tn := k.thuat_ngu.lower().strip()) and (tn in low or tn in hyp)
+    ]
+    ghi_chu = []
+    if len(khop) > gioi_han:
+        ghi_chu.append(
+            f"định nghĩa: khớp {len(khop)}, chỉ đưa {gioi_han} đầu vào judge"
+        )
+    return khop[:gioi_han], ghi_chu
+
+
+def lap_cu_plan(
+    text_dieu_hd: str, hypernyms: list[DeXuat], pg: PolicyGraph,
+    against_ids: list[str], as_of: str, so_hieu_cua: dict[str, str],
+) -> CUPlan:
+    cands = _ung_vien(text_dieu_hd, hypernyms, pg, against_ids, as_of, so_hieu_cua)
+    plan = _ap_meta_va_dong_goi(cands, {h.hypernym for h in hypernyms}, pg, as_of)
+    plan.dinh_nghia, ghi_chu_dn = khai_niem_lien_quan(text_dieu_hd, hypernyms, pg)
+    plan.ghi_chu += ghi_chu_dn
+    return plan
+
+
+_HD_TOAN_VAN_RE = re.compile(r"hợp đồng|thỏa thuận")
+
+
+def lap_plan_toan_van(pg: PolicyGraph, against_so_hieu: list[str], as_of: str) -> CUPlan:
+    """CU ràng buộc NỘI DUNG hợp đồng — gate ở mức TOÀN văn bản, không qua retrieval.
+
+    Vì sao tồn tại: CU dạng "hợp đồng phải có tối thiểu…" (TT40-Đ8) chỉ bắt được
+    theo từng điều khi retrieval may mắn — điều hợp đồng quá ngắn (243 ký tự, nội
+    dung thật ở Phụ lục) thì chunk luật không vào top-k và CU không bao giờ thành
+    ứng viên (miss #194, đo 13/08). Ứng viên ở đây chọn TẤT ĐỊNH: điều luật có ≥1
+    actor-CU mà CHỦ THỂ là "hợp đồng/thỏa thuận" thì CẢ điều vào plan (giữ trọn danh
+    sách nội dung tối thiểu); meta-gate vẫn áp như `lap_cu_plan`. Chỉ xét subject —
+    nghĩa vụ của tổ chức có nhắc hợp đồng trong action ("phải có thỏa thuận…",
+    TT15-Đ20-k1) vẫn thuộc gate theo điều; đo 16/08 trên 61 CU: subject-only chọn
+    đúng 2 điều nội-dung-hợp-đồng (TT40-Đ8, TT18-Đ9), nới sang action thì 5 điều.
+    Không có hypernym ở mức toàn văn → cổng chủ thể phủ định fail-open kèm cờ.
+    """
+    so_hieu = set(against_so_hieu)
+    dieu_hd: set[str] = set()
+    for cid, cu in pg.cu.items():
+        if not isinstance(cu, ActorCU) or cid.split("#")[0] not in so_hieu:
+            continue
+        if _HD_TOAN_VAN_RE.search((cu.subject.text + " " + cu.subject.label).lower()):
+            dieu_hd.add(dieu_prefix(cid))
+    cands: dict[str, tuple[ComplianceUnit, str]] = {
+        cid: (cu, f"CU mức hợp đồng ({dieu_prefix(cid)} nhắc 'hợp đồng/thỏa thuận')")
+        for cid, cu in pg.cu.items()
+        if isinstance(cu, ActorCU) and dieu_prefix(cid) in dieu_hd
+    }
+    return _ap_meta_va_dong_goi(cands, set(), pg, as_of)

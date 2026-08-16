@@ -29,6 +29,12 @@ _SYSTEM = (
     "- thieu_thong_tin: không đủ dữ kiện kết luận. CẤM suy từ im lặng.\n"
     "CU có trường 'nguong': PHẢI so trực tiếp số trong hợp đồng với số của ngưỡng "
     "(cùng đơn vị mới so; 'toi_da' nghĩa là hợp đồng vượt số đó = vi_pham).\n"
+    "Danh sách có thể kèm ĐỊNH NGHĨA PHÁP LÝ (mục 'thuật ngữ='): với từng định "
+    "nghĩa cũng trả verdict theo id — vi_pham nếu hợp đồng định nghĩa hoặc dùng "
+    "thuật ngữ TRÁI với định nghĩa luật; tuan_thu nếu khớp; khong_ap_dung nếu "
+    "điều khoản không định nghĩa/không dùng thuật ngữ theo cách có thể so.\n"
+    "BẮT BUỘC trả verdict cho TẤT CẢ id trong danh sách (CU lẫn định nghĩa), "
+    "không bỏ sót id nào — không kết luận được thì trả thieu_thong_tin cho id đó.\n"
     'Chỉ trả JSON: {"phan_quyet": [{"cu_id": "...", "verdict": "...", '
     '"can_cu": "...", "quote_hop_dong": "...", "quote_luat": "..."}]}'
 )
@@ -68,12 +74,23 @@ def _dong_cu(item: PlanItem) -> str:
     return "- " + " | ".join(phan)
 
 
+_TOM_TAT_DINH_NGHIA = 400
+
+
 def _prompt(text_dieu_hd: str, plan: CUPlan) -> str:
     listing = "\n".join(_dong_cu(item) for item in plan.items)
-    return (
+    ra = (
         f"Điều hợp đồng cần đối chiếu:\n{text_dieu_hd}\n\n"
         f"Danh sách Compliance Unit (CU) cần phán định:\n{listing}"
     )
+    if plan.dinh_nghia:
+        ra += "\n\nĐịnh nghĩa pháp lý liên quan (đối chiếu CÁCH hợp đồng dùng thuật ngữ):\n"
+        ra += "\n".join(
+            f"- id={k.id} | thuật ngữ={k.thuat_ngu} | "
+            f"định nghĩa={k.dinh_nghia[:_TOM_TAT_DINH_NGHIA]}"
+            for k in plan.dinh_nghia
+        )
+    return ra
 
 
 def _index_by_cu(vote: dict) -> dict[str, dict]:
@@ -93,11 +110,13 @@ def _da_so(cu_id: str, recs: list[dict | None]) -> PhanQuyet:
     for v in {n for n in norm if n is not None}:
         if norm.count(v) >= 2:
             rec = next(r for r, n in zip(recs, norm, strict=True) if n == v)
+            # `or ""`: LLM hay trả null cho quote không áp được (nhất là mục
+            # định nghĩa) — `.get(key, "")` không đỡ được key có mặt nhưng null.
             return PhanQuyet(
                 cu_id=cu_id, verdict=v,
-                can_cu=rec.get("can_cu", ""),
-                quote_hop_dong=rec.get("quote_hop_dong", ""),
-                quote_luat=rec.get("quote_luat", ""),
+                can_cu=rec.get("can_cu") or "",
+                quote_hop_dong=rec.get("quote_hop_dong") or "",
+                quote_luat=rec.get("quote_luat") or "",
             )
     can_cu = "LLM bỏ sót CU này" if any(r is None for r in recs) else (
         "các lượt phán định không đồng nhất"
@@ -127,10 +146,12 @@ def _thu_override(pq: PhanQuyet, pg: PolicyGraph) -> PhanQuyet:
 
 
 def phan_dinh(text_dieu_hd: str, plan: CUPlan, pg: PolicyGraph) -> list[PhanQuyet]:
-    if not plan.items:
+    if not plan.items and not plan.dinh_nghia:
         return []
     prompt = _prompt(text_dieu_hd, plan)
-    cu_ids = [item.cu.id for item in plan.items]
+    # Khái niệm đi chung vòng bỏ phiếu với CU; id của nó không có trong đồ thị
+    # kề nên vòng override (closure) tự thành no-op — không cần rẽ nhánh.
+    cu_ids = [item.cu.id for item in plan.items] + [k.id for k in plan.dinh_nghia]
 
     votes = [chat_json(prompt, system=_SYSTEM, temperature=0.0) for _ in range(2)]
     by_cu = [_index_by_cu(v) for v in votes]
