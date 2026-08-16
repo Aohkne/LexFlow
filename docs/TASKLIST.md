@@ -738,6 +738,17 @@ sản phẩm hiện `top_k=6` mặc định (`ChatRequest.top_k`).
 - Bước đầu: chạy `eval/judge.py` với đường trả lời `top_k` cao hơn (vd 10/12) trên 29 câu SBV, xem
   điểm ngữ nghĩa TB 0.862 có nhích không và có kéo nhiễu làm tụt câu khác không. Thuần đo, chưa đổi
   mặc định sản phẩm.
+- **Đã dựng tầng đo rerank (16/08):** `eval/thu_rerank.py` (rerank top-20 hybrid, so R@1/R@2/R@5/MRR@2
+  mức điều, checkpoint 2 tầng, provider đổi qua `.env`) + `eval/modal_reranker.py` (host ViRanker/bge
+  trên Modal, endpoint cùng shape Jina). Kết quả + phân tích ở `docs/EVAL-IR.md` §13.
+  - **3 provider đo xong (16/08), Δ R@1/MRR@2 mức điều:** Cohere `rerank-v3.5` **+5.8/+4.1pt** (thắng rõ,
+    đuôi gần như không mất) > Jina reranker-v2 +3.3/+1.5pt ≈ ViRanker (Modal) +2.2/+1.5pt (cả hai tụt R@5
+    ~−2.7pt). ViRanker tuned tiếng Việt **lại thua Cohere** (có thể do max_length=512 cắt điều dài).
+  - **Kết luận:** (1) nếu làm rerank → **Cohere API, KHÔNG self-host** (ViRanker yếu hơn + thêm vận hành);
+    (2) gain giới hạn (+5.8pt R@1 đổi −1.5pt R@5), chỉ đáng khi câu trả lời dựa top-1..2; (3) 2 câu judge
+    sai (§12) là lỗi **sinh** không phải retrieval → rerank không chạm, xếp sau việc generation. Giữ `[ ]`.
+  - Bàn đo giữ lại: `eval/thu_rerank.py` (đổi provider qua `.env`) + `eval/modal_reranker.py`. Chi tiết
+    số + phân tích: `docs/EVAL-IR.md` §13.
 
 ### [ ] T115 · TT45-2024 thiếu `provisions` (cây điều khoản parse rỗng ở nguồn)
 

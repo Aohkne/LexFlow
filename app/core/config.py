@@ -44,6 +44,12 @@ class Settings(BaseSettings):
     langfuse_secret_key: str = ""
     langfuse_host: str = "https://cloud.langfuse.com"
 
+    # Reranker — CHỈ dùng cho thí nghiệm eval (eval/thu_rerank.py), không nằm trên đường sản phẩm.
+    # API tương thích Jina/Cohere; để trống rerank_api_key = tắt.
+    rerank_api_key: str = ""
+    rerank_url: str = "https://api.jina.ai/v1/rerank"
+    rerank_model: str = "jina-reranker-v2-base-multilingual"
+
     # Graph-augmented retrieval: mở rộng context 1-hop qua knowledge graph
     graph_augment: bool = True
 

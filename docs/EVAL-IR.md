@@ -565,3 +565,51 @@ TT64-2024 mà sinh sai — nạp văn bản mở rộng độ phủ nhưng khôn
 Bài báo dùng **2 annotator người** chấm Correctness; ta dùng **LLM-judge 1 phiếu**. Con số đọc là
 "chất lượng câu trả lời trên đúng 100 câu của bài báo, đo bằng LLM-judge tái lập được", không phải
 điểm so ngang bảng Correctness của họ.
+
+## 13. Thí nghiệm rerank (T114) — cross-encoder có đáng host không?
+
+Câu hỏi cần trả lời trước khi dựng hạ tầng reranker (Modal/API) cho production: rerank top-20 hybrid
+có nhấc thứ hạng đủ để bõ công không? Đo bằng `eval/thu_rerank.py` — **chỉ thí nghiệm, không đụng
+đường sản phẩm, không đụng regression gate**. Cách đo: reranker chỉ **xáo lại thứ tự trong cùng
+top-20 hybrid**, nên R@20 bất biến; chỉ R@1/R@2/R@5/MRR@2 đổi. So trên `bo_sbv.jsonl` (100 câu,
+nhãn cấp điều đầy đủ — bộ khó nhất, chỗ hybrid yếu nhất), mức **điều**.
+
+Baseline `hybrid` đo lại trong chính thí nghiệm (top-20, cùng 100 câu) để so before/after nhất quán;
+số này lệch nhẹ bảng §11 vì khác lát cắt câu, không so chéo hai bảng.
+
+Baseline hybrid trôi nhẹ giữa các lần chạy (0.765–0.777 ở R@1) vì LanceDB dùng chỉ mục vector xấp xỉ
+(ANN) — không phải bug. Nên **đọc Δ so baseline CÙNG LẦN CHẠY của mỗi dòng**, đừng so absolute chéo dòng.
+
+| Reranker | N | R@1 | R@2 | R@5 | MRR@2 |
+|---|---|---|---|---|---|
+| hybrid (RRF, không rerank) | 100 | ~0.77 | ~0.89 | ~0.95 | ~0.865 |
+| + Jina `reranker-v2-base-multilingual` | 100 | +0.033 | −0.015 | −0.028 | +0.015 |
+| + **Cohere `rerank-v3.5`** | 97 | **+0.058** | **−0.002** | **−0.015** | **+0.041** |
+| + ViRanker (Modal, `namdp-ptit/ViRanker`) | 100 | +0.022 | −0.018 | −0.025 | +0.015 |
+
+(Δ điểm mức điều so baseline cùng lần chạy. Absolute từng lần: Jina 0.810/0.875/0.922/0.880 trên base
+0.777; Cohere 0.823/0.885/0.933/0.902 trên base 0.765 (97 câu, 3 câu vướng 429 trial); ViRanker
+0.793/0.872/0.925/0.880 trên base 0.772.)
+
+**Phân tích — Cohere thắng rõ, cả hai model open/generic còn lại tương đương nhau và kém hơn:**
+- **Cohere** nhấc đỉnh mạnh nhất (R@1 +5.8pt, MRR@2 +4.1pt) và **gần như không mất đuôi** (R@2 −0.2, R@5
+  −1.5) — cân bằng tốt nhất.
+- **Jina** và **ViRanker** ngang nhau: R@1 chỉ +2–3pt, MRR@2 +1.5pt, và **tụt đuôi rõ** (R@5 −2.5…−2.8).
+  Xáo mạnh hơn RRF, đẩy 1 điều đúng lên top nhưng đá vài điều đúng-nhưng-thấp khỏi top-5.
+- **ViRanker (tuned tiếng Việt) lại thua Cohere** — trái kỳ vọng "model tiếng Việt/pháp lý sẽ mạnh hơn
+  generic". Một phần có thể do cấu hình phục vụ: `CrossEncoder(max_length=512)` + cắt `_MAX_DOC=1024` ký
+  tự, mà điều luật dài → chi tiết phân biệt có thể rơi ngoài 512 token. Test công bằng hơn cần nới
+  max_length; nhưng Cohere đã thắng mà **không cần hạ tầng**, nên tinh chỉnh ViRanker ROI thấp.
+
+**Kết luận cho T114:**
+1. Rerank có ích **giới hạn**: tốt nhất (Cohere) là +5.8pt R@1 / +4.1pt MRR@2, đổi lấy −1.5pt R@5. Chỉ
+   đáng nếu câu trả lời dựa vào top-1..2 căn cứ; nếu nhồi top-5 thì cân nhắc mất recall đuôi.
+2. **Nếu làm rerank → dùng Cohere API**, KHÔNG self-host. ViRanker/Modal vừa yếu hơn vừa thêm vận hành
+   (GPU, cold-start, endpoint) — không biện minh được. App Modal (`eval/modal_reranker.py`) giữ lại làm
+   bàn đo, không đưa lên sản phẩm.
+3. Rerank **không** chạm tới điểm yếu thật đã quan sát: 2 câu judge sai (§12) là lỗi **sinh**, không phải
+   retrieval. Nên rerank là cải thiện biên, xếp sau các việc chạm generation. Để `[ ]` trong T114, chưa
+   đưa lên đường trả lời.
+
+Số ViRanker/bge dựng qua `eval/modal_reranker.py` (Modal, scale-to-zero, endpoint cùng shape Jina).
+Provider nào cũng chỉ đổi `RERANK_*` trong `.env`; cache tách theo provider nên không trộn số.

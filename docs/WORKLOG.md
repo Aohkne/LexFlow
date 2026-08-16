@@ -6,6 +6,31 @@
 
 ---
 
+## 2026-08-16 — thí nghiệm reranker (T114): Jina vs Cohere vs ViRanker trên bộ SBV
+
+**Giai đoạn:** đo xem cross-encoder rerank có đáng đưa vào không, TRƯỚC khi dựng hạ tầng. Chỉ thí
+nghiệm — không đụng đường sản phẩm, không đụng regression gate.
+
+- **Bàn đo mới.** `eval/thu_rerank.py`: rerank top-20 hybrid rồi so R@1/R@2/R@5/MRR@2 mức điều (rerank
+  chỉ xáo top-20 nên R@20 bất biến — cô lập đúng phần rerank cải thiện). Checkpoint 2 tầng: retrieval
+  dùng chung mọi provider, rerank tách riêng theo provider → đổi provider không tốn lại retrieval,
+  không đọc nhầm số cũ. Provider đổi qua `.env` (shape Jina/Cohere chung); thêm `rerank_*` vào
+  `Settings` (bug ban đầu: đọc `os.getenv` không thấy `.env`). Retry backoff cho 429 (Cohere trial siết).
+- **ViRanker self-host trên Modal.** `eval/modal_reranker.py` — `namdp-ptit/ViRanker` trên T4,
+  scale-to-zero, endpoint cùng shape Jina, có token gate (endpoint công khai). Deploy qua `uvx modal`
+  (không đụng pyproject).
+- **Kết quả (Δ R@1/MRR@2 mức điều, so baseline cùng lần chạy):** **Cohere `rerank-v3.5` +5.8/+4.1pt**
+  thắng rõ, đuôi gần như không mất (R@5 −1.5). Jina reranker-v2 +3.3/+1.5pt ≈ ViRanker +2.2/+1.5pt, cả
+  hai tụt R@5 ~−2.7pt. **ViRanker tuned tiếng Việt lại thua Cohere** (nghi max_length=512 cắt điều dài).
+  Baseline hybrid trôi 0.765–0.777 giữa các lần vì LanceDB ANN — đọc Δ, không so absolute chéo.
+- **Kết luận T114:** nếu làm rerank → **Cohere API, KHÔNG self-host** (ViRanker yếu hơn + thêm vận hành).
+  Gain giới hạn (+5.8pt R@1 đổi −1.5pt R@5), chỉ đáng khi trả lời dựa top-1..2. Quan trọng: 2 câu judge
+  sai (§12) là lỗi **sinh** không phải retrieval → rerank không chạm. Giữ `[ ]`, chưa lên sản phẩm.
+
+**Ship:** không đổi runtime; Modal app chỉ là bàn đo, không phải dịch vụ sản phẩm. **Decision:** rerank
+nếu làm thì dùng Cohere API, bỏ hướng self-host ViRanker; ưu tiên việc chạm generation trước.
+**Next:** T109 (hậu kiểm câu trả lời — chạm đúng lỗi sinh); T117 (VLQA nếu chủ repo chốt).
+
 ## 2026-08-15 — đo trọn bộ SBV 100 câu (IR + regression + Correctness); khảo sát VLQA
 
 **Giai đoạn:** chạy nốt phần đo đã hoãn hôm 14/08 sau khi corpus mở rộng 49 văn bản, đưa số vào
