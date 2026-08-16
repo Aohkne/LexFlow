@@ -585,8 +585,12 @@ chính `judge.py`, cùng thước → so được delta):
 1b vs BEFORE: **dung +7, sai 2→1, ngữ nghĩa +4pt**, khớp-trích-dẫn 0.990 y nguyên (không đẻ hallucination).
 Rào chống phủ-định cứu 6 câu so với 1a (gồm qid 19, 33 sai→thiếu). `dung` ổn định 86 qua **hai** lần
 sinh độc lập → +7 là thật. **Caveat:** judge 1-phiếu, ~3 câu churn 1a↔1b nằm trong nhiễu (qid 35 lật
-sai→dung→sai qua 3 lần = nhiễu judge). Phase 2 (hậu kiểm HasCitations/EvidenceMismatch/completeness)
-để mở — xem `T109`.
+sai→dung→sai qua 3 lần = nhiễu judge).
+
+**Phase 2 (T109) — hậu kiểm warn-only:** `postcheck.hau_kiem` gắn cờ `thiếu_trích_dẫn` /
+`trích_dẫn_ngoài_căn_cứ` lên `ChatResponse.canh_bao` (không đổi text câu trả lời → không đổi số judge
+trên; chỉ để UI cảnh báo + đếm tỷ lệ rớt trước khi quyết có chặn). Completeness hoãn (nhiễu; Phase 1 đã
+chạm gốc). Xem `T109` + `app/reasoning/postcheck.py`.
 
 ## 13. Thí nghiệm rerank (T114) — cross-encoder có đáng host không?
 

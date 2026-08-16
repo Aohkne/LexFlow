@@ -12,6 +12,7 @@ from app.ingestion.versioning import today_iso
 from app.knowledge.lop_phu import ChuThichHieuLuc, chu_thich_ket_qua
 from app.knowledge.retrieval import graph_augmented_search, hybrid_search, search_in_docs
 from app.reasoning.conflict import detect_conflicts
+from app.reasoning.postcheck import hau_kiem
 
 _QA_SYSTEM = (
     "Bạn là trợ lý pháp lý ngân hàng. Trả lời câu hỏi CHỈ dựa trên các điều khoản "
@@ -124,7 +125,10 @@ def build_answer(req: ChatRequest) -> ChatResponse:
         return ChatResponse(answer=_NOT_FOUND, citations=[], conflicts=[])
     answer = chat(prompt, system=system)
     return ChatResponse(
-        answer=answer, citations=_citations(chunks, ct), conflicts=detect_conflicts(chunks)
+        answer=answer,
+        citations=_citations(chunks, ct),
+        conflicts=detect_conflicts(chunks),
+        canh_bao=hau_kiem(answer, chunks, not_found=_NOT_FOUND),
     )
 
 
@@ -135,19 +139,23 @@ def build_answer(req: ChatRequest) -> ChatResponse:
 def stream_answer(req: ChatRequest) -> Iterator[tuple[str, Any]]:
     """Bản streaming của build_answer — yield các sự kiện theo thứ tự UX:
 
-    ("meta", {"citations": [...]}) → ("delta", str)* → ("conflicts", [...])
+    ("meta", {"citations": [...]}) → ("delta", str)* → ("conflicts", [...]) → ("canh_bao", [...])
 
-    Citations gửi trước để UI hiện nguồn ngay; conflicts cần gọi LLM riêng
-    nên gửi sau khi câu trả lời đã stream xong.
+    Citations gửi trước để UI hiện nguồn ngay; conflicts cần gọi LLM riêng nên gửi sau. Cờ hậu
+    kiểm (`canh_bao`, T109 Phase 2) cần TOÀN VĂN câu trả lời nên gộp delta lại rồi kiểm ở cuối.
     """
     chunks, ct, system, prompt = _prepare(req)
     if not chunks:
         yield "meta", {"citations": []}
         yield "delta", _NOT_FOUND
         yield "conflicts", []
+        yield "canh_bao", []
         return
 
     yield "meta", {"citations": [c.model_dump() for c in _citations(chunks, ct)]}
+    phan = []
     for piece in chat_stream(prompt, system=system):
+        phan.append(piece)
         yield "delta", piece
     yield "conflicts", [c.model_dump() for c in detect_conflicts(chunks)]
+    yield "canh_bao", hau_kiem("".join(phan), chunks, not_found=_NOT_FOUND)

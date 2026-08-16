@@ -47,7 +47,7 @@ def _sse(event: str, data: Any) -> str:
 def chat_stream_endpoint(
     req: ChatRequest, user: AuthUser = Depends(get_current_user)
 ) -> StreamingResponse:
-    """SSE: meta (citations) → delta (từng mẩu câu trả lời) → conflicts → done."""
+    """SSE: meta (citations) → delta (từng mẩu câu trả lời) → conflicts → canh_bao → done."""
 
     def gen() -> Iterator[str]:
         parts: list[str] = []
@@ -64,6 +64,8 @@ def chat_stream_endpoint(
                 elif kind == "conflicts":
                     conflicts = data
                     yield _sse("conflicts", {"conflicts": data})
+                elif kind == "canh_bao":
+                    yield _sse("canh_bao", {"canh_bao": data})
         except Exception as exc:  # noqa: BLE001
             yield _sse("error", {"detail": str(exc)})
             return

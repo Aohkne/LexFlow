@@ -298,6 +298,9 @@ class ChatResponse(BaseModel):
     citations: list[Citation] = Field(default_factory=list)
     conflicts: list[ConflictAlert] = Field(default_factory=list)
     session_id: str | None = None  # id phiên trên Supabase (None khi chưa cấu hình)
+    #: Cờ hậu kiểm (T109 Phase 2) — cảnh báo, KHÔNG chặn: "thiếu_trích_dẫn",
+    #: "trích_dẫn_ngoài_căn_cứ:<...>". [] = sạch. Xem app/reasoning/postcheck.py.
+    canh_bao: list[str] = Field(default_factory=list)
 
 
 class ReviewRequest(BaseModel):

@@ -47,16 +47,18 @@ def test_stream_thu_tu_su_kien(client):
     assert resp.headers["content-type"].startswith("text/event-stream")
     events = _events(resp.text)
     kinds = [e for e, _ in events]
-    assert kinds == ["meta", "delta", "delta", "conflicts", "done"]
+    assert kinds == ["meta", "delta", "delta", "conflicts", "canh_bao", "done"]
     assert "TT40-2024" in events[0][1]
     assert "100 triệu" in events[2][1]
+    # câu trả lời mock không kèm [văn bản — điều] → hậu kiểm gắn cờ thiếu_trích_dẫn
+    assert "thiếu_trích_dẫn" in events[4][1]
 
 
 def test_stream_khong_tim_thay(client, monkeypatch):
     monkeypatch.setattr(answer_mod, "hybrid_search", lambda *a, **kw: [])
     resp = client.post("/chat/stream", json={"query": "abc"})
     kinds = [e for e, _ in _events(resp.text)]
-    assert kinds == ["meta", "delta", "conflicts", "done"]
+    assert kinds == ["meta", "delta", "conflicts", "canh_bao", "done"]
 
 
 def test_doc_ids_gioi_han_pham_vi(client, monkeypatch):

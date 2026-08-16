@@ -40,9 +40,16 @@ nghiệm — không đụng đường sản phẩm, không đụng regression ga
   Caveat: judge 1-phiếu, ~3 câu churn là nhiễu; `dung` ổn định 86 qua 2 lần sinh → +7 là thật. Tiện tay
   sửa **bug checkpoint judge.py** (xoá verdict cache muộn → kill giữa pha sinh để lại verdict cũ).
 
+- **T109 Phase 2 XONG — hậu kiểm warn-only.** `app/reasoning/postcheck.py`: sau `chat()` gắn cờ
+  `thiếu_trích_dẫn` (HasCitations) + `trích_dẫn_ngoài_căn_cứ` (EvidenceMismatch, khớp số hiệu+Điều với
+  chunk đã retrieve) lên `ChatResponse.canh_bao` + event SSE `canh_bao`. KHÔNG chặn cứng (heuristic;
+  chặn nhầm câu đúng còn tệ hơn). Completeness hoãn có chủ ý (nhiễu; Phase 1 đã chạm gốc). Test +
+  cập nhật test_stream. Warn-only nên không đổi text/điểm judge.
+
 **Ship:** không đổi runtime; Modal app chỉ là bàn đo, không phải dịch vụ sản phẩm. **Decision:** rerank
-nếu làm thì dùng Cohere API, bỏ hướng self-host ViRanker; T109 Phase 1 (sửa prompt) đã cải thiện
-generation. **Next:** T109 Phase 2 (hậu kiểm HasCitations/EvidenceMismatch/completeness); T117 (VLQA nếu chủ repo chốt).
+nếu làm thì dùng Cohere API, bỏ hướng self-host ViRanker; T109 Phase 1+2 xong (prompt cải thiện
+generation, hậu kiểm gắn cờ cảnh báo). **Next:** đo tỷ lệ rớt 2 cờ trên eval/traffic → quyết chặn hay
+chỉ cảnh báo; hiển thị cờ ở FE; T117 (VLQA nếu chủ repo chốt).
 
 ## 2026-08-15 — đo trọn bộ SBV 100 câu (IR + regression + Correctness); khảo sát VLQA
 

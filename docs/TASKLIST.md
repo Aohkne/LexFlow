@@ -648,9 +648,15 @@ bằng chứng ⇒ từ chối trả lời. LexFlow chỉ **dặn** trong system
   **dung 79→86, sai 2→1, ngữ nghĩa 0.885→0.925**, khớp-trích-dẫn 0.990 y nguyên. Chi tiết + caveat nhiễu
   1-phiếu: `EVAL-IR.md` §12 "Phase 1". (Tiện thể sửa bug checkpoint judge.py: `--sinh-lai` xoá verdict
   cache muộn ở pha chấm → kill giữa pha sinh để lại verdict cũ; nay xoá cả hai trước pha sinh.)
-- **Phase 2 CÒN MỞ:** hậu kiểm sau `chat()` trong `build_answer` trả cờ cảnh báo (không chặn cứng):
-  HasCitations (regex) · EvidenceMismatch (trích dẫn khớp Citation đã retrieve) · completeness (đếm
-  khoản/điểm nguồn vs mục answer). Bước đầu: HasCitations rẻ nhất, đo tỷ lệ rớt trước khi quyết chặn.
+- **Phase 2 XONG (16/08) — hậu kiểm warn-only.** `app/reasoning/postcheck.py::hau_kiem` chạy sau
+  `chat()`, trả cờ lên `ChatResponse.canh_bao` (+ event SSE `canh_bao`), KHÔNG chặn cứng: `thiếu_trích_dẫn`
+  (HasCitations) và `trích_dẫn_ngoài_căn_cứ:<...>` (EvidenceMismatch — khớp theo số hiệu+Điều với chunk
+  đã retrieve; chỉ báo khi trích dẫn có số hiệu rõ → tránh báo giả). Test `tests/test_postcheck.py` +
+  cập nhật `tests/test_stream.py`.
+- **Completeness HOÃN** (chủ ý): Phase 1 (prompt) đã chạm gốc lỗi trích-xuất-thiếu; heuristic đếm
+  khoản/điểm nguồn vs mục answer rất nhiễu với điều không đánh số → thêm cờ nhiễu lợi bất cập hại. Mở
+  lại nếu số liệu FE/eval cho thấy cần. **Còn lại của T109:** quyết CHẶN hay chỉ CẢNH BÁO — cần đo tỷ
+  lệ rớt của 2 cờ trên traffic/eval thật trước (nay đã có cờ để đếm).
 
 ### [ ] T110 · Corpus phủ 4/37 văn bản mà bộ eval TVPL hỏi tới
 
