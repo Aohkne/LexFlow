@@ -145,7 +145,27 @@ def _thu_override(pq: PhanQuyet, pg: PolicyGraph) -> PhanQuyet:
     return pq
 
 
+#: Trần mục/lời gọi judge. Plan 24 CU trong một prompt làm model thoái hoá sinh
+#: 236k ký tự rồi đứt ở trần token (ThuHo "ĐIỀU KHOẢN THI HÀNH", đo 16/08) —
+#: cả lô verdict mất trắng. Chẻ lô đánh đổi một phần tính holistic của paper
+#: lấy output có trần; đa số vẫn tính riêng từng cu_id nên phép đếm không đổi.
+_LO_TOI_DA = 8
+
+
 def phan_dinh(text_dieu_hd: str, plan: CUPlan, pg: PolicyGraph) -> list[PhanQuyet]:
+    muc = [("cu", i) for i in plan.items] + [("dn", k) for k in plan.dinh_nghia]
+    ra: list[PhanQuyet] = []
+    for dau in range(0, len(muc), _LO_TOI_DA):
+        lo = muc[dau:dau + _LO_TOI_DA]
+        plan_lo = CUPlan(
+            items=[x for loai, x in lo if loai == "cu"], ghi_chu=[],
+            dinh_nghia=[x for loai, x in lo if loai == "dn"],
+        )
+        ra += _phan_dinh_lo(text_dieu_hd, plan_lo, pg)
+    return ra
+
+
+def _phan_dinh_lo(text_dieu_hd: str, plan: CUPlan, pg: PolicyGraph) -> list[PhanQuyet]:
     if not plan.items and not plan.dinh_nghia:
         return []
     prompt = _prompt(text_dieu_hd, plan)

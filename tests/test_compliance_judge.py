@@ -73,6 +73,28 @@ def test_verdict_la_khong_hop_le_ve_thieu_thong_tin(monkeypatch):
     assert phan_dinh("text", _plan_mot_cu(), _pg_rong())[0].verdict == "thieu_thong_tin"
 
 
+def test_plan_lon_che_lo_8(monkeypatch):
+    # 20 CU → 3 lô (8+8+4), mỗi lô 2 phiếu đồng thuận = 6 lời gọi; mỗi prompt
+    # mang tối đa 8 mục. Chặn ca thật: 24 CU một prompt → model thoái hoá 236k
+    # ký tự, đứt ở trần token, mất trắng cả lô verdict (ThuHo Đ4, 16/08).
+    ids = [f"A/1#than/dieu_5#khoan_{i}" for i in range(1, 21)]
+    plan = CUPlan(items=[
+        PlanItem(cu=ActorCU.model_validate(_actor(i)), ly_do="t") for i in ids
+    ], ghi_chu=[])
+    prompts = []
+
+    def _fake(prompt, **_k):
+        prompts.append(prompt)
+        return {"phan_quyet": [{"cu_id": i, "verdict": "tuan_thu", "can_cu": "x",
+                                "quote_hop_dong": "", "quote_luat": ""} for i in ids]}
+
+    monkeypatch.setattr(judge_mod, "chat_json", _fake)
+    ra = phan_dinh("text", plan, _pg_rong())
+
+    assert [r.cu_id for r in ra] == ids and len(prompts) == 6
+    assert max(p.count("- id=") for p in prompts) <= 8
+
+
 _KN_ID = "A/1#than/dieu_3#khoan_2"
 
 

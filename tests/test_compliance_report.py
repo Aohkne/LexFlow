@@ -212,6 +212,40 @@ def test_cli_end_to_end_offline(tmp_path, monkeypatch):
     assert "| (toàn hợp đồng) |" in text
 
 
+def test_cli_dieu_trung_so_khong_ghi_de_mat_verdict(tmp_path, monkeypatch):
+    """Hợp đồng thật có điều TRÙNG SỐ (ThuHo: heading gõ tay 'Điều 4.' ở cuối).
+    Verdict của cả hai điều phải cùng lên báo cáo — trước fix, dict `moi` khoá
+    theo số nên điều sau ghi đè mất trắng điều trước."""
+    _, cu_dir, corpus_path, gold_path = _ho_so(tmp_path)
+    docx = _mini_docx(tmp_path, [
+        "Điều 1. Phí dịch vụ", "Bên B thanh toán phí.",
+        "Điều 1. Điều khoản thi hành", "Hợp đồng có hiệu lực từ ngày ký.",
+    ])
+    _gia_lap_duong_moi(monkeypatch)
+    # mỗi lượt gọi judge mang số thứ tự riêng để phân biệt verdict 2 điều
+    dem = {"n": 0}
+
+    def _judge_danh_so(*_a, **_k):
+        dem["n"] += 1
+        return {"phan_quyet": [{"cu_id": _CU_ID, "verdict": "vi_pham",
+                                "can_cu": f"goi-{dem['n']}", "quote_hop_dong": "",
+                                "quote_luat": ""}]}
+
+    monkeypatch.setattr(judge, "chat_json", _judge_danh_so)
+
+    import app.compliance.__main__ as main_mod
+    out_path = tmp_path / "bao_cao.md"
+    main_mod.main([
+        str(docx), "--against", "DOC-A", "--corpus", str(corpus_path),
+        "--gold", str(gold_path), "--out", str(out_path),
+        "--as-of", "2026-08-12", "--cu-dir", str(cu_dir), "--bo-duong-cu",
+    ])
+
+    text = out_path.read_text(encoding="utf-8")
+    # 2 phiếu đồng thuận/điều → điều 1a là goi-1, điều 1b là goi-3; cả hai phải còn
+    assert "goi-1" in text and "goi-3" in text
+
+
 def test_cli_resume_tu_cache_khong_goi_llm(tmp_path, monkeypatch):
     """Chạy lần 2 với LLM/retrieval bị CẤM: phải ra đúng báo cáo nhờ checkpoint
     per-điều (máy hay kill job nền giữa batch dài — lệ đã ghi 13–16/08)."""

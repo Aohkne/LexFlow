@@ -111,7 +111,9 @@ def main(argv: list[str] | None = None) -> Path:
         khoa = _khoa_cache(d.text, args.cu_dir)
         if khoa in cache:
             buoc = cache[khoa]
-            moi[d.so] = buoc["pq"]
+            # extend, không gán: hợp đồng thật có điều TRÙNG SỐ (ThuHo: heading
+            # gõ tay "Điều 4." ở cuối) — gán đè là mất trắng verdict điều trước.
+            moi.setdefault(d.so, []).extend(buoc["pq"])
             canh_bao += buoc["canh_bao"]
             cu_dung_toi.update(buoc["cu_dung_toi"])
             continue
@@ -122,10 +124,11 @@ def main(argv: list[str] | None = None) -> Path:
         hypernyms = [v for v in hyp_map.values() if v is not None]
         plan = lap_cu_plan(d.text, hypernyms, pg, args.against, as_of, so_hieu_cua)
         canh_bao_d += plan.ghi_chu
-        moi[d.so] = [pq.model_dump() for pq in phan_dinh(d.text, plan, pg)]
+        pq_d = [pq.model_dump() for pq in phan_dinh(d.text, plan, pg)]
+        moi.setdefault(d.so, []).extend(pq_d)
         canh_bao += canh_bao_d
         cu_dung_toi.update(item.cu.id for item in plan.items)
-        cache[khoa] = {"pq": moi[d.so], "canh_bao": canh_bao_d,
+        cache[khoa] = {"pq": pq_d, "canh_bao": canh_bao_d,
                        "cu_dung_toi": [item.cu.id for item in plan.items]}
         cache_path.write_text(json.dumps(cache, ensure_ascii=False), encoding="utf-8")
 
