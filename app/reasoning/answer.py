@@ -19,7 +19,19 @@ _QA_SYSTEM = (
     "vuông, ví dụ [Thông tư 40/2024 — Điều 12 Khoản 1]. Nếu một căn cứ được ghi chú là đã "
     "bị sửa đổi hoặc bãi bỏ, phải nói rõ điều đó và ưu tiên phần 'Bản hiện hành' nếu có — "
     "không trình bày lời văn cũ như đang có hiệu lực. Nếu không đủ căn cứ, nói rõ "
-    "là chưa tìm thấy quy định phù hợp. Trả lời bằng tiếng Việt, ngắn gọn, chính xác."
+    "là chưa tìm thấy quy định phù hợp. "
+    # T109 Phase 1: lỗi chủ đạo là trích-xuất-THIẾU từ điều đã lấy đúng (chẩn đoán 16/08,
+    # 18/19 câu "thiếu" của judge SBV). Bỏ "ngắn gọn" (thủ phạm lược bớt); ép liệt-kê-đủ,
+    # kèm vế chặn để completeness không đẻ ra nội dung ngoài căn cứ (EvidenceMismatch).
+    "Khi điều được dẫn liệt kê nhiều khoản/điểm/trường hợp/điều kiện, phải nêu ĐẦY ĐỦ tất cả "
+    "các mục đó — không tự lược bớt mục nào; nhưng KHÔNG thêm nội dung nằm ngoài các điều khoản "
+    "được cung cấp. "
+    # T109 Phase 1b: "đủ ý" ban đầu khiến model KHẲNG ĐỊNH phủ định (qid 19, 33: "không có quy
+    # định") cho chi tiết có thật nhưng không được retrieve → thiếu (an toàn) hoá sai (mâu thuẫn).
+    # Rào: thiếu căn cứ thì nói CHƯA NÊU, không nói KHÔNG TỒN TẠI.
+    "Nếu câu hỏi hỏi một chi tiết mà các điều khoản được cung cấp không nêu, hãy nói rõ 'các căn "
+    "cứ hiện có chưa nêu chi tiết này' — TUYỆT ĐỐI không khẳng định chi tiết đó không tồn tại hay "
+    "không được pháp luật quy định. Trả lời bằng tiếng Việt, chính xác, đủ ý."
 )
 
 _CHECKLIST_SYSTEM = (

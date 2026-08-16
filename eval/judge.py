@@ -178,17 +178,19 @@ def main() -> None:
     cases = nap(BO)
     refs = _ref_answers()
 
+    # Xoá CẢ HAI cache TRƯỚC pha sinh. Nếu chỉ xoá verdict cache ở pha chấm (như trước), một cú
+    # kill giữa pha sinh để verdict cache cũ còn nguyên → resume thường đọc verdict CŨ cho câu trả
+    # lời MỚI, báo số sai mà không lộ ra. Xoá sớm cả hai để --sinh-lai luôn cho lượt đo sạch.
+    vcache = RESULTS_DIR / "cache-judge-sbv.jsonl"
     if args.sinh_lai:
         CACHE.unlink(missing_ok=True)
+        vcache.unlink(missing_ok=True)
     print(f"Sinh/bù câu trả lời cho {len(cases)} câu (đường sản phẩm, cache {CACHE.name})…")
     answers = sinh_cau_tra_loi(cases)
 
     # Pha chấm cũng checkpoint: verdict LLM ~12s/câu, mất khi nền bị kill thì phí. Khoá theo
-    # question_id (duy nhất từng dòng -> không khử trùng). --sinh-lai xoá cả cache verdict.
+    # question_id (duy nhất từng dòng -> không khử trùng).
     by_qid = {c.tho.get("question_id"): c for c in cases}
-    vcache = RESULTS_DIR / "cache-judge-sbv.jsonl"
-    if args.sinh_lai:
-        vcache.unlink(missing_ok=True)
     da_cham = {}
     if vcache.exists():
         for line in vcache.read_text(encoding="utf-8").splitlines():

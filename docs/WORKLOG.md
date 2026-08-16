@@ -33,9 +33,16 @@ nghiệm — không đụng đường sản phẩm, không đụng regression ga
   Rerank-fusion (giữ R@5) cứu ≤1/19 → gần vô ích. Sắc lại T109: thêm chiều **completeness** (liệt-kê-đủ),
   rộng hơn HasCitations/EvidenceMismatch. Đã ghi vào T109 + T114.
 
+- **T109 Phase 1 XONG — sửa prompt, thắng.** `_QA_SYSTEM`: bỏ "ngắn gọn", ép liệt-kê-đủ + rào chống
+  phủ-định (thiếu căn cứ → "chưa nêu", không "không tồn tại"). Đo `judge.py` SBV: **dung 79→86, sai 2→1,
+  ngữ nghĩa 0.885→0.925**, khớp-trích-dẫn 0.990 y nguyên (không đẻ hallucination). Bản 1a ("đủ ý" trần)
+  từng đẩy 2 câu thành sai do khẳng định phủ-định chi tiết chưa retrieve; 1b (rào chống) kéo về an toàn.
+  Caveat: judge 1-phiếu, ~3 câu churn là nhiễu; `dung` ổn định 86 qua 2 lần sinh → +7 là thật. Tiện tay
+  sửa **bug checkpoint judge.py** (xoá verdict cache muộn → kill giữa pha sinh để lại verdict cũ).
+
 **Ship:** không đổi runtime; Modal app chỉ là bàn đo, không phải dịch vụ sản phẩm. **Decision:** rerank
-nếu làm thì dùng Cohere API, bỏ hướng self-host ViRanker; ưu tiên T109 (generation/completeness) trước —
-lỗi thật là trích-xuất-thiếu, không phải retrieval. **Next:** T109 (completeness check); T117 (VLQA nếu chủ repo chốt).
+nếu làm thì dùng Cohere API, bỏ hướng self-host ViRanker; T109 Phase 1 (sửa prompt) đã cải thiện
+generation. **Next:** T109 Phase 2 (hậu kiểm HasCitations/EvidenceMismatch/completeness); T117 (VLQA nếu chủ repo chốt).
 
 ## 2026-08-15 — đo trọn bộ SBV 100 câu (IR + regression + Correctness); khảo sát VLQA
 

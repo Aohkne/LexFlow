@@ -643,6 +643,14 @@ bằng chứng ⇒ từ chối trả lời. LexFlow chỉ **dặn** trong system
   không bắt được kiểu lỗi này. Cần thêm phép hậu kiểm "đã liệt kê đủ các mục/điều kiện trong điều đã
   dẫn chưa?" (vd so số gạch đầu dòng của câu trả lời với số khoản/điểm của điều được trích), hoặc chỉnh
   prompt sinh để liệt-kê-đủ. Đây là hướng chạm đúng ~20/21 câu chưa hoàn hảo (18 thiếu + 2 sai).
+- **Phase 1 XONG (16/08) — sửa prompt, thắng.** `_QA_SYSTEM` (`answer.py`): bỏ "ngắn gọn", ép liệt-kê-đủ
+  + rào chống phủ-định (thiếu căn cứ → nói "chưa nêu", không nói "không tồn tại"). Đo `judge.py` bộ SBV:
+  **dung 79→86, sai 2→1, ngữ nghĩa 0.885→0.925**, khớp-trích-dẫn 0.990 y nguyên. Chi tiết + caveat nhiễu
+  1-phiếu: `EVAL-IR.md` §12 "Phase 1". (Tiện thể sửa bug checkpoint judge.py: `--sinh-lai` xoá verdict
+  cache muộn ở pha chấm → kill giữa pha sinh để lại verdict cũ; nay xoá cả hai trước pha sinh.)
+- **Phase 2 CÒN MỞ:** hậu kiểm sau `chat()` trong `build_answer` trả cờ cảnh báo (không chặn cứng):
+  HasCitations (regex) · EvidenceMismatch (trích dẫn khớp Citation đã retrieve) · completeness (đếm
+  khoản/điểm nguồn vs mục answer). Bước đầu: HasCitations rẻ nhất, đo tỷ lệ rớt trước khi quyết chặn.
 
 ### [ ] T110 · Corpus phủ 4/37 văn bản mà bộ eval TVPL hỏi tới
 

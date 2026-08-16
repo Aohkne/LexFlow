@@ -566,6 +566,28 @@ Bài báo dùng **2 annotator người** chấm Correctness; ta dùng **LLM-judg
 "chất lượng câu trả lời trên đúng 100 câu của bài báo, đo bằng LLM-judge tái lập được", không phải
 điểm so ngang bảng Correctness của họ.
 
+### Phase 1 (T109) — sửa prompt completeness, đo lại (16/08)
+
+Chẩn đoán 19 câu "thiếu": **18/19 chỉ 1 điều vàng**, **19/19 trích dẫn đúng** → lỗi **trích-xuất-thiếu
+từ điều đã lấy đúng**, thuần generation. Thủ phạm: `_QA_SYSTEM` dặn *"ngắn gọn"*. Sửa 2 bước (đo bằng
+chính `judge.py`, cùng thước → so được delta):
+
+- **1a** — bỏ "ngắn gọn", ép *"liệt kê ĐẦY ĐỦ mọi khoản/điểm; KHÔNG thêm ngoài căn cứ"*.
+- **1b** — thêm **rào chống phủ-định**: thiếu căn cứ thì nói *"chưa nêu chi tiết này"*, không khẳng định
+  *"không tồn tại"* (1a khiến qid 19, 33 nói "không có quy định" cho chi tiết chưa retrieve → thiếu hoá **sai**).
+
+| | dung | thiếu | sai | ngữ nghĩa TB |
+|---|---|---|---|---|
+| BEFORE (prompt "ngắn gọn") | 79 | 19 | 2 | 0.885 |
+| 1a (đủ ý) | 86 | 10 | 4 | 0.910 |
+| **1b (+ rào chống phủ-định) — GIỮ** | **86** | 13 | **1** | **0.925** |
+
+1b vs BEFORE: **dung +7, sai 2→1, ngữ nghĩa +4pt**, khớp-trích-dẫn 0.990 y nguyên (không đẻ hallucination).
+Rào chống phủ-định cứu 6 câu so với 1a (gồm qid 19, 33 sai→thiếu). `dung` ổn định 86 qua **hai** lần
+sinh độc lập → +7 là thật. **Caveat:** judge 1-phiếu, ~3 câu churn 1a↔1b nằm trong nhiễu (qid 35 lật
+sai→dung→sai qua 3 lần = nhiễu judge). Phase 2 (hậu kiểm HasCitations/EvidenceMismatch/completeness)
+để mở — xem `T109`.
+
 ## 13. Thí nghiệm rerank (T114) — cross-encoder có đáng host không?
 
 Câu hỏi cần trả lời trước khi dựng hạ tầng reranker (Modal/API) cho production: rerank top-20 hybrid
