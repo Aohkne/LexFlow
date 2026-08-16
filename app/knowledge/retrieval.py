@@ -61,8 +61,8 @@ def _bat_fts(tbl, query: str, *, pool: int, where: str | None = None) -> list[di
         return []
 
 
-def _open_table():
-    return vectordb.connect().open_table(LANCEDB_TABLE)
+def _open_table(table: str = LANCEDB_TABLE):
+    return vectordb.connect().open_table(table)
 
 
 @lru_cache(maxsize=256)
@@ -113,9 +113,12 @@ def _rrf(
 
 @observe(name="retrieval.hybrid", as_type="retriever")
 def hybrid_search(
-    query: str, *, top_k: int = 6, as_of: str | None = None, effective_only: bool = True
+    query: str, *, top_k: int = 6, as_of: str | None = None, effective_only: bool = True,
+    table: str = LANCEDB_TABLE,
 ) -> list[dict]:
-    tbl = _open_table()
+    # `table` != mặc định chỉ dùng cho nhánh eval tách corpus (VLQA, T117) — đường sản phẩm
+    # không truyền nên vẫn đọc bảng "chunks", hành vi không đổi.
+    tbl = _open_table(table)
     pool = max(top_k * 3, 15)
 
     qv = list(_qv(query))

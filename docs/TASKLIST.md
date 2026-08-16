@@ -841,6 +841,18 @@ public/private test 312 / 627 câu (nhãn rỗng — nộp)
 - **Bước đầu**: viết spec→plan (chạm ingest/schema/infra — task ảnh hưởng lớn), rồi adapter
   `legal_corpus.json` → CorpusDocument giữ `aid`, ingest LanceDB (skip Neo4j), đo IR trên
   `train.json` 2.190 câu bằng `eval/metrics.py` trước khi nộp `public_test.json`.
+- **Xác minh aid (16/08):** aid là **id điều TOÀN CỤC** 0..59.635 (duy nhất, liên tục across corpus) —
+  một mình aid định danh điều; `relevant_laws` = tập aid cần đoán. 1 doc có `content` rỗng (bỏ qua).
+  `content_Article` không có "Điều N" → dùng `article=str(aid)`, recover aid = số đầu nhãn (`_split_khoan`
+  giữ tiền tố). Khớp metric = exact aid.
+- **Tách LanceDB:** bảng RIÊNG `chunks_vlqa` (không phải cột cờ) — cô lập vector + FTS, `chunks` sản phẩm
+  không đụng. Cách hiện thực: thêm param `table` (mặc định `LANCEDB_TABLE`) vào `_open_table`+`hybrid_search`;
+  ingest tái dùng `build_chunks`+`_embed_rows` ghi bảng khác. Product byte-identical (934 test + gate 36/36).
+- **STAGE A XONG (16/08) — máy móc chứng minh.** `eval/vlqa_adapter.py`+`vlqa_ingest.py`+`vlqa_eval.py`
+  (+ test). Ingest slice 60 doc → 2.170 chunk; IR trên 58 câu train: R@1 0.674 · R@5 0.885 · R@20 0.932 ·
+  MRR 0.851 (LẠC QUAN vì slice nhỏ ít distractor — không phải số thật). aid round-trip đúng.
+- **STAGE B (chờ duyệt — ~$4):** ingest full 2.157 doc vào `chunks_vlqa` → đo IR full train (2.190 câu,
+  số thật) → dựng file nộp `public_test`/`private_test` (`vlqa_eval.py --nop`). Canh FTS rebuild scale (T116).
 
 ---
 
