@@ -6,6 +6,29 @@
 
 ---
 
+## 2026-08-16 (T7) — tư vấn pháp chế thật hoá ra là đề eval hỏi đáp; sơ đồ luồng compliance
+
+- **Done (rà `docs/compliance/tu_van_phap_ly.md` — thuộc bài toán nào?).** 2 ca tư vấn
+  pháp chế thật về Mobile Money (local-only, gitignored). Kết luận: **nghiêng hẳn nhánh
+  hỏi đáp** — dạng «tình huống nghiệp vụ → ý kiến kèm căn cứ», không phải hợp đồng có
+  Điều/Khoản nên pipeline compliance không ăn trực tiếp được. Giá trị thật: ~5 cặp hỏi–đáp
+  do pháp chế ngân hàng soạn (nhãn người ngoài dự án — đúng thứ benchmark tự sinh thiếu).
+  Chốt chặn đo 16/08: 3/4 văn bản viện dẫn **ngoài corpus** (`368/2025/NĐ-CP ·
+  64/2024/TT-NHNN · 77/2025/TT-NHNN`; chỉ TT40-2024 đã có, kèm 92 bản ghi ontology).
+  Ghi thành **T27** kèm ràng buộc không commit dữ liệu dẫn xuất (commit `8fd717e`).
+- **Done (sơ đồ luồng compliance đầy đủ).** Artifact một trang vẽ từ mã thật (không vẽ theo
+  trí nhớ): parse → ER-triples → hypernym → gate tất định 3 nguồn ứng viên → judge 2+1
+  phiếu → override miễn trừ; đánh dấu riêng các điểm gọi LLM và nhánh chỉ chạy khi
+  `vi_pham`. Dùng để trình bày hệ thống không cần mở code.
+- **Ship.** Không deploy. Push 5 commit lên PR #19 (chủ repo duyệt,
+  `9c71656..8fd717e`) — gồm 4 commit tối 13/08 (CU mới + 2 vá retry LanceDB + quy nguyên
+  nhân miss) và T27.
+- **Decision.** Không mở dạng task mới «đánh giá tuân thủ mức quy trình» cho 2 ca tư vấn —
+  để chúng làm eval hỏi đáp sau khi nạp 3 văn bản trên (xếp vào đợt nạp 840).
+- **Next.** 3 mục T26 theo thứ tự rẻ→đắt: sửa 2 bản ghi CU lỗi cứng (gỡ miss #30) →
+  gate mức toàn-hợp-đồng cho CU «nội dung tối thiểu» (gỡ #194) → cân nhắc nối premise
+  vào judge (#13/#35, cần bàn schema).
+
 ## 2026-08-13 (T4) — POC GraphCompliance chạy thật: recall 0/4 cả hai đường, và con số 0 biết nói
 
 - **Done (POC GraphCompliance, 11→13/08, nhánh `feat/ai-compliance`).** 14 task
