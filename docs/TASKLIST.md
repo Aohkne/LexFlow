@@ -285,8 +285,16 @@ máy kill job nền 4 lần giữa chừng).
   bắt qua TT18-**Đ9** ở lượt toàn văn (gold chỉ ghi `van_ban` mức số hiệu, luật sư viện dẫn
   Đ3 — định nghĩa Đ3 judge chấm `tuan_thu` thật); #13 sót vì judge đánh giá thật định nghĩa
   NĐ52-Đ3 và kết luận `tuan_thu` — **bất đồng phán định**, không phải lỗ hổng độ phủ.
-- **Còn mở:** 50 verdict "LLM bỏ sót" còn lại ở ThuHo (điều có plan lớn) — cân nhắc chẻ
-  prompt theo lô CU; và #13 cần người đọc lại comment gốc để phân xử judge vs luật sư.
+- ~~**Còn mở:** 50 verdict "LLM bỏ sót" còn lại ở ThuHo (điều có plan lớn) — cân nhắc chẻ
+  prompt theo lô CU; và #13 cần người đọc lại comment gốc để phân xử judge vs luật sư.~~
+  **Đã gỡ 16/08 (tối), commit `ae1648a` — 0 "bỏ sót" ở cả hai báo cáo, recall giữ 1/1 · 2/3.**
+  Ba nguyên nhân đo được (probe raw từng lời gọi): (1) model thoái hoá Ở CUỐI — JSON hoàn
+  chỉnh kèm đuôi rác lặp, `json.loads` vỡ vì Extra data → `chat_json` nay `raw_decode` lấy
+  object đầu; (2) prompt 24 CU làm model chạy loạn 236k ký tự rồi đứt ở trần token —
+  `phan_dinh` nay chẻ lô ≤8 mục/lời gọi; (3) ThuHo có HAI điều trùng "số 4" (heading gõ tay)
+  — dict verdict khoá theo số bị ghi đè mất trắng điều trước, nay gộp thay vì gán.
+  **Còn mở duy nhất:** #13 — người đọc lại comment gốc để phân xử judge (`tuan_thu` có căn
+  cứ) vs luật sư (đánh dấu pháp lý).
 
 ### [ ] T27 · 2 ca tư vấn pháp chế thật — nguồn eval hỏi đáp, nhưng 3/4 văn bản viện dẫn ngoài corpus
 

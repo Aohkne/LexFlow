@@ -41,8 +41,16 @@
   vừa sửa) · PAYFAC 2/3 (#194 trúng TT40-Đ8 ở lượt toàn văn; #35 qua TT18-Đ9 toàn văn —
   khớp mức văn bản, luật sư viện dẫn Đ3; #13 sót vì judge chấm định nghĩa `tuan_thu` thật
   — bất đồng phán định, không phải độ phủ). Vượt mốc ≥2/4 của kế hoạch Sprint 3.
-- **Next.** 2 commit mới chưa push (chờ duyệt); còn mở: 50 verdict "bỏ sót" ở điều plan
-  lớn của ThuHo; #13 cần người phân xử judge vs luật sư (chi tiết ở T26).
+- **Done (gỡ nốt 50 verdict "LLM bỏ sót" — 0 còn lại, recall giữ 1/1 · 2/3).** Probe raw
+  từng lời gọi hỏng thay vì đoán: (1) model thoái hoá Ở CUỐI response — JSON hoàn chỉnh
+  kèm đuôi rác lặp, `chat_json` nay salvage bằng `raw_decode`; (2) prompt 24 CU → model
+  chạy loạn 236k ký tự, đứt ở trần token — judge nay chẻ lô ≤8 mục/lời gọi; (3) ThuHo có
+  hai điều trùng "số 4" (heading gõ tay) → dict verdict ghi đè mất trắng điều trước, nay
+  gộp. Commit `ae1648a`, 870 test xanh. Đẩy đợt push trước đó: `7123b13..c94f05a` đã lên
+  PR #19 (chủ repo duyệt).
+- **Next.** Chờ chủ repo: duyệt push `ae1648a` + đợt docs; phân xử #13 (judge `tuan_thu`
+  có căn cứ vs luật sư đánh dấu pháp lý); chốt hướng schema định nghĩa-vào-judge. Corpus
+  840 hoãn theo quyết định 16/08 (chờ bộ eval SVB bên nhánh ai).
 
 ## 2026-08-13 (T4) — POC GraphCompliance chạy thật: recall 0/4 cả hai đường, và con số 0 biết nói
 
