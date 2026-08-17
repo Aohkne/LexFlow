@@ -28,7 +28,22 @@
 - **Done (prompt mô tả hệ thống cho Claude Design).** Soạn prompt kiến trúc đầy đủ (3
   nguồn dữ liệu, 4 giai đoạn, điểm LLM vs tất định, checkpoint/resume) — chỉ tên module +
   số đo, không nội dung hợp đồng.
-- **Next.** T28 (test đỏ trước); corpus 840 vẫn hoãn chờ bộ eval SVB (nhánh ai).
+- **Done (T28 — khớp gần thuật ngữ trong gate, TDD test-đỏ-trước).** Bản đầu (bỏ token
+  bất kỳ) làm plan phình +27/+29 toàn khớp oan → siết còn **chỉ bỏ đuôi 1-2 token, phần
+  còn lại ≥4 token** → delta +1/+3, trúng đích: định nghĩa k18 vào plan Điều 2 PAYFAC
+  (điều đó vẫn viết cụm thiếu "điện tử" — luật sư chỉ sửa ở điều định nghĩa); judge nhìn
+  thấy, chấm `tuan_thu` (dễ tính với tên gọi). Khoá cache per-điều nay băm thêm
+  `khainiem.jsonl` + `PHIEN_BAN_GATE`.
+- **Hai bug lộ khi chấm lại từ đầu (vá + test, 876 xanh):** (1) "LLM bỏ sót" là lỗi ngẫu
+  nhiên theo lời gọi — 16/08 ra 0 là may, 17/08 ra 20/2655 → judge thêm vòng retry hỏi
+  lại đúng id sót; (2) Đ23 PAYFAC hỏng lặp có hệ thống: model quote luật có xuống dòng
+  thật trong chuỗi JSON, strict JSON vỡ cả phiếu dù JSON hoàn chỉnh → `chat_json` parse
+  `strict=False`. Sau vá: **0 bỏ sót cả hai báo cáo**.
+- **Số chốt 17/08: ThuHo 1/1 · PAYFAC 1/3.** #194 mất ghi công vì verdict biên TT40-Đ8-k7
+  lật `thieu_thong_tin`→`khong_ap_dung` giữa hai lần chạy (temp 0 vẫn trôi; với hợp đồng
+  không có ví thì nhãn mới đúng hơn — ghi công cũ may mắn). Mở **T29** đo tần suất lật.
+- **Next.** T29 (chạy toàn-văn PAYFAC ~5 lần đo lật k7); corpus 840 vẫn hoãn chờ bộ eval
+  SVB (nhánh ai).
 
 ## 2026-08-16 (T7) — tư vấn pháp chế thật hoá ra là đề eval hỏi đáp; sơ đồ luồng compliance
 

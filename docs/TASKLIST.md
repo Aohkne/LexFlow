@@ -327,7 +327,7 @@ mỗi ca gồm mô tả quy trình → câu hỏi → ý kiến kèm căn cứ �
   «Nạp đầy đủ văn bản»); sau khi ingest xong mới chuyển ~5 cặp hỏi–đáp thành file eval — nhớ
   ràng buộc **không commit dữ liệu dẫn xuất từ tài liệu nội bộ** (cùng lệ với gold.jsonl).
 
-### [ ] T28 · Khớp thuật ngữ mờ trong `khai_niem_lien_quan` — bắt ca hợp đồng viết lệch một từ
+### [x] T28 · Khớp thuật ngữ mờ trong `khai_niem_lien_quan` — bắt ca hợp đồng viết lệch một từ
 
 Sinh ra từ phân xử #13 (17/08). `khai_niem_lien_quan` (`app/compliance/gate.py:191`) hiện chỉ
 chọn định nghĩa khi thuật ngữ **nằm nguyên văn** trong điều hợp đồng hoặc **trùng đúng** một
@@ -351,6 +351,44 @@ nếu embedding may mắn map về đúng cụm. Tức chính ca mà cơ chế �
   tập-con token cho test xanh. Sau đó chạy lại 2 báo cáo, xem plan có phình (định nghĩa rác
   khớp mờ) không — nếu phình thì siết ngưỡng trước khi nghĩ tiếp.
 - Ràng buộc: chọn lọc phải **tất định** (gate không LLM) để cache theo khoá sha1 còn đúng.
+
+**Làm xong 17/08 (cùng ngày mở), TDD đúng trình tự test-đỏ-trước.** Kết quả đo:
+
+- Bản đầu (cho bỏ token bất kỳ 1-2 vị trí) làm plan **phình +27/+29** định nghĩa trên 2 hợp
+  đồng — toàn khớp oan kiểu "Chủ [tài] khoản thanh toán"→"tài khoản thanh toán". Siết còn
+  **chỉ bỏ đuôi, phần còn lại ≥4 token** → delta **+1 (ThuHo) / +3 (PAYFAC)**, trong đó có
+  đúng ca nhắm tới: **k18 vào plan Điều 2 PAYFAC** — điều đó vẫn viết cụm thiếu "điện tử"
+  (luật sư chỉ sửa ở điều định nghĩa). Judge nhìn thấy và chấm `tuan_thu` (coi mô tả dịch
+  vụ khớp khái niệm, tên gọi thiếu từ không đáng phạt) — mục tiêu "gate không che mắt
+  judge" đạt; độ khó tính về tên gọi là chuyện prompt judge, chưa mở.
+- Khoá cache per-điều nay băm thêm `khainiem.jsonl` + `PHIEN_BAN_GATE` (gate.py) — T28 lộ
+  ra khoá cũ chỉ băm pred nên đổi cách chọn định nghĩa thì cache vẫn hit nhầm.
+- **Hai bug lộ ra khi chấm lại từ đầu (đều vá + test, 876 xanh):** (1) "LLM bỏ sót" là lỗi
+  NGẪU NHIÊN theo lời gọi chứ chưa bị chặn hẳn — lượt 16/08 ra 0 là may, lượt 17/08 ra
+  20/2655; judge nay có **vòng retry hỏi lại đúng các id sót** (lô nhỏ), sót lần hai mới
+  chịu `thieu_thong_tin`. (2) Đ23 PAYFAC hỏng lặp lại có hệ thống: model quote văn bản luật
+  có **xuống dòng thật trong chuỗi JSON** — strict JSON cấm control char, cả phiếu mất
+  trắng dù JSON hoàn chỉnh, temp 0 nên retry lặp y hệt; `chat_json` nay parse
+  `strict=False`. Sau hai vá: **0 "bỏ sót" ở cả hai báo cáo**.
+- Recall chốt 17/08: **ThuHo 1/1 · PAYFAC 1/3** — #13 là lệch phiên bản gold/input (đã phân
+  xử), #194 mất ghi công vì verdict biên lật giữa hai lần chạy → tách thành **T29**.
+
+### [ ] T29 · Recall dao động giữa các lần chạy — verdict biên `thieu_thong_tin ↔ khong_ap_dung`
+
+Đo 17/08 khi chấm lại toàn bộ (khoá cache đổi): lượt toàn-văn PAYFAC, CU TT40-Đ8-**k7**
+(nội dung hợp đồng về ví điện tử) đổi từ `thieu_thong_tin` (16/08, có ghi công #194) sang
+`khong_ap_dung` (17/08, mất ghi công) → recall PAYFAC nhảy 2/3 ↔ 1/3 dù prompt, CU, văn
+bản y hệt và temperature 0. Hai nhãn đều là "không kết luận được áp dụng" nhưng quy tắc
+recall chỉ đếm một — với hợp đồng không có nghiệp vụ ví thì `khong_ap_dung` thật ra đúng
+hơn, tức ghi công cũ thuộc diện may mắn ở ranh giới.
+
+- Bản chất: đây là dao động của **metric trên verdict biên**, không phải bug pipeline —
+  self-consistency 2+1 ổn trong một lần chạy nhưng không ổn giữa các lần chạy (Gemini
+  temp 0 vẫn trôi nhẹ).
+- **Bước đầu tiên:** chạy riêng lượt toàn-văn PAYFAC ~5 lần (chỉ tốn vài lời gọi judge,
+  không cần chấm cả hợp đồng), đo tần suất lật của k7. Lật thường xuyên → cân nhắc: luôn
+  3 phiếu cho lượt toàn-văn, hoặc báo cáo recall dạng khoảng thay vì điểm; hiếm → ghi
+  nhận biên và giữ nguyên.
 
 ---
 
