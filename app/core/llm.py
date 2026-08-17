@@ -74,15 +74,19 @@ def chat_json(
     )
     resp = client.models.generate_content(model=model, contents=prompt, config=cfg)
     text = (resp.text or "{}").strip()
+    # strict=False: model hay quote văn bản luật có XUỐNG DÒNG THẬT trong chuỗi
+    # ("...quy định tại\nĐiều 12...") — JSON strict cấm control char trong string,
+    # cả phiếu mất trắng dù JSON hoàn chỉnh; temp 0 nên retry lặp y hệt (judge
+    # PAYFAC Đ23, 17/08).
     try:
-        return json.loads(text)
+        return json.loads(text, strict=False)
     except json.JSONDecodeError:
         # Model đôi khi thoái hoá Ở CUỐI: JSON hoàn chỉnh rồi kèm đuôi rác lặp
         # ("...}]}\nluật]\"}]}\n]}\"]}" — ca thật judge PAYFAC Đ21, 16/08). loads
         # vỡ vì Extra data và cả lô verdict mất trắng; raw_decode lấy object đầu
         # tiên, bỏ đuôi. Cụt GIỮA chừng thì raw_decode cũng vỡ → giữ _raw như cũ.
         try:
-            obj, _ = json.JSONDecoder().raw_decode(text)
+            obj, _ = json.JSONDecoder(strict=False).raw_decode(text)
         except json.JSONDecodeError:
             return {"_raw": text}
         return obj if isinstance(obj, dict) else {"_raw": text}

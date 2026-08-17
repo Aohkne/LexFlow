@@ -95,6 +95,37 @@ def test_plan_lon_che_lo_8(monkeypatch):
     assert max(p.count("- id=") for p in prompts) <= 8
 
 
+def test_bo_sot_duoc_hoi_lai_dung_id_do(monkeypatch):
+    # Đo 17/08: model vẫn rơi id trong lô ≤8 (20/2655 verdict) — vòng retry hỏi
+    # lại ĐÚNG id sót phải cứu được verdict, và prompt retry chỉ mang id đó.
+    ids = [f"A/1#than/dieu_5#khoan_{i}" for i in range(1, 4)]
+    plan = CUPlan(items=[
+        PlanItem(cu=ActorCU.model_validate(_actor(i)), ly_do="t") for i in ids
+    ], ghi_chu=[])
+    prompts = []
+
+    def _fake(prompt, **_k):
+        prompts.append(prompt)
+        tra = ids if len(prompts) > 2 else ids[:-1]  # 2 phiếu đầu sót id cuối
+        return {"phan_quyet": [{"cu_id": i, "verdict": "tuan_thu", "can_cu": "x",
+                                "quote_hop_dong": "", "quote_luat": ""} for i in tra]}
+
+    monkeypatch.setattr(judge_mod, "chat_json", _fake)
+    ra = phan_dinh("text", plan, _pg_rong())
+
+    assert [r.verdict for r in ra] == ["tuan_thu"] * 3
+    assert not any("bỏ sót" in r.can_cu for r in ra)
+    # 2 phiếu đầu bất đồng trên id sót → phiếu 3; retry lô 1 id: 2 phiếu đồng thuận
+    assert prompts[3].count("- id=") == 1 and ids[-1] in prompts[3]
+
+
+def test_bo_sot_ca_vong_retry_thi_ve_thieu_thong_tin(monkeypatch):
+    plan = _plan_mot_cu()
+    monkeypatch.setattr(judge_mod, "chat_json", lambda *a, **k: {"phan_quyet": []})
+    ra = phan_dinh("text", plan, _pg_rong())
+    assert ra[0].verdict == "thieu_thong_tin" and "bỏ sót" in ra[0].can_cu
+
+
 _KN_ID = "A/1#than/dieu_3#khoan_2"
 
 

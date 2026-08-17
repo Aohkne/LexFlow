@@ -19,6 +19,7 @@ from app.core.llm import chat_json
 from app.ontology.schema import ActorCU
 
 _VERDICTS = {"tuan_thu", "vi_pham", "thieu_thong_tin", "khong_ap_dung"}
+_CAN_CU_BO_SOT = "LLM bỏ sót CU này"
 _SYSTEM = (
     "Bạn là chuyên gia pháp chế ngân hàng. Đối chiếu MỘT điều khoản hợp đồng với "
     "danh sách Compliance Unit (CU) trích từ luật. Với TỪNG CU trả verdict:\n"
@@ -118,7 +119,7 @@ def _da_so(cu_id: str, recs: list[dict | None]) -> PhanQuyet:
                 quote_hop_dong=rec.get("quote_hop_dong") or "",
                 quote_luat=rec.get("quote_luat") or "",
             )
-    can_cu = "LLM bỏ sót CU này" if any(r is None for r in recs) else (
+    can_cu = _CAN_CU_BO_SOT if any(r is None for r in recs) else (
         "các lượt phán định không đồng nhất"
     )
     return PhanQuyet(cu_id=cu_id, verdict="thieu_thong_tin", can_cu=can_cu,
@@ -153,6 +154,25 @@ _LO_TOI_DA = 8
 
 
 def phan_dinh(text_dieu_hd: str, plan: CUPlan, pg: PolicyGraph) -> list[PhanQuyet]:
+    ra = _phan_dinh_cac_lo(text_dieu_hd, plan, pg)
+    # Model vẫn thỉnh thoảng rơi id ngay trong lô ≤8 (đo 17/08: 20/2655 verdict,
+    # lượt 16/08 ra 0 chỉ là may) — hỏi lại ĐÚNG các id bị sót một vòng, lô nhỏ
+    # nên gần như luôn đủ; sót lần hai mới chịu thieu_thong_tin.
+    hong = {p.cu_id for p in ra if p.can_cu == _CAN_CU_BO_SOT}
+    if hong:
+        plan_lai = CUPlan(
+            items=[i for i in plan.items if i.cu.id in hong], ghi_chu=[],
+            dinh_nghia=[k for k in plan.dinh_nghia if k.id in hong],
+        )
+        sua = {
+            p.cu_id: p for p in _phan_dinh_cac_lo(text_dieu_hd, plan_lai, pg)
+            if p.can_cu != _CAN_CU_BO_SOT
+        }
+        ra = [sua.get(p.cu_id, p) for p in ra]
+    return ra
+
+
+def _phan_dinh_cac_lo(text_dieu_hd: str, plan: CUPlan, pg: PolicyGraph) -> list[PhanQuyet]:
     muc = [("cu", i) for i in plan.items] + [("dn", k) for k in plan.dinh_nghia]
     ra: list[PhanQuyet] = []
     for dau in range(0, len(muc), _LO_TOI_DA):

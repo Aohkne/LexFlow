@@ -25,6 +25,14 @@ def test_json_sach_khong_doi_hanh_vi(monkeypatch):
     assert llm.chat_json("x") == {"a": 1}
 
 
+def test_xuong_dong_that_trong_chuoi_van_parse_duoc(monkeypatch):
+    # Ca thật (judge PAYFAC Đ23, 17/08): model quote văn bản luật có xuống dòng
+    # THẬT trong string — JSON strict cấm control char, cả phiếu mất trắng và
+    # temp 0 nên retry lặp y hệt. strict=False phải cứu được.
+    _gia_lap_resp(monkeypatch, '{"quote_luat": "quy định tại\nĐiều 12"}')
+    assert llm.chat_json("x") == {"quote_luat": "quy định tại\nĐiều 12"}
+
+
 def test_cut_giua_chung_van_tra_raw(monkeypatch):
     # JSON đứt giữa chừng (không phải đuôi rác) — raw_decode cũng vỡ → giữ _raw
     _gia_lap_resp(monkeypatch, '{"phan_quyet": [{"cu_id": "A", "verd')
