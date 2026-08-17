@@ -203,6 +203,41 @@ def test_khai_niem_lien_quan_cat_co_ghi_chu():
     assert any("khớp 5" in g for g in ghi_chu)
 
 
+def test_khai_niem_khop_gan_bat_ca_thieu_tu():
+    # Tái hiện #13 (phân xử 17/08): hợp đồng gốc viết "dịch vụ cổng thanh toán"
+    # thiếu "điện tử" — đường nguyên văn trượt, định nghĩa k18 không bao giờ
+    # vào plan, judge không có cơ hội nhìn thấy.
+    from app.compliance.gate import khai_niem_lien_quan
+    pg = PolicyGraph([], [], [
+        _kn("52/2024/NĐ-CP#than/dieu_3#khoan_18", "Dịch vụ cổng thanh toán điện tử"),
+        _kn("A/1#than/dieu_3#khoan_1", "Séc"),  # không liên quan → không được khớp oan
+    ])
+    text = "Bên B cung ứng dịch vụ cổng thanh toán cho Ngân hàng theo Hợp đồng này."
+    khop, ghi_chu = khai_niem_lien_quan(text, [], pg)
+    assert [k.id for k in khop] == ["52/2024/NĐ-CP#than/dieu_3#khoan_18"]
+    assert any("khớp gần" in g and "khoan_18" in g for g in ghi_chu)
+
+
+def test_khop_gan_khong_ap_cho_thuat_ngu_ngan():
+    # Thuật ngữ 3 token mà cho bỏ bớt từ thì "Ví điện tử" khớp mọi chỗ có "ví" —
+    # dưới 4 token chỉ được khớp nguyên văn.
+    from app.compliance.gate import khai_niem_lien_quan
+    pg = PolicyGraph([], [], [_kn("A/1#than/dieu_3#khoan_1", "Ví điện tử")])
+    khop, ghi_chu = khai_niem_lien_quan("Khách hàng dùng ví để thanh toán.", [], pg)
+    assert khop == [] and ghi_chu == []
+
+
+def test_khop_nguyen_van_uu_tien_truoc_khop_gan_khi_cat():
+    from app.compliance.gate import khai_niem_lien_quan
+    pg = PolicyGraph([], [], [
+        _kn("A/1#than/dieu_3#khoan_1", "Dịch vụ cổng thanh toán điện tử"),  # khớp gần
+        _kn("A/1#than/dieu_3#khoan_2", "Ví điện tử"),  # khớp nguyên văn
+    ])
+    text = "Nạp tiền vào ví điện tử qua dịch vụ cổng thanh toán."
+    khop, _ = khai_niem_lien_quan(text, [], pg, gioi_han=1)
+    assert [k.thuat_ngu for k in khop] == ["Ví điện tử"]
+
+
 def test_subject_khop_hypernym_duoc_them(monkeypatch):
     # retrieval không trả gì, nhưng subject CU chứa "đại lý thanh toán" =
     # hypernym của một entity hợp đồng → vẫn vào plan với ly_do "subject khớp…"

@@ -21,6 +21,10 @@ from app.ontology.schema import ActorCU, ComplianceUnit, Gate, KhaiNiem, MetaCU
 _SO_DIEU_RE = re.compile(r"Điều\s+(\d+[a-z]?)")
 _TOP_K = 8
 _GIOI_HAN_DINH_NGHIA = 8
+#: Nâng khi LOGIC chọn lọc của gate đổi (khoá cache per-điều băm cả hằng này —
+#: dữ liệu pred/khainiem đã băm riêng, nhưng đổi thuật toán thì chỉ có nó biết).
+#: "2" = thêm khớp gần thiếu-token cho định nghĩa (T28, 17/08).
+PHIEN_BAN_GATE = "2"
 
 
 class PlanItem(BaseModel):
@@ -188,24 +192,61 @@ def _ap_meta_va_dong_goi(
     return CUPlan(items=items, ghi_chu=ghi_chu)
 
 
+def _khop_gan(thuat_ngu_norm: str, text_norm: str) -> bool:
+    """Thuật ngữ luật khớp điều dù hợp đồng viết THIẾU 1-2 token CUỐI.
+
+    Lớp lỗi thật của gold #13 (phân xử 17/08): hợp đồng ghi "dịch vụ cổng thanh
+    toán" thiếu đuôi "điện tử" (2 token) so với thuật ngữ NĐ52 Đ3 k18 — đường
+    nguyên văn chắc chắn trượt nên định nghĩa không bao giờ vào plan. So mức
+    TOKEN chứ không Levenshtein ký tự: thuật ngữ tiếng Việt đa-từ lệch cả từ,
+    ngưỡng ký tự đủ rộng để bắt sẽ ôm oan cặp sai.
+
+    CHỈ bỏ đuôi, phần còn lại ≥4 token — đo 17/08 trên 2 hợp đồng thật: cho bỏ
+    token giữa/đầu thì "Chủ [tài] khoản thanh toán"→"tài khoản thanh toán",
+    "Hợp đồng thanh toán [thẻ]"→"hợp đồng thanh toán" — cụm phổ thông, plan
+    phình +27/+29 định nghĩa toàn khớp oan.
+    """
+    # ponytail: chỉ bắt ca THIẾU ĐUÔI — ca lệch chính tả/thừa từ/thiếu đầu chưa
+    # có mẫu thật, thêm (difflib/prefix-drop) khi xuất hiện.
+    tok = thuat_ngu_norm.split()
+    return any(
+        len(tok) - bo >= 4 and " ".join(tok[:-bo]) in text_norm
+        for bo in (1, 2)
+    )
+
+
 def khai_niem_lien_quan(
     text_dieu_hd: str, hypernyms: list[DeXuat], pg: PolicyGraph,
     gioi_han: int = _GIOI_HAN_DINH_NGHIA,
 ) -> tuple[list[KhaiNiem], list[str]]:
     """Khái niệm mà điều hợp đồng CÓ dùng — chọn tất định, không LLM.
 
-    Khớp khi thuật ngữ nằm nguyên văn trong điều (không phân biệt hoa thường)
-    hoặc trùng một hypernym đã map. Quá `gioi_han` thì cắt + ghi chú (không cắt
-    im lặng); thuật ngữ dài bẩn (cả câu, đo 16/08 có bản ghi 352 ký tự) tự rơi
-    vì không bao giờ khớp nguyên văn.
+    Khớp khi thuật ngữ nằm nguyên văn trong điều (không phân biệt hoa thường,
+    đã gộp khoảng trắng), trùng một hypernym đã map, hoặc KHỚP GẦN (điều chứa
+    biến thể thiếu 1-2 token của thuật ngữ — `_khop_gan`, T28). Nguyên văn xếp
+    trước khớp gần khi phải cắt theo `gioi_han`; cắt có ghi chú (không cắt im
+    lặng); thuật ngữ dài bẩn (cả câu, đo 16/08 có bản ghi 352 ký tự) tự rơi vì
+    không bao giờ khớp.
     """
-    low = text_dieu_hd.lower()
+    low = " ".join(text_dieu_hd.lower().split())
     hyp = {h.hypernym.lower() for h in hypernyms}
-    khop = [
-        k for k in pg.khai_niem
-        if (tn := k.thuat_ngu.lower().strip()) and (tn in low or tn in hyp)
-    ]
+    chinh: list[KhaiNiem] = []
+    gan: list[KhaiNiem] = []
+    for k in pg.khai_niem:
+        tn = " ".join(k.thuat_ngu.lower().split())
+        if not tn:
+            continue
+        if tn in low or tn in hyp:
+            chinh.append(k)
+        elif _khop_gan(tn, low):
+            gan.append(k)
     ghi_chu = []
+    if gan:
+        ghi_chu.append(
+            "định nghĩa khớp gần (điều thiếu 1-2 từ của thuật ngữ): "
+            + ", ".join(k.id for k in gan)
+        )
+    khop = chinh + gan
     if len(khop) > gioi_han:
         ghi_chu.append(
             f"định nghĩa: khớp {len(khop)}, chỉ đưa {gioi_han} đầu vào judge"

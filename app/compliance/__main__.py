@@ -45,12 +45,15 @@ def _mo_cache(out: Path) -> tuple[Path, dict]:
 
 
 def _khoa_cache(text: str, cu_dir: Path) -> str:
+    from app.compliance import gate as gate_mod
     from app.compliance import judge as judge_mod
 
-    pred = (cu_dir / "pred.jsonl")
-    raw = (judge_mod._SYSTEM + "\x00" + text).encode("utf-8") + (
-        pred.read_bytes() if pred.exists() else b""
-    )
+    # Băm cả khainiem.jsonl + phiên bản gate: T28 lộ ra khoá cũ chỉ băm pred nên
+    # đổi cách chọn ĐỊNH NGHĨA thì cache vẫn hit — verdict cũ thiếu định nghĩa mới.
+    raw = (judge_mod._SYSTEM + "\x00" + gate_mod.PHIEN_BAN_GATE + "\x00" + text).encode("utf-8")
+    for ten in ("pred.jsonl", "khainiem.jsonl"):
+        f = cu_dir / ten
+        raw += f.read_bytes() if f.exists() else b""
     return hashlib.sha1(raw).hexdigest()
 
 
