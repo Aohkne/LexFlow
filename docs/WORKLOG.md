@@ -6,6 +6,30 @@
 
 ---
 
+## 2026-08-17 (CN) — phân xử #13, chốt schema định nghĩa-vào-judge, mở T28
+
+- **Done (phân xử gold #13 — chủ repo đọc lại comment gốc).** Luật sư đúng về cụm thuật
+  ngữ (bản gốc hợp đồng ghi thiếu một từ trong tên dịch vụ) nhưng **dẫn sai khoản**: NĐ52
+  Đ3 **k18** mới định nghĩa cụm đó, không phải k15 — gold đã sửa `refs` + thêm `ghi_chu`
+  (file local). Soi cache PAYFAC: định nghĩa k18 **có** trong plan và bản docx đang chạy
+  **đã mang sửa đổi của luật sư**, nên `tuan_thu` của judge đúng với văn bản nó nhìn thấy
+  — miss #13 là **lệch phiên bản gold/input**, không phải lỗi judge/schema. Giữ trong mẫu
+  số recall (PAYFAC 2/3) kèm chú thích.
+- **Decision (chủ repo).** **Giữ hướng A** — định nghĩa (KhaiNiem) vào judge **có verdict
+  riêng** (ngữ nghĩa: so CÁCH hợp đồng dùng thuật ngữ, không phải nghĩa vụ; lệch paper có
+  chủ đích, docstring `KhaiNiem` ghi lý do). Căn cứ: 2/4 comment `phap_ly` của gold viện
+  dẫn điều định nghĩa; paper-pure sẽ mất đường ghi công #35 (2/3 → 1/3) và muốn giữ recall
+  phải xây lại đúng cơ chế này dưới tên khác.
+- **Done (mở T28).** Khớp thuật ngữ mờ trong `khai_niem_lien_quan`: đường nguyên văn hiện
+  tại chắc chắn trượt lớp lỗi "hợp đồng viết lệch/thiếu một từ" (chính lớp của #13).
+  Hướng chọn: tập-con token trước, `difflib.SequenceMatcher` (stdlib) làm lưới an toàn —
+  Levenshtein mức ký tự không đủ cho thuật ngữ tiếng Việt đa-từ; gate giữ tất định để
+  cache sha1 còn đúng. Bước đầu: test đỏ tái hiện #13 trên bản chưa sửa.
+- **Done (prompt mô tả hệ thống cho Claude Design).** Soạn prompt kiến trúc đầy đủ (3
+  nguồn dữ liệu, 4 giai đoạn, điểm LLM vs tất định, checkpoint/resume) — chỉ tên module +
+  số đo, không nội dung hợp đồng.
+- **Next.** T28 (test đỏ trước); corpus 840 vẫn hoãn chờ bộ eval SVB (nhánh ai).
+
 ## 2026-08-16 (T7) — tư vấn pháp chế thật hoá ra là đề eval hỏi đáp; sơ đồ luồng compliance
 
 - **Done (rà `docs/compliance/tu_van_phap_ly.md` — thuộc bài toán nào?).** 2 ca tư vấn

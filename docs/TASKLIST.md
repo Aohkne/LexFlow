@@ -293,8 +293,16 @@ máy kill job nền 4 lần giữa chừng).
   object đầu; (2) prompt 24 CU làm model chạy loạn 236k ký tự rồi đứt ở trần token —
   `phan_dinh` nay chẻ lô ≤8 mục/lời gọi; (3) ThuHo có HAI điều trùng "số 4" (heading gõ tay)
   — dict verdict khoá theo số bị ghi đè mất trắng điều trước, nay gộp thay vì gán.
-  **Còn mở duy nhất:** #13 — người đọc lại comment gốc để phân xử judge (`tuan_thu` có căn
-  cứ) vs luật sư (đánh dấu pháp lý).
+  ~~**Còn mở duy nhất:** #13 — người đọc lại comment gốc để phân xử judge (`tuan_thu` có căn
+  cứ) vs luật sư (đánh dấu pháp lý).~~ **Đã phân xử 17/08 (chủ repo):** luật sư đúng về cụm
+  thuật ngữ (bản gốc hợp đồng ghi thiếu một từ trong tên dịch vụ) nhưng **dẫn sai khoản** —
+  NĐ52 Đ3 **k18** mới là khoản định nghĩa cụm đó, không phải k15 (gold đã sửa `refs`, local).
+  Soi cache PAYFAC: định nghĩa k18 **có** trong plan, và bản docx "Dự thảo 1-2" đang chạy
+  **đã mang sửa đổi của luật sư** — `tuan_thu` của judge đúng với văn bản nó nhìn thấy. Miss
+  #13 là **lệch phiên bản gold/input** (nhãn gán trên bản trước sửa), không phải lỗi judge
+  hay lỗ hổng schema; giữ trong mẫu số recall (PAYFAC 2/3) kèm `ghi_chu` trong gold. Hướng
+  schema "định nghĩa vào judge có verdict riêng" được chủ repo **duyệt giữ 17/08** (docstring
+  `KhaiNiem` là chỗ ghi lý do); việc khớp thuật ngữ mờ để bắt ca lệch-một-từ tách sang **T28**.
 
 ### [ ] T27 · 2 ca tư vấn pháp chế thật — nguồn eval hỏi đáp, nhưng 3/4 văn bản viện dẫn ngoài corpus
 
@@ -318,6 +326,31 @@ mỗi ca gồm mô tả quy trình → câu hỏi → ý kiến kèm căn cứ �
 - **Bước đầu tiên:** đưa 3 văn bản trên vào danh sách ưu tiên của đợt nạp 840 (Sprint 3, dòng
   «Nạp đầy đủ văn bản»); sau khi ingest xong mới chuyển ~5 cặp hỏi–đáp thành file eval — nhớ
   ràng buộc **không commit dữ liệu dẫn xuất từ tài liệu nội bộ** (cùng lệ với gold.jsonl).
+
+### [ ] T28 · Khớp thuật ngữ mờ trong `khai_niem_lien_quan` — bắt ca hợp đồng viết lệch một từ
+
+Sinh ra từ phân xử #13 (17/08). `khai_niem_lien_quan` (`app/compliance/gate.py:191`) hiện chỉ
+chọn định nghĩa khi thuật ngữ **nằm nguyên văn** trong điều hợp đồng hoặc **trùng đúng** một
+hypernym đã map. Lớp lỗi thật của #13 là hợp đồng viết tên dịch vụ **thiếu/lệch một từ** so
+với thuật ngữ luật — khi đó đường nguyên văn chắc chắn trượt, còn đường hypernym chỉ trúng
+nếu embedding may mắn map về đúng cụm. Tức chính ca mà cơ chế định-nghĩa-có-verdict sinh ra
+để bắt lại là ca dễ bị gate lọc mất trước khi judge kịp nhìn.
+
+- **Hướng làm (đã cân nhắc 17/08, chọn tất định + stdlib, không LLM/không embedding thêm):**
+  1. chuẩn hoá hai phía (lower, gộp khoảng trắng) rồi khớp **tập-con token**: mọi token của
+     n-gram trong điều là tập con token của thuật ngữ luật (hoặc ngược lại, chênh ≤1-2 token)
+     — bắt trúng lớp "thiếu một từ" bằng phép so tập, không cần thư viện;
+  2. lưới an toàn mức ký tự bằng `difflib.SequenceMatcher.ratio()` (stdlib) ngưỡng ~0.85
+     trên cửa sổ trượt quanh vị trí khớp thô — Levenshtein thuần mức ký tự KHÔNG đủ cho
+     tiếng Việt đa-từ (thuật ngữ 5-6 từ, lệch cả từ chứ không lệch ký tự), nên token trước,
+     ký tự sau;
+  3. giữ trần 8 + ưu tiên: nguyên văn > tập-con token > mờ; ghi vào `ly_do`/ghi chú đường
+     nào khớp để judge và người đọc report biết đây là khớp mờ.
+- **Bước đầu tiên:** viết test đỏ tái hiện #13 — điều hợp đồng chứa cụm thiếu một từ so với
+  `thuat_ngu` k18, khẳng định `khai_niem_lien_quan` hiện tại trả rỗng; rồi thêm nhánh
+  tập-con token cho test xanh. Sau đó chạy lại 2 báo cáo, xem plan có phình (định nghĩa rác
+  khớp mờ) không — nếu phình thì siết ngưỡng trước khi nghĩ tiếp.
+- Ràng buộc: chọn lọc phải **tất định** (gate không LLM) để cache theo khoá sha1 còn đúng.
 
 ---
 
