@@ -24,9 +24,13 @@ corpus banking sản phẩm.
 - **File nộp:** public 312 + private 627 câu, top-2, **mirror y hệt input** (schema nộp không công bố).
   0 câu rỗng. Gitignored (nhúng câu hỏi test). Robust: retry+skip lỗi Cloud + checkpoint per-câu.
 
+- **Rerank cho VLQA (`vlqa_eval.py --rerank`, đo 300 câu train @k=2):** ViRanker (Modal) **hại** (F2@2
+  0.557→0.516); Cohere `rerank-v3.5` **giúp** (R@2 +2.2pt, F2@2 0.557→**0.575**). Vì nộp k=2, F2@2 ăn
+  thẳng điểm → áp Cohere rerank cho file nộp. Đúng thứ tự SBV (Cohere >> ViRanker).
+
 **Ship:** không đổi runtime sản phẩm; VLQA là nhánh eval, bảng LanceDB riêng. **Decision:** aid toàn cục
-→ một mình aid định danh điều, nhét vào nhãn `article`; topk nộp = 2 (tối ưu F2). **Next:** nộp
-leaderboard + xác nhận schema với organizer; tuỳ chọn thêm baseline/rerank cho VLQA.
+→ một mình aid định danh điều, nhét vào nhãn `article`; topk nộp = 2 (tối ưu F2); rerank = Cohere (ViRanker
+hại). **Next:** nộp leaderboard + xác nhận schema với organizer.
 
 ## 2026-08-16 — thí nghiệm reranker (T114): Jina vs Cohere vs ViRanker trên bộ SBV
 

@@ -862,8 +862,12 @@ public/private test 312 / 627 câu (nhãn rỗng — nộp)
     answer, chỉ điền relevant_laws) vì DRiLL không công bố schema nộp — thừa trường thì grader bỏ qua.
     0 câu rỗng. Ở `eval/results/vlqa_*.json` (gitignored — nhúng câu hỏi test).
   - **Robust:** retry+skip lỗi Cloud thoáng qua per-câu; checkpoint per-câu (relaunch qua mỗi kill).
+  - **Rerank (17/08, `vlqa_eval.py --rerank`):** đo trên 300 câu train, so @cutoff nộp k=2. **ViRanker
+    (Modal) HẠI** (F2@2 0.557→0.516, tụt mọi metric); **Cohere `rerank-v3.5` GIÚP** (R@2 +2.2pt, **F2@2
+    0.557→0.575**, mất đuôi R@20 −1.0). Khớp SBV (Cohere >> ViRanker). Vì nộp k=2, cải thiện F2@2 ăn thẳng
+    điểm → **áp Cohere rerank cho file nộp** (public+private). Gain khiêm tốn nhưng dương.
   - **Còn lại:** nộp lên leaderboard + xác nhận schema với organizer (`minhnt@jaist.ac.jp`); tuỳ chọn
-    thêm cột baseline (BM25/NaiveRAG) + rerank cho VLQA nếu muốn so sâu.
+    thêm cột baseline (BM25/NaiveRAG) để so sâu.
 
 ---
 

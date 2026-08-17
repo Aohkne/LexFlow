@@ -26,6 +26,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # chạy như s
 
 from app.knowledge.retrieval import hybrid_search  # noqa: E402
 from eval import metrics  # noqa: E402
+from eval.thu_rerank import rerank as _rerank_api  # noqa: E402
 from eval.vlqa_adapter import (  # noqa: E402
     BANG_VLQA,
     VLQA_DIR,
@@ -36,13 +37,19 @@ from eval.vlqa_adapter import (  # noqa: E402
 )
 
 RESULTS_DIR = Path("eval/results")
-_MOC = (1, 5, 10, 20)
 _POOL = 20  # số aid cache/câu — cắt xuống --topk lúc nộp, không retrieve lại
 
 
-def _aids(question: str) -> list[str]:
-    """Top-`_POOL` aid (khử trùng, giữ thứ hạng) — search bảng VLQA, không lọc hiệu lực."""
+def _aids(question: str, *, rerank: bool = False) -> list[str]:
+    """Top-`_POOL` aid (khử trùng, giữ thứ hạng) — search bảng VLQA, không lọc hiệu lực.
+
+    `rerank`: xáo lại top-20 bằng cross-encoder (reranker cấu hình ở `.env`) TRƯỚC khi rút aid —
+    nhấc điều đúng lên top, hợp với submission k nhỏ (chỉ cần top-2 đúng).
+    """
     hits = hybrid_search(question, top_k=_POOL, effective_only=False, table=BANG_VLQA)
+    if rerank and len(hits) > 1:
+        order = _rerank_api(question, [(h.get("text") or "") for h in hits], _POOL)
+        hits = [hits[i] for i in order]
     out: list[str] = []
     seen: set[int] = set()
     for h in hits:
@@ -64,7 +71,9 @@ def _nap_cache(path: Path) -> dict[int, dict]:
     }
 
 
-def _retrieve_cached(items: list[dict], cache_path: Path, *, moi: bool = False) -> dict[int, list[str]]:
+def _retrieve_cached(
+    items: list[dict], cache_path: Path, *, moi: bool = False, rerank: bool = False
+) -> dict[int, list[str]]:
     """items: [{qid, question}] → {qid: [aid str top-20]}, checkpoint per-câu (chịu được kill)."""
     if moi:
         cache_path.unlink(missing_ok=True)
@@ -79,7 +88,7 @@ def _retrieve_cached(items: list[dict], cache_path: Path, *, moi: bool = False) 
         aids = None
         for lan in range(3):
             try:
-                aids = _aids(c["question"])
+                aids = _aids(c["question"], rerank=rerank)
                 break
             except Exception as exc:  # noqa: BLE001
                 if lan < 2:
@@ -97,8 +106,24 @@ def _retrieve_cached(items: list[dict], cache_path: Path, *, moi: bool = False) 
     return {c["qid"]: cache[c["qid"]]["aids"] for c in items if c["qid"] in cache}
 
 
-def do_train(gioi_han_doc: int, max_cau: int | None = None, *, moi: bool = False) -> None:
-    """Chấm IR trên câu train có gold NẰM TRỌN trong slice (mọi aid ≤ aid tối đa của slice)."""
+def _hang(nhan: str, retr: dict[int, list[str]], vang: dict[int, list[str]], qids: list[int]) -> None:
+    """In một hàng IR — R@k + Macro-F2@{2,3} (cutoff nộp) + MRR. Câu bị skip loại khỏi mẫu số."""
+    ks = (1, 2, 3, 5, 10, 20)
+    per = [{k: metrics.do_mot_cau(retr[q], vang[q], k) for k in ks} for q in qids if q in retr]
+    if not per:
+        print(f"{nhan:<8} (chưa câu nào)", flush=True)
+        return
+    a = {k: metrics.tong_hop([p[k] for p in per]) for k in ks}
+    print(
+        f"{nhan:<8}"
+        + "".join(f"{a[k]['recall']:>7.3f}" for k in (1, 2, 5, 20))
+        + f"{a[2]['f2_macro']:>8.3f}{a[3]['f2_macro']:>8.3f}{a[10]['mrr']:>8.3f}  (n={len(per)})",
+        flush=True,
+    )
+
+
+def do_train(gioi_han_doc: int, max_cau: int | None = None, *, moi: bool = False, rerank: bool = False) -> None:
+    """Đo IR trên câu train có gold ≤ aid tối đa của slice. `rerank`: so thêm hàng +rerank."""
     docs = nap_corpus(gioi_han=gioi_han_doc)
     tran = aid_toi_da(docs)
     hop_le = [
@@ -107,39 +132,34 @@ def do_train(gioi_han_doc: int, max_cau: int | None = None, *, moi: bool = False
     ]
     if max_cau:
         hop_le = hop_le[:max_cau]
-    print(f"Slice {gioi_han_doc} doc (aid ≤ {tran}) → {len(hop_le)} câu train đo được", flush=True)
+    print(f"Corpus {gioi_han_doc} doc (aid ≤ {tran}) → {len(hop_le)} câu train", flush=True)
     if not hop_le:
-        print("Không câu train nào có gold nằm trọn trong slice — tăng --gioi-han-doc.", flush=True)
+        print("Không câu train nào có gold nằm trọn — tăng --gioi-han-doc.", flush=True)
         return
 
-    retr = _retrieve_cached(hop_le, RESULTS_DIR / "cache-vlqa-train.jsonl", moi=moi)
     vang = {c["qid"]: [str(a) for a in c["relevant_laws"]] for c in hop_le}
-    per = [
-        {k: metrics.do_mot_cau(retr[c["qid"]], vang[c["qid"]], k) for k in _MOC}
-        for c in hop_le
-        if c["qid"] in retr  # câu bị skip (lỗi bền) chưa đo được — relaunch sẽ bù
-    ]
-    agg = {k: metrics.tong_hop([p[k] for p in per]) for k in _MOC}
-    print(f"\nIR VLQA (slice {gioi_han_doc} doc, {len(per)} câu) — khớp exact aid", flush=True)
-    print(f"{'':<6}{'R@1':>8}{'R@5':>8}{'R@10':>8}{'R@20':>8}{'MRR':>8}{'F2@10':>8}", flush=True)
-    print(
-        f"{'hybrid':<6}"
-        + "".join(f"{agg[k]['recall']:>8.3f}" for k in _MOC)
-        + f"{agg[10]['mrr']:>8.3f}{agg[10]['f2']:>8.3f}",
-        flush=True,
-    )
+    qids = [c["qid"] for c in hop_le]
+    # Baseline: giữ cache cũ khi đang so rerank (đắt, đừng xoá); chỉ `--moi` thuần baseline mới xoá.
+    base = _retrieve_cached(hop_le, RESULTS_DIR / "cache-vlqa-train.jsonl", moi=moi and not rerank)
+    print(f"\n{'Model':<8}{'R@1':>7}{'R@2':>7}{'R@5':>7}{'R@20':>7}{'F2@2':>8}{'F2@3':>8}{'MRR':>8}", flush=True)
+    _hang("hybrid", base, vang, qids)
+    if rerank:
+        rr = _retrieve_cached(hop_le, RESULTS_DIR / "cache-vlqa-train-rerank.jsonl", moi=moi, rerank=True)
+        _hang("+rerank", rr, vang, qids)
 
 
-def nop(test_path: str, topk: int, ra: str, *, moi: bool = False) -> None:
+def nop(test_path: str, topk: int, ra: str, *, moi: bool = False, rerank: bool = False) -> None:
     """Dựng file nộp: MIRROR y hệt file test, chỉ điền `relevant_laws` = top-k aid.
 
     Giữ nguyên mọi trường gốc (`question`, `answer`, …) — định dạng nộp không được công bố cụ thể
     (xem T117), mirror input là an toàn nhất: grader muốn shape nào cũng khớp, thừa trường thì bỏ
     qua. `topk` mặc định 2 = tối ưu Macro-F2 trên train (sweep k=1..20; k=2 → F2 0.533 vs k=10 0.335).
+    `rerank`: xáo top-20 bằng cross-encoder trước khi cắt top-k (cache riêng, xem `--rerank`).
     """
     raw = json.loads(Path(test_path).read_text(encoding="utf-8"))
-    cache_path = RESULTS_DIR / f"cache-vlqa-nop-{Path(test_path).stem}.jsonl"
-    retr = _retrieve_cached(raw, cache_path, moi=moi)  # raw có qid+question, đủ cho retrieval
+    suffix = "-rerank" if rerank else ""
+    cache_path = RESULTS_DIR / f"cache-vlqa-nop-{Path(test_path).stem}{suffix}.jsonl"
+    retr = _retrieve_cached(raw, cache_path, moi=moi, rerank=rerank)  # raw có qid+question
     thieu = [r["qid"] for r in raw if r["qid"] not in retr]
     if thieu:
         print(f"  ⚠ {len(thieu)} câu chưa retrieve được → relevant_laws RỖNG; relaunch để bù: {thieu[:10]}", flush=True)
@@ -161,11 +181,12 @@ def main() -> None:
     ap.add_argument("--topk", type=int, default=2, help="số aid nộp mỗi câu (2 = tối ưu Macro-F2 trên train)")
     ap.add_argument("--ra", default="eval/results/vlqa_submission.json", help="đường ra file nộp")
     ap.add_argument("--moi", action="store_true", help="bỏ cache retrieval (bắt buộc khi đã re-ingest)")
+    ap.add_argument("--rerank", action="store_true", help="xáo top-20 bằng cross-encoder (.env) trước khi cắt")
     args = ap.parse_args()
     if args.nop:
-        nop(args.nop, args.topk, args.ra, moi=args.moi)
+        nop(args.nop, args.topk, args.ra, moi=args.moi, rerank=args.rerank)
     elif args.do_train:
-        do_train(args.gioi_han_doc, args.max_cau, moi=args.moi)
+        do_train(args.gioi_han_doc, args.max_cau, moi=args.moi, rerank=args.rerank)
     else:
         ap.error("chọn --do-train (Stage A) hoặc --nop <test.json> (Stage B)")
 
