@@ -19,6 +19,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+import time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # chạy như script thấy `app`
@@ -72,13 +73,28 @@ def _retrieve_cached(items: list[dict], cache_path: Path, *, moi: bool = False) 
     print(f"{len(items)} câu | đã cache {len(cache)} | còn {len(con)}", flush=True)
     cache_path.parent.mkdir(parents=True, exist_ok=True)
     for i, c in enumerate(con, 1):
-        row = {"qid": c["qid"], "aids": _aids(c["question"])}
+        # Retry lỗi Cloud thoáng qua (LanceDB Cloud "error decoding response body" hay xảy ra ở
+        # scale này); vẫn hỏng thì BỎ QUA câu (không cache) để relaunch sau thử lại — một hiccup
+        # không được abort cả lượt 2.190 câu.
+        aids = None
+        for lan in range(3):
+            try:
+                aids = _aids(c["question"])
+                break
+            except Exception as exc:  # noqa: BLE001
+                if lan < 2:
+                    time.sleep(2 * (lan + 1))
+                else:
+                    print(f"  bỏ qua qid={c['qid']} (3 lần lỗi): {exc!r}", flush=True)
+        if aids is None:
+            continue
+        row = {"qid": c["qid"], "aids": aids}
         with cache_path.open("a", encoding="utf-8") as fh:
             fh.write(json.dumps(row, ensure_ascii=False) + "\n")
         cache[c["qid"]] = row
         if i % 25 == 0:
             print(f"  {i}/{len(con)}", flush=True)
-    return {c["qid"]: cache[c["qid"]]["aids"] for c in items}
+    return {c["qid"]: cache[c["qid"]]["aids"] for c in items if c["qid"] in cache}
 
 
 def do_train(gioi_han_doc: int, max_cau: int | None = None, *, moi: bool = False) -> None:
@@ -101,6 +117,7 @@ def do_train(gioi_han_doc: int, max_cau: int | None = None, *, moi: bool = False
     per = [
         {k: metrics.do_mot_cau(retr[c["qid"]], vang[c["qid"]], k) for k in _MOC}
         for c in hop_le
+        if c["qid"] in retr  # câu bị skip (lỗi bền) chưa đo được — relaunch sẽ bù
     ]
     agg = {k: metrics.tong_hop([p[k] for p in per]) for k in _MOC}
     print(f"\nIR VLQA (slice {gioi_han_doc} doc, {len(per)} câu) — khớp exact aid", flush=True)
@@ -114,11 +131,23 @@ def do_train(gioi_han_doc: int, max_cau: int | None = None, *, moi: bool = False
 
 
 def nop(test_path: str, topk: int, ra: str, *, moi: bool = False) -> None:
-    """Dựng file nộp: mỗi câu → top-k aid. Định dạng mirror input (qid + relevant_laws)."""
-    cauhoi = nap_cau_hoi(test_path)
+    """Dựng file nộp: MIRROR y hệt file test, chỉ điền `relevant_laws` = top-k aid.
+
+    Giữ nguyên mọi trường gốc (`question`, `answer`, …) — định dạng nộp không được công bố cụ thể
+    (xem T117), mirror input là an toàn nhất: grader muốn shape nào cũng khớp, thừa trường thì bỏ
+    qua. `topk` mặc định 2 = tối ưu Macro-F2 trên train (sweep k=1..20; k=2 → F2 0.533 vs k=10 0.335).
+    """
+    raw = json.loads(Path(test_path).read_text(encoding="utf-8"))
     cache_path = RESULTS_DIR / f"cache-vlqa-nop-{Path(test_path).stem}.jsonl"
-    retr = _retrieve_cached(cauhoi, cache_path, moi=moi)
-    sub = [{"qid": c["qid"], "relevant_laws": [int(a) for a in retr[c["qid"]][:topk]]} for c in cauhoi]
+    retr = _retrieve_cached(raw, cache_path, moi=moi)  # raw có qid+question, đủ cho retrieval
+    thieu = [r["qid"] for r in raw if r["qid"] not in retr]
+    if thieu:
+        print(f"  ⚠ {len(thieu)} câu chưa retrieve được → relevant_laws RỖNG; relaunch để bù: {thieu[:10]}", flush=True)
+    sub = []
+    for r in raw:
+        rec = dict(r)  # giữ nguyên question/answer/…
+        rec["relevant_laws"] = [int(a) for a in retr.get(r["qid"], [])[:topk]]
+        sub.append(rec)
     Path(ra).write_text(json.dumps(sub, ensure_ascii=False, indent=1), encoding="utf-8")
     print(f"→ {len(sub)} câu, top-{topk} aid/câu → {ra}", flush=True)
 
@@ -129,7 +158,7 @@ def main() -> None:
     ap.add_argument("--gioi-han-doc", type=int, default=60, help="số doc của slice (khớp lúc ingest)")
     ap.add_argument("--max-cau", type=int, default=None, help="giới hạn số câu train để chạy nhanh")
     ap.add_argument("--nop", metavar="TEST_JSON", help="Stage B: dựng file nộp từ public/private_test")
-    ap.add_argument("--topk", type=int, default=10, help="số aid nộp mỗi câu")
+    ap.add_argument("--topk", type=int, default=2, help="số aid nộp mỗi câu (2 = tối ưu Macro-F2 trên train)")
     ap.add_argument("--ra", default="eval/results/vlqa_submission.json", help="đường ra file nộp")
     ap.add_argument("--moi", action="store_true", help="bỏ cache retrieval (bắt buộc khi đã re-ingest)")
     args = ap.parse_args()

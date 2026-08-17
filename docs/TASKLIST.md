@@ -851,8 +851,19 @@ public/private test 312 / 627 câu (nhãn rỗng — nộp)
 - **STAGE A XONG (16/08) — máy móc chứng minh.** `eval/vlqa_adapter.py`+`vlqa_ingest.py`+`vlqa_eval.py`
   (+ test). Ingest slice 60 doc → 2.170 chunk; IR trên 58 câu train: R@1 0.674 · R@5 0.885 · R@20 0.932 ·
   MRR 0.851 (LẠC QUAN vì slice nhỏ ít distractor — không phải số thật). aid round-trip đúng.
-- **STAGE B (chờ duyệt — ~$4):** ingest full 2.157 doc vào `chunks_vlqa` → đo IR full train (2.190 câu,
-  số thật) → dựng file nộp `public_test`/`private_test` (`vlqa_eval.py --nop`). Canh FTS rebuild scale (T116).
+- **STAGE B XONG (17/08) — $4, số thật + file nộp.** Ingest full 2.156 doc → **77.776 chunk** vào
+  `chunks_vlqa` (resumable, 1 lần chạy). IR thật trên 2.188 câu train: **R@1 0.473 · R@5 0.769 · R@10
+  0.840 · R@20 0.888 · MRR 0.678** — thấp hơn hẳn slice-60 (0.674/0.885/0.851) như dự đoán vì đủ
+  distractor. Đây là lõi hybrid RRF thuần trên luật tổng quát (không hiệu lực/graph/overlay).
+  - **Tối ưu topk theo Macro-F2** (metric của DRiLL = Recall/Precision/Macro-F2): sweep k=1..20 trên
+    cache train → **k=2 tối đa F2 (0.533)**, hơn hẳn k=10 (0.335) — đa số câu 1–3 gold nên nộp nhiều
+    giết precision. File nộp dùng top-2.
+  - **File nộp:** `public_test` 312 câu + `private_test` 627 câu, **mirror y hệt input** (giữ question/
+    answer, chỉ điền relevant_laws) vì DRiLL không công bố schema nộp — thừa trường thì grader bỏ qua.
+    0 câu rỗng. Ở `eval/results/vlqa_*.json` (gitignored — nhúng câu hỏi test).
+  - **Robust:** retry+skip lỗi Cloud thoáng qua per-câu; checkpoint per-câu (relaunch qua mỗi kill).
+  - **Còn lại:** nộp lên leaderboard + xác nhận schema với organizer (`minhnt@jaist.ac.jp`); tuỳ chọn
+    thêm cột baseline (BM25/NaiveRAG) + rerank cho VLQA nếu muốn so sâu.
 
 ---
 

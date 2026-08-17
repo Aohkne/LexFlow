@@ -6,6 +6,28 @@
 
 ---
 
+## 2026-08-17 — T117 VLQA: ingest full + đo IR thật + file nộp public/private
+
+**Giai đoạn:** chạy trọn VLQA (VLSP 2025 DRiLL) qua spec→plan→Stage A→Stage B. Nhánh eval tách hẳn
+corpus banking sản phẩm.
+
+- **Tách corpus trên LanceDB — bảng riêng `chunks_vlqa`.** Thêm param `table` (mặc định `LANCEDB_TABLE`)
+  vào `_open_table`+`hybrid_search`; product byte-identical (934 test + gate 36/36). Adapter
+  `legal_corpus.json`→CorpusDocument giữ `aid` (id điều TOÀN CỤC 0..59.635) trong nhãn để nộp lại được.
+- **Ingest full (~$4):** 2.156 doc → **77.776 chunk**, resumable (embed+append theo lô, checkpoint doc),
+  chạy 1 lần xong. Neo4j tắt (VLQA không quan hệ).
+- **IR THẬT (2.188 câu train):** R@1 **0.473** · R@5 **0.769** · R@10 0.840 · R@20 0.888 · MRR **0.678**.
+  Thấp hơn hẳn slice-60 lạc quan (0.674/0.885/0.851) đúng như dự đoán — đây là lõi hybrid RRF thuần
+  trên luật tổng quát, đủ distractor.
+- **Tối ưu topk theo Macro-F2** (metric DRiLL): sweep cache train → **k=2 tối đa F2 (0.533)** vs k=10
+  (0.335). Đa số câu 1–3 gold nên nộp nhiều giết precision.
+- **File nộp:** public 312 + private 627 câu, top-2, **mirror y hệt input** (schema nộp không công bố).
+  0 câu rỗng. Gitignored (nhúng câu hỏi test). Robust: retry+skip lỗi Cloud + checkpoint per-câu.
+
+**Ship:** không đổi runtime sản phẩm; VLQA là nhánh eval, bảng LanceDB riêng. **Decision:** aid toàn cục
+→ một mình aid định danh điều, nhét vào nhãn `article`; topk nộp = 2 (tối ưu F2). **Next:** nộp
+leaderboard + xác nhận schema với organizer; tuỳ chọn thêm baseline/rerank cho VLQA.
+
 ## 2026-08-16 — thí nghiệm reranker (T114): Jina vs Cohere vs ViRanker trên bộ SBV
 
 **Giai đoạn:** đo xem cross-encoder rerank có đáng đưa vào không, TRƯỚC khi dựng hạ tầng. Chỉ thí
