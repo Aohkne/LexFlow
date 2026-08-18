@@ -32,8 +32,21 @@
   (`PHIEN_BAN_GATE="3"`, TDD, 877 test xanh). Chấm lại 3 case Đ26k1: gate ✓ cả 3,
   case vi_pham 150tr bắt được vi phạm. **Điểm pilot sau fix: 10/14**; case im-lặng
   Đ26k1 thành ca biên T29 mới (judge thieu_thong_tin vs duyệt khong_ap_dung).
-- **Next.** Đo độ ổn định ca judge FP phủ-định (Đ25k5::tuan_thu) trước khi sửa prompt;
-  mở rộng bộ sinh sau. Cân nhắc chấm lại 2 báo cáo hợp đồng thật với gate v3.
+- **Done (từ vựng hypernym mang định nghĩa + thu hoạch alias).** Chẩn đoán ca map bậy
+  "Ngân hàng"→ĐVCNT (0.9): alias premise được embed TRẦN — premise.jsonl có sẵn
+  raw_text định nghĩa mà `tu_policy_graph` vứt đi. Fix: (1) alias mang raw_text vào
+  vector + prompt xác nhận; (2) `alias_tu_corpus` regex bắt mẫu "(sau đây gọi tắt là
+  X)" — 46 cặp, tất định, không LLM; từ vựng 40→123 mục. Kéo theo 2 fix hạ tầng:
+  `_embed` chia lô ≤100 (API cap, lộ khi từ vựng vượt 100), khoá cache băm thêm
+  premise.jsonl. Kiểm sống: "Ngân hàng"→"ngân hàng" (0.9) ✓; "Tổng hạn mức giao dịch
+  qua ví…"→None (trước map liều "hạn mức bù trừ điện tử"). TDD, 881 test xanh.
+- **Done (chấm lại 15 case với từ vựng mới).** **9/14, gate hit 14/15** (trước
+  10/14, 11/15). Giảm 1 điểm do NĐ52-Đ26k2::vi_pham LẬT vi_pham→khong_ap_dung giữa
+  hai lần chạy — lần lật thứ 3 của lớp T29, ghi vào T29; không re-roll câu điểm. FP
+  phủ-định Đ25k5::tuan_thu tái hiện lần 2 liên tiếp ⇒ lỗi ổn định mức prompt.
+- **Next.** Sửa prompt judge cho ca phủ-định (cam-kết-không-làm = tuân thủ) rồi đo
+  lại; T29 dùng bộ synthetic làm giàn đo tần suất lật. Cân nhắc chấm lại 2 báo cáo
+  hợp đồng thật (cache đã vô hiệu bởi gate v3 + từ vựng mới).
 
 ---
 

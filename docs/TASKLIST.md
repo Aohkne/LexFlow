@@ -389,6 +389,10 @@ hơn, tức ghi công cũ thuộc diện may mắn ở ranh giới.
   không cần chấm cả hợp đồng), đo tần suất lật của k7. Lật thường xuyên → cân nhắc: luôn
   3 phiếu cho lượt toàn-văn, hoặc báo cáo recall dạng khoảng thay vì điểm; hiếm → ghi
   nhận biên và giữ nguyên.
+- Lần lật thứ 3 (18/08, pilot T30): NĐ52-Đ26k2::vi_pham synthetic lật
+  `vi_pham → khong_ap_dung` giữa hai lần chấm — nặng hơn cặp
+  thieu_thong_tin↔khong_ap_dung vì mất hẳn một cảnh báo vi phạm. Bộ synthetic giờ là
+  giàn đo sẵn cho task này (chấm lại N lần, đếm tần suất lật từng case).
 
 ### [ ] T30 · Dữ liệu synthetic từ CU luật — pilot 15 case đạt 7/15, lộ 3 lớp lỗi
 
@@ -424,11 +428,15 @@ synthetic bắt buộc qua người duyệt, đúng nguyên tắc đã chốt.
 sai NĐ52-Đ26k2::tuan_thu). Bộ case đã commit (whitelist trong `.gitignore`, sinh từ
 luật công khai).
 
-- **Bước tiếp theo:** ca judge FP phủ-định (Đ25k5::tuan_thu) chạy lại vài lần xem flip
-  hay ổn định rồi mới quyết sửa prompt; sau đó mới mở rộng bộ sinh. 4 ca lệch còn lại:
-  2 biên T29 (thieu_thong_tin↔khong_ap_dung), 1 judge FP phủ-định, 1 judge chấm sai
-  NĐ52-Đ26k2::tuan_thu; Đ13k4::thieu_thong_tin là artefact chấm từng-điều (việc của
-  lượt toàn-văn).
+Chấm lại 18/08 với từ vựng hypernym mới (premise raw_text + 46 alias corpus, xem
+worklog): **9/14, gate hit 14/15** — điểm giảm 1 hoàn toàn do NĐ52-Đ26k2::vi_pham LẬT
+vi_pham→khong_ap_dung giữa hai lần chạy (lần lật thứ 3 của lớp T29, lần này ở cặp
+nặng vi_pham↔khong_ap_dung); từ vựng mới không làm hỏng gate (hit 11/15→14/15).
+
+- **Bước tiếp theo:** ca FP phủ-định Đ25k5::tuan_thu đã tái hiện 2 lần liên tiếp ⇒ lỗi
+  ổn định mức prompt — sửa prompt judge (nhấn "điều khoản CAM KẾT KHÔNG làm điều cấm
+  là tuân thủ") và đo lại; cú lật NĐ52-Đ26k2 nhập vào T29. Sau hai việc đó mới mở
+  rộng bộ sinh.
 
 ---
 

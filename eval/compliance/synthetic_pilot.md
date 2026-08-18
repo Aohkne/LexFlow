@@ -73,6 +73,22 @@ nhãn duyệt `khong_ap_dung` — thêm một ca biên lớp T29. **Điểm sau 
 
 2 gate miss còn lại (đoạn dưới) không đổi.
 
+### Chấm lại toàn bộ 18/08 (từ vựng hypernym mới — premise raw_text + 46 alias corpus)
+
+Sau khi từ vựng hypernym mang định nghĩa (fix "Ngân hàng"→ĐVCNT) và thu hoạch alias
+"(sau đây gọi tắt là X)", chấm lại cả 15 case: **9/14** — gate hit **14/15** (chỉ còn
+Đ13k4::thieu_thong_tin, artefact chấm từng-điều). Cấu trúc lệch:
+
+| Ca lệch | Diễn giải |
+|---|---|
+| Đ25k5::tuan_thu → vi_pham | FP phủ-định **lần 2 liên tiếp** ⇒ lỗi ổn định mức prompt, không phải flip |
+| Đ26k1::thieu_thong_tin → thieu_thong_tin (duyệt: khong_ap_dung) | biên T29 |
+| NĐ52-Đ26k2 cả 3 → khong_ap_dung | `vi_pham` case **lật** vi_pham→khong_ap_dung so với lần trước — lần lật thứ 3 đo được của lớp T29, lần này ở cặp vi_pham↔khong_ap_dung |
+| Đ13k4::thieu_thong_tin gate miss | việc của lượt toàn-văn |
+
+Điểm giảm 10/14 → 9/14 hoàn toàn do 1 cú lật judge, KHÔNG do từ vựng mới làm hỏng
+gate (gate hit tăng 11/15 → 14/15). Không re-roll để câu lại điểm.
+
 2 gate miss còn lại đều là biến thể `thieu_thong_tin` — điều khoản cố tình mơ hồ nên
 entity không khớp. **Caveat quan trọng:** trong pipeline thật, bắt "im lặng" là việc của
 lượt **toàn-văn** (lap_plan_toan_van), pilot này chỉ chấm từng điều đơn lẻ ⇒ 1/5 của
