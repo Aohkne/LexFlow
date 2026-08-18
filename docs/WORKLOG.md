@@ -21,8 +21,12 @@
   người duyệt.
 - **Decision.** Dữ liệu sinh từ luật công khai ⇒ commit được (khác gold hợp đồng thật);
   gold thật vẫn là held-out, bộ sinh chỉ dùng phát triển/regression + đo T29.
-- **Next.** Chủ repo duyệt 15 case (riêng NĐ52-Đ26k2::tuan_thu cần phân xử nhãn); sau
-  duyệt: sửa lỗ gate Đ26k1, xếp ca phủ-định vào hàng đợi judge, mở rộng bộ sinh.
+- **Done (duyệt nhãn — chủ repo, qua UI `synthetic_pilot.html`).** 12 giữ · 2 sửa
+  `thieu_thong_tin → khong_ap_dung` · 1 loại; NĐ52-Đ26k2::tuan_thu phân xử giữ
+  `tuan_thu` ⇒ ca judge chấm `khong_ap_dung` là lỗi hệ thống. **Điểm sau duyệt: 8/14**;
+  6 ca lệch đều là lỗi hệ thống xác nhận. Bộ case whitelist vào git (luật công khai).
+- **Next.** Sửa lỗ gate TT40-Đ26k1; đo độ ổn định ca judge FP phủ-định trước khi sửa
+  prompt; mở rộng bộ sinh sau khi hai việc trên xong.
 
 ---
 

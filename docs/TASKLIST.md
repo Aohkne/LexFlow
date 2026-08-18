@@ -413,10 +413,16 @@ Bài học khâu sinh: lượt đầu 4/5 case `vi_pham` sai nhãn (model viết
 vi phạm* thay vì điều khoản trái luật) — phải siết prompt mới ra vi phạm thật ⇒ nhãn
 synthetic bắt buộc qua người duyệt, đúng nguyên tắc đã chốt.
 
-- **Bước đầu tiên:** chủ repo duyệt 15 case trong `eval/compliance/synthetic_pilot.jsonl`
-  (riêng NĐ52-Đ26k2::tuan_thu cần phân xử nhãn — case sinh chung chung, judge chê ngoài
-  phạm vi CU cũng có lý). Sau duyệt: sửa lỗ gate Đ26k1, đưa ca phủ-định vào hàng đợi
-  chất lượng judge, rồi mới mở rộng bộ sinh.
+~~**Bước đầu tiên:** chủ repo duyệt 15 case~~ — **ĐÃ DUYỆT 18/08**: 12 giữ · 2 sửa
+`thieu_thong_tin → khong_ap_dung` · 1 loại; NĐ52-Đ26k2::tuan_thu phân xử GIỮ `tuan_thu`
+⇒ verdict `khong_ap_dung` của judge ca đó là lỗi hệ thống. **Điểm sau duyệt: 8/14** —
+6 ca lệch đều là lỗi hệ thống xác nhận (4 gate miss, 1 judge FP phủ-định, 1 judge chấm
+sai NĐ52-Đ26k2::tuan_thu). Bộ case đã commit (whitelist trong `.gitignore`, sinh từ
+luật công khai).
+
+- **Bước tiếp theo:** sửa lỗ gate TT40-Đ26k1 (soi subject/label CU trong pred.jsonl —
+  vì sao entity "ví điện tử" không nối tới nó); ca judge FP phủ-định chạy lại vài lần
+  xem flip hay ổn định rồi mới quyết sửa prompt; sau đó mới mở rộng bộ sinh.
 
 ---
 

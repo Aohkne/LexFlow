@@ -53,3 +53,8 @@ docs/SCHEMA_KG.md
 docs/compliance/
 eval/compliance/*.jsonl
 eval/compliance/*.md
+# ... trừ bộ synthetic sinh từ luật công khai, đã người duyệt (T30)
+!eval/compliance/synthetic_pilot.jsonl
+!eval/compliance/synthetic_pilot.kq.jsonl
+!eval/compliance/synthetic_pilot.md
+eval/compliance/synthetic_pilot.html
