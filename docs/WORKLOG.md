@@ -6,6 +6,36 @@
 
 ---
 
+## 2026-08-18 — T117 VLQA: variable-k theo điểm rerank → leaderboard 0.5355 → 0.581
+
+**Giai đoạn:** nộp thật (private hạng 11, F2 0.5355) → chẩn đoán headroom → thử nghiệm có kỷ luật
+(loại đòn vô ích, giữ đòn thắng) → dựng lại file nộp. Mọi kết luận đo trên train (proxy trung thực:
+train R@2 0.619 ≈ private recall 0.609).
+
+- **Chẩn đoán nút thắt (train 2.188 câu):** gold 75% một-điều / 19% hai / 6% ≥3. Oracle "nộp đúng
+  |gold|" = 0.505 **thấp hơn** k=2 cố định (0.533) → **đoán số lượng theo |gold| vô ích**. Nút thắt
+  thật = xếp hạng trong top-2 (R@2 0.62); trần recall R@20 **0.89** (11% gold không hề retrieve được).
+- **variable-k qua biên điểm RRF → 0 gain (loại).** Điểm RRF theo THỨ HẠNG (1/(60+rank)), biên
+  top1-top2 gần hằng số mọi câu → không phân biệt câu "chắc" với "mơ hồ". Sweep 255 câu: 0.542 = fixed-2.
+- **variable-k qua ĐIỂM RERANK → thắng.** Điểm relevance Cohere phân biệt tốt (0.46 vs 0.03 vs 0.02).
+  Luật: biên top1-top2 ≥ 0.05 → nộp 1; top2≈top3 ≤ 0.05 (đa gold) → nộp 3; còn lại 2. **2-fold CV trên
+  68 câu train: gain out-of-sample +0.048**, cả 2 fold chọn cùng ngưỡng (ổn định, không may rủi).
+- **Xác nhận trên leaderboard THẬT:** private **F2 0.5355 → 0.581** (+4.6pt), **Precision 0.3612 →
+  0.4468** (+8.6pt), Recall 0.609 → 0.6281 (+1.9pt). Khớp gần khít dự đoán (+0.048). k-dist private
+  37/14/49 ≈ train 46/7/47 → không distribution-shift.
+- **Phát hiện phụ:** rerank Cohere đo trên 300 câu đầu (+4pt) **không transfer** sang full private
+  (0.5355 ≈ hybrid thuần 0.533) — cái +4pt là overfit subset dễ. Đòn thật là **cutoff theo độ tin cậy**,
+  không phải bản thân rerank.
+
+**Ship:** `--var-k` trong `vlqa_eval.py` (`_var_k` cutoff + cache `-rerankscore` + fallback hybrid
+top-2 khi rerank lỗi 429); `thu_rerank.rerank_scored()` (trả kèm điểm, chung `_call`); `_rrf` gắn
+`_rrf_score` (tín hiệu eval, không đổi thứ hạng). Không đụng runtime sản phẩm. `vlqa_private_vark.json`
+627/627, 0 rỗng, đã nộp. **Decision:** cutoff variable-k theo điểm rerank là đòn chính (không phải
+rerank hay variable-k-theo-|gold|); ngưỡng chốt bằng CV chứ không sweep-trên-chính-nó. **Hạ tầng:**
+LanceDB Cloud throttle theo tải (~60s/câu lúc nặng, ~5s lúc rảnh) — grind qua foreground 10-phút +
+relaunch; Cohere trial giới hạn theo TÀI KHOẢN (key mới cùng account vẫn 429), phải account mới.
+**Next:** dựng public var-k (đang chạy, ~300 Cohere budget còn); nộp public; xác nhận schema organizer.
+
 ## 2026-08-17 — T117 VLQA: ingest full + đo IR thật + file nộp public/private
 
 **Giai đoạn:** chạy trọn VLQA (VLSP 2025 DRiLL) qua spec→plan→Stage A→Stage B. Nhánh eval tách hẳn
