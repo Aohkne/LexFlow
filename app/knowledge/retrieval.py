@@ -108,7 +108,11 @@ def _rrf(
             scores[rid] = scores.get(rid, 0.0) + w / (_RRF_K + rank)
             rows[rid] = row
     ordered = sorted(scores, key=lambda r: scores[r], reverse=True)
-    return [rows[r] for r in ordered[:k]]
+    out = []
+    for r in ordered[:k]:
+        rows[r]["_rrf_score"] = scores[r]  # tầng eval đọc để ước tin cậy; không đổi thứ hạng
+        out.append(rows[r])
+    return out
 
 
 @observe(name="retrieval.hybrid", as_type="retriever")

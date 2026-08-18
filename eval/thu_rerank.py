@@ -65,6 +65,17 @@ def rerank(query: str, docs: list[str], top_n: int) -> list[int]:
     Retry khi 429 (key trial Cohere ~10 req/phút; Modal cold-start có thể 5xx): tôn trọng
     `Retry-After` nếu có, không thì backoff luỹ thừa. Cạn lượt thử mới ném ra để người gọi bỏ câu.
     """
+    return [r["index"] for r in _call(query, docs, top_n)]
+
+
+def rerank_scored(query: str, docs: list[str], top_n: int) -> list[tuple[int, float]]:
+    """Như `rerank` nhưng trả kèm ĐIỂM relevance — để tầng eval quyết variable-k theo độ tin cậy
+    (điểm rerank phân biệt tốt, khác điểm RRF theo rank)."""
+    return [(r["index"], float(r["relevance_score"])) for r in _call(query, docs, top_n)]
+
+
+def _call(query: str, docs: list[str], top_n: int) -> list[dict]:
+    """POST rerank API + retry 429/5xx (xem docstring `rerank`) → trả list results thô."""
     payload = {
         "model": _MODEL,
         "query": query,
@@ -83,7 +94,7 @@ def rerank(query: str, docs: list[str], top_n: int) -> list[int]:
             time.sleep(min(cho, 30))
             continue
         resp.raise_for_status()
-        return [r["index"] for r in resp.json()["results"]]
+        return resp.json()["results"]
     raise RuntimeError("unreachable")  # vòng lặp luôn return hoặc raise_for_status ở lần cuối
 
 
