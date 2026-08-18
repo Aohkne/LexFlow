@@ -50,8 +50,9 @@ def _khoa_cache(text: str, cu_dir: Path) -> str:
 
     # Băm cả khainiem.jsonl + phiên bản gate: T28 lộ ra khoá cũ chỉ băm pred nên
     # đổi cách chọn ĐỊNH NGHĨA thì cache vẫn hit — verdict cũ thiếu định nghĩa mới.
+    # premise.jsonl vào khoá từ 18/08: từ vựng hypernym giờ mang alias + raw_text.
     raw = (judge_mod._SYSTEM + "\x00" + gate_mod.PHIEN_BAN_GATE + "\x00" + text).encode("utf-8")
-    for ten in ("pred.jsonl", "khainiem.jsonl"):
+    for ten in ("pred.jsonl", "khainiem.jsonl", "premise.jsonl"):
         f = cu_dir / ten
         raw += f.read_bytes() if f.exists() else b""
     return hashlib.sha1(raw).hexdigest()
@@ -101,7 +102,9 @@ def main(argv: list[str] | None = None) -> Path:
     docs, _rels = load_corpus(args.corpus)
     so_hieu_cua = {d.doc_id: d.so_hieu for d in docs}
     pg = PolicyGraph.load(args.cu_dir)
-    tv = hypernym.TuVungLuat.tu_policy_graph(pg, embed=hypernym.embed_documents)
+    tv = hypernym.TuVungLuat.tu_policy_graph(
+        pg, embed=hypernym.embed_documents, them=hypernym.alias_tu_corpus(docs)
+    )
 
     out = args.out or Path("eval/compliance") / f"bao_cao_{hd.ten}.md"
     out.parent.mkdir(parents=True, exist_ok=True)

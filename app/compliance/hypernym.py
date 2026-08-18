@@ -7,6 +7,7 @@ trong danh sách ứng viên đóng — trả tên ngoài danh sách coi như kh
 from __future__ import annotations
 
 import math
+import re
 
 from pydantic import BaseModel
 
@@ -26,6 +27,45 @@ class DeXuat(BaseModel):
     manh: bool  # True = chống lưng bằng premise/khái niệm (STRONG của paper)
 
 
+def _bo_so_khoan(s: str) -> str:
+    """Bỏ số thứ tự khoản đầu raw_text ("21. Đơn vị…" → "Đơn vị…")."""
+    return re.sub(r"^\d+[.)]\s*", "", s or "")
+
+
+#: Văn bản luật VN tự khai báo viết tắt: "X (sau đây gọi tắt là Y)". IGNORECASE
+#: theo lệ grep văn bản pháp lý (đầu câu viết hoa).
+_ALIAS_RE = re.compile(
+    r"\((?:sau đây\s+)?(?:gọi(?:\s+tắt)?\s+là|viết tắt là)\s+([^)]{2,60})\)",
+    re.IGNORECASE,
+)
+
+
+def alias_tu_corpus(docs) -> list[tuple[str, str, bool]]:
+    """Cặp (viết tắt/tên gọi tắt, dạng đầy đủ) khai báo NGAY TRONG văn bản luật.
+
+    Bổ khuyết cho alias premise: mẫu "(sau đây gọi tắt là X)" xuất hiện cả NGOÀI
+    điều giải-thích-từ-ngữ (28 chỗ trong corpus, đo 18/08 — "Bộ tiêu chí",
+    "Ngân hàng Nhà nước"…) nên premise extraction không quét tới. Tất định,
+    không LLM. Dạng đầy đủ = cụm đứng ngay trước ngoặc, cắt ở ranh câu/khoản.
+    """
+    ra: list[tuple[str, str, bool]] = []
+    thay: set[str] = set()
+    for doc in docs:
+        for art in doc.articles:
+            for m in _ALIAS_RE.finditer(art.text):
+                alias = " ".join(m.group(1).split())
+                if not alias or alias.lower() in thay:
+                    continue
+                truoc = art.text[max(0, m.start() - 120):m.start()]
+                day_du = re.split(r"[.;:\n]", truoc)[-1]
+                day_du = re.sub(r"^\s*[0-9a-zđ]{1,3}\)\s*", "", day_du).strip(" ,–-")
+                if len(day_du.split()) < 2:
+                    continue
+                thay.add(alias.lower())
+                ra.append((alias, day_du, True))
+    return ra
+
+
 def _cosine(a: list[float], b: list[float]) -> float:
     tich = sum(x * y for x, y in zip(a, b))
     na, nb = math.sqrt(sum(x * x for x in a)), math.sqrt(sum(x * x for x in b))
@@ -38,9 +78,16 @@ class TuVungLuat:
         self._vec = vec
 
     @classmethod
-    def tu_policy_graph(cls, pg, embed=embed_documents) -> "TuVungLuat":
+    def tu_policy_graph(cls, pg, embed=embed_documents, them=()) -> "TuVungLuat":
         muc = [(k.thuat_ngu, k.dinh_nghia, True) for k in pg.khai_niem]
-        muc += [(p.alias, "", True) for p in pg.premise if getattr(p, "alias", "")]
+        # alias kèm raw_text làm định nghĩa — alias trần thì vector vô nghĩa và
+        # LLM xác nhận mù ("Ngân hàng"→ĐVCNT 0.9, đo 18/08).
+        muc += [
+            (p.alias, _bo_so_khoan(p.raw_text), True)
+            for p in pg.premise if getattr(p, "alias", None)
+        ]
+        da_co = {t.lower() for t, _, _ in muc}
+        muc += [(t, d, m) for t, d, m in them if t.lower() not in da_co]
         vec = embed([f"{t}: {d}" if d else t for t, d, _ in muc]) if muc else []
         return cls(muc, vec)
 

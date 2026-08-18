@@ -33,6 +33,23 @@ def test_xuong_dong_that_trong_chuoi_van_parse_duoc(monkeypatch):
     assert llm.chat_json("x") == {"quote_luat": "quy định tại\nĐiều 12"}
 
 
+def test_embed_chia_lo_100(monkeypatch):
+    # API BatchEmbedContents chỉ nhận ≤100/request (400 khi vượt, lộ 18/08 khi
+    # từ vựng hypernym quá 100 mục) — _embed phải tự chia lô và nối kết quả.
+    lo: list[int] = []
+
+    def _gia_embed(**k):
+        lo.append(len(k["contents"]))
+        return SimpleNamespace(embeddings=[
+            SimpleNamespace(values=[0.0]) for _ in k["contents"]])
+
+    fake = SimpleNamespace(models=SimpleNamespace(embed_content=_gia_embed))
+    monkeypatch.setattr(llm, "get_client", lambda: fake)
+    ra = llm._embed([f"t{i}" for i in range(250)], "RETRIEVAL_DOCUMENT")
+    assert lo == [100, 100, 50]
+    assert len(ra) == 250
+
+
 def test_cut_giua_chung_van_tra_raw(monkeypatch):
     # JSON đứt giữa chừng (không phải đuôi rác) — raw_decode cũng vỡ → giữ _raw
     _gia_lap_resp(monkeypatch, '{"phan_quyet": [{"cu_id": "A", "verd')

@@ -92,18 +92,26 @@ def chat_json(
         return obj if isinstance(obj, dict) else {"_raw": text}
 
 
+# BatchEmbedContentsRequest nhận tối đa 100 request/batch (API 400 khi vượt —
+# lộ 18/08 lúc từ vựng hypernym vượt 100 mục).
+_EMBED_LO = 100
+
+
 @retry(stop=stop_after_attempt(3), wait=wait_exponential(min=1, max=10))
 @observe(name="gemini.embed", as_type="embedding", capture_output=False)
 def _embed(texts: list[str], task_type: str) -> list[list[float]]:
     client = get_client()
-    resp = client.models.embed_content(
-        model=settings.gemini_embed_model,
-        contents=texts,
-        config=types.EmbedContentConfig(
-            task_type=task_type, output_dimensionality=EMBED_DIM
-        ),
-    )
-    return [list(e.values) for e in resp.embeddings]
+    ra: list[list[float]] = []
+    for i in range(0, len(texts), _EMBED_LO):
+        resp = client.models.embed_content(
+            model=settings.gemini_embed_model,
+            contents=texts[i : i + _EMBED_LO],
+            config=types.EmbedContentConfig(
+                task_type=task_type, output_dimensionality=EMBED_DIM
+            ),
+        )
+        ra += [list(e.values) for e in resp.embeddings]
+    return ra
 
 
 def embed_documents(texts: list[str]) -> list[list[float]]:
