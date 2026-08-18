@@ -7,7 +7,7 @@
 > (hoặc chính mình ba tuần sau) bắt tay vào mà không phải điều tra lại. Mọi con số đều kèm
 > ngày đo; số không có ngày là số chưa kiểm.
 >
-> Cập nhật gần nhất: 2026-08-16.
+> Cập nhật gần nhất: 2026-08-18.
 
 ---
 
@@ -389,6 +389,34 @@ hơn, tức ghi công cũ thuộc diện may mắn ở ranh giới.
   không cần chấm cả hợp đồng), đo tần suất lật của k7. Lật thường xuyên → cân nhắc: luôn
   3 phiếu cho lượt toàn-văn, hoặc báo cáo recall dạng khoảng thay vì điểm; hiếm → ghi
   nhận biên và giữ nguyên.
+
+### [ ] T30 · Dữ liệu synthetic từ CU luật — pilot 15 case đạt 7/15, lộ 3 lớp lỗi
+
+Pilot 18/08 (báo cáo đầy đủ: `eval/compliance/synthetic_pilot.md`): sinh điều khoản hợp
+đồng từ 5 CU có ngưỡng/tình thái rõ (TT18-Đ13k3/k4, TT40-Đ25k5/Đ26k1, NĐ52-Đ26k2) × 3
+biến thể `tuan_thu`/`vi_pham`/`thieu_thong_tin`, **nhãn biết trước theo cách sinh** (LLM
+chỉ viết văn), model sinh (chat) ≠ model chấm (reasoning). Chấm bằng pipeline thật.
+
+Kết quả 7/15 khớp end-to-end — theo biến thể: `vi_pham` **4/5** · `tuan_thu` 3/5 ·
+`thieu_thong_tin` 1/5 (số cuối KHÔNG phải recall thật của lớp im-lặng: bắt im lặng là
+việc của lượt toàn-văn, pilot chỉ chấm từng điều đơn lẻ). Ba lớp lỗi lộ ra:
+
+1. **Lỗ phủ gate TT40-Đ26k1** — trượt cả 3 biến thể, kể cả case vi_pham viết thẳng "hạn
+   mức ví điện tử 150.000.000 đồng/tháng". Nghi subject/label CU trong pred.jsonl quá
+   nghèo nên hypernym không nối entity "ví điện tử" tới nó.
+2. **Judge phán `vi_pham` cho điều khoản phủ-định đúng luật** (Đ25k5::tuan_thu — "sẽ
+   KHÔNG nhận tiền mặt nạp ví…" vẫn bị coi là vi phạm, can_cu chỉ chép lại điều khoản).
+   Ca false-positive lớp phủ-định đầu tiên đo được.
+3. **Biên `thieu_thong_tin ↔ khong_ap_dung`** thêm 2 ca — cùng lớp T29.
+
+Bài học khâu sinh: lượt đầu 4/5 case `vi_pham` sai nhãn (model viết điều khoản *chế tài
+vi phạm* thay vì điều khoản trái luật) — phải siết prompt mới ra vi phạm thật ⇒ nhãn
+synthetic bắt buộc qua người duyệt, đúng nguyên tắc đã chốt.
+
+- **Bước đầu tiên:** chủ repo duyệt 15 case trong `eval/compliance/synthetic_pilot.jsonl`
+  (riêng NĐ52-Đ26k2::tuan_thu cần phân xử nhãn — case sinh chung chung, judge chê ngoài
+  phạm vi CU cũng có lý). Sau duyệt: sửa lỗ gate Đ26k1, đưa ca phủ-định vào hàng đợi
+  chất lượng judge, rồi mới mở rộng bộ sinh.
 
 ---
 

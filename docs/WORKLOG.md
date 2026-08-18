@@ -6,6 +6,26 @@
 
 ---
 
+## 2026-08-18 (T2) — pilot dữ liệu synthetic từ CU luật (T30)
+
+- **Done (pilot T30 — sinh case từ luật, nhãn biết trước theo cách sinh).** 5 CU có
+  ngưỡng/tình thái rõ × 3 biến thể = 15 case; sinh bằng chat model, chấm bằng pipeline
+  thật (reasoning model). Kết quả **7/15 khớp end-to-end** (`vi_pham` 4/5 · `tuan_thu`
+  3/5 · `thieu_thong_tin` 1/5 — số cuối là artefact chấm từng-điều, bắt im lặng vốn là
+  việc của lượt toàn-văn). Báo cáo duyệt: `eval/compliance/synthetic_pilot.md`.
+- **Phát hiện.** (1) Lỗ phủ gate TT40-Đ26k1: trượt cả case viết thẳng "hạn mức ví
+  150.000.000 đồng/tháng"; (2) judge phán `vi_pham` cho điều khoản phủ-định đúng luật
+  (ca FP lớp phủ-định đầu tiên); (3) thêm 2 ca biên `thieu_thong_tin ↔ khong_ap_dung`
+  cùng lớp T29. Khâu sinh: lượt đầu 4/5 `vi_pham` sai nhãn (model viết điều khoản chế
+  tài thay vì điều khoản trái luật) — siết prompt mới đạt ⇒ nhãn synthetic phải qua
+  người duyệt.
+- **Decision.** Dữ liệu sinh từ luật công khai ⇒ commit được (khác gold hợp đồng thật);
+  gold thật vẫn là held-out, bộ sinh chỉ dùng phát triển/regression + đo T29.
+- **Next.** Chủ repo duyệt 15 case (riêng NĐ52-Đ26k2::tuan_thu cần phân xử nhãn); sau
+  duyệt: sửa lỗ gate Đ26k1, xếp ca phủ-định vào hàng đợi judge, mở rộng bộ sinh.
+
+---
+
 ## 2026-08-17 (CN) — phân xử #13, chốt schema định nghĩa-vào-judge, mở T28
 
 - **Done (phân xử gold #13 — chủ repo đọc lại comment gốc).** Luật sư đúng về cụm thuật
