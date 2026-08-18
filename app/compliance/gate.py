@@ -24,7 +24,8 @@ _GIOI_HAN_DINH_NGHIA = 8
 #: Nâng khi LOGIC chọn lọc của gate đổi (khoá cache per-điều băm cả hằng này —
 #: dữ liệu pred/khainiem đã băm riêng, nhưng đổi thuật toán thì chỉ có nó biết).
 #: "2" = thêm khớp gần thiếu-token cho định nghĩa (T28, 17/08).
-PHIEN_BAN_GATE = "2"
+#: "3" = cổng chủ-thể phủ-định phân bậc mạnh/yếu, khớp yếu fail-open (T30, 18/08).
+PHIEN_BAN_GATE = "3"
 
 
 class PlanItem(BaseModel):
@@ -50,8 +51,8 @@ def _khop_subject(cu: ActorCU, hypernym: str) -> bool:
     return hypernym.lower() in (cu.subject.text + " " + cu.subject.label).lower()
 
 
-def _khop_dieu_kien_phu_dinh(m: MetaCU, hyp_set: set[str]) -> set[str]:
-    """Hypernym nào khớp đối tượng bị loại trừ trong `m.conditions`.
+def _khop_dieu_kien_phu_dinh(m: MetaCU, hyp_set: set[str]) -> tuple[set[str], set[str]]:
+    """Hypernym khớp đối tượng bị loại trừ trong `m.conditions` — trả (mạnh, yếu).
 
     `Gate.targets` của cổng `chu_the` là khoá node (phạm vi bị chặn — vd
     ["…#khoan_1"], xem `classify.py:296-300`), KHÔNG phải tên chủ thể — giao thẳng
@@ -59,11 +60,26 @@ def _khop_dieu_kien_phu_dinh(m: MetaCU, hyp_set: set[str]) -> set[str]:
     trừ thật sự nằm ở `conditions[].object_label`/`constraint_label`/`text` (mẫu
     thật TT40 Đ26 k2: `pred.jsonl` dòng "chu_the"), do mệnh đề "…không áp dụng đối
     với:" liệt kê chúng ở các Điểm con, không nằm trong bản thân Gate.
+
+    Hai bậc chứng cứ (pilot T30, 18/08): **mạnh** = hypernym BẰNG nguyên cụm
+    object/constraint_label (chuẩn hoá hoa-thường + khoảng trắng) — đủ để xóa CU;
+    **yếu** = chỉ là substring của văn xuôi điều kiện — hypernym generic "giao
+    dịch thanh toán" nằm gọn trong "Các giao dịch thanh toán: … điện; nước…" dù
+    ngoại lệ thật là thanh-toán-tiện-ích, xóa theo nó thì gate nuốt oan CU trần
+    100tr (Đ26k1 trượt cả 3 case synthetic). Yếu → fail-open, judge quyết.
     """
-    text = " ".join(
+    def _chuan(s: str) -> str:
+        return " ".join(s.lower().split())
+
+    nhan = {_chuan(c.object_label) for c in m.conditions} | {
+        _chuan(c.constraint_label) for c in m.conditions
+    }
+    text = _chuan(" ".join(
         f"{c.text} {c.object_label} {c.constraint_label}" for c in m.conditions
-    ).lower()
-    return {hy for hy in hyp_set if hy.lower() in text}
+    ))
+    manh = {hy for hy in hyp_set if _chuan(hy) in nhan}
+    yeu = {hy for hy in hyp_set if _chuan(hy) in text} - manh
+    return manh, yeu
 
 
 def _fail_open(g: Gate, cands: dict[str, tuple[ComplianceUnit, str]], unresolved: set[str]) -> None:
@@ -149,8 +165,8 @@ def _ap_dung_gate(
 
     if g.kind == "chu_the":
         if g.phu_dinh:
-            khop = _khop_dieu_kien_phu_dinh(m, hyp_set)
-            if khop:
+            manh, yeu = _khop_dieu_kien_phu_dinh(m, hyp_set)
+            if manh:
                 bi_loai = [
                     cid for cid, (cu, _) in cands.items()
                     if isinstance(cu, ActorCU) and _target_hit(cid, g.targets)
@@ -158,7 +174,13 @@ def _ap_dung_gate(
                 for cid in bi_loai:
                     del cands[cid]
                 ghi_chu.append(
-                    f"meta {m.id} loại {bi_loai}: chủ thể khớp phủ định {sorted(khop)}"
+                    f"meta {m.id} loại {bi_loai}: chủ thể khớp phủ định {sorted(manh)}"
+                )
+            elif yeu:
+                _fail_open(g, cands, unresolved)
+                ghi_chu.append(
+                    f"meta {m.id} khớp phủ định yếu {sorted(yeu)} "
+                    "(substring văn xuôi điều kiện, không bằng label) — giữ CU + cờ"
                 )
         else:
             # Cổng chủ thể KHẲNG ĐỊNH ("chỉ áp dụng đối với X") chưa có cách

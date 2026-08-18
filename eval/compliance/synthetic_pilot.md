@@ -54,13 +54,24 @@ Theo biến thể: `vi_pham` **4/5** · `tuan_thu` 3/5 · `thieu_thong_tin` 1/5.
 
 ## Ba nhóm lệch — mỗi nhóm một câu hỏi duyệt
 
-### 1 · Gate miss (5 ca) — nặng nhất: TT40-Đ26k1 trượt CẢ 3 biến thể
+### 1 · Gate miss (5 ca) — nặng nhất: TT40-Đ26k1 trượt CẢ 3 biến thể — ĐÃ SỬA 18/08
 
 Case vi_pham của Đ26k1 viết thẳng "hạn mức giao dịch qua ví điện tử cá nhân…
-150.000.000 đồng trong một tháng" mà gate vẫn không đưa CU trần-100tr vào plan (plan có
-14-23 CU khác) ⇒ **lỗ phủ gate thật**, không phải lỗi case. Nghi phạm: subject/label của
-CU này trong pred.jsonl quá nghèo ("tối đa là 100 triệu…" — không nêu chủ thể/dịch vụ) nên
-hypernym không nối được entity "ví điện tử" tới nó.
+150.000.000 đồng trong một tháng" mà CU trần-100tr không vào plan (plan có 14-23 CU
+khác). ~~Nghi subject/label CU nghèo~~ — **probe 18/08 bác giả thuyết đó**: retrieval
+trúng "TT40 Điều 26" top-1 cả 3 case, CU CÓ vào ứng viên, rồi bị meta-CU Đ26k2 ("hạn
+mức không áp dụng đối với…") **xóa oan**: phép khớp phủ-định cũ nhận hypernym là khớp
+khi nó là substring của văn xuôi điều kiện — "giao dịch thanh toán" nằm gọn trong "Các
+giao dịch thanh toán: Thanh toán trực tuyến trên Cổng DVC quốc gia; điện; nước…" dù
+ngoại lệ thật chỉ dành cho thanh-toán tiện ích/dịch vụ công.
+
+**Fix (gate v3, `PHIEN_BAN_GATE="3"`):** phân bậc chứng cứ — hypernym BẰNG nguyên cụm
+`object_label`/`constraint_label` mới được xóa; chỉ substring văn xuôi → fail-open +
+cờ `gate_chua_xac_quyet`, judge quyết. Chấm lại 3 case: gate ✓ cả 3; `tuan_thu` ✓,
+`vi_pham` ✓ (case 150tr bắt được vi phạm); case im-lặng judge ra `thieu_thong_tin` vs
+nhãn duyệt `khong_ap_dung` — thêm một ca biên lớp T29. **Điểm sau fix: 10/14.**
+
+2 gate miss còn lại (đoạn dưới) không đổi.
 
 2 gate miss còn lại đều là biến thể `thieu_thong_tin` — điều khoản cố tình mơ hồ nên
 entity không khớp. **Caveat quan trọng:** trong pipeline thật, bắt "im lặng" là việc của

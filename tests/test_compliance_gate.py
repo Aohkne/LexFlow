@@ -124,6 +124,35 @@ def test_chu_the_khang_dinh_fail_open(monkeypatch):
     assert any("chu_the khẳng định" in g for g in plan.ghi_chu)
 
 
+def test_chu_the_phu_dinh_khop_yeu_thi_fail_open(monkeypatch):
+    # Mẫu thật TT40 Đ26 k2 (pilot T30, 18/08): hypernym generic "giao dịch thanh
+    # toán" là SUBSTRING của văn xuôi điều kiện ("Các giao dịch thanh toán: Thanh
+    # toán trực tuyến trên Cổng DVC quốc gia; điện; nước…") nhưng KHÔNG bằng
+    # object/constraint_label — chứng cứ yếu, xóa cứng là gate nuốt oan CU trần
+    # 100tr (Đ26k1 trượt cả 3 case synthetic). Khớp yếu → giữ CU + cờ.
+    monkeypatch.setattr(gate, "search_in_docs", lambda *a, **k: [_CHUNK_DIEU_5])
+    monkeypatch.setattr(gate, "chu_thich_ket_qua", lambda c, *a, **k: (c, {}))
+    pg = _pg([
+        _actor("A/1#than/dieu_5#khoan_1"),
+        _meta("A/1#than/dieu_5#khoan_2", gates=[{
+            "kind": "chu_the", "pham_vi": "khoan", "targets": ["A/1#than/dieu_5#khoan_1"],
+            "suy_ra_duoc": True, "phu_dinh": True, "ngoai_tru": [], "ghi_chu": "",
+        }], conditions=[_condition(
+            "b) Các giao dịch thanh toán: Thanh toán trực tuyến trên Cổng Dịch vụ "
+            "công quốc gia; điện; nước; viễn thông;",
+            object_label="Các giao dịch thanh toán",
+            constraint_label="Thanh toán trực tuyến trên Cổng Dịch vụ công quốc gia; "
+                             "điện; nước; viễn thông",
+        )]),
+    ])
+    hypernyms = [DeXuat(entity="X", hypernym="giao dịch thanh toán", do_tin=0.8, manh=True)]
+    plan = lap_cu_plan("điều hợp đồng", hypernyms, pg,
+                        ["DOC-A"], as_of="2026-08-18", so_hieu_cua={"DOC-A": "A/1"})
+    assert len(plan.items) == 1
+    assert plan.items[0].gate_chua_xac_quyet is True
+    assert any("yếu" in g for g in plan.ghi_chu)
+
+
 def test_chu_the_phu_dinh_khong_khop_thi_khong_loai(monkeypatch):
     # party KHÔNG phải loại chủ thể bị phủ định → không bị loại
     monkeypatch.setattr(gate, "search_in_docs", lambda *a, **k: [_CHUNK_DIEU_5])

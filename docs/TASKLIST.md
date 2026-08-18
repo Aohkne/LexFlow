@@ -401,9 +401,13 @@ Kết quả 7/15 khớp end-to-end — theo biến thể: `vi_pham` **4/5** · `
 `thieu_thong_tin` 1/5 (số cuối KHÔNG phải recall thật của lớp im-lặng: bắt im lặng là
 việc của lượt toàn-văn, pilot chỉ chấm từng điều đơn lẻ). Ba lớp lỗi lộ ra:
 
-1. **Lỗ phủ gate TT40-Đ26k1** — trượt cả 3 biến thể, kể cả case vi_pham viết thẳng "hạn
-   mức ví điện tử 150.000.000 đồng/tháng". Nghi subject/label CU trong pred.jsonl quá
-   nghèo nên hypernym không nối entity "ví điện tử" tới nó.
+1. **Gate xóa oan TT40-Đ26k1 qua cổng phủ-định** — trượt cả 3 biến thể, kể cả case
+   vi_pham "hạn mức ví 150.000.000 đồng/tháng". Probe 18/08: KHÔNG phải subject nghèo —
+   retrieval trúng Điều 26 top-1, CU vào ứng viên rồi bị meta-CU Đ26k2 xóa vì hypernym
+   generic "giao dịch thanh toán" là substring văn xuôi điều kiện loại trừ. **ĐÃ SỬA**
+   (gate v3): khớp phủ-định phân bậc — bằng nguyên cụm label mới xóa, substring văn
+   xuôi thì fail-open + cờ. Chấm lại: gate ✓ cả 3, tuan_thu ✓, vi_pham ✓; case im-lặng
+   thành ca biên T29 mới. **Điểm sau fix: 10/14.**
 2. **Judge phán `vi_pham` cho điều khoản phủ-định đúng luật** (Đ25k5::tuan_thu — "sẽ
    KHÔNG nhận tiền mặt nạp ví…" vẫn bị coi là vi phạm, can_cu chỉ chép lại điều khoản).
    Ca false-positive lớp phủ-định đầu tiên đo được.
@@ -420,9 +424,11 @@ synthetic bắt buộc qua người duyệt, đúng nguyên tắc đã chốt.
 sai NĐ52-Đ26k2::tuan_thu). Bộ case đã commit (whitelist trong `.gitignore`, sinh từ
 luật công khai).
 
-- **Bước tiếp theo:** sửa lỗ gate TT40-Đ26k1 (soi subject/label CU trong pred.jsonl —
-  vì sao entity "ví điện tử" không nối tới nó); ca judge FP phủ-định chạy lại vài lần
-  xem flip hay ổn định rồi mới quyết sửa prompt; sau đó mới mở rộng bộ sinh.
+- **Bước tiếp theo:** ca judge FP phủ-định (Đ25k5::tuan_thu) chạy lại vài lần xem flip
+  hay ổn định rồi mới quyết sửa prompt; sau đó mới mở rộng bộ sinh. 4 ca lệch còn lại:
+  2 biên T29 (thieu_thong_tin↔khong_ap_dung), 1 judge FP phủ-định, 1 judge chấm sai
+  NĐ52-Đ26k2::tuan_thu; Đ13k4::thieu_thong_tin là artefact chấm từng-điều (việc của
+  lượt toàn-văn).
 
 ---
 

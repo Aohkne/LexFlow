@@ -25,8 +25,15 @@
   `thieu_thong_tin → khong_ap_dung` · 1 loại; NĐ52-Đ26k2::tuan_thu phân xử giữ
   `tuan_thu` ⇒ ca judge chấm `khong_ap_dung` là lỗi hệ thống. **Điểm sau duyệt: 8/14**;
   6 ca lệch đều là lỗi hệ thống xác nhận. Bộ case whitelist vào git (luật công khai).
-- **Next.** Sửa lỗ gate TT40-Đ26k1; đo độ ổn định ca judge FP phủ-định trước khi sửa
-  prompt; mở rộng bộ sinh sau khi hai việc trên xong.
+- **Done (sửa gate v3 — cổng phủ-định phân bậc chứng cứ).** Probe bác giả thuyết
+  "subject nghèo": Đ26k1 vào ứng viên (retrieval trúng Điều 26 top-1) rồi bị meta-CU
+  Đ26k2 xóa oan — hypernym generic "giao dịch thanh toán" substring văn xuôi điều kiện
+  loại trừ. Fix: bằng nguyên cụm label mới xóa; substring văn xuôi → fail-open + cờ
+  (`PHIEN_BAN_GATE="3"`, TDD, 877 test xanh). Chấm lại 3 case Đ26k1: gate ✓ cả 3,
+  case vi_pham 150tr bắt được vi phạm. **Điểm pilot sau fix: 10/14**; case im-lặng
+  Đ26k1 thành ca biên T29 mới (judge thieu_thong_tin vs duyệt khong_ap_dung).
+- **Next.** Đo độ ổn định ca judge FP phủ-định (Đ25k5::tuan_thu) trước khi sửa prompt;
+  mở rộng bộ sinh sau. Cân nhắc chấm lại 2 báo cáo hợp đồng thật với gate v3.
 
 ---
 
