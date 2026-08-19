@@ -904,10 +904,19 @@ R@1 0.473 · R@2 0.619 · R@5 0.769 · **R@20 0.888** · MRR 0.678. Oracle "ch�
   100 trong `_aids_scored`, rerank pool 100, đo F2 var-k trên train; (c) áp file nộp nếu thắng. Tốn
   Cohere budget (100 doc/câu) — chờ account reset. Vướng LanceDB throttle theo tải (~60s/câu lúc nặng).
 
-- **Kỹ thuật 3-5 (chưa lên kế hoạch, sau khi có Bước 0):** (3) HyDE — Gemini sinh câu trả lời giả định
-  rồi embed cái đó thay câu hỏi; query expansion thuật ngữ pháp lý. (4) Sub-query decomposition — tách
-  câu phức, retrieve từng sub, hợp nhất; nhắm 25% câu đa gold. (5) Đổi embedding hợp luật VN
-  (e5/bge-m3 qua inference API) — đòn lớn nhất nhưng vướng cloud-only + re-ingest 77k qua LanceDB.
+- **[x] Kỹ thuật 5a — embedding `paraphrase-vietnamese-law` (model bài báo SBV): ĐÃ THỬ 18/08, THUA XA.**
+  Deploy lên Modal (`eval/modal_embedder.py`, 768-dim, max 300 token), embed 77k chunk → bảng LanceDB
+  **LOCAL** `chunks_vlqa_para` (né cloud throttle; ~$0 GPU), đo vector-only R@k trên 300 câu vs gemini.
+  **Thua thảm mọi k:** R@1 0.159 vs 0.520 (-36pt), R@20 0.468 vs 0.891 (-42pt), R@100 0.675 vs 0.942
+  (-27pt). Lý do: model tuned **câu↔câu paraphrase** (Spearman 0.86 trên cặp câu hỏi), KHÔNG phải
+  câu↔đoạn retrieval; + cắt 300 token điều dài. `gemini-embedding-001` là retrieval embedding mạnh, khó
+  thay. `modal_embedder.py` giữ lại (đổi `EMBED_MODEL_ID` để thử model khác). Scripts `kt5_embed/measure`.
+- **Kỹ thuật 5b (chưa thử) — bge-m3:** retrieval embedding thật (bất đối xứng, 8k token, đa ngữ mạnh) —
+  ứng viên KT5 duy nhất còn lại có cơ thắng gemini. Deploy: đổi `EMBED_MODEL_ID=BAAI/bge-m3` (1024-dim,
+  bảng mới), re-embed, đo. Nhưng gemini vốn mạnh → kỳ vọng marginal; cân nhắc làm KT2 trước.
+- **Kỹ thuật 3-4 (chưa lên kế hoạch):** (3) HyDE — Gemini sinh câu trả lời giả định rồi embed cái đó;
+  query expansion thuật ngữ pháp lý. (4) Sub-query decomposition — tách câu phức, retrieve từng sub,
+  hợp nhất; nhắm 25% câu đa gold.
 
 - **KHÔNG phải đòn:** FAISS chỉ là backend ANN — đã có LanceDB IvfPq (verify), đổi ra cùng kết quả.
   Sweep trọng số hybrid (`TRONG_SO_THUA`) rẻ nhưng gain nhỏ, để kèm lượt khác.
