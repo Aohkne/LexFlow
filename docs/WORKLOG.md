@@ -6,6 +6,21 @@
 
 ---
 
+## 2026-08-19 (T3) — sửa FP phủ-định của judge (T30)
+
+- **Done (sửa prompt judge cho ca FP phủ-định Đ25k5::tuan_thu, 2 vòng).** Vòng 1: chỉ
+  dẫn trừu tượng "cam kết KHÔNG làm điều cấm là tuan_thu" → vẫn `vi_pham`, nhưng can_cu
+  lộ bản chất lỗi: "*Hợp đồng cam kết không thực hiện hành vi mà luật cấm*" — model đọc
+  ĐÚNG phủ định, chỉ **đảo nhãn** (lý do tuân thủ, nhãn vi phạm), không phải bỏ sót chữ
+  "không". Vòng 2: thay bằng ví dụ cặp đôi cụ thể trong `_SYSTEM` (cấm trả lãi ví:
+  "không được trả lãi"→tuan_thu / "trả lãi 0,5%/năm"→vi_pham) → cả 3 case Đ25k5 đúng,
+  case `vi_pham` thật không regress. **Điểm pilot: 10/14** (còn lệch: 2 ca biên T29,
+  1 cú lật NĐ52, 1 gate miss thuộc lượt toàn-văn). Ruff + 881 test xanh.
+- **Ghi chú.** Đổi `_SYSTEM` đổi khoá cache judge — cache 2 báo cáo hợp đồng thật vốn
+  đã vô hiệu từ 18/08, không mất thêm gì.
+- **Next.** Đo tần suất lật bằng giàn synthetic (T29); sau đó mở rộng bộ sinh; cân nhắc
+  chấm lại 2 báo cáo hợp đồng thật với gate v3 + từ vựng + prompt mới.
+
 ## 2026-08-18 (T2) — pilot dữ liệu synthetic từ CU luật (T30)
 
 - **Done (pilot T30 — sinh case từ luật, nhãn biết trước theo cách sinh).** 5 CU có

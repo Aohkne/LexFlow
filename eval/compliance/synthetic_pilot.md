@@ -81,7 +81,7 @@ Sau khi từ vựng hypernym mang định nghĩa (fix "Ngân hàng"→ĐVCNT) v�
 
 | Ca lệch | Diễn giải |
 |---|---|
-| Đ25k5::tuan_thu → vi_pham | FP phủ-định **lần 2 liên tiếp** ⇒ lỗi ổn định mức prompt, không phải flip |
+| Đ25k5::tuan_thu → vi_pham | FP phủ-định **lần 2 liên tiếp** ⇒ lỗi ổn định mức prompt, không phải flip — **đã sửa 19/08** (mục 2 dưới), điểm lên 10/14 |
 | Đ26k1::thieu_thong_tin → thieu_thong_tin (duyệt: khong_ap_dung) | biên T29 |
 | NĐ52-Đ26k2 cả 3 → khong_ap_dung | `vi_pham` case **lật** vi_pham→khong_ap_dung so với lần trước — lần lật thứ 3 đo được của lớp T29, lần này ở cặp vi_pham↔khong_ap_dung |
 | Đ13k4::thieu_thong_tin gate miss | việc của lượt toàn-văn |
@@ -94,12 +94,20 @@ entity không khớp. **Caveat quan trọng:** trong pipeline thật, bắt "im 
 lượt **toàn-văn** (lap_plan_toan_van), pilot này chỉ chấm từng điều đơn lẻ ⇒ 1/5 của
 thieu_thong_tin KHÔNG được đọc là recall thật của lớp này.
 
-### 2 · Judge phán vi_pham cho điều khoản PHỦ ĐỊNH đúng luật (1 ca)
+### 2 · Judge phán vi_pham cho điều khoản PHỦ ĐỊNH đúng luật (1 ca) — ĐÃ SỬA 19/08
 
 Đ25k5::tuan_thu: điều khoản cam kết "**sẽ không** nhận tiền mặt nạp ví, **không** cấp tín
 dụng, **không** trả lãi số dư ví" — thuận luật hoàn toàn — nhưng judge ra `vi_pham`, và
 can_cu chỉ… chép lại nội dung điều khoản. Nghi model bắt bề mặt cụm "cấp tín dụng/trả
 lãi" mà bỏ qua phủ định. Ca false-positive lớp phủ-định đầu tiên đo được.
+
+**Fix 19/08, mất 2 vòng — chẩn đoán ban đầu sai một nửa:** vòng 1 thêm chỉ dẫn trừu
+tượng "cam kết KHÔNG làm điều cấm là tuan_thu" vào `_SYSTEM` → vẫn `vi_pham`, nhưng
+can_cu lộ bản chất: "*Hợp đồng cam kết không thực hiện hành vi mà luật cấm*" — model
+ĐỌC ĐÚNG phủ định, chỉ **đảo nhãn** (lý do tuân thủ, nhãn vi phạm). Vòng 2 thay bằng
+ví dụ cặp đôi cụ thể (cấm trả lãi ví: "không được trả lãi"→tuan_thu / "trả lãi
+0,5%/năm"→vi_pham) → cả 3 case Đ25k5 đúng, case `vi_pham` thật không regress.
+**Điểm sau fix: 10/14.** Đổi `_SYSTEM` cũng đổi khoá cache (vốn đã vô hiệu từ 18/08).
 
 ### 3 · Biên thieu_thong_tin ↔ khong_ap_dung (2 ca) — đúng lớp T29
 

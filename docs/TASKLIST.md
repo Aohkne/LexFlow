@@ -433,10 +433,16 @@ worklog): **9/14, gate hit 14/15** — điểm giảm 1 hoàn toàn do NĐ52-Đ2
 vi_pham→khong_ap_dung giữa hai lần chạy (lần lật thứ 3 của lớp T29, lần này ở cặp
 nặng vi_pham↔khong_ap_dung); từ vựng mới không làm hỏng gate (hit 11/15→14/15).
 
-- **Bước tiếp theo:** ca FP phủ-định Đ25k5::tuan_thu đã tái hiện 2 lần liên tiếp ⇒ lỗi
-  ổn định mức prompt — sửa prompt judge (nhấn "điều khoản CAM KẾT KHÔNG làm điều cấm
-  là tuân thủ") và đo lại; cú lật NĐ52-Đ26k2 nhập vào T29. Sau hai việc đó mới mở
-  rộng bộ sinh.
+~~Sửa prompt judge cho ca FP phủ-định~~ — **ĐÃ SỬA 19/08**, mất 2 vòng: chỉ dẫn trừu
+tượng ("cam kết KHÔNG làm điều cấm là tuân thủ") KHÔNG đủ — judge vẫn ra `vi_pham` với
+can_cu "*Hợp đồng cam kết không thực hiện hành vi mà luật cấm*" (lý-do-tuân-thủ dán
+nhãn-vi-phạm = đảo nhãn, không phải đọc sai phủ định). Phải thêm ví dụ cụ thể cặp
+đôi (cấm trả lãi ví: "không được trả lãi"→tuan_thu / "trả lãi 0,5%/năm"→vi_pham) mới
+hết. Chấm lại 3 case Đ25k5: cả 3 đúng, case `vi_pham` thật không hỏng. **Điểm: 10/14.**
+Lưu ý: đổi `_SYSTEM` đổi khoá cache — cache 2 báo cáo hợp đồng thật vốn đã vô hiệu.
+
+- **Bước tiếp theo:** đo tần suất lật bằng giàn synthetic (T29), rồi mới mở rộng bộ
+  sinh (CU `chi_duoc`/`cho_phep`, case toàn-văn cho lớp thieu_thong_tin).
 
 ---
 
