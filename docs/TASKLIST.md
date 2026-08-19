@@ -403,10 +403,19 @@ hơn, tức ghi công cũ thuộc diện may mắn ở ranh giới.
   ổn định khi plan cố định" là sạch — cùng code, cùng plan, cùng prompt.) Bằng chứng
   cùng chiều: Đ13k3::thieu_thong_tin lượt này 5×khong_ap_dung ổn định, trong khi lượt
   18/08 (plan từ lần trích khác) ra thieu_thong_tin — cùng case, khác plan, khác verdict.
-- **Bước tiếp theo (đổi hướng sau đo 19/08):** đo variance của `trich_triples` — chạy
-  trích N lần trên 2-3 case biên, diff entities/hypernyms/plan; nếu plan đổi thật thì
-  hướng vá là ổn định hoá đầu vào judge (sort plan, chốt entities), không phải thêm
-  phiếu judge.
+- **Đo tiếp 19/08 — TÌM RA THỦ PHẠM, không phải "Gemini temp-0 trôi".** Đo variance
+  từng mắt xích trên 3 case biên (5 lần/case): `trich_triples` 5/5 bộ entities Y HỆT,
+  hypernym y hệt, embedding query bit-identical (2 lần gọi, diff = 0.0) — nhưng plan
+  case NĐ52-Đ26k2::vi_pham vẫn có 1/5 lần MẤT 3 CU Điều 22. Cơ chế (kiểm chứng bằng
+  diff hybrid vs vector-only): `_bat_fts` (retrieval.py:60) **nuốt mọi exception, trả
+  `[]` fail-open** — khi LanceDB Cloud blip mạng thoáng qua (đo được 2 lần ngay trong
+  phiên 19/08), RRF chỉ còn nhánh vector, top-8 đổi: mất (Đ35, Đ22k2), thêm (Đ20k4-5,
+  Đ32) ⇒ plan ±3 CU ⇒ ngữ cảnh judge đổi ⇒ verdict biên lật. Fail-open "vì còn vector
+  gánh" hoá ra KHÔNG trung tính với ranking.
+- **Bước tiếp theo (hướng vá mới):** cho `_bat_fts` vòng retry như `_vector_hits`
+  (5/15/45s), hết retry thì raise thay vì âm thầm degrade — batch nào cũng có
+  checkpoint nên chết-rồi-resume tốt hơn verdict đổi âm thầm; sau vá chạy lại giàn
+  synthetic full-pipeline N lần xác nhận hết lật.
 
 ### [ ] T30 · Dữ liệu synthetic từ CU luật — pilot 15 case đạt 7/15, lộ 3 lớp lỗi
 

@@ -26,9 +26,16 @@
   đổi). Bằng chứng cùng chiều: Đ13k3::ttt lượt này 5×khong_ap_dung, lượt 18/08 (plan
   khác) ra thieu_thong_tin. Dữ liệu: `eval/compliance/t29_lat.jsonl`. Job bị máy kill
   2 lần, checkpoint per (case, lượt) resume trơn.
-- **Next.** Đo variance `trich_triples` trên 2-3 case biên (hướng vá mới của T29: ổn
-  định hoá đầu vào judge, không phải thêm phiếu); mở rộng bộ sinh; cân nhắc chấm lại
-  2 báo cáo hợp đồng thật với gate v3 + từ vựng + prompt mới.
+- **Done (T29 — truy ra thủ phạm lật verdict).** Đo variance từng mắt xích (3 case
+  biên × 5 lần): trich_triples y hệt 5/5, hypernym y hệt, embedding bit-identical —
+  nhưng plan NĐ52 vẫn 1/5 lần mất 3 CU Điều 22. Cơ chế kiểm chứng được: `_bat_fts`
+  nuốt exception trả `[]` fail-open, LanceDB Cloud blip mạng (2 lần ngay trong phiên)
+  → RRF chỉ còn vector → top-8 đổi (mất Đ35+Đ22k2, thêm Đ20k4-5+Đ32) → plan ±3 CU →
+  verdict biên lật. KHÔNG phải "Gemini temp-0 trôi" như giả thuyết cũ.
+- **Next.** Vá `_bat_fts`: retry như `_vector_hits`, hết retry thì raise (batch có
+  checkpoint, chết-rồi-resume hơn verdict đổi âm thầm), rồi chạy giàn synthetic
+  full-pipeline N lần xác nhận hết lật; mở rộng bộ sinh; cân nhắc chấm lại 2 báo cáo
+  hợp đồng thật.
 
 ## 2026-08-18 (T2) — pilot dữ liệu synthetic từ CU luật (T30)
 
