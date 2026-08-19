@@ -893,9 +893,19 @@ R@1 0.473 · R@2 0.619 · R@5 0.769 · **R@20 0.888** · MRR 0.678. Oracle "ch�
   mọi k +4-7pt trên 300 câu train). NHƯNG **hybrid gần như không đổi** (F2@2 0.553→0.554, +0.001), và
   tăng trọng số BM25 (`TRONG_SO_THUA` 0.1→0.25+) lại **hại** (F2@2 xuống 0.534→0.483). Vì nhánh **vector
   áp đảo** — gold BM25 mới bắt được thì vector đã có (khớp Phase 0: FTS chỉ cứu 25% miss, phần lớn trùng
-  vector). Kết luận: tokenizer chỉ giúp BM25 cô lập, vô nghĩa khi hybrid vector-dominated. Không thử tiếp
-  word-segment (pyvi) — cùng nhánh, cùng trần. Index `chunks_vlqa` để lại ở `ascii_folding=False` (trung
-  tính +0.001; re-ingest sau sẽ về `_FTS_OPTS` fold=True). Caches `cache-vlqa-train-branches/fts-nofold`.
+  vector). Kết luận: tokenizer chỉ giúp BM25 cô lập, vô nghĩa khi hybrid vector-dominated. Index `chunks_vlqa`
+  để lại ở `ascii_folding=False` (trung tính +0.001; re-ingest sau về `_FTS_OPTS` fold=True). Caches
+  `cache-vlqa-train-branches/fts-nofold`.
+- **[x] Kỹ thuật 1b — word-segment BM25 (pyvi): ĐÃ THỬ 18/08, dương NHỎ + phát hiện sản phẩm.** Tokenizer
+  `simple` cắt tiếng Việt cấp ÂM TIẾT ("ngân hàng"→["ngân","hàng"]) — sai cho tiếng Việt. Segment bằng
+  `pyvi` (nối "ngân_hàng") + bỏ dấu câu + `base_tokenizer='whitespace'` (simple TÁCH trên `_`, whitespace
+  không) + `ascii_folding=False`. Bảng FTS LOCAL `chunks_vlqa_seg` (77k, ~5 phút). **BM25-only tăng mạnh:
+  R@2 0.361→0.470 (+10.9pt), R@20 0.673→0.755 (+8.2pt)** — hơn hẳn ascii_folding. **Hybrid: F2@2
+  0.553→0.562 (+0.009)** ở w=0.1 (tăng weight vẫn hại) — THẬT nhưng nhỏ vì vector áp đảo. Word-seg là đòn
+  BM25 mạnh nhất nhưng lợi hybrid vẫn khiêm tốn cho VLQA. **Giá trị lớn hơn ở SẢN PHẨM: FTS banking
+  (`_FTS_OPTS`) cũng cấp âm tiết (T8) → word-seg pyvi có thể nâng nhánh BM25 sản phẩm, đo trên bo_sbv.**
+  Scripts `kt1b_build/measure` (cần `pyvi` — chưa thêm vào deps chính vì chỉ script thí nghiệm dùng;
+  cài lại khi hiện thực word-seg cho sản phẩm).
 
 - **[x] Kỹ thuật 2 — deep-pool rerank (20→100): ĐÃ THỬ 18/08, KHÔNG giúp (âm).** Retrieve hybrid top-100,
   rerank 100 (Cohere), so var-k pool-20/50/100 trên 200 câu train. **F2@2: pool-20 = 0.568, pool-100 =
