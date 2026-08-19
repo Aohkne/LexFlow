@@ -888,12 +888,14 @@ R@1 0.473 · R@2 0.619 · R@5 0.769 · **R@20 0.888** · MRR 0.678. Oracle "ch�
   FTS-only không? → biết miss do embedding (cả hai trượt) hay do chunking/tokenizer (một nhánh trượt).
   Không đo cái này thì 1/3/5 dưới là đoán mò.
 
-- **[KẾ HOẠCH] Kỹ thuật 1 — tokenizer FTS tiếng Việt.** Index FTS hiện `base_tokenizer='simple',
-  language='English', ascii_folding=true, ngram 3-3` (kiểm `chunks_vlqa` 18/08) → văn bản luật VN bị
-  tokenize kiểu Anh + BỎ DẤU ("có/cỏ/cọ"→"co"). Cùng bệnh T8 mức banking. **Bước:** (a) đo baseline
-  BM25-only R@k trên train hiện tại; (b) rebuild FTS index `chunks_vlqa` với cấu hình khác (thử: bỏ
-  `ascii_folding`; hoặc word-tokenize VN qua underthesea/pyvi trước khi index) — CHỈ đụng cột `text`,
-  KHÔNG re-embed; (c) đo lại BM25-only R@k, so. Rẻ nhất, ăn thẳng nhánh yếu.
+- **[x] Kỹ thuật 1 — tokenizer FTS tiếng Việt: ĐÃ THỬ 18/08, KHÔNG đáng (negative).** Rebuild FTS
+  `chunks_vlqa` với `ascii_folding=False` (giữ dấu) — **BM25-only tăng rõ** (R@20 0.673→0.740, +6.7pt;
+  mọi k +4-7pt trên 300 câu train). NHƯNG **hybrid gần như không đổi** (F2@2 0.553→0.554, +0.001), và
+  tăng trọng số BM25 (`TRONG_SO_THUA` 0.1→0.25+) lại **hại** (F2@2 xuống 0.534→0.483). Vì nhánh **vector
+  áp đảo** — gold BM25 mới bắt được thì vector đã có (khớp Phase 0: FTS chỉ cứu 25% miss, phần lớn trùng
+  vector). Kết luận: tokenizer chỉ giúp BM25 cô lập, vô nghĩa khi hybrid vector-dominated. Không thử tiếp
+  word-segment (pyvi) — cùng nhánh, cùng trần. Index `chunks_vlqa` để lại ở `ascii_folding=False` (trung
+  tính +0.001; re-ingest sau sẽ về `_FTS_OPTS` fold=True). Caches `cache-vlqa-train-branches/fts-nofold`.
 
 - **[KẾ HOẠCH] Kỹ thuật 2 — deep-pool rerank (20→100).** Rerank top-100 thay top-20 → gold hybrid xếp
   hạng 21-100 có cơ hội lên top-2. R@20 0.89 vẫn đang tăng (R@10 0.84→R@20 0.89) nên pool 100 có
