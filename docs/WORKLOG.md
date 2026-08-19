@@ -18,8 +18,17 @@
   1 cú lật NĐ52, 1 gate miss thuộc lượt toàn-văn). Ruff + 881 test xanh.
 - **Ghi chú.** Đổi `_SYSTEM` đổi khoá cache judge — cache 2 báo cáo hợp đồng thật vốn
   đã vô hiệu từ 18/08, không mất thêm gì.
-- **Next.** Đo tần suất lật bằng giàn synthetic (T29); sau đó mở rộng bộ sinh; cân nhắc
-  chấm lại 2 báo cáo hợp đồng thật với gate v3 + từ vựng + prompt mới.
+- **Done (T29 — đo tần suất lật verdict trên giàn synthetic).** 14 case, plan dựng MỘT
+  lần/case rồi `phan_dinh` 5 lượt độc lập (cô lập variance judge khỏi variance trích):
+  **0/14 case lật** — 70 lượt verdict y hệt, kể cả ca từng lật NĐ52-Đ26k2::vi_pham.
+  Kết luận đảo giả thuyết cũ: judge tự nhất quán ỔN ĐỊNH khi plan cố định; 3 cú lật
+  lịch sử nằm ở tầng trước (trich_triples đổi entities → plan đổi → ngữ cảnh judge
+  đổi). Bằng chứng cùng chiều: Đ13k3::ttt lượt này 5×khong_ap_dung, lượt 18/08 (plan
+  khác) ra thieu_thong_tin. Dữ liệu: `eval/compliance/t29_lat.jsonl`. Job bị máy kill
+  2 lần, checkpoint per (case, lượt) resume trơn.
+- **Next.** Đo variance `trich_triples` trên 2-3 case biên (hướng vá mới của T29: ổn
+  định hoá đầu vào judge, không phải thêm phiếu); mở rộng bộ sinh; cân nhắc chấm lại
+  2 báo cáo hợp đồng thật với gate v3 + từ vựng + prompt mới.
 
 ## 2026-08-18 (T2) — pilot dữ liệu synthetic từ CU luật (T30)
 

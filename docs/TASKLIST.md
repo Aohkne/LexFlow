@@ -393,6 +393,20 @@ hơn, tức ghi công cũ thuộc diện may mắn ở ranh giới.
   `vi_pham → khong_ap_dung` giữa hai lần chấm — nặng hơn cặp
   thieu_thong_tin↔khong_ap_dung vì mất hẳn một cảnh báo vi phạm. Bộ synthetic giờ là
   giàn đo sẵn cho task này (chấm lại N lần, đếm tần suất lật từng case).
+- **Đo 19/08 (giàn synthetic, `eval/compliance/t29_lat.jsonl`): judge KHÔNG phải nguồn
+  dao động.** 14 case, plan dựng MỘT lần/case rồi `phan_dinh` 5 lượt độc lập: **0/14
+  case lật** — 70 lượt (mỗi lượt 2-3 phiếu bên trong) ra verdict y hệt, kể cả
+  NĐ52-Đ26k2::vi_pham từng lật 18/08 (nay 5×vi_pham) và các ca biên ttt↔kad. Suy ra
+  3 cú lật lịch sử nằm ở **tầng trước judge**: `trich_triples` (LLM) đổi entities →
+  hypernym → thành phần/thứ tự plan đổi → judge nhìn ngữ cảnh khác. (Caveat: các cú
+  lật lịch sử đo giữa các phiên bản code khác nhau nên còn nhiễu; nhưng chiều "judge
+  ổn định khi plan cố định" là sạch — cùng code, cùng plan, cùng prompt.) Bằng chứng
+  cùng chiều: Đ13k3::thieu_thong_tin lượt này 5×khong_ap_dung ổn định, trong khi lượt
+  18/08 (plan từ lần trích khác) ra thieu_thong_tin — cùng case, khác plan, khác verdict.
+- **Bước tiếp theo (đổi hướng sau đo 19/08):** đo variance của `trich_triples` — chạy
+  trích N lần trên 2-3 case biên, diff entities/hypernyms/plan; nếu plan đổi thật thì
+  hướng vá là ổn định hoá đầu vào judge (sort plan, chốt entities), không phải thêm
+  phiếu judge.
 
 ### [ ] T30 · Dữ liệu synthetic từ CU luật — pilot 15 case đạt 7/15, lộ 3 lớp lỗi
 

@@ -57,4 +57,5 @@ eval/compliance/*.md
 !eval/compliance/synthetic_pilot.jsonl
 !eval/compliance/synthetic_pilot.kq.jsonl
 !eval/compliance/synthetic_pilot.md
+!eval/compliance/t29_lat.jsonl
 eval/compliance/synthetic_pilot.html
