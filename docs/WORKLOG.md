@@ -36,8 +36,29 @@ top-2 khi rerank lỗi 429); `thu_rerank.rerank_scored()` (trả kèm điểm, c
 rerank hay variable-k-theo-|gold|); ngưỡng chốt bằng CV chứ không sweep-trên-chính-nó. **Hạ tầng:**
 LanceDB Cloud throttle theo tải (~60s/câu lúc nặng, ~5s lúc rảnh) — grind qua foreground 10-phút +
 relaunch; Cohere trial giới hạn theo TÀI KHOẢN (key mới cùng account vẫn 429), phải account mới.
-**Next:** public var-k đã nộp (0.5472); đòn tiếp là **recall** (11% gold ngoài top-20) — embedding/chunking
-hợp luật VN hơn, ghi TASKLIST T117. Xác nhận schema với organizer.
+**Next:** public var-k đã nộp (0.5472); đòn tiếp là **recall** (11% gold ngoài top-20) → điều tra ở T118.
+
+### T118 — điều tra nâng recall: 3 đòn đều ÂM, retrieval chạm trần thực dụng
+
+Sau var-k, F2 bị chặn bởi recall (R@20=0.89). Chẩn đoán rồi thử có kỷ luật, tất cả đo trên 300 câu train:
+
+- **Phase 0 — 11% miss chia đôi:** 51% gold nằm sẵn trong top-100 (vec∪fts), 49% miss hẳn cả hai nhánh.
+- **KT1 tokenizer FTS (bỏ `ascii_folding`):** BM25-only +6.7pt R@20 nhưng **hybrid +0.001** — vector áp đảo,
+  gold BM25 mới bắt thì vector đã có. Tăng trọng số BM25 còn hại. **Âm.**
+- **KT5 embedding `paraphrase-vietnamese-law`** (model bài báo SBV, deploy Modal→embed 77k→bảng local):
+  vector-only **thua gemini -42pt R@20** (0.468 vs 0.891). Model tuned câu↔câu paraphrase, không phải
+  câu↔đoạn retrieval; + cắt 300 token. **Âm.**
+- **KT2 deep-pool rerank (20→100):** F2@2 pool-100 (0.564) ≤ pool-20 (0.568). Rerank không kéo được gold
+  hạng 21-100 lên top-2 (tín hiệu yếu), thêm distractor hại nhẹ. **Âm.**
+
+**Kết luận:** `gemini-embedding-001` hybrid + var-k đã gần trần thực dụng cho VLQA — 11% miss là câu tín
+hiệu yếu, không cứu bằng tokenizer/pool sâu/embedding-domain. Đây là tin tốt: nền retrieval đã mạnh,
+không phí công thay. Còn `bge-m3` (retrieval embedding thật) chưa thử — ứng viên cuối, kỳ vọng marginal.
+
+**Ship:** `eval/modal_embedder.py` (Modal embedding harness, đổi model qua `EMBED_MODEL_ID`); `_rrf` gắn
+`_rrf_score`. Không đụng runtime sản phẩm. **Decision:** dừng điều tra recall — var-k (private 0.581 /
+public 0.5472) là kết quả chốt; ba đòn nền cho thấy gemini khó cải thiện. **Next:** (tuỳ chọn) bge-m3;
+xác nhận schema organizer.
 
 ## 2026-08-17 — T117 VLQA: ingest full + đo IR thật + file nộp public/private
 
