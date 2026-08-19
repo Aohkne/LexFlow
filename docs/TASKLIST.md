@@ -897,12 +897,11 @@ R@1 0.473 · R@2 0.619 · R@5 0.769 · **R@20 0.888** · MRR 0.678. Oracle "ch�
   word-segment (pyvi) — cùng nhánh, cùng trần. Index `chunks_vlqa` để lại ở `ascii_folding=False` (trung
   tính +0.001; re-ingest sau sẽ về `_FTS_OPTS` fold=True). Caches `cache-vlqa-train-branches/fts-nofold`.
 
-- **[KẾ HOẠCH] Kỹ thuật 2 — deep-pool rerank (20→100).** Rerank top-100 thay top-20 → gold hybrid xếp
-  hạng 21-100 có cơ hội lên top-2. R@20 0.89 vẫn đang tăng (R@10 0.84→R@20 0.89) nên pool 100 có
-  headroom. **Bước:** (a) A-gate — retrieve hybrid top-100 trên ~200 câu train (script `deep_pool.py`
-  đã có, chạy dở), đo R@50/R@100 + đếm câu có gold MỚI ở hạng 21-100; (b) nếu có headroom → set `_POOL`
-  100 trong `_aids_scored`, rerank pool 100, đo F2 var-k trên train; (c) áp file nộp nếu thắng. Tốn
-  Cohere budget (100 doc/câu) — chờ account reset. Vướng LanceDB throttle theo tải (~60s/câu lúc nặng).
+- **[x] Kỹ thuật 2 — deep-pool rerank (20→100): ĐÃ THỬ 18/08, KHÔNG giúp (âm).** Retrieve hybrid top-100,
+  rerank 100 (Cohere), so var-k pool-20/50/100 trên 200 câu train. **F2@2: pool-20 = 0.568, pool-100 =
+  0.564** (hơi TỆ hơn). Deep-pool đưa 51% miss vào pool (Phase 0) nhưng rerank **không kéo chúng lên
+  top-2** (hybrid xếp thấp vì tín hiệu yếu), thêm distractor lại hại nhẹ. `_POOL=20` là đúng. Script
+  `kt2.py`, cache `cache-vlqa-train-pool100rr`.
 
 - **[x] Kỹ thuật 5a — embedding `paraphrase-vietnamese-law` (model bài báo SBV): ĐÃ THỬ 18/08, THUA XA.**
   Deploy lên Modal (`eval/modal_embedder.py`, 768-dim, max 300 token), embed 77k chunk → bảng LanceDB
