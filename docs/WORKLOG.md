@@ -22,7 +22,9 @@ train R@2 0.619 ≈ private recall 0.609).
   68 câu train: gain out-of-sample +0.048**, cả 2 fold chọn cùng ngưỡng (ổn định, không may rủi).
 - **Xác nhận trên leaderboard THẬT:** private **F2 0.5355 → 0.581** (+4.6pt), **Precision 0.3612 →
   0.4468** (+8.6pt), Recall 0.609 → 0.6281 (+1.9pt). Khớp gần khít dự đoán (+0.048). k-dist private
-  37/14/49 ≈ train 46/7/47 → không distribution-shift.
+  37/14/49 ≈ train 46/7/47 → không distribution-shift. **Public var-k: F2 0.5472, Precision 0.4247,
+  Recall 0.5897** (302 rerank + 10 fallback hybrid do cạn budget Cohere; recall thấp hơn private —
+  split khó hơn, đúng trần recall R@20 0.89).
 - **Phát hiện phụ:** rerank Cohere đo trên 300 câu đầu (+4pt) **không transfer** sang full private
   (0.5355 ≈ hybrid thuần 0.533) — cái +4pt là overfit subset dễ. Đòn thật là **cutoff theo độ tin cậy**,
   không phải bản thân rerank.
@@ -34,7 +36,8 @@ top-2 khi rerank lỗi 429); `thu_rerank.rerank_scored()` (trả kèm điểm, c
 rerank hay variable-k-theo-|gold|); ngưỡng chốt bằng CV chứ không sweep-trên-chính-nó. **Hạ tầng:**
 LanceDB Cloud throttle theo tải (~60s/câu lúc nặng, ~5s lúc rảnh) — grind qua foreground 10-phút +
 relaunch; Cohere trial giới hạn theo TÀI KHOẢN (key mới cùng account vẫn 429), phải account mới.
-**Next:** dựng public var-k (đang chạy, ~300 Cohere budget còn); nộp public; xác nhận schema organizer.
+**Next:** public var-k đã nộp (0.5472); đòn tiếp là **recall** (11% gold ngoài top-20) — embedding/chunking
+hợp luật VN hơn, ghi TASKLIST T117. Xác nhận schema với organizer.
 
 ## 2026-08-17 — T117 VLQA: ingest full + đo IR thật + file nộp public/private
 
