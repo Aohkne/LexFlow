@@ -866,8 +866,49 @@ public/private test 312 / 627 câu (nhãn rỗng — nộp)
     (Modal) HẠI** (F2@2 0.557→0.516, tụt mọi metric); **Cohere `rerank-v3.5` GIÚP** (R@2 +2.2pt, **F2@2
     0.557→0.575**, mất đuôi R@20 −1.0). Khớp SBV (Cohere >> ViRanker). Vì nộp k=2, cải thiện F2@2 ăn thẳng
     điểm → **áp Cohere rerank cho file nộp** (public+private). Gain khiêm tốn nhưng dương.
-  - **Còn lại:** nộp lên leaderboard + xác nhận schema với organizer (`minhnt@jaist.ac.jp`); tuỳ chọn
-    thêm cột baseline (BM25/NaiveRAG) để so sâu.
+  - **VARIABLE-K XONG (18/08) — leaderboard xác nhận.** Rerank Cohere đo trên 300 câu ĐẦU không transfer
+    sang full private (private rerank+k2 = 0.5355 ≈ hybrid thuần 0.533) — cái +4pt là overfit subset dễ.
+    Đòn thật là **cutoff theo độ tin cậy điểm rerank** (`--var-k`): biên top1-top2 ≥0.05 → nộp 1; top2≈top3
+    ≤0.05 (đa gold) → nộp 3; else 2. Ngưỡng chốt bằng **2-fold CV trên 68 câu train** (gain out-of-sample
+    +0.048, cả 2 fold cùng ngưỡng). biên điểm RRF thì VÔ DỤNG (theo rank, không phân biệt) — phải điểm
+    rerank. **Leaderboard THẬT:** private F2 **0.5355→0.581** (P 0.361→0.447, R 0.609→0.628); public F2
+    **0.5472** (P 0.425, R 0.590). Code ở `_var_k`/`_aids_scored`/`thu_rerank.rerank_scored`, commit `c693053`.
+  - **Còn lại:** xác nhận schema với organizer (`minhnt@jaist.ac.jp`); nâng recall → **T118** (đòn tiếp).
+    10 câu public cuối bị fallback hybrid (cạn budget Cohere trial) — nâng lên rerank khi account reset, marginal.
+
+### [ ] T118 · VLQA — nâng trần recall (R@20 = 0.89, 11% gold ngoài top-20)
+
+Sau var-k (T117), cutoff đã vắt kiệt; F2 giờ bị chặn bởi **recall**. Đo 18/08 trên 2.188 câu train:
+R@1 0.473 · R@2 0.619 · R@5 0.769 · **R@20 0.888** · MRR 0.678. Oracle "chọn k đúng mỗi câu" trần
+0.708 nhưng chỉ đạt được nếu gold nằm TRONG pool — 11% gold không hề lọt top-20 nên cutoff không cứu
+được. Mọi kỹ thuật dưới chỉ đáng làm nếu **kéo gold bị miss vào pool** hoặc **đẩy gold lên top-2**.
+
+- **Bước 0 — chẩn đoán 11% miss TRƯỚC (rẻ, quyết định tất cả).** Chưa biết gold bị miss ở nhánh nào.
+  In, với mỗi câu train mà gold ngoài top-20: gold đó có trong top-100 vector-only không? top-100
+  FTS-only không? → biết miss do embedding (cả hai trượt) hay do chunking/tokenizer (một nhánh trượt).
+  Không đo cái này thì 1/3/5 dưới là đoán mò.
+
+- **[KẾ HOẠCH] Kỹ thuật 1 — tokenizer FTS tiếng Việt.** Index FTS hiện `base_tokenizer='simple',
+  language='English', ascii_folding=true, ngram 3-3` (kiểm `chunks_vlqa` 18/08) → văn bản luật VN bị
+  tokenize kiểu Anh + BỎ DẤU ("có/cỏ/cọ"→"co"). Cùng bệnh T8 mức banking. **Bước:** (a) đo baseline
+  BM25-only R@k trên train hiện tại; (b) rebuild FTS index `chunks_vlqa` với cấu hình khác (thử: bỏ
+  `ascii_folding`; hoặc word-tokenize VN qua underthesea/pyvi trước khi index) — CHỈ đụng cột `text`,
+  KHÔNG re-embed; (c) đo lại BM25-only R@k, so. Rẻ nhất, ăn thẳng nhánh yếu.
+
+- **[KẾ HOẠCH] Kỹ thuật 2 — deep-pool rerank (20→100).** Rerank top-100 thay top-20 → gold hybrid xếp
+  hạng 21-100 có cơ hội lên top-2. R@20 0.89 vẫn đang tăng (R@10 0.84→R@20 0.89) nên pool 100 có
+  headroom. **Bước:** (a) A-gate — retrieve hybrid top-100 trên ~200 câu train (script `deep_pool.py`
+  đã có, chạy dở), đo R@50/R@100 + đếm câu có gold MỚI ở hạng 21-100; (b) nếu có headroom → set `_POOL`
+  100 trong `_aids_scored`, rerank pool 100, đo F2 var-k trên train; (c) áp file nộp nếu thắng. Tốn
+  Cohere budget (100 doc/câu) — chờ account reset. Vướng LanceDB throttle theo tải (~60s/câu lúc nặng).
+
+- **Kỹ thuật 3-5 (chưa lên kế hoạch, sau khi có Bước 0):** (3) HyDE — Gemini sinh câu trả lời giả định
+  rồi embed cái đó thay câu hỏi; query expansion thuật ngữ pháp lý. (4) Sub-query decomposition — tách
+  câu phức, retrieve từng sub, hợp nhất; nhắm 25% câu đa gold. (5) Đổi embedding hợp luật VN
+  (e5/bge-m3 qua inference API) — đòn lớn nhất nhưng vướng cloud-only + re-ingest 77k qua LanceDB.
+
+- **KHÔNG phải đòn:** FAISS chỉ là backend ANN — đã có LanceDB IvfPq (verify), đổi ra cùng kết quả.
+  Sweep trọng số hybrid (`TRONG_SO_THUA`) rẻ nhưng gain nhỏ, để kèm lượt khác.
 
 ---
 
