@@ -76,6 +76,45 @@ def test_co_where_thi_day_xuong_bang(monkeypatch):
     assert ghi["limit"] == 8
 
 
+def test_fts_loi_mang_thi_thu_lai_khong_fail_open(monkeypatch):
+    """Lỗi MẠNG thoáng qua ở nhánh BM25 phải retry-rồi-raise, KHÔNG được trả rỗng.
+
+    T29 (đo 19/08): fail-open khi LanceDB blip làm RRF chỉ còn nhánh vector, top-8
+    đổi (mất Đ35+Đ22k2 ở case NĐ52) → plan ±3 CU → verdict biên lật ÂM THẦM. Chỉ
+    lỗi không-phải-mạng (index hỏng) mới được fail-open như test trên.
+    """
+    import pytest
+    from lancedb.remote.errors import HttpError
+
+    monkeypatch.setattr(retrieval.time, "sleep", lambda _s: None)
+    dem = {"n": 0}
+
+    class _TruyVan:
+        def where(self, _dk, prefilter=False):
+            return self
+
+        def limit(self, _n):
+            return self
+
+        def to_list(self):
+            dem["n"] += 1
+            if dem["n"] < 3:
+                raise HttpError("connection reset", "req-test")
+            return [{"id": "x"}]
+
+    class _Bang:
+        def search(self, _q, **_k):
+            return _TruyVan()
+
+    ra = retrieval._bat_fts(_Bang(), "ví điện tử", pool=8, where="doc_id IN ('TT40-2024')")
+    assert ra == [{"id": "x"}], "blip mạng hồi phục được thì phải có hit, không được trả rỗng"
+    assert dem["n"] == 3
+
+    dem["n"] = -99  # không bao giờ hồi phục ⇒ phải ném lỗi thật, không âm thầm degrade
+    with pytest.raises(HttpError):
+        retrieval._bat_fts(_Bang(), "ví điện tử", pool=8)
+
+
 def test_vector_hong_tam_thoi_thi_thu_lai(monkeypatch):
     """"connection reset" giữa batch dài không được giết cả run — retry rồi mới chết.
 

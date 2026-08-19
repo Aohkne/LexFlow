@@ -46,17 +46,46 @@ def _truy_van_fts(query: str):
     )
 
 
-def _bat_fts(tbl, query: str, *, pool: int, where: str | None = None) -> list[dict]:
-    """Nhánh BM25. Hỏng thì trả rỗng để vector gánh tiếp — nhưng KÊU chứ không im.
+def _thu_lai_loi_mang(goi):
+    """Retry quanh lỗi MẠNG LanceDB Cloud, hết lượt thì ném lỗi thật.
 
-    Fail-open ở đây là đúng (một nửa của hybrid vẫn hơn không có câu trả lời), nhưng nuốt
-    trong im lặng thì nửa hệ thống truy hồi có thể chết hàng tuần mà không ai biết.
+    Client chỉ tự retry lỗi HTTP có mã (429/5xx); "connection reset" giữa chừng bị ném
+    thẳng thành `HttpError` — một batch dài 50 phút chết vì đúng một request (đo 13/08,
+    hai lần cùng một callsite). Dùng chung cho CẢ HAI nhánh hybrid: T29 (đo 19/08) cho
+    thấy để BM25 fail-open khi blip mạng thì RRF chỉ còn vector, top-8 đổi → plan
+    compliance ±3 CU → verdict biên lật ÂM THẦM. Batch nào cũng có checkpoint nên
+    chết-rồi-resume tốt hơn kết quả đổi lặng lẽ.
     """
-    try:
+    from lancedb.remote.errors import HttpError, RetryError
+
+    for cho in (5, 15, 45, None):
+        try:
+            return goi()
+        except (HttpError, RetryError) as exc:
+            if cho is None:
+                raise
+            logger.warning("LanceDB lỗi mạng, thử lại sau %ss: %s", cho, exc)
+            time.sleep(cho)
+    raise AssertionError("unreachable")
+
+
+def _bat_fts(tbl, query: str, *, pool: int, where: str | None = None) -> list[dict]:
+    """Nhánh BM25. Lỗi mạng → retry-rồi-raise (helper); lỗi khác (index hỏng, thiếu
+    with_position…) mới fail-open trả rỗng để vector gánh — nhưng KÊU chứ không im:
+    nuốt trong im lặng thì nửa hệ thống truy hồi có thể chết hàng tuần mà không ai biết.
+    """
+    from lancedb.remote.errors import HttpError, RetryError
+
+    def _goi():
         q = tbl.search(_truy_van_fts(query), query_type="fts")
         if where:
             q = q.where(where, prefilter=True)
         return q.limit(pool).to_list()
+
+    try:
+        return _thu_lai_loi_mang(_goi)
+    except (HttpError, RetryError):
+        raise
     except Exception as exc:  # noqa: BLE001 — xem docstring
         logger.warning("Nhánh BM25 không chạy được, chỉ còn vector: %s", exc)
         return []
@@ -67,27 +96,15 @@ def _open_table():
 
 
 def _vector_hits(tbl, qv: list[float], *, pool: int, where: str | None = None) -> list[dict]:
-    """Nhánh vector, retry quanh lỗi mạng LanceDB Cloud.
+    """Nhánh vector — không có ai gánh nên lỗi mạng phải retry rồi mới được phép chết."""
 
-    Client chỉ tự retry lỗi HTTP có mã (429/5xx); "connection reset" giữa chừng bị ném
-    thẳng thành `HttpError` — một batch dài 50 phút chết vì đúng một request (đo 13/08,
-    hai lần cùng một callsite). BM25 fail-open được vì còn vector gánh; vector thì không
-    có ai gánh nên phải retry rồi mới được phép chết.
-    """
-    from lancedb.remote.errors import HttpError, RetryError
-
-    for cho in (5, 15, 45, None):
+    def _goi():
         q = tbl.search(qv)
         if where:
             q = q.where(where, prefilter=True)
-        try:
-            return q.limit(pool).to_list()
-        except (HttpError, RetryError) as exc:
-            if cho is None:
-                raise
-            logger.warning("Vector search lỗi mạng, thử lại sau %ss: %s", cho, exc)
-            time.sleep(cho)
-    raise AssertionError("unreachable")
+        return q.limit(pool).to_list()
+
+    return _thu_lai_loi_mang(_goi)
 
 
 @lru_cache(maxsize=256)

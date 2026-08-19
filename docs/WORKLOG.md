@@ -32,10 +32,14 @@
   nuốt exception trả `[]` fail-open, LanceDB Cloud blip mạng (2 lần ngay trong phiên)
   → RRF chỉ còn vector → top-8 đổi (mất Đ35+Đ22k2, thêm Đ20k4-5+Đ32) → plan ±3 CU →
   verdict biên lật. KHÔNG phải "Gemini temp-0 trôi" như giả thuyết cũ.
-- **Next.** Vá `_bat_fts`: retry như `_vector_hits`, hết retry thì raise (batch có
-  checkpoint, chết-rồi-resume hơn verdict đổi âm thầm), rồi chạy giàn synthetic
-  full-pipeline N lần xác nhận hết lật; mở rộng bộ sinh; cân nhắc chấm lại 2 báo cáo
-  hợp đồng thật.
+- **Done (vá `_bat_fts` — T29).** Rút vòng retry 5/15/45s thành helper
+  `_thu_lai_loi_mang` dùng chung hai nhánh hybrid; BM25 giờ retry-rồi-raise với lỗi
+  mạng, chỉ lỗi index (RuntimeError, 400 thiếu with_position) mới fail-open + warn
+  như cũ. Hệ quả chấp nhận có chủ đích: Q&A cũng chết thật khi LanceDB mất mạng kéo
+  dài thay vì âm thầm chạy nửa hệ truy hồi. TDD (test đỏ trước), 882 test xanh.
+- **Next.** Mở rộng bộ sinh synthetic (CU `chi_duoc`/`cho_phep`, case toàn-văn); cân
+  nhắc chấm lại 2 báo cáo hợp đồng thật (gate v3 + từ vựng + prompt judge mới);
+  tuỳ chọn chạy giàn flip N lần xác nhận sau vá.
 
 ## 2026-08-18 (T2) — pilot dữ liệu synthetic từ CU luật (T30)
 

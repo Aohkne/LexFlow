@@ -412,10 +412,15 @@ hơn, tức ghi công cũ thuộc diện may mắn ở ranh giới.
   phiên 19/08), RRF chỉ còn nhánh vector, top-8 đổi: mất (Đ35, Đ22k2), thêm (Đ20k4-5,
   Đ32) ⇒ plan ±3 CU ⇒ ngữ cảnh judge đổi ⇒ verdict biên lật. Fail-open "vì còn vector
   gánh" hoá ra KHÔNG trung tính với ranking.
-- **Bước tiếp theo (hướng vá mới):** cho `_bat_fts` vòng retry như `_vector_hits`
-  (5/15/45s), hết retry thì raise thay vì âm thầm degrade — batch nào cũng có
-  checkpoint nên chết-rồi-resume tốt hơn verdict đổi âm thầm; sau vá chạy lại giàn
-  synthetic full-pipeline N lần xác nhận hết lật.
+- ~~Vá `_bat_fts`~~ — **ĐÃ VÁ 19/08**: rút vòng retry 5/15/45s thành helper
+  `_thu_lai_loi_mang` dùng chung cả hai nhánh hybrid; `_bat_fts` giờ retry-rồi-raise
+  với lỗi MẠNG (`HttpError`/`RetryError`), chỉ lỗi khác (index hỏng, thiếu
+  with_position) mới còn fail-open trả rỗng + warn. TDD, 882 test xanh. Lưu ý hệ quả:
+  đường Q&A (`hybrid_search`) giờ cũng chết thật khi LanceDB mất mạng kéo dài thay vì
+  âm thầm chạy nửa hệ truy hồi — chấp nhận có chủ đích.
+- **Bước tiếp theo:** (tuỳ chọn, khi rảnh máy) chạy giàn synthetic full-pipeline N lần
+  xác nhận hết lật — blip mạng hiếm nên lượt xác nhận chủ yếu đo may rủi; cơ chế đã
+  kiểm chứng trực tiếp bằng diff hybrid vs vector-only.
 
 ### [ ] T30 · Dữ liệu synthetic từ CU luật — pilot 15 case đạt 7/15, lộ 3 lớp lỗi
 
