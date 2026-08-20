@@ -6,6 +6,24 @@
 
 ---
 
+## 2026-08-20 (T4) — chấm lại 2 báo cáo hợp đồng thật (gate v3 + từ vựng + prompt mới)
+
+- **Done (chấm lại từ đầu cả 2 hợp đồng, cache cũ vô hiệu toàn bộ).** Job nền nhiều
+  giờ, chết 2 lần (máy kill + phiên thoát), cache per-điều resume trơn. Vòng retry
+  LanceDB mới bắt được 3 cú blip mạng ngay trong lượt chạy — trước fix mỗi cú là một
+  lần ranking âm thầm đổi.
+- **Kết quả recall:** ThuHo **1/1** (giữ) · PAYFAC **0/3** (17/08: 1/3). Bỏ sót:
+  #13 (lệch phiên bản gold/input, đã phân xử từ 17/08), #194 (khong_ap_dung như
+  17/08), **#35 MỚI MẤT** — lượt toàn-văn: TT18-Đ9 k2+k3 đổi `thieu_thong_tin →
+  khong_ap_dung` (cache giữ đủ 3 thế hệ: 2 lượt cũ đều ttt, lượt mới cả 9 khoản Đ9
+  ra khong_ap_dung). Không phải flip cùng-code — prompt `_SYSTEM` đã đổi 19/08 —
+  nhưng đúng lớp biên ttt↔kad của T29: ca biên nhạy với MỌI thay đổi prompt, và
+  quy tắc recall chỉ đếm một bên của ranh giới.
+- **Next.** Chủ repo phân xử #35 (như đã phân xử #194): với hợp đồng payfac, TT18-Đ9
+  (hợp đồng phát hành thẻ) là thieu_thong_tin hay khong_ap_dung đúng? Nếu kad đúng
+  thì ghi công cũ thuộc diện may mắn ở ranh giới như #194 và recall PAYFAC thực chất
+  là 0/1 sau loại trừ; nếu ttt đúng thì cần neo lớp biên trong prompt judge.
+
 ## 2026-08-19 (T3) — sửa FP phủ-định của judge (T30)
 
 - **Done (sửa prompt judge cho ca FP phủ-định Đ25k5::tuan_thu, 2 vòng).** Vòng 1: chỉ

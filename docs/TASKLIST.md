@@ -418,6 +418,13 @@ hơn, tức ghi công cũ thuộc diện may mắn ở ranh giới.
   with_position) mới còn fail-open trả rỗng + warn. TDD, 882 test xanh. Lưu ý hệ quả:
   đường Q&A (`hybrid_search`) giờ cũng chết thật khi LanceDB mất mạng kéo dài thay vì
   âm thầm chạy nửa hệ truy hồi — chấp nhận có chủ đích.
+- **Ca biên thứ 4 (20/08, chấm lại 2 báo cáo thật):** gold #35 PAYFAC mất ghi công —
+  lượt toàn-văn TT18-Đ9 k2+k3 đổi `thieu_thong_tin → khong_ap_dung` sau khi prompt
+  judge đổi 19/08 (cache giữ 3 thế hệ: 2 lượt cũ đều ttt). Không phải flip cùng-code,
+  nhưng cùng bài học: ca biên ttt↔kad dịch chuyển theo MỌI thay đổi prompt, metric
+  recall đếm một bên ranh giới nên nhảy 1/3↔0/3. Recall 20/08: ThuHo 1/1 · PAYFAC 0/3
+  (#13 lệch phiên bản như cũ, #194 kad như cũ, #35 mới). Chờ chủ repo phân xử #35
+  như đã phân xử #194.
 - **Bước tiếp theo:** (tuỳ chọn, khi rảnh máy) chạy giàn synthetic full-pipeline N lần
   xác nhận hết lật — blip mạng hiếm nên lượt xác nhận chủ yếu đo may rủi; cơ chế đã
   kiểm chứng trực tiếp bằng diff hybrid vs vector-only.
