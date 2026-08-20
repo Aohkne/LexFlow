@@ -6,6 +6,34 @@
 
 ---
 
+## 2026-08-20 — T118 KT1b-sản phẩm: word-seg trên BM25 banking — thắng BM25-only, thua ở hybrid thật
+
+Nối tiếp KT1b (VLQA): kiểm giả thuyết "word-seg giá trị hơn ở SẢN PHẨM banking". Đo article-level trên
+`bo_sbv` (100 câu, nhãn cấp điều), bảng LOCAL từ `corpus.real` (1.496 chunk), hai biến FTS: âm-tiết
+`_FTS_OPTS` (production) vs pyvi word-seg (whitespace tok, `ascii_folding=False`). BM25-only offline;
+hybrid dùng gemini vec (embed local, cache `.npy`).
+
+- **BM25-only: word-seg thắng RẤT mạnh — hơn hẳn VLQA.** R@2 0.542→0.700 (**+15.8pt**), R@5 +9.0pt,
+  R@20 0.945→0.993, F2@2 0.462→0.597 (+13.5pt), precision tăng mọi k. Xác nhận tokenizer `simple` cắt
+  âm tiết là sai cho tiếng Việt, và sản phẩm (corpus nhỏ, thuật ngữ chính xác) hưởng lợi hơn VLQA.
+- **Hybrid (gemini vec + BM25): lặp lại y hệt VLQA — không đáng đổi.** Ở trọng số production **w=0.1
+  word-seg trung-tính-tới-hơi-âm** (F2@2 −0.013). Nâng weight mới thấy dương (w=1.0 F2@2 +0.033) nhưng
+  nâng weight **tự nó hạ đỉnh**: ô F2@2 tốt nhất toàn bảng là **w=0.1 âm-tiết = 0.757 = production hiện
+  tại**, word-seg không vượt được. Nguyên nhân: **vector gemini quá mạnh trên sản phẩm** (vector-only
+  R@1 0.755, R@2 0.865, F2@2 0.735) — gold word-seg-BM25 mới bắt thì vector đã có.
+- **Bug đã sửa trong lúc đo:** RRF thử nghiệm ban đầu cộng điểm ở cấp ĐIỀU → điều dài (nhiều chunk) tích
+  lũy đè điều đúng (hybrid sập về R@1 0.07). Production fuse ở cấp CHUNK rồi mới gộp về điều theo hạng —
+  sửa lại mới ra số hợp lý.
+
+**Decision:** giữ nguyên `_FTS_OPTS` (âm tiết) + `TRONG_SO_THUA=0.1`. Word-seg không cứu hybrid IR
+ngôn-ngữ-tự-nhiên trên cả VLQA lẫn sản phẩm — vector-dominated ở cả hai. **CHƯA đo** (chỗ word-seg còn
+có thể có giá: query exact-match số hiệu/số tiền/tên định chế, và nhánh `search_in_docs` compliance giới
+hạn trong doc) — bo_sbv không ép hai ca này. **Next:** không đổi production; T8 chỉ làm word-seg nếu nhắm
+riêng ca exact-match. Scripts `prod_ws.py`/`prod_ws_hybrid.py` (scratchpad), `pyvi` cài ephemeral
+(`uv run --with pyvi`), không thêm vào deps.
+
+---
+
 ## 2026-08-18 — T117 VLQA: variable-k theo điểm rerank → leaderboard 0.5355 → 0.581
 
 **Giai đoạn:** nộp thật (private hạng 11, F2 0.5355) → chẩn đoán headroom → thử nghiệm có kỷ luật

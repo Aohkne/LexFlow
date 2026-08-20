@@ -902,10 +902,22 @@ R@1 0.473 · R@2 0.619 · R@5 0.769 · **R@20 0.888** · MRR 0.678. Oracle "ch�
   không) + `ascii_folding=False`. Bảng FTS LOCAL `chunks_vlqa_seg` (77k, ~5 phút). **BM25-only tăng mạnh:
   R@2 0.361→0.470 (+10.9pt), R@20 0.673→0.755 (+8.2pt)** — hơn hẳn ascii_folding. **Hybrid: F2@2
   0.553→0.562 (+0.009)** ở w=0.1 (tăng weight vẫn hại) — THẬT nhưng nhỏ vì vector áp đảo. Word-seg là đòn
-  BM25 mạnh nhất nhưng lợi hybrid vẫn khiêm tốn cho VLQA. **Giá trị lớn hơn ở SẢN PHẨM: FTS banking
-  (`_FTS_OPTS`) cũng cấp âm tiết (T8) → word-seg pyvi có thể nâng nhánh BM25 sản phẩm, đo trên bo_sbv.**
-  Scripts `kt1b_build/measure` (cần `pyvi` — chưa thêm vào deps chính vì chỉ script thí nghiệm dùng;
-  cài lại khi hiện thực word-seg cho sản phẩm).
+  BM25 mạnh nhất nhưng lợi hybrid vẫn khiêm tốn cho VLQA. Scripts `kt1b_build/measure` (cần `pyvi` — chưa
+  thêm vào deps chính vì chỉ script thí nghiệm dùng; cài lại khi hiện thực word-seg cho sản phẩm).
+  - **[x] KT1b-sản phẩm — word-seg trên BM25 banking (bo_sbv, 100 câu article-level): ĐÃ ĐO 20/08,
+    KHÔNG đáng đổi production (âm ở config thật).** Dựng bảng LOCAL từ `corpus.real` (1.496 chunk), hai
+    biến FTS: âm-tiết `_FTS_OPTS` (production) vs word-seg pyvi. **BM25-only word-seg thắng RẤT mạnh —
+    hơn hẳn VLQA: R@2 0.542→0.700 (+15.8pt), R@5 +9.0pt, R@20 0.945→0.993, F2@2 0.462→0.597 (+13.5pt),
+    precision tăng mọi k.** NHƯNG hybrid (gemini vec + BM25) **lặp lại y hệt VLQA**: ở trọng số production
+    **w=0.1 word-seg TRUNG TÍNH-tới-hơi âm** (F2@1 −0.010, F2@2 −0.013, còn lại ~0). Nâng weight mới thấy
+    word-seg dương (w=1.0: F2@2 +0.033) nhưng **nâng weight tự nó hạ đỉnh**: ô F2@2 tốt nhất toàn bảng là
+    **w=0.1 âm-tiết = 0.757** (= production hiện tại), word-seg không ô nào vượt. Lý do: **vector gemini quá
+    mạnh trên sản phẩm** (vector-only R@1 0.755, R@2 0.865, F2@2 0.735) — gold mà word-seg-BM25 mới bắt
+    được thì vector đã có. Kết luận: **giữ nguyên `_FTS_OPTS` + w=0.1**; word-seg không cứu được hybrid IR
+    ngôn-ngữ-tự-nhiên. Chỗ CHƯA đo (word-seg có thể còn giá trị): query khớp từ khoá chính xác (số hiệu/số
+    tiền/tên định chế) và nhánh `search_in_docs` (compliance, giới hạn trong doc) — bo_sbv không ép hai ca
+    này. Scripts `prod_ws.py`, `prod_ws_hybrid.py` (scratchpad). **T8 khỏi làm word-seg cho `_FTS_OPTS`
+    trừ khi nhắm riêng ca exact-match.**
 
 - **[x] Kỹ thuật 2 — deep-pool rerank (20→100): ĐÃ THỬ 18/08, KHÔNG giúp (âm).** Retrieve hybrid top-100,
   rerank 100 (Cohere), so var-k pool-20/50/100 trên 200 câu train. **F2@2: pool-20 = 0.568, pool-100 =
