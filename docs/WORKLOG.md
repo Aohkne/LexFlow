@@ -25,11 +25,17 @@ hybrid dùng gemini vec (embed local, cache `.npy`).
   lũy đè điều đúng (hybrid sập về R@1 0.07). Production fuse ở cấp CHUNK rồi mới gộp về điều theo hạng —
   sửa lại mới ra số hợp lý.
 
-**Decision:** giữ nguyên `_FTS_OPTS` (âm tiết) + `TRONG_SO_THUA=0.1`. Word-seg không cứu hybrid IR
-ngôn-ngữ-tự-nhiên trên cả VLQA lẫn sản phẩm — vector-dominated ở cả hai. **CHƯA đo** (chỗ word-seg còn
-có thể có giá: query exact-match số hiệu/số tiền/tên định chế, và nhánh `search_in_docs` compliance giới
-hạn trong doc) — bo_sbv không ép hai ca này. **Next:** không đổi production; T8 chỉ làm word-seg nếu nhắm
-riêng ca exact-match. Scripts `prod_ws.py`/`prod_ws_hybrid.py` (scratchpad), `pyvi` cài ephemeral
+- **Ca exact-match / `search_in_docs` (within-doc): CŨNG âm, có trần cứng.** Mô phỏng nhánh compliance
+  (giới hạn trong văn bản gold, xếp hạng điều — chỗ BM25 âm-tiết yếu nhất theo `retrieval.py:78`).
+  BM25-only within-doc word-seg dương k≥2 (R@2 +0.060) nhưng thua xa vec-only. **Hybrid w=0.1 within-doc:
+  word-seg = âm-tiết CHÍNH XÁC 0.000 mọi k.** Trần tuyệt đối: vector chỉ trượt **6/100** câu top-2,
+  word-seg-BM25 cứu **3** (3 câu cả hai cùng trượt) → tối đa +3/100, thực tế 0 ở w=0.1.
+
+**Decision:** giữ nguyên `_FTS_OPTS` (âm tiết) + `TRONG_SO_THUA=0.1`; **T8 KHÔNG làm word-seg**. Word-seg
+không cứu hybrid trên VLQA, sản phẩm top-level, lẫn within-doc compliance — vector-dominated khắp nơi,
+thị phần BM25 chỉ 6 câu, nửa không lấy được. **Đòn recall thật phải nhắm nhánh VECTOR** (chunking/embedding),
+không phải BM25. **Next:** không đổi production; T118 (recall) chuyển trọng tâm sang vector. Scripts
+`prod_ws.py`/`prod_ws_hybrid.py`/`prod_ws_indoc.py`/`prod_ws_ceiling.py` (scratchpad), `pyvi` cài ephemeral
 (`uv run --with pyvi`), không thêm vào deps.
 
 ---

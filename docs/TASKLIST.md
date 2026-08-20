@@ -914,10 +914,17 @@ R@1 0.473 · R@2 0.619 · R@5 0.769 · **R@20 0.888** · MRR 0.678. Oracle "ch�
     **w=0.1 âm-tiết = 0.757** (= production hiện tại), word-seg không ô nào vượt. Lý do: **vector gemini quá
     mạnh trên sản phẩm** (vector-only R@1 0.755, R@2 0.865, F2@2 0.735) — gold mà word-seg-BM25 mới bắt
     được thì vector đã có. Kết luận: **giữ nguyên `_FTS_OPTS` + w=0.1**; word-seg không cứu được hybrid IR
-    ngôn-ngữ-tự-nhiên. Chỗ CHƯA đo (word-seg có thể còn giá trị): query khớp từ khoá chính xác (số hiệu/số
-    tiền/tên định chế) và nhánh `search_in_docs` (compliance, giới hạn trong doc) — bo_sbv không ép hai ca
-    này. Scripts `prod_ws.py`, `prod_ws_hybrid.py` (scratchpad). **T8 khỏi làm word-seg cho `_FTS_OPTS`
-    trừ khi nhắm riêng ca exact-match.**
+    ngôn-ngữ-tự-nhiên. Scripts `prod_ws.py`, `prod_ws_hybrid.py` (scratchpad).
+    - **[x] Ca exact-match / `search_in_docs` (within-doc, đo 20/08): CŨNG âm, có trần cứng.** Mô phỏng
+      nhánh compliance — giới hạn ứng viên trong đúng văn bản gold rồi xếp hạng ĐIỀU (chỗ note
+      `retrieval.py:78` nói BM25 âm-tiết yếu nhất). BM25-only within-doc: word-seg dương k≥2 (R@2 +0.060)
+      nhưng vẫn thua xa vec-only (F2@2 0.67 vs 0.77). **Hybrid w=0.1 within-doc: word-seg = âm-tiết CHÍNH
+      XÁC 0.000 mọi k** — BM25 (tokenizer bất kỳ) không đóng góp vào top. **Trần tuyệt đối:** vector chỉ
+      trượt **6/100** câu (within-doc top-2), word-seg-BM25 cứu được **3** (3 câu còn lại cả hai nhánh
+      cùng trượt) → tối đa word-seg thêm **+3/100 R@2**, và chỉ khi BM25 thắng mọi tie (ở w=0.1 = 0 thực
+      tế). Scripts `prod_ws_indoc.py`, `prod_ws_ceiling.py`. **Kết luận đóng đinh: giữ `_FTS_OPTS` +
+      w=0.1; T8 KHÔNG làm word-seg — vector gemini quá mạnh, thị phần BM25 chỉ 6 câu, nửa không lấy được.
+      Đòn recall thật phải nhắm nhánh VECTOR (chunking/embedding), không phải BM25.**
 
 - **[x] Kỹ thuật 2 — deep-pool rerank (20→100): ĐÃ THỬ 18/08, KHÔNG giúp (âm).** Retrieve hybrid top-100,
   rerank 100 (Cohere), so var-k pool-20/50/100 trên 200 câu train. **F2@2: pool-20 = 0.568, pool-100 =
