@@ -28,13 +28,19 @@ import os
 
 import modal
 
-_MODEL_MAC_DINH = "namdp-ptit/ViRanker"
+# AITeamVN/Vietnamese_Reranker = bge-reranker-v2-m3 fine-tune thêm 1.1M triplet tiếng Việt (Acc@1
+# 0.79 vs bge-m3 0.57 trên Zalo-legal eval). Ứng viên KT2b — ViRanker (VN-general) đã thua Cohere,
+# cái này cùng base bge-reranker-v2-m3 + train VN nhiều hơn. Đổi qua MODEL_ID trong secret nếu cần.
+_MODEL_MAC_DINH = "AITeamVN/Vietnamese_Reranker"
 
 app = modal.App("lexflow-reranker")
 
 image = (
     modal.Image.debian_slim(python_version="3.12")
-    .pip_install("sentence-transformers>=3.0", "torch", "fastapi[standard]")
+    .pip_install(
+        "sentence-transformers>=3.0", "torch", "fastapi[standard]",
+        "tiktoken", "sentencepiece", "protobuf",  # tokenizer bge-m3/AITeamVN cần khi convert slow→fast
+    )
 )
 
 
@@ -46,15 +52,19 @@ image = (
 )
 @modal.asgi_app()
 def web():
+    import torch
     from fastapi import FastAPI, Header, HTTPException
-    from sentence_transformers import CrossEncoder
+    from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
     model_id = os.environ.get("MODEL_ID", _MODEL_MAC_DINH)
     token = os.environ.get("RERANK_TOKEN", "")
-    # Nạp một lần cho mỗi container (không phải mỗi request). CrossEncoder chạy được cho các
-    # reranker sequence-classification như ViRanker/bge; nếu một model cần FlagEmbedding thì đổi
-    # sang FlagReranker ở đây — cùng chỗ, phần còn lại không đổi.
-    model = CrossEncoder(model_id, max_length=512)
+    max_len = int(os.environ.get("MAX_LENGTH", "512"))
+    # Dùng thẳng transformers (đúng cách model card khuyến nghị) thay vì sentence-transformers
+    # CrossEncoder: bản ST mới gọi AutoProcessor, fail trên các repo reranker chỉ có tokenizer
+    # (AITeamVN/Vietnamese_Reranker). Path này chạy cho mọi reranker sequence-classification
+    # single-logit: bge-reranker-v2-m3, ViRanker, AITeamVN. Nạp một lần mỗi container.
+    tok = AutoTokenizer.from_pretrained(model_id)
+    model = AutoModelForSequenceClassification.from_pretrained(model_id).to("cuda").eval()
 
     api = FastAPI()
 
@@ -66,8 +76,11 @@ def web():
         query = body["query"]
         docs = body["documents"]
         top_n = int(body.get("top_n", len(docs)))
-        scores = model.predict([[query, d] for d in docs])
-        order = sorted(range(len(docs)), key=lambda i: float(scores[i]), reverse=True)[:top_n]
+        pairs = [[query, d] for d in docs]
+        with torch.no_grad():
+            enc = tok(pairs, padding=True, truncation=True, max_length=max_len, return_tensors="pt").to("cuda")
+            scores = model(**enc).logits.view(-1).float().cpu().tolist()  # single-logit/pair
+        order = sorted(range(len(docs)), key=lambda i: scores[i], reverse=True)[:top_n]
         # Trả đúng shape Jina/Cohere: results[].index (+ relevance_score) đã xếp giảm dần.
         return {"results": [{"index": i, "relevance_score": float(scores[i])} for i in order]}
 

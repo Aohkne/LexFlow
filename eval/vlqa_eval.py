@@ -182,7 +182,10 @@ def do_train(gioi_han_doc: int, max_cau: int | None = None, *, moi: bool = False
     print(f"\n{'Model':<8}{'R@1':>7}{'R@2':>7}{'R@5':>7}{'R@20':>7}{'F2@2':>8}{'F2@3':>8}{'MRR':>8}", flush=True)
     _hang("hybrid", base, vang, qids)
     if rerank:
-        rr = _retrieve_cached(hop_le, RESULTS_DIR / "cache-vlqa-train-rerank.jsonl", moi=moi, rerank=True)
+        # Cache theo provider → đổi Cohere↔Modal không đè nhau, so head-to-head khỏi chạy lại.
+        from eval.thu_rerank import _the_provider  # noqa: PLC0415
+        rr_cache = RESULTS_DIR / f"cache-vlqa-train-rerank-{_the_provider()}.jsonl"
+        rr = _retrieve_cached(hop_le, rr_cache, moi=moi, rerank=True)
         _hang("+rerank", rr, vang, qids)
 
 

@@ -932,6 +932,37 @@ R@1 0.473 · R@2 0.619 · R@5 0.769 · **R@20 0.888** · MRR 0.678. Oracle "ch�
   top-2** (hybrid xếp thấp vì tín hiệu yếu), thêm distractor lại hại nhẹ. `_POOL=20` là đúng. Script
   `kt2.py`, cache `cache-vlqa-train-pool100rr`.
 
+- **[x] Bước 0 mở rộng — chẩn đoán cấu trúc miss theo ĐÒN BẨY (21/08, 2.188 câu train, hybrid top-20).**
+  Phân rã lỗi để biết transform/reranker/embedder mỗi cái ăn được bao nhiêu (scripts `vlqa_miss.py`,
+  `vlqa_pool100.py`, scratchpad):
+  - **54.6%** đã đúng (mọi gold ≤ cutoff 2).
+  - **28.2% RANKING** — gold TRONG top-20 nhưng dưới cutoff (20.3% gold-đầu rank>2; 7.9% đa-gold đuôi
+    rớt) → địa hạt **reranker/var-k**, mảng lớn nhất. (Số này trên hybrid THUẦN nên là *dư địa* reranker,
+    Cohere+var-k đã ăn một phần.)
+  - **17.2% FIRST-STAGE** — gold rớt hẳn top-20, rerank KHÔNG bao giờ cứu (số cứng): **12.2% partial-multi**
+    (đa-gold thiếu sub-đích → đích **subquery/multi-query độc quyền**) + **5.0% full-miss** (đích embedder/expand).
+  - **Pool-100 (mẫu 200 câu, 30 miss):** ~**40% đích rớt top-20 lại trong top-100** (nới pool là đủ) nhưng
+    ~**53% vắng cả top-100** (embedder thật sự không thấy). Đây là **lời giải cho KT2 âm**: nới pool CÓ kéo
+    gold vào pool nhưng Cohere rerank không nhấc nổi lên top-2 → F2 phẳng. Trần thật = **sức reranker**, không
+    phải độ sâu pool.
+  - **Xếp hạng đòn (đã có số):** (1) **reranker mạnh hơn** ăn 28% ranking + mở khóa deep-pool; (2)
+    **multi-query fusion** ăn 12.2% partial-multi mà reranker không với tới; (3) subquery ≈ multi-query nhưng
+    đắt/dễ vỡ; (4) HyDE/expand — chỉ 5% full-miss, hơn nửa vắng cả top-100 → **bỏ**.
+- **[x] Kỹ thuật 2b — reranker VN-tuned: `AITeamVN/Vietnamese_Reranker` THẮNG Cohere (21/08, dương rõ).**
+  Đổi từ bge-v2-m3 trần sang **AITeamVN/Vietnamese_Reranker** (= chính bge-reranker-v2-m3 + 1.1M triplet
+  tiếng Việt) sau khi search HF: không có reranker train-thẳng-legal-VN nào; các reranker VN mạnh đều là
+  fine-tune bge-m3/bge-reranker-v2-m3 general. Host Modal (`modal_reranker.py`, chuyển sang path
+  `AutoModelForSequenceClassification` + `tiktoken`/`sentencepiece` vì ST mới gọi `AutoProcessor` fail trên
+  repo này). **Head-to-head trên ĐÚNG 300 câu train, cutoff F2@2, cùng hybrid baseline 0.569:**
+  AITeamVN **F2@2 0.592** (R@1 0.543, R@2 0.687, MRR 0.747) > Cohere `rerank-v3.5` **0.566** (0.523/0.657/0.726)
+  > hybrid 0.569. **AITeamVN thắng Cohere MỌI metric (F2@2 +2.6pt); +2.3pt vs hybrid. Cohere flat (~0 vs
+  hybrid)** — khớp Bước 0 (reranker mạnh hơn ăn phần ranking 28% mà Cohere không nhấc nổi). Bài học: reranker
+  VN *có* thắng, nhưng phải đúng model (ViRanker VN-general thua ở T114; AITeamVN thắng). Cache provider-aware
+  `cache-vlqa-train-rerank-<provider>.jsonl` (sửa `do_train` để Cohere↔Modal khỏi đè nhau).
+  - **[ ] Chưa xong để đưa vào nộp:** var-k tune cho thang điểm AITeamVN (logit ~[-11, 8], khe lớn) — ngưỡng
+    `_VK_BIEN1/_VK_HOA3=0.05` là cho Cohere 0-1, phải tune lại (2-fold CV như T117) hoặc chuẩn hoá điểm trước.
+    Sau đó dựng lại file nộp public/private bằng AITeamVN + đo leaderboard so 0.581. `.env` đang để Cohere
+    (đường nộp hiện tại) tới khi tune xong.
 - **[x] Kỹ thuật 5a — embedding `paraphrase-vietnamese-law` (model bài báo SBV): ĐÃ THỬ 18/08, THUA XA.**
   Deploy lên Modal (`eval/modal_embedder.py`, 768-dim, max 300 token), embed 77k chunk → bảng LanceDB
   **LOCAL** `chunks_vlqa_para` (né cloud throttle; ~$0 GPU), đo vector-only R@k trên 300 câu vs gemini.

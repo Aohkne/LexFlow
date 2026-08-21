@@ -6,6 +6,39 @@
 
 ---
 
+## 2026-08-21 — T118 Bước 0: chẩn đoán cấu trúc miss VLQA theo đòn bẩy → chọn bge-reranker-v2-m3
+
+Trước khi thử Subquery/Expand Query (user hỏi), đo cấu trúc miss trên 2.188 câu train (hybrid top-20,
+có gold) để biết mỗi kỹ thuật ăn được bao nhiêu — thay vì đoán mò. Scripts `vlqa_miss.py`,
+`vlqa_pool100.py` (scratchpad, thuần đọc cache + gold, không mạng).
+
+- **Phân rã lỗi:** 54.6% đã đúng · **28.2% RANKING** (gold trong top-20 nhưng dưới cutoff → reranker/var-k)
+  · **17.2% FIRST-STAGE** (gold rớt top-20, rerank không cứu) = **12.2% partial-multi** (đa-gold thiếu
+  sub-đích → subquery/multi-query độc quyền) + **5.0% full-miss** (embedder/expand).
+- **Pool-100 (mẫu 200 câu):** ~40% đích rớt top-20 lại trong top-100 (nới pool đủ) nhưng ~53% vắng cả
+  top-100. → **Giải thích KT2 âm:** nới pool KÉO gold vào pool nhưng Cohere rerank không nhấc lên top-2.
+  Trần thật = **sức reranker**, không phải độ sâu pool.
+- **Kết luận đòn bẩy (có số):** (1) reranker mạnh hơn ăn 28% ranking + deep-pool; (2) multi-query fusion
+  ăn 12.2% partial-multi; (3) subquery ≈ multi-query nhưng đắt hơn; (4) **HyDE/expand — bỏ** (chỉ 5%, hơn
+  nửa vắng cả top-100). 25% câu đa-gold khiến multi-target là giả thuyết thật, nhưng reranker là đòn lớn hơn.
+
+**KT2b — reranker VN-tuned AITeamVN/Vietnamese_Reranker THẮNG Cohere (cùng ngày).** Search HF (theo yêu cầu
+user "sao không tìm cái fine-tune trên luật"): **không có reranker train-thẳng-legal-VN**; các reranker VN
+mạnh đều là fine-tune bge-m3/bge-reranker-v2-m3 general. Chọn **AITeamVN/Vietnamese_Reranker** (= bge-reranker-v2-m3
++ 1.1M triplet VN, Acc@1 0.79 trên Zalo-legal eval) thay bge trần. Host Modal (chuyển `modal_reranker.py` sang
+`AutoModelForSequenceClassification` + thêm `tiktoken`/`sentencepiece` vì ST mới gọi `AutoProcessor` fail repo này).
+
+- **Head-to-head ĐÚNG 300 câu train, cutoff F2@2, cùng hybrid baseline 0.569:** AITeamVN **0.592** (R@1 0.543,
+  R@2 0.687, MRR 0.747) > Cohere rerank-v3.5 **0.566** (0.523/0.657/0.726). **AITeamVN thắng Cohere MỌI metric
+  (F2@2 +2.6pt); +2.3pt vs hybrid; Cohere flat (~0).** Khớp Bước 0: reranker mạnh hơn ăn mảng ranking 28% mà
+  Cohere không nhấc nổi. Bài học: reranker VN *có* thắng nếu đúng model (ViRanker VN-general thua T114).
+
+**Decision:** KT2b dương rõ → AITeamVN là reranker tốt nhất đo được. **Next (chưa xong để nộp):** var-k dùng
+ngưỡng cho thang Cohere 0-1, phải **tune lại cho logit AITeamVN** (2-fold CV) rồi dựng file nộp + đo leaderboard
+so 0.581. `.env` tạm để Cohere (đường nộp hiện tại). Cache provider-aware để giữ cả hai. TASKLIST T118 KT2b cập nhật.
+
+---
+
 ## 2026-08-20 — T118 KT1b-sản phẩm: word-seg trên BM25 banking — thắng BM25-only, thua ở hybrid thật
 
 Nối tiếp KT1b (VLQA): kiểm giả thuyết "word-seg giá trị hơn ở SẢN PHẨM banking". Đo article-level trên
